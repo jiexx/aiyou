@@ -49,3 +49,5 @@ http://tomcat.apache.org/maven-plugin-2.2/run-mojo-features.html
 ......
 5. run as -> run configuration -> (Goals) tomcat7:run
 run as -> maven build ( download )
+
+http://dev.mysql.com/downloads/workbench/
