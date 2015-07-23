@@ -3,7 +3,7 @@
 	<modelVersion>4.0.0</modelVersion>
 	<groupId>com.jiexx.aiyou</groupId>
 	<artifactId>server</artifactId>
-	<packaging>jar</packaging>
+	<packaging>war</packaging>
 	<version>0.0.1-SNAPSHOT</version>
 	<name>server Maven Webapp</name>
 	<url>http://maven.apache.org</url>
@@ -155,6 +155,11 @@
 			<artifactId>slf4j-log4j12</artifactId>
 			<version>1.7.12</version>
 		</dependency>
+		<dependency>
+            <groupId>commons-dbcp</groupId>
+            <artifactId>commons-dbcp</artifactId>
+            <version>1.4</version>
+        </dependency>
 	</dependencies>
 	<build>
 		<plugins>
@@ -162,7 +167,7 @@
 				<groupId>org.apache.tomcat.maven</groupId>
 				<artifactId>tomcat7-maven-plugin</artifactId>
 				<!-- or if you want to use tomcat 6.x <artifactId>tomcat6-maven-plugin</artifactId> -->
-				<version>2.2</version>
+				<version>2.0</version>
 				<configuration>
 					<!-- http port -->
 					<port>9090</port>

@@ -6,10 +6,11 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.ResponseBody;
 
 import com.jiexx.aiyou.dao.Data;
+import com.jiexx.aiyou.service.DataService;
 
 @Controller
 @RequestMapping("/")
-public class Home {
+public class Home extends DataService {
 	
 	private Data data; 
 

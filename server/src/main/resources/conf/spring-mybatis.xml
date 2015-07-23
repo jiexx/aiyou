@@ -15,8 +15,7 @@
     http://www.springframework.org/schema/util
     http://www.springframework.org/schema/util/spring-util-3.2.xsd">
 
-	<bean id="dataSource" class="com.alibaba.druid.pool.DruidDataSource"
-		init-method="init" destroy-method="close">
+	<bean id="dataSource" class="org.apache.commons.dbcp.BasicDataSource" destroy-method="close">
 		<property name="driverClassName" value="${jdbc_driverClassName}" />
 		<property name="url" value="${jdbc_url}" />
 		<property name="username" value="${jdbc_username}" />
@@ -25,7 +24,6 @@
 		<property name="initialSize" value="1" />
 		<property name="maxWait" value="60000" />
 		<property name="maxIdle" value="20" />
-		<!-- 连接池最小空闲 -->
 		<property name="minIdle" value="3" />
 		<property name="removeAbandoned" value="true" />
 		<property name="removeAbandonedTimeout" value="180" />
@@ -39,12 +37,12 @@
 		<property name="mapperLocations" value="classpath:mapper/*.xml" /-->
 	</bean>
 	
-	<bean id="dao" class="org.mybatis.spring.mapper.MapperFactoryBean">
+	<bean id="data" class="org.mybatis.spring.mapper.MapperFactoryBean">
         <property name="mapperInterface" value="com.jiexx.aiyou.dao.Data" />
         <property name="sqlSessionFactory" ref="sqlSessionFactory" />
     </bean>
     
-    <bean id="d1" class="com.jiexx.aiyou.controller.Home">
-        <property name="dao" ref="dao" />
+    <bean id="dataImpl" class="com.jiexx.aiyou.controller.Home">
+        <property name="data" ref="data" />
     </bean>
 </beans>
