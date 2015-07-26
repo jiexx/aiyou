@@ -15,9 +15,9 @@ import org.springframework.web.context.support.WebApplicationContextUtils;
 
 import com.jiexx.aiyou.comm.LB;
 import com.jiexx.aiyou.model.Const;
-import com.jiexx.aiyou.model.Response;
 import com.jiexx.aiyou.model.User;
-import com.jiexx.aiyou.model.UserList;
+import com.jiexx.aiyou.resp.Response;
+import com.jiexx.aiyou.resp.UserList;
 import com.jiexx.aiyou.service.DataService;
 
 @Controller
@@ -38,22 +38,26 @@ public class Home extends DataService {
 		//System.out.println(appContext.getClassLoader().getResource("jdbc.properties"));
 		
 		UserList resp;
-		Integer sellor = DATA.querySellor(id);
-		Integer driver = DATA.queryDriver(id);
-		Integer user = DATA.queryUser(id);
+		Integer sellor = DATA.existSellor(id);
+		Integer driver = DATA.existDriver(id);
+		Integer user = DATA.existUser(id);
 		System.out.println("test  "+sellor);
 		String md5 = DigestUtils.md5DigestAsHex(String.valueOf(System.currentTimeMillis()).getBytes());
 		if( user == null ) {
 			System.out.println("test1");
 			resp = new UserList(Const.UNREGISTERED, md5);
 			DATA.createUser(id, Const.CLZ_COMMON.str(), lat, lon, md5);
-		}else if( sellor != null && driver != null ) {
+		}else if( driver != null && sellor == null ) {
 			System.out.println("test2");
-			resp = new UserList(Const.UNREGISTERED, md5);
-			DATA.updateUser(id, lat, lon, md5);
-		}else {
 			resp = new UserList(Const.REGISTERED, md5);
 			DATA.updateUser(id, lat, lon, md5);
+		}else if( sellor != null && driver == null ){
+			resp = new UserList(Const.REGISTERED, md5);
+			DATA.updateUser(id, md5);
+		}else {
+			resp = new UserList();
+			resp.err = Const.FAILED.val();
+			return gson.toJson(resp);
 		}
 		
 		LB lb = new LB(lat, lon);
@@ -64,8 +68,7 @@ public class Home extends DataService {
 		
 		s.addAll(d);
 		
-		resp.star = new User[s.size()];
-		resp.star = s.toArray(resp.star);
+		resp.clone(s);
 			
         return gson.toJson(resp);
     }
@@ -77,7 +80,6 @@ public class Home extends DataService {
 	{
 		System.out.println("test");
 		Response resp = new Response();
-		resp.au = Const.REGISTERED.val();
 		
 		if( DATA.toggleClass(id) != 0 )
 			resp.err = Const.FAILED.val();

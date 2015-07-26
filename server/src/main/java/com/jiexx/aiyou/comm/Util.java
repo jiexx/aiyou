@@ -1,12 +1,19 @@
 package com.jiexx.aiyou.comm;
 
+import java.io.BufferedInputStream;
+import java.io.IOException;
 import java.security.SecureRandom;
+import java.sql.SQLException;
 
 import javax.crypto.Cipher;
 import javax.crypto.KeyGenerator;
 import javax.crypto.SecretKey;
 import javax.crypto.SecretKeyFactory;
 import javax.crypto.spec.DESKeySpec;
+
+import org.springframework.util.Base64Utils;
+
+import com.mysql.jdbc.Blob;
 
 public class Util {
 	public static String decrypt(String encryptedData, String key) {
@@ -82,4 +89,44 @@ public class Util {
 		return b;
 	}
 	
+	public static byte[] blobToBytes(Blob blob) {
+
+		BufferedInputStream is = null;
+
+		try {
+			is = new BufferedInputStream(blob.getBinaryStream());
+			byte[] bytes = new byte[(int) blob.length()];
+			int len = bytes.length;
+			int offset = 0;
+			int read = 0;
+
+			while (offset < len && (read = is.read(bytes, offset, len - offset)) >= 0) {
+				offset += read;
+			}
+			return bytes;
+		} catch (Exception e) {
+			return null;
+		} finally {
+			try {
+				is.close();
+				is = null;
+			} catch (IOException e) {
+				return null;
+			}
+		}
+	}
+	
+	public static String blobToBase64(Blob b) {
+		try {
+			return  Base64Utils.encodeToString(b.getBytes(1, (int) b.length()));
+		} catch (SQLException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		return null;
+	}
+	
+	public static byte[] base64ToBytes(String b64) {
+		return  Base64Utils.decodeFromString(b64);
+	}
 }
