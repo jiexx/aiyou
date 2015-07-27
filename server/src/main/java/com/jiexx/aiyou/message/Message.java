@@ -4,4 +4,5 @@ public class Message {
 	public long uid;
 	public long toid;
 	public int cmd;
+	public int opt;
 }
