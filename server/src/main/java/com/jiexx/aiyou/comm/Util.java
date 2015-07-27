@@ -129,4 +129,30 @@ public class Util {
 	public static byte[] base64ToBytes(String b64) {
 		return  Base64Utils.decodeFromString(b64);
 	}
+	
+	public static int getMiddle(char[] list, int low, int high) {
+		char tmp = list[low];    
+		while (low < high) {
+			while (low < high && list[high] > tmp) {
+				high--;
+			}
+			list[low] = list[high];  
+			while (low < high && list[low] < tmp) {
+				low++;
+			}
+			list[high] = list[low];   
+		}
+		list[low] = tmp;             
+		return low;                  
+	}
+	
+	public static void quickSort(char[] list, int low, int high) {
+		if (low < high) {
+			int middle = getMiddle(list, low, high);  
+			quickSort(list, low, middle - 1);       
+			quickSort(list, middle + 1, high);     
+		}
+	}
+
+
 }

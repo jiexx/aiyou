@@ -4,6 +4,9 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Random;
 
+import com.jiexx.aiyou.comm.Util;
+import com.jiexx.aiyou.service.Round;
+
 public class Card {	
 	public final static char east		= 1;
 	public final static char west		= 2;
@@ -43,17 +46,20 @@ public class Card {
 	public final static char Char8		= 41;
 	public final static char Char9		= 42;
 	
-	public int dealer, player, pos = 0;
+	public final static int MAX			= 14;
+	
+	public int pos = 0;
+	public Round.Hand dealer, player;
 	public void die() {
 		Random rand =new Random();
-		dealer = rand.nextInt(6);
-		player = rand.nextInt(6);
-		if( dealer > player ) {
-			dealer = 1;  // first draw
-			player = 0;
-		}else if( dealer < player ){
-			dealer = 0;
-			player = 1;
+		int d = rand.nextInt(6);
+		int p = rand.nextInt(6);
+		if( d > p ) {
+			dealer = Round.Hand.DEALER;  // first draw
+			player = Round.Hand.PLAYER;
+		}else if( d < p ){
+			dealer = Round.Hand.PLAYER;
+			player = Round.Hand.DEALER;
 		}else if ( dealer == player ) {
 			die();
 		}
@@ -65,16 +71,21 @@ public class Card {
 		
 		int i;
 		
-		for( i = 0 ; i < 6 ; i ++ ) {
-			handcards[1][i] = cards[4*i];
-			handcards[1][i+1] = cards[4*i+1];
+		for( i = 0 ; i < MAX/2 ; i ++ ) {
+			handcards[Round.Hand.DEALER.val()][i] = cards[4*i];
+			handcards[Round.Hand.DEALER.val()][i+1] = cards[4*i+1];
 		}
-		handcards[0][i] = cards[4*i];
 		
-		for( i = 0 ; i < 6 ; i ++ ) {
-			handcards[0][i] = cards[4*i+2];
-			handcards[0][i+1] = cards[4*i+3];
+		Util.quickSort(handcards[Round.Hand.DEALER.val()], 0, MAX-1);
+		
+		for( i = 0 ; i < MAX/2 - 1 ; i ++ ) {
+			handcards[Round.Hand.PLAYER.val()][i] = cards[4*i+2];
+			handcards[Round.Hand.PLAYER.val()][i+1] = cards[4*i+3];
 		}
+		handcards[Round.Hand.PLAYER.val()][i] = cards[4*i+2];
+		handcards[Round.Hand.PLAYER.val()][i] = 0xff;
+		
+		Util.quickSort(handcards[Round.Hand.PLAYER.val()], 0, MAX-1);
 		
 		pos = 2*6 + 1 + 2*6;
 	}
@@ -98,8 +109,43 @@ public class Card {
 			Char1,Char2,Char3,Char4,Char5,Char6,Char7,Char8,Char9,
 	};
 	
-	public char handcards[][] = new char[2][13];
+	public char handcards[][] = new char[2][MAX];
 	
+	public static void sort( char[] handcards, char draw ) {
+		int i;
+		for( i = 0 ; i < MAX - 1 && draw > handcards[i]; i ++ ) ;
+		
+		int j;
+		for( j = MAX - 2 ; j > i ; j --  )
+			handcards[j+1] = handcards[j];
+		
+		handcards[i] = draw;
+	}
+	
+	public static boolean hu( char[] handcards ){
+
+		return rule1(handcards) || rule2(handcards);
+	}
+	
+	private static boolean rule1( char[] handcards ) {
+		int i;
+		for( i = 0 ; i < MAX ; i ++ ) {
+			if( handcards[i] !=  handcards[i+1] )
+				break;
+			i++;
+		}
+		return i == MAX;
+	}
+	
+	private static boolean rule2( char[] handcards ) {
+		int i;
+		for( i = 0 ; i < MAX ; i ++ ) {
+			if( handcards[i] !=  handcards[i+1] + 1 &&  handcards[i+1] != handcards[i+2] + 2 )
+				break;
+			i += 2;
+		}
+		return i == MAX;
+	}
 	
 	private boolean exchange(int i, int j) {
 		if( i < 136 && j < 136 && i != j) {

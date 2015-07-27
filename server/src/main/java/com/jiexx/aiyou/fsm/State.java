@@ -19,16 +19,23 @@ public abstract class State {
 		parent = root;
 	}
 	
-	public void set(Round r) {
+	public State getParent() {
+		return parent;
+	}
+	
+	public void setRound(Round r) {
 		round = r;
 	}
 	
-	public Round get() {
+	public Round getRound() {
 		State that = this;
 		Round r;
 		while( (r = that.round) == null ) 
 			that = that.parent;
 		return r;
+	}
+	public void Exit(final Message msg){
+		
 	}
 	
 	public abstract void Enter(final Message msg);
@@ -37,11 +44,16 @@ public abstract class State {
 		transitions.put(cmd.val(), state);
 	}
 	public void next(Message msg) {
-		State state = transitions.get(msg.cmd);
+		Exit(msg);
+		
 		if( child != null ) {
 			child.next(msg);
 		}
+		
+		State state = transitions.get(msg.cmd);
+		
 		state.Enter(msg);
+		
 		parent.child = state;
 	}
 	public void setInitState(State state){

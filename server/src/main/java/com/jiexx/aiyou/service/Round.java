@@ -15,33 +15,49 @@ public class Round {
 	public long dealer; //1
 	public long player; //0
 	public long time;
-	public int hand;
+	public Hand hand;
+	public enum Hand {
+		DEALER(1),
+		PLAYER(0);
+		private int value;
+		Hand(int v) {
+			value = v;
+		}
+		public int val() {
+			return value;
+		}
+	}
+	public boolean who(Hand h) {
+		if( hand == h )
+			return true;
+		return false;
+	}
+	public void offensive(Hand h) {
+		hand = h;
+	}
+	public void exchangeHand(){
+		hand = hand == Hand.DEALER ? Hand.PLAYER : Hand.DEALER;
+	}
+	public String endPoint(Hand h){
+		if( h == Hand.DEALER )
+			return "/"+String.valueOf(id)+"/dealer";
+		return "/"+String.valueOf(id)+"/player";
+	}
 	
-	public void dealerHand(int dealerhand) {
-		if( dealerhand == 1 )
-			hand = 1;
-		else
-			hand = 0;
+	public String currEndPoint() {
+		if( hand == Hand.DEALER )
+			return "/"+String.valueOf(id)+"/dealer";
+		return "/"+String.valueOf(id)+"/player";
 	}
-	public String handEndPoint(){
-		if( hand == 1 )
-			return String.valueOf(id)+"/dealer";
-		else 
-			return String.valueOf(id)+"/player";
-	}
-	public void exhand(){
-		hand = hand == 1 ? 0 : 1;
-	}
-	public String opponentEndPoint() {
-		if( hand == 1 )
-			return String.valueOf(id)+"player";
-		else 
-			return String.valueOf(id)+"dealer";
+	public String nextEndPoint() {
+		if( hand == Hand.DEALER )
+			return "/"+String.valueOf(id)+"/player";
+		return "/"+String.valueOf(id)+"/dealer";
 	}
 	
 	public Round() {
 		curr = new NullState(null);
-		curr.set(this);
+		curr.setRound(this);
 		
 		empty = new NullState(curr);
 		State wait = new WaitState(curr);
@@ -67,7 +83,7 @@ public class Round {
 		State player = new GoingPlayer(going);
 		State dealer = new GoingDealer(going);
 		
-		init.addTransition(Command.START, dealer);
+		init.addTransition(Command.JOIN, dealer);
 		dealer.addTransition(Command.DISCARD, player);
 		player.addTransition(Command.DISCARD, dealer);
 		

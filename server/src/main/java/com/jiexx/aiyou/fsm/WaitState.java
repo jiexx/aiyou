@@ -4,6 +4,7 @@ import com.jiexx.aiyou.message.Command;
 import com.jiexx.aiyou.message.Message;
 import com.jiexx.aiyou.message.OpenAck;
 import com.jiexx.aiyou.service.GameService;
+import com.jiexx.aiyou.service.Round;
 
 public class WaitState extends State{
 
@@ -16,11 +17,11 @@ public class WaitState extends State{
 	public void Enter(final Message msg) {
 		// TODO Auto-generated method stub
 		if( msg.cmd == Command.OPEN.val() ) {
-			get().dealerHand(1);
+			getRound().offensive(Round.Hand.DEALER);
 			
 			OpenAck ack = new OpenAck();
 			ack.cmd = Command.WAIT.val();
-			ack.endp = get().handEndPoint();
+			ack.endp = getRound().endPoint(Round.Hand.DEALER);
 			GameService.instance.sendMessage("/"+String.valueOf(msg.uid), gson.toJson(ack));
 		}
 		
