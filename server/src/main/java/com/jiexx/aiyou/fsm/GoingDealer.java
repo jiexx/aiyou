@@ -15,17 +15,18 @@ public class GoingDealer extends State{
 	}
 	Card cards;
 	char handcards[];
-	String endPoint;
-	String opponent;
+	Round.Hand endPoint;
+
 	@Override
 	public void Exit(final Message msg) {
-		if( msg.cmd == Command.DISCARD.val() && msg.uid == getRound().hand.val()) {
+		super.Exit(msg);
+		if( msg.cmd == Command.DISCARD.val() && getRound().getHand( msg.uid ) == endPoint ) {
 			char handcard = handcards[msg.opt];
 			
 			DiscardAck ackplayer = new DiscardAck();
 			ackplayer.cmd = Command.DISCARD.val();
 			ackplayer.card = handcard;
-			GameService.instance.sendMessage(opponent, gson.toJson(ackplayer));
+			GameService.instance.sendMessage(getRound().endPoint(endPoint.opponent()), gson.toJson(ackplayer));
 		}
 	}
 
@@ -33,11 +34,10 @@ public class GoingDealer extends State{
 	public void Enter(final Message msg) {
 		// TODO Auto-generated method stub
 		if( msg.cmd == Command.JOIN.val() ) {
-			endPoint = getRound().endPoint(Round.Hand.DEALER);
-			opponent = getRound().endPoint(Round.Hand.PLAYER);
-			handcards = cards.handcards[cards.dealer.val()];
+			endPoint = cards.first;
+			handcards = cards.handcards[cards.first.val()];
 		}
-		else if( msg.cmd == Command.DISCARD.val() && msg.uid == getRound().hand.val()) {
+		else if( msg.cmd == Command.DISCARD.val() && getRound().getHand( msg.uid ) == endPoint ) {
 			handcards[msg.opt] = cards.cards[cards.pos++];
 
 			DiscardAck ackdealer = new DiscardAck();
@@ -46,11 +46,18 @@ public class GoingDealer extends State{
 			Card.sort(handcards, ackdealer.card);
 			if( Card.hu(handcards) ) {
 				msg.cmd = Command.WHO.val();
+				msg.opt = endPoint.val();
 				getRound().receive(msg);
 			}else {
-				GameService.instance.sendMessage(endPoint, gson.toJson(ackdealer));
+				GameService.instance.sendMessage(getRound().endPoint(endPoint), gson.toJson(ackdealer));
 			}
 		}
+	}
+	@Override
+	public void reset() {
+		// TODO Auto-generated method stub
+		endPoint = null;
+		handcards  = null;
 	}
 
 

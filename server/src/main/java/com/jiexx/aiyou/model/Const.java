@@ -12,7 +12,8 @@ public enum Const {
 	
 	SUCCESS(0x00000000),
 	FAILED(0x00000001),
-
+	
+	INVALID_PLAYER(0x0000000f)
 	;
 	
 	private final int value;

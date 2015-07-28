@@ -2,8 +2,10 @@ package com.jiexx.aiyou.fsm;
 
 import com.jiexx.aiyou.message.Command;
 import com.jiexx.aiyou.message.DiscardAck;
+import com.jiexx.aiyou.message.HuAck;
 import com.jiexx.aiyou.message.Message;
 import com.jiexx.aiyou.service.GameService;
+import com.jiexx.aiyou.service.Round;
 
 public class GoingPlayer extends State{
 
@@ -14,27 +16,26 @@ public class GoingPlayer extends State{
 	}
 	Card cards;
 	char handcards[];
-	String endPoint = null;
-	String opponent;
+	Round.Hand endPoint = null;
 	@Override
 	public void Exit(final Message msg) {
-		if( msg.cmd == Command.DISCARD.val() && msg.uid == getRound().hand.val()) {
+		super.Exit(msg);
+		if( msg.cmd == Command.DISCARD.val() && getRound().getHand( msg.uid ) == endPoint ) {
 			char handcard = handcards[msg.opt];
 			
 			DiscardAck ackdealer = new DiscardAck();
 			ackdealer.cmd = Command.DISCARD.val();
 			ackdealer.card = handcard;
-			GameService.instance.sendMessage(opponent, gson.toJson(ackdealer));
+			GameService.instance.sendMessage(getRound().endPoint(endPoint.opponent()), gson.toJson(ackdealer));
 		}
 	}
 	@Override
 	public void Enter(final Message msg) {
 		// TODO Auto-generated method stub
-		if( msg.cmd == Command.DISCARD.val() && msg.uid == getRound().hand.val()) {
+		if( msg.cmd == Command.DISCARD.val() && getRound().getHand( msg.uid ) == endPoint ) {
 			if( endPoint == null ) {
-				endPoint = getRound().currEndPoint();
-				opponent = getRound().nextEndPoint();
-				handcards = cards.handcards[cards.player.val()];
+				endPoint = cards.first.opponent();
+				handcards = cards.handcards[cards.first.opponent().val()];
 			}
 			
 			DiscardAck ackplayer = new DiscardAck();
@@ -42,12 +43,19 @@ public class GoingPlayer extends State{
 			ackplayer.card = cards.cards[cards.pos++];
 			Card.sort(handcards, ackplayer.card);
 			if( Card.hu(handcards) ) {
+				msg.opt = endPoint.val();
 				msg.cmd = Command.WHO.val();
 				getRound().receive(msg);
 			}else {
-				GameService.instance.sendMessage(endPoint, gson.toJson(ackplayer));
+				GameService.instance.sendMessage(getRound().endPoint(endPoint), gson.toJson(ackplayer));
 			}
 		}	
+	}
+	@Override
+	public void reset() {
+		// TODO Auto-generated method stub
+		endPoint = null;
+		handcards = null;
 	}
 
 

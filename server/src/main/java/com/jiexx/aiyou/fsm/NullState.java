@@ -15,5 +15,11 @@ public class NullState extends State{
 		
 	}
 
+	@Override
+	public void reset() {
+		// TODO Auto-generated method stub
+		
+	}
+
 
 }

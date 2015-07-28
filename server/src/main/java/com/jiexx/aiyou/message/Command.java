@@ -19,7 +19,8 @@ public enum Command {
 	
 	/*-----------------from server to every --------------*/
 	WHO(0x50000001),
-	
+	TIMEOUT(0x50000002),
+	FINAL(0x50000003)
 	;
 	private final int value;
 	

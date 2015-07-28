@@ -24,37 +24,45 @@ public class GoingState extends State{
 		if( msg.cmd == Command.JOIN.val() ) {
 			cards = new Card();
 			cards.dieDealDraw();
-			getRound().offensive(cards.dealer);
+			
+			getRound().addUser(Round.Hand.PLAYER, msg.uid); 
 			
 			StartAck ackdealer = new StartAck();
 			ackdealer.cmd = Command.START.val();
-			ackdealer.card = cards.handcards[cards.dealer.val()];
-			ackdealer.hu = Card.hu(ackdealer.card);
-			GameService.instance.sendMessage(getRound().endPoint(Round.Hand.DEALER), gson.toJson(ackdealer));
+			ackdealer.card = cards.handcards[cards.first.val()];
+			ackdealer.hu = Card.hu(cards.handcards[cards.first.val()]);
+			GameService.instance.sendMessage(getRound().endPoint(cards.first), gson.toJson(ackdealer));
 			
 			JoinAck ackplayer = new JoinAck();
 			ackplayer.cmd = Command.START.val();
-			ackplayer.card = cards.handcards[cards.player.val()];
-			ackplayer.endp = getRound().endPoint(Round.Hand.PLAYER);
+			ackplayer.card = cards.handcards[cards.first.opponent().val()];
+			ackplayer.endp = getRound().endPoint(cards.first.opponent());
 			GameService.instance.sendMessage("/"+String.valueOf(msg.uid), gson.toJson(ackplayer));
 		}
 		else if( msg.cmd == Command.CONTINUE.val() && cards != null ) {
 			cards.dieDealDraw();
-			getRound().offensive(cards.dealer);
+			//no more change playerid;
 			
 			StartAck ackdealer = new StartAck();
 			ackdealer.cmd = Command.START.val();
-			ackdealer.card = cards.handcards[cards.dealer.val()];
-			GameService.instance.sendMessage(getRound().endPoint(Round.Hand.DEALER), gson.toJson(ackdealer));
+			ackdealer.card = cards.handcards[cards.first.val()];
+			ackdealer.hu = Card.hu(cards.handcards[cards.first.val()]);
+			GameService.instance.sendMessage(getRound().endPoint(cards.first), gson.toJson(ackdealer));
 			
 			StartAck ackplayer = new StartAck();
 			ackplayer.cmd = Command.START.val();
-			ackplayer.card = cards.handcards[cards.player.val()];
-			GameService.instance.sendMessage(getRound().endPoint(Round.Hand.PLAYER), gson.toJson(ackplayer));
+			ackplayer.card = cards.handcards[cards.first.opponent().val()];
+			GameService.instance.sendMessage(getRound().endPoint(cards.first.opponent()), gson.toJson(ackplayer));
 		}
-		else if( msg.cmd == Command.DISCARD.val() && msg.uid == getRound().hand.val() ) {
-			getRound().exchangeHand();
+		else if( msg.cmd == Command.DISCARD.val()  ) {
+
 		}
+		
+	}
+
+	@Override
+	public void reset() {
+		// TODO Auto-generated method stub
 		
 	}
 

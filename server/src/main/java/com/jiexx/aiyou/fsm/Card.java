@@ -49,18 +49,16 @@ public class Card {
 	public final static int MAX			= 14;
 	
 	public int pos = 0;
-	public Round.Hand dealer, player;
+	public Round.Hand first;
 	public void die() {
 		Random rand =new Random();
 		int d = rand.nextInt(6);
 		int p = rand.nextInt(6);
 		if( d > p ) {
-			dealer = Round.Hand.DEALER;  // first draw
-			player = Round.Hand.PLAYER;
+			first = Round.Hand.DEALER;  // first draw
 		}else if( d < p ){
-			dealer = Round.Hand.PLAYER;
-			player = Round.Hand.DEALER;
-		}else if ( dealer == player ) {
+			first = Round.Hand.PLAYER;
+		}else if ( d == p ) {
 			die();
 		}
 	}
@@ -72,22 +70,22 @@ public class Card {
 		int i;
 		
 		for( i = 0 ; i < MAX/2 ; i ++ ) {
-			handcards[Round.Hand.DEALER.val()][i] = cards[4*i];
-			handcards[Round.Hand.DEALER.val()][i+1] = cards[4*i+1];
+			handcards[first.val()][i] = cards[4*i];
+			handcards[first.val()][i+1] = cards[4*i+1];
 		}
 		
-		Util.quickSort(handcards[Round.Hand.DEALER.val()], 0, MAX-1);
+		Util.quickSort(handcards[first.val()], 0, MAX-1);
 		
 		for( i = 0 ; i < MAX/2 - 1 ; i ++ ) {
-			handcards[Round.Hand.PLAYER.val()][i] = cards[4*i+2];
-			handcards[Round.Hand.PLAYER.val()][i+1] = cards[4*i+3];
+			handcards[first.opponent().val()][i] = cards[4*i+2];
+			handcards[first.opponent().val()][i+1] = cards[4*i+3];
 		}
-		handcards[Round.Hand.PLAYER.val()][i] = cards[4*i+2];
-		handcards[Round.Hand.PLAYER.val()][i] = 0xff;
+		handcards[first.opponent().val()][i] = cards[4*i+2];
+		handcards[first.opponent().val()][i] = 0xff;
 		
-		Util.quickSort(handcards[Round.Hand.PLAYER.val()], 0, MAX-1);
+		Util.quickSort(handcards[first.opponent().val()], 0, MAX-1);
 		
-		pos = 2*6 + 1 + 2*6;
+		pos = 2*7 + 1 + 2*6;
 	}
 	
 	public char cards[] = { 

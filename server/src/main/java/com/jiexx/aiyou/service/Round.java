@@ -6,19 +6,19 @@ import java.util.Map;
 import com.jiexx.aiyou.fsm.*;
 import com.jiexx.aiyou.message.Command;
 import com.jiexx.aiyou.message.Message;
+import com.jiexx.aiyou.model.Const;
 
 
 public class Round {
 
 	State curr, going, empty, init;
-	public int id;
-	public long dealer; //1
-	public long player; //0
-	public long time;
-	public Hand hand;
+	private int id;
+	private long user[] = {Const.INVALID_PLAYER.val(), Const.INVALID_PLAYER.val()};
+	private long time;
 	public enum Hand {
-		DEALER(1),
-		PLAYER(0);
+		DEALER(0),
+		PLAYER(1),
+		INVALID(2);
 		private int value;
 		Hand(int v) {
 			value = v;
@@ -26,36 +26,60 @@ public class Round {
 		public int val() {
 			return value;
 		}
+		public static Hand from( int v) {
+			if( v == DEALER.val() )
+				return DEALER;
+			return PLAYER;
+		}
+		public Hand opponent() {
+			if( value == DEALER.value )
+				return PLAYER;
+			return DEALER;
+		}
 	}
-	public boolean who(Hand h) {
-		if( hand == h )
-			return true;
-		return false;
+	
+	public Hand getHand(long uid){
+		if( uid == user[Hand.DEALER.val()]  )
+			return Hand.DEALER;
+		else if( uid == user[Hand.PLAYER.val()]  )
+			return Hand.PLAYER;
+		else 
+			return Hand.INVALID;
 	}
-	public void offensive(Hand h) {
-		hand = h;
-	}
-	public void exchangeHand(){
-		hand = hand == Hand.DEALER ? Hand.PLAYER : Hand.DEALER;
-	}
+	
 	public String endPoint(Hand h){
 		if( h == Hand.DEALER )
 			return "/"+String.valueOf(id)+"/dealer";
 		return "/"+String.valueOf(id)+"/player";
 	}
 	
-	public String currEndPoint() {
-		if( hand == Hand.DEALER )
-			return "/"+String.valueOf(id)+"/dealer";
-		return "/"+String.valueOf(id)+"/player";
+	public void addUser(Hand who, long uid) {
+		user[who.val()] = uid;
 	}
-	public String nextEndPoint() {
-		if( hand == Hand.DEALER )
-			return "/"+String.valueOf(id)+"/player";
-		return "/"+String.valueOf(id)+"/dealer";
+	public long getUser(Hand who) {
+		return user[who.val()];
 	}
-	
-	public Round() {
+	public void removeUser(Hand who) {
+		user[who.val()] = Const.INVALID_PLAYER.val();
+	}
+	public void removeAllUser() {
+		user[0] = Const.INVALID_PLAYER.val();
+		user[1] = Const.INVALID_PLAYER.val();
+	}
+	public int countOfUser() {
+		int count = 0;
+		if( user[0] != Const.INVALID_PLAYER.val() ) count++;
+		if( user[1] != Const.INVALID_PLAYER.val() ) count++;
+		return count;
+	}
+			
+	public int getId() {
+		return id;
+	}
+	public Round( int Id ) {
+		time = System.currentTimeMillis();
+		id = Id;
+		
 		curr = new NullState(null);
 		curr.setRound(this);
 		
@@ -68,14 +92,16 @@ public class Round {
 		empty.addTransition(Command.OPEN, wait);
 		
 		wait.addTransition(Command.JOIN, going);
-		wait.addTransition(Command.EXIT, end);
+		wait.addTransition(Command.EXIT, wait);
+		wait.addTransition(Command.FINAL, end);
 		
 		going.addTransition(Command.WHO, hu);
-		going.addTransition(Command.EXIT, end);
+		going.addTransition(Command.EXIT, wait);
 		going.addTransition(Command.DISCARD, going);
 		
 		hu.addTransition(Command.CONTINUE, wait);
 		hu.addTransition(Command.EXIT, wait);
+		hu.addTransition(Command.TIMEOUT, wait);
 		
 		curr.setInitState(empty);
 		
