@@ -12,45 +12,45 @@
 	OVER = 0x40000003,
 	WHO = 0x50000001,
 	TIMEOUT = 0x50000002,
-	east		= 1,
-	west		= 2,
-	south		= 3,
-	north		= 4,
-	zhong		= 5,
-	fa			= 6,
-	bai		= 7,
-	
-	dot1		= 16,
-	dot2		= 17,
-	dot3		= 18,
-	dot4		= 19,
-	dot5		= 20,
-	dot6		= 21,
-	dot7		= 22,
-	dot8		= 23,
-	dot9		= 24,
-	
-	Bamboo1	= 25,
-	Bamboo2	= 26,
-	Bamboo3	= 27,
-	Bamboo4	= 28,
-	Bamboo5	= 29,
-	Bamboo6	= 30,
-	Bamboo7	= 31,
-	Bamboo8	= 32,
-	Bamboo9	= 33,
-	
-	Char1		= 34,
-	Char2		= 35,
-	Char3		= 36,
-	Char4		= 37,
-	Char5		= 38,
-	Char6		= 39,
-	Char7		= 40,
-	Char8		= 41,
-	Char9		= 42,
 	
 	MAX			= 14;
+	
+	var array= new Array();
+	card[1]  = 	'east';
+	card[2]  = 	'west';
+	card[3]  = 	'south';
+	card[4]  = 	'north';
+	card[5]  = 	'zhong';
+	card[6]  = 	'fa';
+	card[7]  = 	'bai';
+	card[16] = 	'dot1';
+	card[17] = 	'dot2';
+	card[18] = 	'dot3';
+	card[19] = 	'dot4';
+	card[20] = 	'dot5';
+	card[21] = 	'dot6';
+	card[22] = 	'dot7';
+	card[23] = 	'dot8';
+	card[24] = 	'dot9';
+	card[25] = 	'bamboo1';
+	card[26] = 	'bamboo2';
+	card[27] = 	'bamboo3';
+	card[28] = 	'bamboo4';
+	card[29] = 	'bamboo5';
+	card[30] = 	'bamboo6';
+	card[31] = 	'bamboo7';
+	card[32] = 	'bamboo8';
+	card[33] = 	'bamboo9';
+	card[34] = 	'char1';
+	card[35] = 	'char2';
+	card[36] = 	'char3';
+	card[37] = 	'char4';
+	card[38] = 	'char5';
+	card[39] = 	'char6';
+	card[40] = 	'char7';
+	card[41] = 	'char8';
+	card[42] = 	'char9';
+	
 	message = {
 		this.uid : '',
 		this.toid : '',
