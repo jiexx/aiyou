@@ -3,6 +3,7 @@ package com.jiexx.aiyou.service;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
+import com.jiexx.aiyou.controller.WebSocketConfig;
 import com.jiexx.aiyou.fsm.*;
 import com.jiexx.aiyou.message.Command;
 import com.jiexx.aiyou.message.Message;
@@ -49,12 +50,18 @@ public class Round {
 	
 	public String endPoint(Hand h){
 		if( h == Hand.DEALER )
-			return "/"+String.valueOf(id)+"/dealer";
-		return "/"+String.valueOf(id)+"/player";
+			return WebSocketConfig.endpoint + "/"+String.valueOf(id)+"/dealer";
+		return WebSocketConfig.endpoint + "/"+String.valueOf(id)+"/player";
 	}
 	
 	public void addUser(Hand who, long uid) {
 		user[who.val()] = uid;
+	}
+	public void appendUser(long uid) {
+		if( user[0] == Const.INVALID_PLAYER.val() && user[1] != Const.INVALID_PLAYER.val() ) 
+			user[0] = uid;
+		else if ( user[1] == Const.INVALID_PLAYER.val() && user[0] != Const.INVALID_PLAYER.val() )
+			user[1] = uid;
 	}
 	public long getUser(Hand who) {
 		return user[who.val()];
@@ -118,6 +125,10 @@ public class Round {
 	
 	public void receive( Message msg ) {
 		curr.next(msg);
+	}
+	
+	public State getCurrState() {
+		return curr;
 	}
 	
 	public void reset() {

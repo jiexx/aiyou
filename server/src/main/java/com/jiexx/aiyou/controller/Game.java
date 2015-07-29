@@ -10,7 +10,7 @@ import com.jiexx.aiyou.service.GameService;
 public class Game {
 
 	
-    @MessageMapping("/server")
+    @MessageMapping(WebSocketConfig.endpoint)
     //@SendTo("/recv/userid")
     public void start(Message message) {
         System.out.println(message.uid);

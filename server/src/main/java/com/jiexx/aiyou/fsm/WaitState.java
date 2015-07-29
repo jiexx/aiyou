@@ -1,9 +1,13 @@
 package com.jiexx.aiyou.fsm;
 
+import java.util.Timer;
+import java.util.TimerTask;
+
 import com.jiexx.aiyou.message.Ack;
 import com.jiexx.aiyou.message.Command;
 import com.jiexx.aiyou.message.Message;
 import com.jiexx.aiyou.message.OpenAck;
+import com.jiexx.aiyou.model.Const;
 import com.jiexx.aiyou.service.GameService;
 import com.jiexx.aiyou.service.Round;
 
@@ -12,7 +16,9 @@ public class WaitState extends State{
 	public WaitState(State root) {
 		super(root);
 		// TODO Auto-generated constructor stub
+		self = this;
 	}
+	private State self;
 	
 	private void punishOrReward( Round.Hand h ) {
 		GameService.instance.punish(getRound().getUser(h));
@@ -38,10 +44,28 @@ public class WaitState extends State{
 		}
 		else if( msg.cmd == Command.CONTINUE.val() ) {
 			//getRound().dealer = msg.uid; no more change dealerid;
-			
+			final long id = msg.uid;
+			Timer timer = new Timer(true);
+			timer.schedule(new TimerTask() { 
+				public void run() {
+					if( getRound().getCurrState() == self ) {
+//						getRound().removeAllUser();
+//						getRound().addUser(Round.Hand.DEALER, id);
+						getRound().removeUser(getRound().getHand(id).opponent());
+						
+						Ack ackdealer = new Ack();
+						ackdealer.cmd = Command.TIMEOUT.val();
+						GameService.instance.sendMessage(getRound().endPoint(getRound().getHand(id)), gson.toJson(ackdealer));
+					}
+				}
+			}, 0, 10000);
 		}
 		else if( msg.cmd == Command.TIMEOUT.val() ) {
-			
+			Ack ackdealer = new Ack();
+			ackdealer.cmd = Command.TIMEOUT.val();
+			GameService.instance.sendMessage(getRound().endPoint(Round.Hand.DEALER), gson.toJson(ackdealer));
+
+			GameService.instance.sendMessage(getRound().endPoint(Round.Hand.PLAYER), gson.toJson(ackdealer));
 		}
 		else if( msg.cmd == Command.EXIT.val() ) {
 			if( getRound().countOfUser()  == 1 ) {
@@ -53,10 +77,11 @@ public class WaitState extends State{
 				if( getParent().getPreviousState() instanceof  GoingState ) {
 					punishOrReward( hand );
 				}
-				if( hand == Round.Hand.DEALER  ) {
-					getRound().removeAllUser();
-					getRound().addUser(Round.Hand.DEALER, getRound().getUser(hand.opponent()));
-				}
+//				if( hand == Round.Hand.DEALER  ) { // if exit is dealer
+//					getRound().removeAllUser();
+//					getRound().addUser(Round.Hand.DEALER, getRound().getUser(hand.opponent()));
+//				}
+				getRound().removeUser(hand.opponent());
 				
 				Ack ackdealer = new Ack();
 				ackdealer.cmd = Command.OVER.val();

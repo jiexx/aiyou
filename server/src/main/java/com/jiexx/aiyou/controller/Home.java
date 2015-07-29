@@ -50,7 +50,7 @@ public class Home extends DataService {
 		}else if( driver != null && sellor == null ) {
 			System.out.println("test2");
 			resp = new UserList(Const.REGISTERED, md5);
-			DATA.updateUser(id, lat, lon, md5);
+			DATA.updateLocByUser(id, lat, lon, md5);
 		}else if( sellor != null && driver == null ){
 			resp = new UserList(Const.REGISTERED, md5);
 			DATA.updateUser(id, md5);

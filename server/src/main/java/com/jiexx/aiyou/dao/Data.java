@@ -40,7 +40,7 @@ public interface Data {
 	public int createUser(@Param("userid") long userid,  @Param("clz") String clz, @Param("latitude") float latitude, @Param("longitude") float longitude, @Param("code") String code);
 	
 	@Update("UPDATE user SET lat = #{latitude}, lon = #{longitude}, code = #{code} WHERE id = #{userid};")
-	public int updateUser(@Param("userid") long userid,  @Param("latitude") float latitude, @Param("longitude") float longitude, @Param("code") String code);
+	public int updateLocByUser(@Param("userid") long userid,  @Param("latitude") float latitude, @Param("longitude") float longitude, @Param("code") String code);
 	
 	@Update("UPDATE user SET code = #{code} WHERE id = #{userid};")
 	public int updateUser(@Param("userid") long userid,  @Param("code") String code);

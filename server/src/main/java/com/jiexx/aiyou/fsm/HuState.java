@@ -1,5 +1,6 @@
 package com.jiexx.aiyou.fsm;
 
+import com.jiexx.aiyou.message.Ack;
 import com.jiexx.aiyou.message.Command;
 import com.jiexx.aiyou.message.HuAck;
 import com.jiexx.aiyou.message.Message;
@@ -22,21 +23,26 @@ public class HuState extends TimeOutState{
 	public void Enter(final Message msg) {
 		super.Enter(msg);
 		// TODO Auto-generated method stub
-		Round.Hand hand = Round.Hand.from(msg.opt);
-		
-		winOrLose(hand);
-		
-		HuAck ackdealer = new HuAck();
-		ackdealer.cmd = Command.START.val();
-		ackdealer.hu = true;
-		ackdealer.bonus = 10;
-		GameService.instance.sendMessage(getRound().endPoint(hand), gson.toJson(ackdealer));
-		
-		HuAck ackplayer = new HuAck();
-		ackplayer.cmd = Command.START.val();
-		ackplayer.hu = false;
-		ackdealer.bonus = -10;
-		GameService.instance.sendMessage(getRound().endPoint(hand.opponent()), gson.toJson(ackplayer));
+		if( msg.cmd == Command.WHO.val()  ) {
+			Round.Hand hand = Round.Hand.from(msg.opt);
+			
+			winOrLose(hand);
+			
+			HuAck ackdealer = new HuAck();
+			ackdealer.cmd = Command.START.val();
+			ackdealer.hu = true;
+			ackdealer.bonus = 10;
+			GameService.instance.sendMessage(getRound().endPoint(hand), gson.toJson(ackdealer));
+			
+			HuAck ackplayer = new HuAck();
+			ackplayer.cmd = Command.START.val();
+			ackplayer.hu = false;
+			ackdealer.bonus = -10;
+			GameService.instance.sendMessage(getRound().endPoint(hand.opponent()), gson.toJson(ackplayer));
+		} 
+		else if( msg.cmd == Command.TIMEOUT.val() ) {
+			
+		}
 	}
 
 

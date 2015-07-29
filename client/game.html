@@ -5,10 +5,10 @@
 
         <title>Babylon.js sample code</title>
         <!-- Babylon.js -->
-        <script src="./js/hands.js"></script>
-        <!--script src="http://www.babylonjs.com/cannon.js"></script-->
-        <!--script src="http://www.babylonjs.com/oimo.js"></script-->
-        <script src="./js/babylon.js"></script>
+        <script src="http://www.babylonjs.com/hand.minified-1.2.js"></script>
+        <script src="http://www.babylonjs.com/cannon.js"></script>
+        <script src="http://www.babylonjs.com/oimo.js"></script>
+        <script src="http://www.babylonjs.com/babylon.js"></script>
         <style>
             html, body {
                 overflow: hidden;
@@ -32,37 +32,51 @@
         var engine = new BABYLON.Engine(canvas, true);
 
         var createScene = function () {
-        
-            // This creates a basic Babylon Scene object (non-mesh)
             var scene = new BABYLON.Scene(engine);
         
-            // This creates and positions a free camera (non-mesh)
-            var camera = new BABYLON.FreeCamera("camera1", new BABYLON.Vector3(0, 5, -10), scene);
-        
-            // This targets the camera to scene origin
-            camera.setTarget(BABYLON.Vector3.Zero());
-        
-            // This attaches the camera to the canvas
+            // Create camera and light
+            var light = new BABYLON.PointLight("Point", new BABYLON.Vector3(5, 10, 5), scene);
+            var camera = new BABYLON.ArcRotateCamera("Camera", 1, 0.8, 8, new BABYLON.Vector3(0, 0, 0), scene);
             camera.attachControl(canvas, true);
         
-            // This creates a light, aiming 0,1,0 - to the sky (non-mesh)
-            var light = new BABYLON.HemisphericLight("light1", new BABYLON.Vector3(0, 1, 0), scene);
+            // Create a sprite manager to optimize GPU ressources
+            // Parameters : name, imgUrl, capacity, cellSize, scene
+            var spriteManagerTrees = new BABYLON.SpriteManager("treesManager", "textures/palm.png", 2000, 800, scene);
         
-            // Default intensity is 1. Let's dim the light a small amount
-            light.intensity = 0.7;
+            //We create 2000 trees at random positions
+            for (var i = 0; i < 2000; i++) {
+                tree = new BABYLON.Sprite("tree", spriteManagerTrees);
+                tree.position.x = Math.random() * 100 - 50;
+                tree.position.z = Math.random() * 100 - 50;
         
-            // Our built-in 'sphere' shape. Params: name, subdivs, size, scene
-            var sphere = BABYLON.Mesh.CreateSphere("sphere1", 16, 2, scene);
+                //Some "dead" trees
+                if (Math.round(Math.random() * 5) == 0) {
+                    tree.angle = Math.PI * 90 / 180;
+                    tree.position.y = -0.3;
+                }
+            }
         
-            // Move the sphere upward 1/2 its height
-            sphere.position.y = 1;
+            //Create a manager for the player's sprite animation
+            var spriteManagerPlayer = new BABYLON.SpriteManager("playerManager", "textures/player.png", 2, 64, scene);
         
-            // Our built-in 'ground' shape. Params: name, width, depth, subdivs, scene
-            var ground = BABYLON.Mesh.CreateGround("ground1", 6, 6, 2, scene);
+            // First animated player
+            var player = new BABYLON.Sprite("player", spriteManagerPlayer);
+            player.playAnimation(0, 40, true, 100);
+            player.position.y = -0.3;
+            player.size = 0.3;
+        
+            // Second standing player
+            var player2 = new BABYLON.Sprite("player2", spriteManagerPlayer);
+            player2.stopAnimation(); // Not animated
+            player2.cellIndex = 2; // Going to frame number 2
+            player2.position.y = -0.3;
+            player2.position.x = 1;
+            player2.size = 0.3;
+            player2.invertU = -1; //Change orientation
         
             return scene;
+        }
         
-        };
         
         var scene = createScene();
 
