@@ -11,6 +11,7 @@ public enum Command {
 	
 	DISCARD_PONG(0x30000001),
 	DISCARD_CHI(0x30000002),
+	DISCARD_DRAW(0x30000003),
 	/*-----------------from server to client--------------*/
 	WAIT(0x40000001),
 	START(0x40000002),

@@ -16,35 +16,35 @@ public class Card {
 	public final static char fa			= 6;
 	public final static char bai		= 7;
 	
-	public final static char dot1		= 16;
-	public final static char dot2		= 17;
-	public final static char dot3		= 18;
-	public final static char dot4		= 19;
-	public final static char dot5		= 20;
-	public final static char dot6		= 21;
-	public final static char dot7		= 22;
-	public final static char dot8		= 23;
-	public final static char dot9		= 24;
+	public final static char dot1		= 8;
+	public final static char dot2		= 9;
+	public final static char dot3		= 10;
+	public final static char dot4		= 11;
+	public final static char dot5		= 12;
+	public final static char dot6		= 13;
+	public final static char dot7		= 14;
+	public final static char dot8		= 15;
+	public final static char dot9		= 16;
 	
-	public final static char Bamboo1	= 25;
-	public final static char Bamboo2	= 26;
-	public final static char Bamboo3	= 27;
-	public final static char Bamboo4	= 28;
-	public final static char Bamboo5	= 29;
-	public final static char Bamboo6	= 30;
-	public final static char Bamboo7	= 31;
-	public final static char Bamboo8	= 32;
-	public final static char Bamboo9	= 33;
+	public final static char Bamboo1	= 17;
+	public final static char Bamboo2	= 18;
+	public final static char Bamboo3	= 19;
+	public final static char Bamboo4	= 20;
+	public final static char Bamboo5	= 21;
+	public final static char Bamboo6	= 22;
+	public final static char Bamboo7	= 23;
+	public final static char Bamboo8	= 24;
+	public final static char Bamboo9	= 25;
 	
-	public final static char Char1		= 34;
-	public final static char Char2		= 35;
-	public final static char Char3		= 36;
-	public final static char Char4		= 37;
-	public final static char Char5		= 38;
-	public final static char Char6		= 39;
-	public final static char Char7		= 40;
-	public final static char Char8		= 41;
-	public final static char Char9		= 42;
+	public final static char Char1		= 26;
+	public final static char Char2		= 27;
+	public final static char Char3		= 28;
+	public final static char Char4		= 29;
+	public final static char Char5		= 30;
+	public final static char Char6		= 31;
+	public final static char Char7		= 32;
+	public final static char Char8		= 33;
+	public final static char Char9		= 34;
 	
 	public final static int MAX			= 14;
 	
