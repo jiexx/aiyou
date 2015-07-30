@@ -3,7 +3,7 @@
     <head>
         <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
 
-        <title>Babylon.js sample code</title>
+        <title>game</title>
         <!-- Babylon.js -->
         <script src="./lib/babylon.max.js"></script>
 		<script src="./lib/hands.js"></script>
@@ -29,7 +29,7 @@
     <script>
         var canvas = document.getElementById("renderCanvas");
 		var view = View.create(canvas);
-		view.dealCard({1,2,3,4,5,6,7,8,9,10,11,12,13});
+		view.dealCard(new Array(1,2,3,4,5,6,7,8,9,10,11,12,13));
 		view.invalidate();        
     </script>
 </body>
