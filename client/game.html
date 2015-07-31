@@ -29,7 +29,10 @@
     <script>
         var canvas = document.getElementById("renderCanvas");
 		var view = View.create(canvas);
-		view.roundDealcards(new Array(1,2,3,4,5,6,7,8,9,10,11,12,13));
+		//test 1.discard ; 2.undiscard
+		//3.draw card; 4.pong; 5.chi; 6.hu
+		view.roundDealcards(new Array(1,2,3,3,5,6,7,8,9,10,11,12,13));
+		view.himDiscard(3);
 		view.invalidate();        
     </script>
 </body>
