@@ -399,17 +399,24 @@
 			this.mycards.data.cards = cards;
 			this.hiscards.data.cards = new Array();
 			var num = MAX;
-			if (cards.length == MAX)
+			if (cards.length == MAX) {
 				num--;
+				this.disableDraw();
+			}else {
+				this.enableDraw();
+			}
 			for (var i = 0; i < num; i++)
 				this.hiscards.data.cards.push(tback);
+			
 		}
 		this.enableDraw = function (dealcard) {
 			this.cardDraw = dealcard;
+			this.buttons.draw.isVisible = true;
 			this.buttons.draw.material = this.cardMats[tdraw];
 		}
-		this.disableDraw = function (dealcard) {
+		this.disableDraw = function () {
 			this.cardDraw = INVALIDCARD;
+			this.buttons.draw.isVisible = true;
 			this.buttons.draw.material = this.cardMats[tback];
 		}
 		this.heDiscard = function (dealcard, hediscard, pongchi) {
@@ -424,16 +431,17 @@
 			}
 			this.invalidate();
 		};
-		this.who = function (dealcard, hiscards, isWinning) {
+		this.who = function (hiscards, isWinning) {
 			this.isWinning = isWinning;
-			this.enableDraw(dealcard);
-			if (isWinning)
+			if (isWinning) {
 				this.buttons.who.isVisible = true;
-			else {
+				//this.enableDraw(dealcard);
+			}else {
 				var _this = this.buttons;
+				this.draw.isVisible = false;
 				_this.ai.isVisible = true;
-				_this.ai.material = that.cardMats[tai0];
-
+				_this.ai.material = this.cardMats[tai0];
+				
 				_this.resume.isVisible = true;
 				_this.exit.isVisible = true;
 			}
