@@ -35,13 +35,30 @@
 			'Char7',
 			'Char8',
 			'Char9', //33
-			'back');
+			'back',
+			'draw',
+			'who',
+			'continue',
+			'exit',
+			'ai',
+			'yo',
+			'ai0');
 	//var transparent = tags.length;
-	var background = tags.length + 1;
-	var back = tags.length - 1;
+	var
+	tback = tags.length - 8,
+	tdraw = tags.length - 7,
+	twho = tags.length - 6,
+	tcont = tags.length - 5,
+	texit = tags.length - 4,
+	tai = tags.length - 3,
+	tyo = tags.length - 2,
+	tai0 = tags.length - 1,
+	tbg = tags.length + 1;
 	var INVALIDCARD = tags.length,
 	CARDSIZE = 9;
 	var
+	EXIT = 0x10000003,
+	CONTINUE = 0x10000004,
 	DISCARD = 0x20000001,
 	DISCARD_PONG = 0x30000001,
 	DISCARD_CHI = 0x30000002,
@@ -53,7 +70,7 @@
 		this.discard = INVALIDCARD;
 	};
 	function fix(oo) {
-	
+
 		var uv = oo.getVerticesData(BABYLON.VertexBuffer.UVKind);
 		uv[0] = 0.2;
 		uv[2] = 0.8;
@@ -61,6 +78,17 @@
 		uv[6] = 0.2;
 		oo.setVerticesData(BABYLON.VertexBuffer.UVKind, uv, false);
 		oo.scaling.x = 0.6;
+	}
+	function createOO(scene, name, x, y, z, needfix, size) {
+		var oo = BABYLON.Mesh.CreatePlane('draw', size, scene);
+		oo.position.x = x;
+		oo.position.y = y;
+		oo.position.z = z;
+		oo.isVisible = false;
+		oo.actionManager = new BABYLON.ActionManager(scene);
+		if (needfix)
+			fix(oo);
+		return oo;
 	}
 	function Cards() {
 		this.cards = new Array();
@@ -70,31 +98,50 @@
 		this.discard = null;
 		this.data = new Data();
 		this.needUpdate = true;
-		this.myself = null;
-		this.pumpRestore = function() {
-			for( var k in this.pump ) 
+		this.pumpRestore = function () {
+			for (var k in this.pump)
 				this.cards[this.pump[k]].position.y = this.card_y;
 			this.pump.splice(0, this.pump.length);
 			this.needUpdate = true;
+		}
+		this.countOfCard = function () {
+			var i,
+			count = 0;
+			for (i = 0; i < this.data.cards.length; i++) {
+				if (this.data.cards[i] != INVALIDCARD)
+					count++;
+			}
+			for (i = 0; i < this.data.showcards.length; i++) {
+				if (this.data.cards[i] != INVALIDCARD)
+					count++;
+			}
+			return count;
 		}
 		this.disCard = function (pos, no) {
 			var i;
 			for (i = pos; i < this.data.cards.length; i++) {
 				this.data.cards[i] = this.data.cards[i + 1];
 			}
-			if( i == this.data.cards.length ) 
-				this.data.cards[i-1] = INVALIDCARD;
-			
+			if (i == this.data.cards.length)
+				this.data.cards[i - 1] = INVALIDCARD;
+
 			this.data.discard = no;
 			this.needUpdate = true;
 		}
-		this.pongchi = function (i, j, k) {
+		this.pongchi = function (i, j, k, pos1, pos2) {
 			this.data.showcards.push(i);
 			this.data.showcards.push(j);
 			this.data.showcards.push(k);
+
+			this.data.cards[pos1] = INVALIDCARD;
+			this.data.cards[pos2] = INVALIDCARD;
+			this.data.cards.sort(function (a, b) {
+				return a - b
+			});
+
 			this.needUpdate = true;
 		}
-		this.start = function (scene, card_y, showcard_y, discard_y, isCardCB, isDiscardCB) {
+		this.start = function (scene, _that, card_y, showcard_y, discard_y, isCardCB, isDiscardCB) {
 			var _this = this;
 			_this.card_y = card_y;
 			var i;
@@ -104,8 +151,8 @@
 				_this.cards[i].position.y = card_y;
 				_this.cards[i].position.z = 0;
 				_this.cards[i].scaling.x = 0.6
-				//_this.cards[i].rotation.x = Math.PI/12;
-				fix(_this.cards[i]);
+					//_this.cards[i].rotation.x = Math.PI/12;
+					fix(_this.cards[i]);
 				if (isCardCB) {
 					_this.cards[i].actionManager = new BABYLON.ActionManager(scene);
 					_this.cards[i].actionManager.registerAction(new BABYLON.ExecuteCodeAction(BABYLON.ActionManager.OnPickTrigger, function (evt) { // chu card
@@ -113,21 +160,23 @@
 								var pos = parseInt(evt.source.name, 10);
 								var no = parseInt(evt.source.material.name, 10);
 								if (evt.source.position.y == card_y) {
-								//----------------------------pump------------------------
+									//----------------------------pump------------------------
 									evt.source.position.y += 3;
 									_this.pump.push(pos);
-								} else if (evt.source.position.y == card_y + 3 && no != INVALIDCARD ) {
-								//----------------------------discard------------------------
-									if( _this.pump.length == 1 && _this.data.cards.length == MAX - 1 ) {
+								} else if (evt.source.position.y == card_y + 3 && no != INVALIDCARD) {
+									//----------------------------discard------------------------
+									if (_this.pump.length == 1 && _this.countOfCard() == MAX) {
 										evt.source.position.y = card_y;
 										_this.disCard(pos, no);
 										_this.pumpRestore();
 										_this.__proto__.command(DISCARD, no);
-									}else {
+									} else {
+										_this.warning();
 										evt.source.position.y = _this.card_y;
-										_this.pump.splice(pos, 1);
+										_this.pump.splice(_this.pump.indexOf(pos), 1);
 									}
 								}
+								_that.invalidate();
 							}
 						}));
 				}
@@ -138,44 +187,55 @@
 				_this.showcards[i].position.y = showcard_y;
 				_this.showcards[i].position.z = 0;
 				_this.showcards[i].scaling.x = 0.6
-				//_this.cards[i].rotation.x = Math.PI/12;
-				fix(_this.showcards[i]);
+					//_this.cards[i].rotation.x = Math.PI/12;
+					fix(_this.showcards[i]);
 			}
 			_this.discard = BABYLON.Mesh.CreatePlane('discard', CARDSIZE, scene);
 			_this.discard.position.x = 6 * 3;
 			_this.discard.position.y = discard_y;
 			_this.discard.position.z = 0;
 			_this.discard.scaling.x = 0.6
-			fix(_this.discard);
+				fix(_this.discard);
 			if (isDiscardCB) {
 				_this.discard.actionManager = new BABYLON.ActionManager(scene);
 				_this.discard.actionManager.registerAction(new BABYLON.ExecuteCodeAction(BABYLON.ActionManager.OnPickTrigger, function (evt) { //chi card/pong card
 						if (evt.source.material != null) {
 							var no = parseInt(evt.source.material.name, 10);
 							//----------------------------multi draw------------------------
-							var that = _this.myself;
+							var that = _that.mycards;
 							if (that != null && that.pump.length == 2) {
 								var p0 = parseInt(that.cards[that.pump[0]].material.name, 10);
 								var p1 = parseInt(that.cards[that.pump[1]].material.name, 10);
 								if (p0 == p1 && p1 == no) {
 									that.command(DISCARD_PONG, no);
-									that.pongchi(p0, p1, no);
+									that.pongchi(p0, p1, no, that.pump[0], that.pump[1]);
+									that.pumpRestore();
+									_that.disableDraw();
+									_this.data.discard = INVALIDCARD;
+									_this.needUpdate = true;
 								} else if (that.chi(p0, p1, no)) {
 									that.command(DISCARD_CHI, no);
-									that.pongchi(p0, p1, no);
+									that.pongchi(p0, p1, no, that.pump[0], that.pump[1]);
+									that.pumpRestore();
+									_that.disableDraw();
+									_this.data.discard = INVALIDCARD;
+									_this.needUpdate = true;
 								} else {
 									_this.warning();
 								}
 							} else {
 								_this.warning();
 							}
+							_that.invalidate();
+
 						}
 					}));
 			}
 		}
 		this.invalidate = function (scene, materials) {
-			if( this.needUpdate ) {
-				var i = 0, key;
+			if (this.needUpdate) {
+				var i = 0,
+				key;
 				for (key in this.data.cards) {
 					this.cards[i].material = materials[this.data.cards[key]];
 					i++;
@@ -185,7 +245,7 @@
 				}
 				i = 0;
 				for (key in this.data.showcards) {
-					this.showcards[i].material = materials[key];
+					this.showcards[i].material = materials[this.data.showcards[key]];
 					i++;
 				}
 				for (i = this.data.showcards.length; i < MAX; i++) {
@@ -218,14 +278,107 @@
 		console.log("warning ");
 	};
 	Cards.prototype.command = function (cmd, cardid) {
-		console.log("command "+ cmd + " " + cardid);
+		console.log("command " + cmd + " " + cardid);
 	};
+
+	function Buttons() {
+		this.draw = null;
+		this.who = null;
+		this.resume = null; // continue
+		this.exit = null;
+		this.ai = null;
+		this.yo = null;
+		this.reset = function () {
+			this.draw.isVisible = false;
+			this.who.isVisible = false;
+			this.resume.isVisible = false;
+			this.exit.isVisible = false;
+			this.ai.isVisible = false;
+			this.yo.isVisible = false;
+			this.draw.isVisible = false;
+		}
+		this.start = function (scene, that) {
+			var _this = this;
+			_this.draw = createOO(scene, 'draw', 6 * (MAX - 5), 0, 0, true, CARDSIZE);
+			this.draw.isVisible = true;
+			//_this.draw.rotation.x = Math.PI*2;
+			//----------------------------single draw------------------------
+			_this.draw.actionManager.registerAction(new BABYLON.ExecuteCodeAction(BABYLON.ActionManager.OnPickTrigger, function (evt) { // draw card
+					if (that.cardDraw != INVALIDCARD && that.mycards.data.cards.length == MAX - 1) {
+						that.mycards.data.cards[MAX - 1] = that.cardDraw;
+						that.mycards.data.cards.sort(function (a, b) {
+							return a - b
+						});
+						that.mycards.needUpdate = true;
+						that.mycards.pumpRestore();
+						that.disableDraw();
+						_this.command(DISCARD_DRAW, 0);
+					} else {
+						that.mycards.warning();
+					}
+					that.invalidate();
+				}));
+			_this.draw.material = that.cardMats[tback];
+			console.log(_this.draw.getVertexBuffer(BABYLON.VertexBuffer.PositionKind).getData());
+
+			_this.who = createOO(scene, 'who', 6 * (MAX - 6), 0, 0, true, CARDSIZE);
+			_this.who.material = that.cardMats[twho];
+			_this.who.actionManager.registerAction(new BABYLON.ExecuteCodeAction(BABYLON.ActionManager.OnPickTrigger, function (evt) { // draw card
+					if (that.isWinning) {
+						_this.ai.isVisible = true;
+						_this.ai.material = that.cardMats[tai];
+						_this.yo.isVisible = true;
+						_this.yo.material = that.cardMats[tyo];
+
+						_this.resume.isVisible = true;
+						_this.exit.isVisible = true;
+					}
+					_this.who.isVisible = false;
+					_this.draw.isVisible = false;
+					that.hiscards.needUpdate = true;
+					that.hiscards.data.cards = that.tmp;
+					that.invalidate();
+				}));
+
+			//----------------------------for who------------------------
+			_this.resume = createOO(scene, 'resume', 6 * 12, 10, 2, true, CARDSIZE - 3);
+			_this.resume.material = that.cardMats[tcont];
+			_this.resume.actionManager.registerAction(new BABYLON.ExecuteCodeAction(BABYLON.ActionManager.OnPickTrigger, function (evt) {
+					_this.reset();
+					that.reset();
+					_this.command(CONTINUE, 0);
+					that.invalidate();
+				}));
+
+			_this.exit = createOO(scene, 'exit', 6 * 12, -10, 2, true, CARDSIZE - 3);
+			_this.exit.material = that.cardMats[texit];
+			_this.exit.actionManager.registerAction(new BABYLON.ExecuteCodeAction(BABYLON.ActionManager.OnPickTrigger, function (evt) { // draw card
+					_this.reset();
+					that.reset();
+					_this.command(EXIT, 0);
+					that.invalidate();
+				}));
+
+			_this.ai = createOO(scene, 'ai', 6 * 3, 0, 2, false, CARDSIZE * 4);
+
+			_this.yo = createOO(scene, 'yo', 6 * 9, -5, 2, false, CARDSIZE * 4);
+		}
+	};
+	Buttons.prototype.warning = function () {
+		console.log("warning ");
+	};
+	Buttons.prototype.command = function (cmd, cardid) {
+		console.log("command " + cmd + " " + cardid);
+	};
+
 	function View() {
 		this.cardMats = new Array();
 		this.mycards = new Cards();
 		this.hiscards = new Cards();
 		this.desk = null;
-		this.draw = null;
+		this.buttons = new Buttons();
+		this.isWinning = null;
+		this.tmp = null;
 		this.cardDraw = INVALIDCARD; //invalid card
 		this.canvas = null;
 		this.scene = null;
@@ -235,18 +388,62 @@
 		//window.addEventListener("resize", function () {
 		//	this.engine.resize();
 		//});
+		this.reset = function () {
+			this.cardDraw = INVALIDCARD;
+			this.mycards.data.cards.splice(0,this.mycards.data.cards.length);
+			this.mycards.needUpdate = true;
+			this.hiscards.data.cards.splice(0,this.hiscards.data.cards.length);
+			this.hiscards.needUpdate = true;
+		}
 		this.roundDealcards = function (cards) {
 			this.mycards.data.cards = cards;
+			this.hiscards.data.cards = new Array();
+			var num = MAX;
+			if (cards.length == MAX)
+				num--;
+			for (var i = 0; i < num; i++)
+				this.hiscards.data.cards.push(tback);
 		}
-		this.roundDealcard = function (round_dealcard) {
-			this.cardDraw = round_dealcard;
-		};
-		this.himDiscard = function (him_discard) {
-			console.log("disCard " + him_discard);
-			this.hiscards.data.discard = him_discard;
+		this.enableDraw = function (dealcard) {
+			this.cardDraw = dealcard;
+			this.buttons.draw.material = this.cardMats[tdraw];
+		}
+		this.disableDraw = function (dealcard) {
+			this.cardDraw = INVALIDCARD;
+			this.buttons.draw.material = this.cardMats[tback];
+		}
+		this.heDiscard = function (dealcard, hediscard, pongchi) {
+			console.log("disCard " + hediscard);
+			this.enableDraw(dealcard);
+			this.hiscards.data.discard = hediscard;
+			if (pongchi.length == 3) {
+				this.hiscards.data.showcards.push(pongchi);
+			}
+			if (this.hiscards.data.length == MAX) {
+				this.hiscards.data.cards[MAX] = INVALIDCARD;
+			}
 			this.invalidate();
 		};
-		this.who = function (hiscards, isLosed) {
+		this.who = function (dealcard, hiscards, isWinning) {
+			this.isWinning = isWinning;
+			this.enableDraw(dealcard);
+			if (isWinning)
+				this.buttons.who.isVisible = true;
+			else {
+				var _this = this.buttons;
+				_this.ai.isVisible = true;
+				_this.ai.material = that.cardMats[tai0];
+
+				_this.resume.isVisible = true;
+				_this.exit.isVisible = true;
+			}
+			this.tmp = hiscards;
+		};
+		this.isReady = function () {
+			for (var key in tags)
+				if (!this.cardMats[key].diffuseTexture.isReady())
+					return false;
+			return true;
 		};
 		this.create = function (canvas) {
 			this.canvas = canvas;
@@ -261,10 +458,20 @@
 			//this.scene.activeCamera.attachControl(canvas);
 
 			var _this = this;
-			engine.runRenderLoop(function () {
-				_this.invalidate();
-				_this.scene.render();
-			});
+			var timer = setInterval(function () {
+					looper()
+				}, 1000);
+			function looper() {
+				if (_this.isReady()) {
+					_this.invalidate();
+					clearInterval(timer);
+				}
+			}
+			//engine.runRenderLoop(function () {
+			//	_this.invalidate();
+			//	_this.scene.render();
+			//});
+
 			return this;
 		};
 		this.start = function () {
@@ -272,40 +479,24 @@
 			_this.cardMats[INVALIDCARD] = new BABYLON.StandardMaterial('00' + INVALIDCARD, _this.scene);
 			//_this.cardMats[transparent].specularColor = new BABYLON.Color3(0, 0, 0);
 			_this.cardMats[INVALIDCARD].alpha = 0.0;
-			for (key in tags) {
+			for (var key in tags) {
 				_this.cardMats[key] = new BABYLON.StandardMaterial('00' + key, _this.scene);
-				_this.cardMats[key].diffuseTexture = new BABYLON.Texture('./asserts/Mahjong/' + tags[key] + '.png', _this.scene/*, true, true, BABYLON.Texture.NEAREST_SAMPLINGMODE, function () {
+				_this.cardMats[key].diffuseTexture = new BABYLON.Texture('./asserts/Mahjong/' + tags[key] + '.png', _this.scene /*, true, true, BABYLON.Texture.NEAREST_SAMPLINGMODE, function () {
 						_this.scene.render();
-					}*/);
+						}*/
+					);
 				_this.cardMats[key].diffuseTexture.hasAlpha = true;
 				_this.cardMats[key].specularColor = new BABYLON.Color3(0, 0, 0);
 			}
-			_this.cardMats[background] = new BABYLON.StandardMaterial('00' + background, _this.scene);
-			_this.cardMats[background].specularColor = new BABYLON.Color3(0, 0, 0);
-			//_this.cardMats[background].specularPower = 100;
-			_this.cardMats[background].diffuseColor = new BABYLON.Color3(35 / 255.0, 116 / 255.0, 172 / 255.0);
+			_this.cardMats[tbg] = new BABYLON.StandardMaterial('00' + tbg, _this.scene);
+			_this.cardMats[tbg].specularColor = new BABYLON.Color3(0, 0, 0);
+			//_this.cardMats[tbg].specularPower = 100;
+			_this.cardMats[tbg].diffuseColor = new BABYLON.Color3(35 / 255.0, 116 / 255.0, 172 / 255.0);
 
-			_this.mycards.start(_this.scene, -25, -15, -5, true, false);
-			_this.hiscards.start(_this.scene, 25, 15, 5, false, true);
-			_this.hiscards.myself = _this.mycards;
+			_this.mycards.start(_this.scene, this, -25, -15, -5, true, false);
+			_this.hiscards.start(_this.scene, this, 25, 15, 5, false, true);
 
-			_this.draw = BABYLON.Mesh.CreatePlane('draw', CARDSIZE, _this.scene);
-			_this.draw.position.x = 6 * (MAX - 5);
-			_this.draw.position.y = 0;
-			_this.draw.position.z = 0;
-			//_this.draw.rotation.x = Math.PI*2;
-			//fix(_this.draw);
-			//----------------------------single draw------------------------
-			_this.draw.actionManager = new BABYLON.ActionManager(_this.scene);
-			_this.draw.actionManager.registerAction(new BABYLON.ExecuteCodeAction(BABYLON.ActionManager.OnPickTrigger, function (evt) { // draw card
-					if (_this.cardDraw != INVALIDCARD && _this.mycards.data.length == MAX - 1) {
-						_this.mycards.data[MAX] = _this.cardDraw;
-					} else {
-						_this.mycards.warning();
-					}
-				}));
-			_this.draw.material = _this.cardMats[back];
-			console.log(_this.draw.getVertexBuffer(BABYLON.VertexBuffer.PositionKind).getData());
+			_this.buttons.start(_this.scene, _this);
 
 			_this.desk = BABYLON.Mesh.CreatePlane('desk', 500, _this.scene);
 			_this.desk.position.x = 0;
@@ -319,13 +510,15 @@
 					if (_this.mycards.pump.length != 0) {
 						_this.mycards.pumpRestore();
 					}
+					_this.invalidate();
 				}));
-			_this.desk.material = _this.cardMats[background];
+			_this.desk.material = _this.cardMats[tbg];
 			console.log(_this.desk.getVertexBuffer(BABYLON.VertexBuffer.UVKind).getData());
 		};
 		this.invalidate = function () {
 			this.mycards.invalidate(this.scene, this.cardMats);
 			this.hiscards.invalidate(this.scene, this.cardMats);
+			this.scene.render();
 		};
 	}
 
