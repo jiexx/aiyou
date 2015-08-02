@@ -436,16 +436,18 @@
 			if (isWinning) {
 				this.buttons.who.isVisible = true;
 				//this.enableDraw(dealcard);
+				this.tmp = hiscards;
 			}else {
 				var _this = this.buttons;
-				this.draw.isVisible = false;
+				_this.draw.isVisible = false;
 				_this.ai.isVisible = true;
 				_this.ai.material = this.cardMats[tai0];
 				
 				_this.resume.isVisible = true;
 				_this.exit.isVisible = true;
+				this.hiscards.data.cards = hiscards;
 			}
-			this.tmp = hiscards;
+			
 		};
 		this.isReady = function () {
 			for (var key in tags)
