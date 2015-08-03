@@ -34,7 +34,7 @@ public class WaitState extends State{
 	@Override
 	public void Enter(final Message msg) {
 		// TODO Auto-generated method stub
-		if( msg.cmd == Command.OPEN.val() && getRound().getHand( msg.uid ) == Round.Hand.DEALER ) {
+		if( msg.cmd == Command.OPEN.val() /*&& getRound().getHand( msg.uid ) == Round.Hand.DEALER */) {
 			getRound().addUser(Round.Hand.DEALER , msg.uid);
 			
 			OpenAck ack = new OpenAck();

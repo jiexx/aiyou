@@ -33,6 +33,7 @@ public enum GameService {
 		}else if ( msg.cmd == Command.OPEN.val()  ) {
 			r = new Round( active.size() );
 			active.add(r);
+			r.receive(msg);
 		}
 	}
 	public void delRound(int id) {
