@@ -3,8 +3,10 @@ package com.jiexx.aiyou.service;
 import com.jiexx.aiyou.dao.Data;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
 
 import com.google.gson.Gson;
+
 
 public class DataService {
 	protected static Gson gson = new Gson();

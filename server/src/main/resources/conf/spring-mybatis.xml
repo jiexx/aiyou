@@ -42,7 +42,11 @@
         <property name="sqlSessionFactory" ref="sqlSessionFactory" />
     </bean>
     
-    <bean id="dataImpl" class="com.jiexx.aiyou.controller.Home">
+    <bean id="dataImpl1" class="com.jiexx.aiyou.controller.Home">
+        <property name="data" ref="data" />
+    </bean>
+    
+    <bean id="dataImpl2" class="com.jiexx.aiyou.controller.Entity">
         <property name="data" ref="data" />
     </bean>
 </beans>
