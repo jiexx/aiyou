@@ -124,7 +124,7 @@ public class Round {
 	}
 	
 	public void receive( Message msg ) {
-		curr.next(msg);
+		curr.recv(msg);
 	}
 	
 	public State getCurrState() {

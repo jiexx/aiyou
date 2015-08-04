@@ -94,8 +94,8 @@ var Round = (function (_super) {
             a.cmd = parseInt(OPEN.substr(1), 16);
             a.uid = parseInt(_this.userid);
             _this.send(a);
-            _this.client.subscribe('/' + _this.userid, function (str) {
-                var msg = JSON.parse(str);
+            _this.client.subscribe('/hook/' + _this.userid, function (frame) {
+                var msg = JSON.parse(frame.body);
                 _this.recv(msg);
             });
         });

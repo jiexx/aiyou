@@ -58,6 +58,11 @@ public abstract class State {
 	public void addTransition(Command cmd, State state) {
 		transitions.put(cmd.val(), state);
 	}
+	public void recv(Message msg) {
+		if( child != null ) {
+			child.next(msg);
+		}
+	}
 	public void next(Message msg) {
 		State state = transitions.get(msg.cmd);
 		if( state != null ) {

@@ -7,19 +7,29 @@ import java.util.Map;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
+import org.springframework.stereotype.Repository;
+import org.springframework.stereotype.Service;
 
+import com.jiexx.aiyou.controller.WebSocketConfig;
+import com.jiexx.aiyou.dao.Data;
 import com.jiexx.aiyou.message.Command;
 import com.jiexx.aiyou.message.Message;
 import com.jiexx.aiyou.model.Const;
 
-public enum GameService {
-	instance;
+@Repository
+public class GameService {
+	public static GameService instance = null;
 	
 	@Autowired
 	private SimpMessagingTemplate sendor;
 	
+	public GameService(){
+		instance = this;
+	}
+	
 	public void sendMessage(String endpoint, String msg) {
-		sendor.convertAndSend(endpoint, msg);
+		System.out.println("sendMessage  "+WebSocketConfig.broker+endpoint+" "+msg);
+		sendor.convertAndSend(WebSocketConfig.broker+endpoint, msg);
 	}
 
 	private List<Round> active = new LinkedList<Round>();
