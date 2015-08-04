@@ -4,7 +4,7 @@ var __extends = (this && this.__extends) || function (d, b) {
     __.prototype = b.prototype;
     d.prototype = new __();
 };
-var OPEN = 0x10000001, JOIN = 0x10000002, EXIT = 0x10000003, CONTINUE = 0x10000004, DISCARD = 0x20000001, DISCARD_PONG = 0x30000001, DISCARD_CHI = 0x30000002, DISCARD_DRAW = 0x30000003, WAIT = 0x40000001, START = 0x40000002, OVER = 0x40000003, WHO = 0x50000001, TIMEOUT = 0x50000002;
+var OPEN = 'x10000001', JOIN = 'x10000002', EXIT = 'x10000003', CONTINUE = 'x10000004', DISCARD = 'x20000001', DISCARD_PONG = 'x30000001', DISCARD_CHI = 'x30000002', DISCARD_DRAW = 'x30000003', WAIT = 'x40000001', START = 'x40000002', OVER = 'x40000003', WHO = 'x50000001', TIMEOUT = 'x50000002';
 var Message = (function () {
     function Message() {
         this.cmd = 0;
@@ -50,7 +50,7 @@ var State = (function () {
         this.transitions[cmd] = next;
     };
     State.prototype.next = function (msg) {
-        var state = this.transitions[msg.cmd];
+        var state = this.transitions['x' + msg.cmd];
         if (state != null) {
             this.Exit(msg);
             if (this.child != null) {
@@ -81,13 +81,22 @@ var Round = (function (_super) {
         this.root = new State(null);
         this.client = null;
     }
+    Round.prototype.recv = function (msg) {
+        this.root.child.next(msg);
+    };
     Round.prototype.connect = function () {
         var _this = this;
         var socket = new SockJS('http://localhost:9090/game');
         this.client = Stomp.over(socket);
         this.client.connect({}, function (frame) {
             console.log('Connected: ' + frame);
+            var a = new Ack();
+            a.cmd = parseInt(OPEN.substr(1), 16);
+            a.uid = parseInt(_this.userid);
+            _this.send(a);
             _this.client.subscribe('/' + _this.userid, function (str) {
+                var msg = JSON.parse(str);
+                _this.recv(msg);
             });
         });
     };
@@ -139,7 +148,7 @@ var Wait = (function (_super) {
         round.subscribe(open.endp);
         round.view.reset();
         var ack = new Ack();
-        msg.cmd = OPEN;
+        msg.cmd = parseInt(OPEN.substr(1));
         round.send(ack);
     };
     return Wait;

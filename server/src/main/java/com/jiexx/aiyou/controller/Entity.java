@@ -19,10 +19,8 @@ import com.jiexx.aiyou.resp.SellorDetail;
 import com.jiexx.aiyou.service.DataService;
 import com.mysql.jdbc.Blob;
 
-@Controller
+//@Controller
 @RequestMapping("/")
-@Configuration
-@ComponentScan("com.jiexx.aiyou.controller")
 public class Entity extends DataService {
 	@RequestMapping(value = "/entity.do", params = { "eid", "t" }, method = RequestMethod.GET)
 	@ResponseBody

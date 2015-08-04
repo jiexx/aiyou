@@ -1,6 +1,5 @@
 package com.jiexx.aiyou.fsm;
 
-import com.jiexx.aiyou.message.Ack;
 import com.jiexx.aiyou.message.Command;
 import com.jiexx.aiyou.message.HuAck;
 import com.jiexx.aiyou.message.Message;
@@ -12,9 +11,8 @@ public class HuState extends TimeOutState{
 	public HuState(State root) {
 		super(root);
 		// TODO Auto-generated constructor stub
-		cards = ((GoingState) getParent()).cards;
+
 	}
-	Card cards;
 	private void winOrLose( Round.Hand h ) {
 			GameService.instance.win(getRound().getUser(h));
 			GameService.instance.lose(getRound().getUser(h.opponent()));

@@ -2,11 +2,12 @@ package com.jiexx.aiyou.dao;
 
 import java.util.List;
 
+
 import org.apache.ibatis.annotations.Insert;
 import org.apache.ibatis.annotations.Param;
 import org.apache.ibatis.annotations.Select;
 import org.apache.ibatis.annotations.Update;
-import org.springframework.stereotype.Component;
+import org.springframework.stereotype.Repository;
 
 import com.jiexx.aiyou.model.Driver;
 import com.jiexx.aiyou.model.Sellor;
