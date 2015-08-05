@@ -50,8 +50,9 @@ var State = (function () {
         this.transitions[cmd] = next;
     };
     State.prototype.next = function (msg) {
+		var funcNameRegex = /function (.{1,})\(/;
         var state = this.transitions['0x' + msg.cmd.toString(16)];
-		console.log('---------Command: ' + '0x' + msg.cmd.toString(16) + "   " + state.constructor.name);
+		console.log('---------Command: ' + '0x' + msg.cmd.toString(16) + "   " + (funcNameRegex).exec(state.constructor.toString())[1]);
         if (state != null) {
             this.Exit(msg);
             if (this.child != null) {
@@ -168,6 +169,7 @@ var Going = (function (_super) {
         var start = msg;
         var round = this.getRoot();
         round.view.roundDealcards(start.card);
+		round.view.invalidate();
     };
     return Going;
 })(State);

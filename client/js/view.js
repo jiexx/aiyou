@@ -382,7 +382,7 @@
 		this.cardDraw = INVALIDCARD; //invalid card
 		this.canvas = null;
 		this.scene = null;
-		this.data = new Data();
+		//this.data = new Data();
 
 		// Resize
 		//window.addEventListener("resize", function () {
