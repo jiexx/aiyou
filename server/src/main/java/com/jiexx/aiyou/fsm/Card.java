@@ -69,26 +69,30 @@ public class Card {
 		
 		int i;
 		
-		for( i = 0 ; i < MAX/2 ; i ++ ) {
-			handcards[first.val()][i] = cards[4*i];
-			handcards[first.val()][i+1] = cards[4*i+1];
+		for( i = 0 ; i < MAX ;  i++ ) {
+			handcards[first.val()][i] = cards[i];
 		}
 		
 		Util.quickSort(handcards[first.val()], 0, MAX-1);
+		pos = i;
 		
-		for( i = 0 ; i < MAX/2 - 1 ; i ++ ) {
-			handcards[first.opponent().val()][i] = cards[4*i+2];
-			handcards[first.opponent().val()][i+1] = cards[4*i+3];
+		for( i = 0 ; i < MAX - 1 ; i++) {
+			handcards[first.opponent().val()][i] = cards[pos+i];
 		}
-		handcards[first.opponent().val()][i] = cards[4*i+2];
-		handcards[first.opponent().val()][i] = 0xff;
 		
-		Util.quickSort(handcards[first.opponent().val()], 0, MAX-1);
+		Util.quickSort(handcards[first.opponent().val()], 0, MAX-2);
 		
-		pos = 2*7 + 1 + 2*6;
+		pos += i;
+	}
+	public byte[] getInitHandCards(Round.Hand hand) {
+		if(first == hand)
+			return handcards[hand.val()];
+		byte[] arr = new byte[MAX-1];
+		System.arraycopy(handcards[hand.val()], 0, arr, 0, MAX-1);
+		return arr;
 	}
 	
-	public char cards[] = { 
+	public byte cards[] = { 
 			east,west,south,north,zhong,fa,bai,
 			dot1,dot2,dot3,dot4,dot5,dot6,dot7,dot8,dot9,
 			Bamboo1,Bamboo2,Bamboo3,Bamboo4,Bamboo5,Bamboo6,Bamboo7,Bamboo8,Bamboo9,
@@ -107,9 +111,9 @@ public class Card {
 			Char1,Char2,Char3,Char4,Char5,Char6,Char7,Char8,Char9,
 	};
 	
-	public char handcards[][] = new char[2][MAX];
+	public byte handcards[][] = new byte[2][MAX];
 	
-	public static void sort( char[] handcards, char draw ) {
+	public static void sort( byte[] handcards, byte draw ) {
 		int i;
 		for( i = 0 ; i < MAX - 1 && draw > handcards[i]; i ++ ) ;
 		
@@ -120,12 +124,12 @@ public class Card {
 		handcards[i] = draw;
 	}
 	
-	public static boolean hu( char[] handcards ){
+	public static boolean hu( byte[] handcards ){
 
 		return rule1(handcards) || rule2(handcards);
 	}
 	
-	private static boolean rule1( char[] handcards ) {
+	private static boolean rule1( byte[] handcards ) {
 		int i;
 		for( i = 0 ; i < MAX ; i ++ ) {
 			if( handcards[i] !=  handcards[i+1] )
@@ -135,7 +139,7 @@ public class Card {
 		return i == MAX;
 	}
 	
-	private static boolean rule2( char[] handcards ) {
+	private static boolean rule2( byte[] handcards ) {
 		int i;
 		for( i = 0 ; i < MAX ; i ++ ) {
 			if( handcards[i] !=  handcards[i+1] + 1 &&  handcards[i+1] != handcards[i+2] + 2 )
@@ -147,7 +151,7 @@ public class Card {
 	
 	private boolean exchange(int i, int j) {
 		if( i < 136 && j < 136 && i != j) {
-			char tmp = cards[i];
+			byte tmp = cards[i];
 			cards[i] = cards[j];
 			cards[j] = tmp;
 			return true;

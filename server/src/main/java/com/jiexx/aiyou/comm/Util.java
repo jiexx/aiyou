@@ -4,6 +4,7 @@ import java.io.BufferedInputStream;
 import java.io.IOException;
 import java.security.SecureRandom;
 import java.sql.SQLException;
+import java.util.Arrays;
 
 import javax.crypto.Cipher;
 import javax.crypto.KeyGenerator;
@@ -88,7 +89,7 @@ public class Util {
 		byte b = (byte) "0123456789abcdef".indexOf(c);
 		return b;
 	}
-	
+
 	public static byte[] blobToBytes(Blob blob) {
 
 		BufferedInputStream is = null;
@@ -115,44 +116,45 @@ public class Util {
 			}
 		}
 	}
-	
+
 	public static String blobToBase64(Blob b) {
 		try {
-			return  Base64Utils.encodeToString(b.getBytes(1, (int) b.length()));
+			return Base64Utils.encodeToString(b.getBytes(1, (int) b.length()));
 		} catch (SQLException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
 		return null;
 	}
-	
+
 	public static byte[] base64ToBytes(String b64) {
-		return  Base64Utils.decodeFromString(b64);
-	}
-	
-	public static int getMiddle(char[] list, int low, int high) {
-		char tmp = list[low];    
-		while (low < high) {
-			while (low < high && list[high] > tmp) {
-				high--;
-			}
-			list[low] = list[high];  
-			while (low < high && list[low] < tmp) {
-				low++;
-			}
-			list[high] = list[low];   
-		}
-		list[low] = tmp;             
-		return low;                  
-	}
-	
-	public static void quickSort(char[] list, int low, int high) {
-		if (low < high) {
-			int middle = getMiddle(list, low, high);  
-			quickSort(list, low, middle - 1);       
-			quickSort(list, middle + 1, high);     
-		}
+		return Base64Utils.decodeFromString(b64);
 	}
 
+	public static void quickSort(byte[] list, int low, int high) {
+		//System.out.println("quickSort   "+Arrays.toString(list)+" high "+high+" low "+low);
+		int i = low, j = high;
+		byte tmp;
+		int pivot = list[low + (high-low)/2];
+		while (i <= j) {
+			while (list[i] < pivot) {
+				i++;
+			}
+			while (list[j] > pivot) {
+				j--;
+			}
+			if (i <= j) {
+				tmp = list[j];
+				list[j] = list[i];
+				list[i] = tmp;
+				i++;
+				j--;
+			}
+		}
+		if (low < i-1)
+			quickSort(list, low, i-1);
+		if (i < high)
+			quickSort(list, i, high);
+	}
 
 }

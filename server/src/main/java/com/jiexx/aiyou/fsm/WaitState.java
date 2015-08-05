@@ -40,6 +40,7 @@ public class WaitState extends State{
 			OpenAck ack = new OpenAck();
 			ack.cmd = Command.WAIT.val();
 			ack.endp = getRound().endPoint(Round.Hand.DEALER);
+			ack.roundid = getRound().getId();
 			GameService.instance.sendMessage("/"+String.valueOf(msg.uid), gson.toJson(ack));
 		}
 		else if( msg.cmd == Command.CONTINUE.val() ) {

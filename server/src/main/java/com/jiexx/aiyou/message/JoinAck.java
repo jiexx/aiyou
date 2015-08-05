@@ -2,5 +2,6 @@ package com.jiexx.aiyou.message;
 
 public class JoinAck extends Ack {
 	public String endp;
-	public char[] card;
+	public byte[] card;
+	public boolean hu = false;
 }

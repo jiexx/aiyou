@@ -4,7 +4,7 @@ var __extends = (this && this.__extends) || function (d, b) {
     __.prototype = b.prototype;
     d.prototype = new __();
 };
-var OPEN = 'x10000001', JOIN = 'x10000002', EXIT = 'x10000003', CONTINUE = 'x10000004', DISCARD = 'x20000001', DISCARD_PONG = 'x30000001', DISCARD_CHI = 'x30000002', DISCARD_DRAW = 'x30000003', WAIT = 'x40000001', START = 'x40000002', OVER = 'x40000003', WHO = 'x50000001', TIMEOUT = 'x50000002';
+var OPEN = '0x10000001', JOIN = '0x10000002', EXIT = '0x10000003', CONTINUE = '0x10000004', DISCARD = '0x20000001', DISCARD_PONG = '0x30000001', DISCARD_CHI = '0x30000002', DISCARD_DRAW = '0x30000003', WAIT = '0x40000001', START = '0x40000002', OVER = '0x40000003', WHO = '0x50000001', TIMEOUT = '0x50000002';
 var Message = (function () {
     function Message() {
         this.cmd = 0;
@@ -37,7 +37,7 @@ var State = (function () {
     };
     State.prototype.getRoot = function () {
         var r = this;
-        while ((r = r.parent) != null)
+        while (r.parent != null)
             r = r.parent;
         return r;
     };
@@ -50,7 +50,8 @@ var State = (function () {
         this.transitions[cmd] = next;
     };
     State.prototype.next = function (msg) {
-        var state = this.transitions['x' + msg.cmd];
+        var state = this.transitions['0x' + msg.cmd.toString(16)];
+		console.log('---------Command: ' + '0x' + msg.cmd.toString(16) + "   " + state.constructor.name);
         if (state != null) {
             this.Exit(msg);
             if (this.child != null) {
@@ -61,7 +62,7 @@ var State = (function () {
             this.parent.child = state;
         }
     };
-    return State;
+    return State; 
 })();
 var Ack = (function () {
     function Ack() {
@@ -84,16 +85,25 @@ var Round = (function (_super) {
     Round.prototype.recv = function (msg) {
         this.root.child.next(msg);
     };
-    Round.prototype.connect = function () {
+    Round.prototype.connect = function (toid) {
         var _this = this;
         var socket = new SockJS('http://localhost:9090/game');
         this.client = Stomp.over(socket);
         this.client.connect({}, function (frame) {
             console.log('Connected: ' + frame);
-            var a = new Ack();
-            a.cmd = parseInt(OPEN.substr(1), 16);
-            a.uid = parseInt(_this.userid);
-            _this.send(a);
+			if( toid == undefined || toid == null ) {
+				var a = new Ack();
+				a.cmd = parseInt(OPEN);
+				a.uid = parseInt(_this.userid);
+				a.toid = 0xffffffff;
+				_this.send(a);
+			}else {
+				var a = new Ack();
+				a.cmd = parseInt(JOIN);
+				a.uid = parseInt(_this.userid);
+				a.toid = toid;
+				_this.send(a);
+			}
             _this.client.subscribe('/hook/' + _this.userid, function (frame) {
                 var msg = JSON.parse(frame.body);
                 _this.recv(msg);
@@ -102,11 +112,9 @@ var Round = (function (_super) {
     };
     Round.prototype.subscribe = function (point) {
         var _this = this;
-        var pos = point.indexOf('/', 6);
-        this.roundid = point.substring(6, pos);
-        this.client.subscribe(point, function (str) {
-            var msg = JSON.parse(str);
-            _this.root.next(msg);
+        this.client.subscribe('/hook' + point, function (frame) {
+            var msg = JSON.parse(frame.body);
+            _this.recv(msg);
         });
     };
     Round.prototype.disconnect = function () {
@@ -146,10 +154,8 @@ var Wait = (function (_super) {
         var round = this.getRoot();
         var open = msg;
         round.subscribe(open.endp);
+		round.roundid = open.roundid;
         round.view.reset();
-        var ack = new Ack();
-        msg.cmd = parseInt(OPEN.substr(1));
-        round.send(ack);
     };
     return Wait;
 })(State);
@@ -194,8 +200,8 @@ var RoundImpl = (function (_super) {
         var going = new Going(this);
         var hu = new Hu(this);
         var end = new End(this);
-        empty.addTransition(OPEN, wait);
-        empty.addTransition(START, going);
+        empty.addTransition(WAIT, wait);
+		empty.addTransition(START, going);
         wait.addTransition(START, going);
         wait.addTransition(EXIT, end);
         going.addTransition(OVER, wait);

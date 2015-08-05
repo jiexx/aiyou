@@ -25,19 +25,21 @@ public class GoingState extends State{
 		if( msg.cmd == Command.JOIN.val() ) {
 			cards = new Card();
 			cards.dieDealDraw();
+			
 			if(  getRound().getUser(Round.Hand.DEALER) != Const.INVALID_PLAYER.val() ) {
 				getRound().addUser(Round.Hand.PLAYER, msg.uid); 
 				
 				StartAck ackdealer = new StartAck();
 				ackdealer.cmd = Command.START.val();
-				ackdealer.card = cards.handcards[cards.first.val()];
-				ackdealer.hu = Card.hu(cards.handcards[cards.first.val()]);
-				GameService.instance.sendMessage(getRound().endPoint(cards.first), gson.toJson(ackdealer));
+				ackdealer.card = cards.getInitHandCards(Round.Hand.DEALER);
+				ackdealer.hu = Card.hu(ackdealer.card);
+				GameService.instance.sendMessage(getRound().endPoint(Round.Hand.DEALER), gson.toJson(ackdealer));
 				
 				JoinAck ackplayer = new JoinAck();
 				ackplayer.cmd = Command.START.val();
-				ackplayer.card = cards.handcards[cards.first.opponent().val()];
-				ackplayer.endp = getRound().endPoint(cards.first.opponent());
+				ackplayer.card = cards.getInitHandCards(Round.Hand.PLAYER);
+				ackplayer.endp = getRound().endPoint(Round.Hand.PLAYER);
+				ackplayer.hu = Card.hu(ackplayer.card);
 				GameService.instance.sendMessage("/"+String.valueOf(msg.uid), gson.toJson(ackplayer));
 			}
 			else {
@@ -45,14 +47,15 @@ public class GoingState extends State{
 				
 				StartAck ackdealer = new StartAck();
 				ackdealer.cmd = Command.START.val();
-				ackdealer.card = cards.handcards[cards.first.val()];
-				GameService.instance.sendMessage(getRound().endPoint(cards.first), gson.toJson(ackdealer));
+				ackdealer.card = cards.getInitHandCards(Round.Hand.PLAYER);
+				ackdealer.hu = Card.hu(ackdealer.card);
+				GameService.instance.sendMessage(getRound().endPoint(Round.Hand.PLAYER), gson.toJson(ackdealer));
 				
 				JoinAck ackplayer = new JoinAck();
 				ackplayer.cmd = Command.START.val();
-				ackplayer.card = cards.handcards[cards.first.opponent().val()];
+				ackplayer.card = cards.getInitHandCards(Round.Hand.DEALER);
 				ackplayer.endp = getRound().endPoint(Round.Hand.DEALER);
-				ackdealer.hu = Card.hu(cards.handcards[cards.first.val()]);
+				ackplayer.hu = Card.hu(ackplayer.card);
 				GameService.instance.sendMessage("/"+String.valueOf(msg.uid), gson.toJson(ackplayer));
 			}
 		}

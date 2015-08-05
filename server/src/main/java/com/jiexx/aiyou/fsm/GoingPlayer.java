@@ -15,13 +15,13 @@ public class GoingPlayer extends State{
 		cards = ((GoingState) getParent()).cards;
 	}
 	Card cards;
-	char handcards[];
+	byte handcards[];
 	Round.Hand endPoint = null;
 	@Override
 	public void Exit(final Message msg) {
 		super.Exit(msg);
 		if( msg.cmd == Command.DISCARD.val() && getRound().getHand( msg.uid ) == endPoint ) {
-			char handcard = handcards[msg.opt];
+			byte handcard = handcards[msg.opt];
 			
 			DiscardAck ackdealer = new DiscardAck();
 			ackdealer.cmd = Command.DISCARD.val();

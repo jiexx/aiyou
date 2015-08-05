@@ -1,6 +1,6 @@
 package com.jiexx.aiyou.message;
 
 public class StartAck extends Ack {
-	public char[] card;
+	public byte[] card;
 	public boolean hu = false;
 }

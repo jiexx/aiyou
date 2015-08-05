@@ -50,8 +50,8 @@ public class Round {
 	
 	public String endPoint(Hand h){
 		if( h == Hand.DEALER )
-			return WebSocketConfig.endpoint + "/"+String.valueOf(id)+"/dealer";
-		return WebSocketConfig.endpoint + "/"+String.valueOf(id)+"/player";
+			return "/"+String.valueOf(id)+"/dealer";
+		return "/"+String.valueOf(id)+"/player";
 	}
 	
 	public void addUser(Hand who, long uid) {
