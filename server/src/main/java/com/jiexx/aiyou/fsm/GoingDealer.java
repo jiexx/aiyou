@@ -27,6 +27,7 @@ public class GoingDealer extends State{
 	public void Exit(final Message msg) {
 		super.Exit(msg);
 		if( msg.cmd == Command.DISCARD.val() && endPoint == null ) {
+			cards = ((GoingState) getParent()).cards;
 			endPoint = cards.first;
 			handcards = cards.getInitHandCards(endPoint);
 		}
@@ -49,7 +50,7 @@ public class GoingDealer extends State{
 			endPoint = cards.first.opponent();
 			handcards = cards.getInitHandCards(endPoint);
 		}
-		if( msg.cmd == Command.DISCARD.val() && getRound().getHand( msg.uid ) == endPoint ) {
+		if( msg.cmd == Command.DISCARD.val() && getRound().getHand( msg.uid ) == endPoint.opponent() ) {
 			DiscardAck self = new DiscardAck();
 			self.cmd = Command.DISCARD.val();
 			self.disc = (byte) msg.opt;
@@ -58,7 +59,7 @@ public class GoingDealer extends State{
 			GameService.instance.sendMessage(getRound().endPoint(endPoint), gson.toJson(self));
 		}
 		if( msg.cmd == Command.DISCARD_PONG.val() ||  msg.cmd == Command.DISCARD_CHI.val() ){
-			int pos = handcards.indexOf(msg.opt);
+			int pos = handcards.indexOf(Byte.valueOf((byte) msg.opt));
 			if( pos > -1 && msg.opt == handcards.get(pos+1) ) {
 				HuAck self = new HuAck();
 				self.cmd = msg.cmd;
@@ -72,7 +73,7 @@ public class GoingDealer extends State{
 			}
 		}
 		if( msg.cmd == Command.DISCARD_DRAW.val() ){
-			int pos = handcards.indexOf(msg.opt);
+			int pos = handcards.indexOf(Byte.valueOf((byte) msg.opt));
 			if( pos > -1 && msg.opt == handcards.get(pos+1) ) {
 				DiscardAck self = new DiscardAck();
 				self.cmd = Command.DISCARD_DRAW.val();
@@ -81,7 +82,10 @@ public class GoingDealer extends State{
 				GameService.instance.sendMessage(getRound().endPoint(endPoint), gson.toJson(self));
 			}
 		}
-		System.out.println("GoingDealer Enter   "+msg.cmd + " :" + getRound().getHand( msg.uid ).getClass().getSimpleName() +handcards.toString());
+		if( handcards != null )
+			System.out.println("GoingDealer Enter   "+msg.cmd + " :" + getRound().getHand( msg.uid ).getClass().getSimpleName() +handcards.toString());
+		else
+			System.out.println("GoingDealer Enter   "+msg.cmd + " :" + getRound().getHand( msg.uid ).getClass().getSimpleName() );
 	}
 	@Override
 	public void reset() {

@@ -169,9 +169,11 @@ var Going = (function (_super) {
         _super.call(this, r);
     }
     Going.prototype.Enter = function (msg) {
+		var round = this.getRoot();
 		if( msg.cmd == parseInt(START) ) {
 			var start = msg;
-			var round = this.getRoot();
+			round.subscribe(start.endp);
+			round.roundid = start.roundid;
 			round.view.roundDealcards(start.card);
 			round.view.invalidate();
 		}else if ( msg.cmd == parseInt(DISCARD) ) {

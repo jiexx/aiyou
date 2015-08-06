@@ -12,7 +12,7 @@ import com.jiexx.aiyou.model.Const;
 
 public class Round {
 
-	State curr, going, empty, init;
+	State curr, going, empty;//, init;
 	private int id;
 	private long user[] = {Const.INVALID_PLAYER.val(), Const.INVALID_PLAYER.val()};
 	private long time;
@@ -111,11 +111,11 @@ public class Round {
 		
 		curr.setInitState(empty);
 		
-		init = new NullState(going);
+		//init = new NullState(going);
 		State player = new GoingPlayer(going);
 		State dealer = new GoingDealer(going);
 		
-		init.addTransition(Command.JOIN, dealer);
+		//init.addTransition(Command.JOIN, dealer);
 		dealer.addTransition(Command.DISCARD, player);
 		dealer.addTransition(Command.DISCARD_CHI, dealer);
 		dealer.addTransition(Command.DISCARD_PONG, dealer);
@@ -126,7 +126,7 @@ public class Round {
 		player.addTransition(Command.DISCARD_PONG, player);
 		player.addTransition(Command.DISCARD_DRAW, player);
 		
-		going.setInitState(init);
+		going.setInitState(dealer);
 	}
 	
 	public void receive( Message msg ) {
@@ -139,7 +139,7 @@ public class Round {
 	
 	public void reset() {
 		curr.setInitState(empty);
-		going.setInitState(init);
+		//going.setInitState(init);
 		time = System.currentTimeMillis();
 	}
 }

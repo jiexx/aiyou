@@ -69,19 +69,15 @@ public abstract class State {
 		if( state != null ) {
 			System.out.println("Command "+state.getClass().getSimpleName());
 			Exit(msg);
-			
-			if( child != null ) {
-				child.next(msg);
-			}
 
 			state.Enter(msg);
+			
+			state.recv(msg);
 			
 			parent.previous = parent.child;
 			parent.child = state;
 		}else {
-			if( child != null ) {
-				child.next(msg);
-			}
+			recv(msg);
 		}
 	}
 	public void setInitState(State state){
