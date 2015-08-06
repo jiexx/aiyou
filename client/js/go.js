@@ -5,6 +5,7 @@ var __extends = (this && this.__extends) || function (d, b) {
     d.prototype = new __();
 };
 var OPEN = '0x10000001', JOIN = '0x10000002', EXIT = '0x10000003', CONTINUE = '0x10000004', DISCARD = '0x20000001', DISCARD_PONG = '0x30000001', DISCARD_CHI = '0x30000002', DISCARD_DRAW = '0x30000003', WAIT = '0x40000001', START = '0x40000002', OVER = '0x40000003', WHO = '0x50000001', TIMEOUT = '0x50000002';
+var	V_EXIT = 0x10000003,	V_CONTINUE = 0x10000004,	V_DISCARD = 0x20000001,	V_DISCARD_PONG = 0x30000001,	V_DISCARD_CHI = 0x30000002,	V_DISCARD_DRAW = 0x30000003, V_WHO = 0x50000001;
 var Message = (function () {
     function Message() {
         this.cmd = 0;
@@ -63,6 +64,10 @@ var State = (function () {
             this.parent.child = state;
         }
     };
+	State.prototype.recv = function (msg) {
+		if( this.child != null )
+			this.child.next(msg);
+    };
     return State; 
 })();
 var Ack = (function () {
@@ -80,12 +85,8 @@ var Round = (function (_super) {
         _super.call(this, r);
         this.userid = '';
         this.roundid = '';
-        this.root = new State(null);
         this.client = null;
     }
-    Round.prototype.recv = function (msg) {
-        this.root.child.next(msg);
-    };
     Round.prototype.connect = function (toid) {
         var _this = this;
         var socket = new SockJS('http://localhost:9090/game');
@@ -130,6 +131,8 @@ var Round = (function (_super) {
     };
     return Round;
 })(State);
+//-----------------------------view---------------------------------------------
+
 //-----------------------------implement----------------------------------------
 var StartMessage = (function (_super) {
     __extends(StartMessage, _super);
@@ -166,10 +169,28 @@ var Going = (function (_super) {
         _super.call(this, r);
     }
     Going.prototype.Enter = function (msg) {
-        var start = msg;
-        var round = this.getRoot();
-        round.view.roundDealcards(start.card);
-		round.view.invalidate();
+		if( msg.cmd == parseInt(START) ) {
+			var start = msg;
+			var round = this.getRoot();
+			round.view.roundDealcards(start.card);
+			round.view.invalidate();
+		}else if ( msg.cmd == parseInt(DISCARD) ) {
+			if( msg.disc != undefined && msg.disc != null ) { //self
+				round.view.heDiscard( msg.deal, msg.disc );
+				round.view.whohint(msg.hu);
+				round.view.invalidate();
+			}
+		}else if ( msg.cmd == parseInt(DISCARD_PONG) || msg.cmd == parseInt(DISCARD_CHI) ) {
+			if( msg.disc1 != undefined && msg.disc1 != null ) {//not self
+				round.view.hePongchi( [msg.disc1, msg.disc2, msg.disc3] );
+				round.view.invalidate();
+			}
+		}else if ( msg.cmd == parseInt(DISCARD_DRAW) ) {
+			if( msg.hu != undefined && msg.hu != null ) { //self
+				round.view.whohint(msg.hu);
+				round.view.invalidate();
+			}
+		}
     };
     return Going;
 })(State);
@@ -209,12 +230,70 @@ var RoundImpl = (function (_super) {
         going.addTransition(OVER, wait);
         going.addTransition(EXIT, end);
         going.addTransition(DISCARD, going);
+		going.addTransition(DISCARD_CHI, going);
+		going.addTransition(DISCARD_PONG, going);
+		going.addTransition(DISCARD_DRAW, going);
         going.addTransition(WHO, hu);
         going.addTransition(TIMEOUT, wait);
         hu.addTransition(CONTINUE, wait);
         hu.addTransition(EXIT, end);
         hu.addTransition(TIMEOUT, wait);
-        this.root.setInitState(empty);
+        this.setInitState(empty);
     }
+	RoundImpl.prototype.command = function (cmd, cardid) {
+		console.log("command " + cmd + " " + cardid);
+		var a = new Ack();
+		switch(cmd) {
+		case V_DISCARD:
+			a.cmd = V_DISCARD;
+			a.uid = parseInt(this.userid);
+			a.toid = parseInt(this.roundid);
+			a.opt = cardid;
+			this.send(a);
+		break;
+		case V_DISCARD_PONG:
+			a.cmd = V_DISCARD_PONG;
+			a.uid = parseInt(this.userid);
+			a.toid = parseInt(this.roundid);
+			a.opt = cardid;
+			this.send(a);
+		break;
+		case V_DISCARD_CHI:
+			a.cmd = V_DISCARD_CHI;
+			a.uid = parseInt(this.userid);
+			a.toid = parseInt(this.roundid);
+			a.opt = cardid;
+			this.send(a);
+		break;
+		case V_DISCARD_DRAW:
+			a.cmd = V_DISCARD_DRAW;
+			a.uid = parseInt(this.userid);
+			a.toid = parseInt(this.roundid);
+			a.opt = cardid;
+			this.send(a);
+		break;
+		case V_WHO:
+			a.cmd = V_WHO;
+			a.uid = parseInt(this.userid);
+			a.toid = parseInt(this.roundid);
+			a.opt = cardid;
+			this.send(a);
+		break;
+		case V_CONTINUE:
+			a.cmd = V_CONTINUE;
+			a.uid = parseInt(this.userid);
+			a.toid = parseInt(this.roundid);
+			a.opt = cardid;
+			this.send(a);
+		break;
+		case V_EXIT:
+			a.cmd = V_EXIT;
+			a.uid = parseInt(this.userid);
+			a.toid = parseInt(this.roundid);
+			a.opt = cardid;
+			this.send(a);
+		break;
+		}
+	};
     return RoundImpl;
 })(Round);

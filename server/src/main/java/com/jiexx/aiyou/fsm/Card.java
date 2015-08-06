@@ -84,11 +84,16 @@ public class Card {
 		
 		pos += i;
 	}
-	public byte[] getInitHandCards(Round.Hand hand) {
-		if(first == hand)
-			return handcards[hand.val()];
-		byte[] arr = new byte[MAX-1];
-		System.arraycopy(handcards[hand.val()], 0, arr, 0, MAX-1);
+	public LinkedList<Byte> getInitHandCards(Round.Hand hand) {
+		LinkedList<Byte> arr = new LinkedList<Byte>();
+		int len = MAX-2;
+		if(first == hand) {
+			len = MAX-1;
+		}
+		for( int i = 0 ; i < len ;  i ++ ) {
+			arr.add(Byte.valueOf(handcards[hand.val()][i]) );
+		}
+		//System.arraycopy(handcards[hand.val()], 0, arr, 0, MAX-1);
 		return arr;
 	}
 	
@@ -113,40 +118,40 @@ public class Card {
 	
 	public byte handcards[][] = new byte[2][MAX];
 	
-	public static void sort( byte[] handcards, byte draw ) {
-		int i;
-		for( i = 0 ; i < MAX - 1 && draw > handcards[i]; i ++ ) ;
+	public static boolean hu( LinkedList<Byte> handcards ){
+		return handcards.size() == MAX  && ( rule1(handcards) || rule2(handcards) );
+	}
+	private LinkedList<Byte> copy = new LinkedList<Byte>();
+	public boolean hu( LinkedList<Byte> handcards, byte disc ){
+		copy.clear();
+		copy.addAll(handcards);
 		
-		int j;
-		for( j = MAX - 2 ; j > i ; j --  )
-			handcards[j+1] = handcards[j];
+		int i = 0;
+		for( i = 0 ; i < copy.size() && disc > copy.get(i) ; i ++ );
 		
-		handcards[i] = draw;
+		copy.add(i, disc);
+		
+		return copy.size() == MAX && ( rule1(copy) || rule2(copy) );
 	}
 	
-	public static boolean hu( byte[] handcards ){
-
-		return rule1(handcards) || rule2(handcards);
-	}
-	
-	private static boolean rule1( byte[] handcards ) {
+	private static boolean rule1( LinkedList<Byte> handcards ) {
 		int i;
-		for( i = 0 ; i < MAX ; i ++ ) {
-			if( handcards[i] !=  handcards[i+1] )
+		for( i = 0 ; i < handcards.size() ; i ++ ) {
+			if( handcards.get(i) !=  handcards.get(i+1) )
 				break;
 			i++;
 		}
-		return i == MAX;
+		return i == handcards.size();
 	}
 	
-	private static boolean rule2( byte[] handcards ) {
+	private static boolean rule2( LinkedList<Byte> handcards ) {
 		int i;
-		for( i = 0 ; i < MAX ; i ++ ) {
-			if( handcards[i] !=  handcards[i+1] + 1 &&  handcards[i+1] != handcards[i+2] + 2 )
+		for( i = 0 ; i < handcards.size() ; i ++ ) {
+			if( handcards.get(i) !=  handcards.get(i+1) + 1 &&  handcards.get(i+1) != handcards.get(i+2) + 2 )
 				break;
 			i += 2;
 		}
-		return i == MAX;
+		return i == handcards.size();
 	}
 	
 	private boolean exchange(int i, int j) {

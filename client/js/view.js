@@ -62,7 +62,8 @@
 	DISCARD = 0x20000001,
 	DISCARD_PONG = 0x30000001,
 	DISCARD_CHI = 0x30000002,
-	DISCARD_DRAW = 0x30000003;
+	DISCARD_DRAW = 0x30000003,
+	WHO = 0x50000001;
 
 	var Data = function () {
 		this.cards = new Array();
@@ -90,6 +91,23 @@
 			fix(oo);
 		return oo;
 	}
+	function chi(i, j, k) {
+		var a;
+		if (i > j) {
+			a = i;
+			i = j;
+			j = a;
+		}
+		if (j > k) {
+			a = k;
+			k = j;
+			j = a;
+		}
+		if (i + 1 == j && j + 1 == k)
+			if ((i >= 7 && k <= 15) || (i >= 16 && k <= 24) || (i >= 25 && k <= 33))
+				return true;
+		return false;
+	};
 	function Cards() {
 		this.cards = new Array();
 		this.card_y = 0;
@@ -169,9 +187,9 @@
 										evt.source.position.y = card_y;
 										_this.disCard(pos, no);
 										_this.pumpRestore();
-										_this.__proto__.command(DISCARD, no);
+										_that.command(DISCARD, no);
 									} else {
-										_this.warning();
+										_that.warning();
 										evt.source.position.y = _this.card_y;
 										_this.pump.splice(_this.pump.indexOf(pos), 1);
 									}
@@ -207,24 +225,24 @@
 								var p0 = parseInt(that.cards[that.pump[0]].material.name, 10);
 								var p1 = parseInt(that.cards[that.pump[1]].material.name, 10);
 								if (p0 == p1 && p1 == no) {
-									that.command(DISCARD_PONG, no);
+									_that.command(DISCARD_PONG, no);
 									that.pongchi(p0, p1, no, that.pump[0], that.pump[1]);
 									that.pumpRestore();
 									_that.disableDraw();
 									_this.data.discard = INVALIDCARD;
 									_this.needUpdate = true;
-								} else if (that.chi(p0, p1, no)) {
-									that.command(DISCARD_CHI, no);
+								} else if (chi(p0, p1, no)) {
+									_that.command(DISCARD_CHI, no);
 									that.pongchi(p0, p1, no, that.pump[0], that.pump[1]);
 									that.pumpRestore();
 									_that.disableDraw();
 									_this.data.discard = INVALIDCARD;
 									_this.needUpdate = true;
 								} else {
-									_this.warning();
+									_that.warning();
 								}
 							} else {
-								_this.warning();
+								_that.warning();
 							}
 							_that.invalidate();
 
@@ -256,29 +274,6 @@
 			}
 		}
 		return this;
-	};
-	Cards.prototype.chi = function (i, j, k) {
-		var a;
-		if (i > j) {
-			a = i;
-			i = j;
-			j = a;
-		}
-		if (j > k) {
-			a = k;
-			k = j;
-			j = a;
-		}
-		if (i + 1 == j && j + 1 == k)
-			if ((i >= 7 && k <= 15) || (i >= 16 && k <= 24) || (i >= 25 && k <= 33))
-				return true;
-		return false;
-	};
-	Cards.prototype.warning = function () {
-		console.log("warning ");
-	};
-	Cards.prototype.command = function (cmd, cardid) {
-		console.log("command " + cmd + " " + cardid);
 	};
 
 	function Buttons() {
@@ -312,9 +307,9 @@
 						that.mycards.needUpdate = true;
 						that.mycards.pumpRestore();
 						that.disableDraw();
-						_this.command(DISCARD_DRAW, 0);
+						that.command(DISCARD_DRAW, 0);
 					} else {
-						that.mycards.warning();
+						that.warning();
 					}
 					that.invalidate();
 				}));
@@ -337,6 +332,7 @@
 					_this.draw.isVisible = false;
 					that.hiscards.needUpdate = true;
 					that.hiscards.data.cards = that.tmp;
+					that.command(WHO, 0);
 					that.invalidate();
 				}));
 
@@ -346,7 +342,7 @@
 			_this.resume.actionManager.registerAction(new BABYLON.ExecuteCodeAction(BABYLON.ActionManager.OnPickTrigger, function (evt) {
 					_this.reset();
 					that.reset();
-					_this.command(CONTINUE, 0);
+					that.command(CONTINUE, 0);
 					that.invalidate();
 				}));
 
@@ -355,7 +351,7 @@
 			_this.exit.actionManager.registerAction(new BABYLON.ExecuteCodeAction(BABYLON.ActionManager.OnPickTrigger, function (evt) { // draw card
 					_this.reset();
 					that.reset();
-					_this.command(EXIT, 0);
+					that.command(EXIT, 0);
 					that.invalidate();
 				}));
 
@@ -363,12 +359,6 @@
 
 			_this.yo = createOO(scene, 'yo', 6 * 9, -5, 2, false, CARDSIZE * 4);
 		}
-	};
-	Buttons.prototype.warning = function () {
-		console.log("warning ");
-	};
-	Buttons.prototype.command = function (cmd, cardid) {
-		console.log("command " + cmd + " " + cardid);
 	};
 
 	function View() {
@@ -382,6 +372,7 @@
 		this.cardDraw = INVALIDCARD; //invalid card
 		this.canvas = null;
 		this.scene = null;
+		this.go = null;
 		//this.data = new Data();
 
 		// Resize
@@ -401,10 +392,10 @@
 			var num = MAX;
 			if (cards.length == MAX) {
 				num--;
-				this.disableDraw();
-			}else {
+			}/*else {
 				this.enableDraw();
-			}
+			}*/
+			this.disableDraw();
 			for (var i = 0; i < num; i++)
 				this.hiscards.data.cards.push(tback);
 			
@@ -417,19 +408,27 @@
 		this.disableDraw = function () {
 			this.cardDraw = INVALIDCARD;
 			this.buttons.draw.isVisible = true;
-			this.buttons.draw.material = this.cardMats[tback];
+			this.buttons.draw.material = this.cardMats[INVALIDCARD];
 		}
-		this.heDiscard = function (dealcard, hediscard, pongchi) {
+		this.hePongchi = function (pongchi) {
+			this.disableDraw();
+			this.hiscards.data.discard = INVALIDCARD;
+			if (pongchi != null && pongchi.length == 3) {
+				this.hiscards.data.showcards.push(pongchi);
+			}
+		};
+		this.heDiscard = function (dealcard, hediscard) {
 			console.log("disCard " + hediscard);
 			this.enableDraw(dealcard);
 			this.hiscards.data.discard = hediscard;
-			if (pongchi.length == 3) {
-				this.hiscards.data.showcards.push(pongchi);
-			}
 			if (this.hiscards.data.length == MAX) {
 				this.hiscards.data.cards[MAX] = INVALIDCARD;
 			}
-			this.invalidate();
+		};
+		this.whohint = function (isWinning) {
+			if (isWinning) {
+				this.buttons.who.isVisible = true;
+			}
 		};
 		this.who = function (hiscards, isWinning) {
 			this.isWinning = isWinning;
@@ -456,18 +455,20 @@
 			return true;
 		};
 		this.create = function (canvas) {
-			this.canvas = canvas;
+			var v = new View();
+			
+			v.canvas = canvas;
 			var engine = new BABYLON.Engine(canvas, true);
-			this.scene = new BABYLON.Scene(engine);
-			this.scene.clearColor = new BABYLON.Color3(35 / 255.0, 116 / 255.0, 172 / 255.0);
-			var light = new BABYLON.PointLight("Point", new BABYLON.Vector3(3 * MAX, 0, -100), this.scene);
-			var camera = new BABYLON.FreeCamera("Camera", new BABYLON.Vector3(3 * MAX, 0, -70), this.scene);
+			v.scene = new BABYLON.Scene(engine);
+			v.scene.clearColor = new BABYLON.Color3(35 / 255.0, 116 / 255.0, 172 / 255.0);
+			var light = new BABYLON.PointLight("Point", new BABYLON.Vector3(3 * MAX, 0, -100), v.scene);
+			var camera = new BABYLON.FreeCamera("Camera", new BABYLON.Vector3(3 * MAX, 0, -70), v.scene);
 			//var camera = new BABYLON.ArcRotateCamera('Camera', 1, .8, 10, new BABYLON.Vector3(0, 0, 0), scene);
-			this.start();
+			v.start();
 
 			//this.scene.activeCamera.attachControl(canvas);
 
-			var _this = this;
+			var _this = v;
 			var timer = setInterval(function () {
 					looper()
 				}, 1000);
@@ -482,7 +483,7 @@
 			//	_this.scene.render();
 			//});
 
-			return this;
+			return v;
 		};
 		this.start = function () {
 			var _this = this;
@@ -530,7 +531,17 @@
 			this.hiscards.invalidate(this.scene, this.cardMats);
 			this.scene.render();
 		};
+		this.attach = function (g) {
+			this.go = g;
+		}
 	}
+	View.prototype.warning = function () {
+		console.log("warning ");
+	};
+	View.prototype.command = function (cmd, cardid) {
+		console.log("command " + cmd + " " + cardid);
+		this.go();
+	};
 
 	if (typeof exports !== "undefined" && exports !== null) {
 		exports.View = new View();

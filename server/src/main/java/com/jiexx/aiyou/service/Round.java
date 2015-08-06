@@ -118,7 +118,14 @@ public class Round {
 		
 		init.addTransition(Command.JOIN, dealer);
 		dealer.addTransition(Command.DISCARD, player);
+		dealer.addTransition(Command.DISCARD_CHI, dealer);
+		dealer.addTransition(Command.DISCARD_PONG, dealer);
+		dealer.addTransition(Command.DISCARD_DRAW, dealer);
+		
 		player.addTransition(Command.DISCARD, dealer);
+		player.addTransition(Command.DISCARD_CHI, player);
+		player.addTransition(Command.DISCARD_PONG, player);
+		player.addTransition(Command.DISCARD_DRAW, player);
 		
 		going.setInitState(init);
 	}

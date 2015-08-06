@@ -156,5 +156,12 @@ public class Util {
 		if (i < high)
 			quickSort(list, i, high);
 	}
+	public static int findBytes(byte[] arr, byte value) {
+		int i = 0;
+		while( arr[i] != value && i < arr.length ) i++;
+		if( i < arr.length )
+			return i;
+		return -1;
+	}
 
 }

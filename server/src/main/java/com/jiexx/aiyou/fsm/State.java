@@ -78,6 +78,10 @@ public abstract class State {
 			
 			parent.previous = parent.child;
 			parent.child = state;
+		}else {
+			if( child != null ) {
+				child.next(msg);
+			}
 		}
 	}
 	public void setInitState(State state){
