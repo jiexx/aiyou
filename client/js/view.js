@@ -183,7 +183,7 @@
 									_this.pump.push(pos);
 								} else if (evt.source.position.y == card_y + 3 && no != INVALIDCARD) {
 									//----------------------------discard------------------------
-									if (_this.pump.length == 1 && _this.countOfCard() == MAX) {
+									if (_this.pump.length == 1 && _this.countOfCard() == MAX-1) {
 										evt.source.position.y = card_y;
 										_this.disCard(pos, no);
 										_this.pumpRestore();
@@ -398,7 +398,8 @@
 			this.disableDraw();
 			for (var i = 0; i < num; i++)
 				this.hiscards.data.cards.push(tback);
-			
+			this.mycards.needUpdate = true;
+			this.hiscards.needUpdate = true;			
 		}
 		this.enableDraw = function (dealcard) {
 			this.cardDraw = dealcard;
@@ -416,6 +417,7 @@
 			if (pongchi != null && pongchi.length == 3) {
 				this.hiscards.data.showcards.push(pongchi);
 			}
+			this.hiscards.needUpdate = true;	
 		};
 		this.heDiscard = function (dealcard, hediscard) {
 			console.log("disCard " + hediscard);
@@ -424,6 +426,7 @@
 			if (this.hiscards.data.length == MAX) {
 				this.hiscards.data.cards[MAX] = INVALIDCARD;
 			}
+			this.hiscards.needUpdate = true;	
 		};
 		this.whohint = function (isWinning) {
 			if (isWinning) {
@@ -455,20 +458,18 @@
 			return true;
 		};
 		this.create = function (canvas) {
-			var v = new View();
-			
-			v.canvas = canvas;
+			this.canvas = canvas;
 			var engine = new BABYLON.Engine(canvas, true);
-			v.scene = new BABYLON.Scene(engine);
-			v.scene.clearColor = new BABYLON.Color3(35 / 255.0, 116 / 255.0, 172 / 255.0);
-			var light = new BABYLON.PointLight("Point", new BABYLON.Vector3(3 * MAX, 0, -100), v.scene);
-			var camera = new BABYLON.FreeCamera("Camera", new BABYLON.Vector3(3 * MAX, 0, -70), v.scene);
+			this.scene = new BABYLON.Scene(engine);
+			this.scene.clearColor = new BABYLON.Color3(35 / 255.0, 116 / 255.0, 172 / 255.0);
+			var light = new BABYLON.PointLight("Point", new BABYLON.Vector3(3 * MAX, 0, -100), this.scene);
+			var camera = new BABYLON.FreeCamera("Camera", new BABYLON.Vector3(3 * MAX, 0, -70), this.scene);
 			//var camera = new BABYLON.ArcRotateCamera('Camera', 1, .8, 10, new BABYLON.Vector3(0, 0, 0), scene);
-			v.start();
+			this.start();
 
 			//this.scene.activeCamera.attachControl(canvas);
 
-			var _this = v;
+			var _this = this;
 			var timer = setInterval(function () {
 					looper()
 				}, 1000);
@@ -483,7 +484,7 @@
 			//	_this.scene.render();
 			//});
 
-			return v;
+			return this;
 		};
 		this.start = function () {
 			var _this = this;
@@ -540,7 +541,7 @@
 	};
 	View.prototype.command = function (cmd, cardid) {
 		console.log("command " + cmd + " " + cardid);
-		this.go();
+		this.go.command(cmd, cardid);
 	};
 
 	if (typeof exports !== "undefined" && exports !== null) {

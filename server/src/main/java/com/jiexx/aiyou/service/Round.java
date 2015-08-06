@@ -104,7 +104,6 @@ public class Round {
 		
 		going.addTransition(Command.WHO, hu);
 		going.addTransition(Command.EXIT, wait);
-		going.addTransition(Command.DISCARD, going);
 		
 		hu.addTransition(Command.CONTINUE, wait);
 		hu.addTransition(Command.EXIT, wait);
