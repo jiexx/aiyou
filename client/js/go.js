@@ -162,6 +162,7 @@ var Wait = (function (_super) {
 		if( open.roundid != undefined && open.roundid != null )
 			round.roundid = open.roundid;
         round.view.reset();
+		round.view.invalidate();
     };
     return Wait;
 })(State);
@@ -174,8 +175,10 @@ var Going = (function (_super) {
 		var round = this.getRoot();
 		if( msg.cmd == V_START ) {
 			var start = msg;
-			round.subscribe(start.endp);
-			round.roundid = start.roundid;
+			if( start.endp != undefined && start.endp != null )
+				round.subscribe(start.endp);
+			if( start.roundid != undefined && start.roundid != null )
+				round.roundid = start.roundid;
 			round.view.roundDealcards(start.card);
 			round.view.whohint(start.hu);
 			round.view.invalidate();
@@ -223,6 +226,8 @@ var End = (function (_super) {
         _super.call(this, r);
     }
     End.prototype.Enter = function (msg) {
+		//var round = this.getRoot();
+		//round.disconnect();
     };
     return End;
 })(State);
@@ -306,6 +311,7 @@ var RoundImpl = (function (_super) {
 			a.toid = parseInt(this.roundid);
 			a.opt = cardid;
 			this.send(a);
+			this.disconnect();
 		break;
 		}
 	};
