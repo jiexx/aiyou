@@ -1,6 +1,7 @@
 package com.jiexx.aiyou.service;
 
 import java.util.LinkedHashMap;
+import java.util.LinkedList;
 import java.util.Map;
 
 import com.jiexx.aiyou.controller.WebSocketConfig;
@@ -12,7 +13,8 @@ import com.jiexx.aiyou.model.Const;
 
 public class Round {
 
-	State curr, going, empty;//, init;
+	State curr ;
+	GoingState going;
 	private int id;
 	private long user[] = {Const.INVALID_PLAYER.val(), Const.INVALID_PLAYER.val()};
 	private long time;
@@ -90,7 +92,7 @@ public class Round {
 		curr = new NullState(null);
 		curr.setRound(this);
 		
-		empty = new NullState(curr);
+		State empty = new NullState(curr);
 		State wait = new WaitState(curr);
 		going = new GoingState(curr);
 		State hu = new HuState(curr);
@@ -101,6 +103,7 @@ public class Round {
 		wait.addTransition(Command.JOIN, going);
 		wait.addTransition(Command.EXIT, wait);
 		wait.addTransition(Command.FINAL, end);
+		wait.addTransition(Command.CONTINUE, going);
 		
 		going.addTransition(Command.WHO, hu);
 		going.addTransition(Command.EXIT, wait);
@@ -137,8 +140,12 @@ public class Round {
 		return curr;
 	}
 	
+	public LinkedList<Byte>  getCards( Hand hand ) {
+		return going.cards.getHandCards(hand);
+	}
+	
 	public void reset() {
-		curr.setInitState(empty);
+		//curr.setInitState(empty);
 		//going.setInitState(init);
 		time = System.currentTimeMillis();
 	}

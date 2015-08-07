@@ -5,6 +5,7 @@ import java.io.IOException;
 import java.security.SecureRandom;
 import java.sql.SQLException;
 import java.util.Arrays;
+import java.util.LinkedList;
 
 import javax.crypto.Cipher;
 import javax.crypto.KeyGenerator;
@@ -156,12 +157,17 @@ public class Util {
 		if (i < high)
 			quickSort(list, i, high);
 	}
-	public static int findBytes(byte[] arr, byte value) {
+	public static int findBytes(LinkedList<Byte> arr, byte value) {
 		int i = 0;
-		while( arr[i] != value && i < arr.length ) i++;
-		if( i < arr.length )
+		while( arr.get(i) != value && i < arr.size() ) i++;
+		if( i < arr.size() )
 			return i;
 		return -1;
+	}
+	public static int insBytes(LinkedList<Byte> arr, byte value) {
+		int i = 0;
+		while( arr.get(i) < value && i < arr.size() ) i++;
+		return i;
 	}
 
 }

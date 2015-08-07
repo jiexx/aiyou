@@ -67,6 +67,15 @@ public class Card {
 		die();
 		deal();
 		
+		if( holdcards == null ) {
+			holdcards = new LinkedList[2];
+			holdcards[0] = new LinkedList<Byte>();
+			holdcards[1] = new LinkedList<Byte>();
+		}else {
+			holdcards[0].clear();
+			holdcards[1].clear();
+		}
+		
 		int i;
 		
 		for( i = 0 ; i < MAX ;  i++ ) {
@@ -84,14 +93,20 @@ public class Card {
 		
 		pos += i;
 	}
+	LinkedList<Byte> holdcards[] = null;
+	public LinkedList<Byte> getHandCards(Round.Hand hand) {
+		return holdcards[hand.val()];
+	}
 	public LinkedList<Byte> getInitHandCards(Round.Hand hand) {
-		LinkedList<Byte> arr = new LinkedList<Byte>();
-		int len = MAX-2;
+		LinkedList<Byte> arr = holdcards[hand.val()];
+		int len = MAX-1;
 		if(first == hand) {
-			len = MAX-1;
+			len = MAX;
 		}
+		byte[] cards = {1,1,2,2,3,3,4,4,5,5,6,6,7,7};
 		for( int i = 0 ; i < len ;  i ++ ) {
-			arr.add(Byte.valueOf(handcards[hand.val()][i]) );
+			//arr.add(Byte.valueOf(handcards[hand.val()][i]) );
+			arr.add(Byte.valueOf(cards[i]) );
 		}
 		//System.arraycopy(handcards[hand.val()], 0, arr, 0, MAX-1);
 		return arr;

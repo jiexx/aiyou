@@ -26,7 +26,7 @@ public class GoingPlayer extends State{
 	public void Exit(final Message msg) {
 		super.Exit(msg);
 		if( msg.cmd == Command.DISCARD.val() && getRound().getHand( msg.uid ) == endPoint ) {
-			int pos = handcards.indexOf(msg.opt);
+			int pos = Util.findBytes(handcards,  (byte) msg.opt);
 			if( pos > -1 ) {
 				handcards.remove(pos);
 				Ack self = new Ack();
@@ -42,19 +42,19 @@ public class GoingPlayer extends State{
 		if( msg.cmd == Command.DISCARD.val() && endPoint == null ) {
 			cards = ((GoingState) getParent()).cards;
 			endPoint = cards.first.opponent();
-			handcards = cards.getInitHandCards(endPoint);
+			handcards = cards.getHandCards(endPoint);
 		}
 		if( msg.cmd == Command.DISCARD.val() && getRound().getHand( msg.uid ) == endPoint.opponent() ) {
 			DiscardAck self = new DiscardAck();
 			self.cmd = Command.DISCARD.val();
 			self.disc = (byte) msg.opt;
-			self.deal = cards.cards[cards.pos++];
+			self.deal = cards.cards[++cards.pos];
 			self.hu = cards.hu(handcards, self.disc);
 			GameService.instance.sendMessage(getRound().endPoint(endPoint), gson.toJson(self));
 		}
 		else if( msg.cmd == Command.DISCARD_PONG.val()  ){
-			int pos = handcards.indexOf(Byte.valueOf((byte) msg.opt));
-			if( pos > -1 && msg.opt == handcards.get(pos+1) ) {
+			int pos = Util.findBytes(handcards,  (byte) msg.opt);
+			if( pos > -1 && msg.opt == handcards.get(pos+1) && msg.opt == handcards.get(pos+2)  ) {
 				HuAck self = new HuAck();
 				self.cmd = msg.cmd;
 				self.hu = cards.hu(handcards, (byte) msg.opt );
@@ -69,8 +69,8 @@ public class GoingPlayer extends State{
 			}
 		}
 		else if( msg.cmd == Command.DISCARD_CHI.val() ) {
-			int pos = handcards.indexOf(Byte.valueOf((byte) msg.opt));
-			if( pos > -1 && msg.opt == handcards.get(pos+1) ) {
+			int pos = Util.findBytes(handcards,  (byte) msg.opt);
+			if( pos > -1 && msg.opt == handcards.get(pos-1) +1 && msg.opt == handcards.get(pos+1) -1 ) {
 				HuAck self = new HuAck();
 				self.cmd = msg.cmd;
 				self.hu = cards.hu(handcards, (byte) msg.opt );
@@ -85,22 +85,27 @@ public class GoingPlayer extends State{
 			}
 		}
 		else if( msg.cmd == Command.DISCARD_DRAW.val() ){
-			int pos = handcards.indexOf(Byte.valueOf((byte) msg.opt));
-			if( pos > -1 && msg.opt == handcards.get(pos+1) ) {
+			if( msg.opt ==  cards.cards[cards.pos] ) {				
 				DiscardAck self = new DiscardAck();
 				self.cmd = Command.DISCARD_DRAW.val();
 				self.deal = cards.cards[cards.pos];
 				self.hu = cards.hu(handcards, self.deal );
 				GameService.instance.sendMessage(getRound().endPoint(endPoint), gson.toJson(self));
+				
+				int pos = Util.insBytes(handcards,  (byte) msg.opt);
+				handcards.add(pos, (byte) msg.opt);
 			}
 		}
-		System.out.println("GoingPlayer Enter   "+msg.cmd + " :" + getRound().getHand( msg.uid ).getClass().getSimpleName() +handcards.toString());
+		System.out.println("GoingPlayer Enter   "+msg.cmd + " :" + getRound().getHand( msg.uid ).toString() +handcards.toString());
 	}
 	@Override
 	public void reset() {
 		// TODO Auto-generated method stub
 		endPoint = null;
-		handcards.clear();
+		if( handcards != null ) {
+			handcards.clear();
+			handcards = null;
+		}
 	}
 
 

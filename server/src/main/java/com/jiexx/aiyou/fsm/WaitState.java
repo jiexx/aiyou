@@ -46,20 +46,20 @@ public class WaitState extends State{
 		else if( msg.cmd == Command.CONTINUE.val() ) {
 			//getRound().dealer = msg.uid; no more change dealerid;
 			final long id = msg.uid;
-			Timer timer = new Timer(true);
-			timer.schedule(new TimerTask() { 
+			new Thread() {
 				public void run() {
-					if( getRound().getCurrState() == self ) {
-//						getRound().removeAllUser();
-//						getRound().addUser(Round.Hand.DEALER, id);
-						getRound().removeUser(getRound().getHand(id).opponent());
-						
-						Ack ackdealer = new Ack();
-						ackdealer.cmd = Command.TIMEOUT.val();
-						GameService.instance.sendMessage(getRound().endPoint(getRound().getHand(id)), gson.toJson(ackdealer));
+					try {
+						Thread.sleep(1800000);
+						if (getRound().getCurrState() == self) {
+							//getRound().removeUser(getRound().getHand(id).opponent());
+							Ack ackdealer = new Ack();
+							ackdealer.cmd = Command.TIMEOUT.val();
+							GameService.instance.sendMessage(getRound().endPoint(getRound().getHand(id).opponent()), gson.toJson(ackdealer));
+						}
+					} catch (InterruptedException e) {
 					}
 				}
-			}, 0, 10000);
+			}.start();
 		}
 		else if( msg.cmd == Command.TIMEOUT.val() ) {
 			Ack ackdealer = new Ack();
@@ -82,10 +82,10 @@ public class WaitState extends State{
 //					getRound().removeAllUser();
 //					getRound().addUser(Round.Hand.DEALER, getRound().getUser(hand.opponent()));
 //				}
-				getRound().removeUser(hand.opponent());
+				getRound().removeUser(hand);
 				
 				Ack ackdealer = new Ack();
-				ackdealer.cmd = Command.OVER.val();
+				ackdealer.cmd = Command.EXIT.val();
 				GameService.instance.sendMessage(getRound().endPoint(hand.opponent()), gson.toJson(ackdealer));
 			}
 		}

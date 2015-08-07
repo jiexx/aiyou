@@ -40,19 +40,17 @@
 			'who',
 			'continue',
 			'exit',
-			'ai',
-			'yo',
-			'ai0');
+			'loss',
+			'win');
 	//var transparent = tags.length;
 	var
-	tback = tags.length - 8,
-	tdraw = tags.length - 7,
-	twho = tags.length - 6,
-	tcont = tags.length - 5,
-	texit = tags.length - 4,
-	tai = tags.length - 3,
-	tyo = tags.length - 2,
-	tai0 = tags.length - 1,
+	tback = tags.length - 7,
+	tdraw = tags.length - 6,
+	twho = tags.length - 5,
+	tcont = tags.length - 4,
+	texit = tags.length - 3,
+	tloss = tags.length - 2,
+	twin = tags.length - 1,
 	tbg = tags.length + 1;
 	var INVALIDCARD = tags.length,
 	CARDSIZE = 9;
@@ -281,14 +279,14 @@
 		this.who = null;
 		this.resume = null; // continue
 		this.exit = null;
-		this.ai = null;
+		//this.ai = null;
 		this.yo = null;
 		this.reset = function () {
 			this.draw.isVisible = false;
 			this.who.isVisible = false;
 			this.resume.isVisible = false;
 			this.exit.isVisible = false;
-			this.ai.isVisible = false;
+			//this.ai.isVisible = false;
 			this.yo.isVisible = false;
 			this.draw.isVisible = false;
 		}
@@ -319,11 +317,11 @@
 			_this.who = createOO(scene, 'who', 6 * (MAX - 6), 0, 0, true, CARDSIZE);
 			_this.who.material = that.cardMats[twho];
 			_this.who.actionManager.registerAction(new BABYLON.ExecuteCodeAction(BABYLON.ActionManager.OnPickTrigger, function (evt) { // draw card
-					if (that.isWinning) {
-						_this.ai.isVisible = true;
-						_this.ai.material = that.cardMats[tai];
+					/*if (that.isWinning) {
+						//_this.ai.isVisible = true;
+						//_this.ai.material = that.cardMats[tai];
 						_this.yo.isVisible = true;
-						_this.yo.material = that.cardMats[tyo];
+						_this.yo.material = that.cardMats[twin];
 
 						_this.resume.isVisible = true;
 						_this.exit.isVisible = true;
@@ -331,9 +329,9 @@
 					_this.who.isVisible = false;
 					_this.draw.isVisible = false;
 					that.hiscards.needUpdate = true;
-					that.hiscards.data.cards = that.tmp;
+					that.hiscards.data.cards = that.tmp;*/
 					that.command(WHO, 0);
-					that.invalidate();
+					//that.invalidate();
 				}));
 
 			//----------------------------for who------------------------
@@ -355,9 +353,9 @@
 					that.invalidate();
 				}));
 
-			_this.ai = createOO(scene, 'ai', 6 * 3, 0, 2, false, CARDSIZE * 4);
+			//_this.ai = createOO(scene, 'ai', 6 * 3, 0, 2, false, CARDSIZE * 4);
 
-			_this.yo = createOO(scene, 'yo', 6 * 9, -5, 2, false, CARDSIZE * 4);
+			_this.yo = createOO(scene, 'yo', 6 * 7, 0, 3, false, CARDSIZE * 4);
 		}
 	};
 
@@ -385,6 +383,7 @@
 			this.mycards.needUpdate = true;
 			this.hiscards.data.cards.splice(0,this.hiscards.data.cards.length);
 			this.hiscards.needUpdate = true;
+			this.buttons.reset();
 		}
 		this.roundDealcards = function (cards) {
 			this.mycards.data.cards = cards;
@@ -429,21 +428,29 @@
 			this.hiscards.needUpdate = true;	
 		};
 		this.whohint = function (isWinning) {
-			if (isWinning) {
-				this.buttons.who.isVisible = true;
-			}
+			this.buttons.who.isVisible = isWinning;
 		};
 		this.who = function (hiscards, isWinning) {
 			this.isWinning = isWinning;
 			if (isWinning) {
-				this.buttons.who.isVisible = true;
+				//this.buttons.who.isVisible = true;
 				//this.enableDraw(dealcard);
-				this.tmp = hiscards;
+				//this.tmp = hiscards;
+				var _this = this.buttons;
+				_this.who.isVisible = false;
+				_this.draw.isVisible = false;
+				_this.yo.isVisible = true;
+				_this.yo.material = this.cardMats[twin];
+				
+				_this.resume.isVisible = true;
+				_this.exit.isVisible = true;
+				this.hiscards.data.cards = hiscards;
 			}else {
 				var _this = this.buttons;
+				_this.who.isVisible = false;
 				_this.draw.isVisible = false;
-				_this.ai.isVisible = true;
-				_this.ai.material = this.cardMats[tai0];
+				_this.yo.isVisible = true;
+				_this.yo.material = this.cardMats[tloss];
 				
 				_this.resume.isVisible = true;
 				_this.exit.isVisible = true;

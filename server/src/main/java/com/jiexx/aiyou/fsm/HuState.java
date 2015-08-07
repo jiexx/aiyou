@@ -22,21 +22,23 @@ public class HuState extends TimeOutState{
 		super.Enter(msg);
 		// TODO Auto-generated method stub
 		if( msg.cmd == Command.WHO.val()  ) {
-			Round.Hand hand = Round.Hand.from(msg.opt);
+			Round.Hand hand = getRound().getHand( msg.uid );
 			
 			winOrLose(hand);
 			
-			HuAck ackdealer = new HuAck();
-			ackdealer.cmd = Command.START.val();
-			ackdealer.hu = true;
-			ackdealer.bonus = 10;
-			GameService.instance.sendMessage(getRound().endPoint(hand), gson.toJson(ackdealer));
+			HuAck winack = new HuAck();
+			winack.cmd = Command.WHO.val();
+			winack.other = getRound().getCards(hand.opponent());
+			winack.hu = true;
+			winack.bonus = 10;
+			GameService.instance.sendMessage(getRound().endPoint(hand), gson.toJson(winack));
 			
-			HuAck ackplayer = new HuAck();
-			ackplayer.cmd = Command.START.val();
-			ackplayer.hu = false;
-			ackdealer.bonus = -10;
-			GameService.instance.sendMessage(getRound().endPoint(hand.opponent()), gson.toJson(ackplayer));
+			HuAck lossack = new HuAck();
+			lossack.cmd = Command.WHO.val();
+			lossack.other = getRound().getCards(hand);
+			lossack.hu = false;
+			lossack.bonus = -10;
+			GameService.instance.sendMessage(getRound().endPoint(hand.opponent()), gson.toJson(lossack));
 		} 
 		else if( msg.cmd == Command.TIMEOUT.val() ) {
 			

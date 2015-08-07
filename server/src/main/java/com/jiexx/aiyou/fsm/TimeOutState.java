@@ -13,26 +13,30 @@ public class TimeOutState extends State {
 		// TODO Auto-generated constructor stub
 		self = this;
 	}
+
 	private State self;
 
 	@Override
 	public void Enter(final Message msg) {
 		// TODO Auto-generated method stub
-		final Message message = msg;
-		message.cmd = Command.TIMEOUT.val();
-		Timer timer = new Timer(true);
-		timer.schedule(new TimerTask() { 
+		new Thread() {
 			public void run() {
-				if( getRound().getCurrState() == self )
-					getRound().receive(message);
+				try {
+					Thread.sleep(1800000);
+					if (getRound().getCurrState() == self) {
+						msg.cmd = Command.TIMEOUT.val();
+						getRound().receive(msg);
+					}
+				} catch (InterruptedException e) {
+				}
 			}
-		}, 0, 10000);
+		}.start();
 	}
 
 	@Override
 	public void reset() {
 		// TODO Auto-generated method stub
-		
+
 	}
 
 }

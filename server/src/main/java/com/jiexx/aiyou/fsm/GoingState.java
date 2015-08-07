@@ -72,7 +72,7 @@ public class GoingState extends State{
 			StartAck ackplayer = new StartAck();
 			ackplayer.cmd = Command.START.val();
 			ackplayer.card = cards.getInitHandCards(cards.first.opponent());
-			ackplayer.hu = Card.hu(ackdealer.card);
+			ackplayer.hu = Card.hu(ackplayer.card);
 			GameService.instance.sendMessage(getRound().endPoint(cards.first.opponent()), gson.toJson(ackplayer));
 		}
 		else if( msg.cmd == Command.DISCARD.val()  ) {
