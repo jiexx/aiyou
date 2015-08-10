@@ -40,28 +40,30 @@
         var mapOptions = {
           zoom: 5,
           center: myLatlng,
-          mapTypeControlOptions: {
+          disableDefaultUI: true,
+          mapTypeId: google.maps.MapTypeId.ROADMAP,
+          /*mapTypeControlOptions: {
 			mapTypeIds: [
 			google.maps.MapTypeId.ROADMAP,
 			google.maps.MapTypeId.HYBRID,
 			google.maps.MapTypeId.SATELLITE,
 			google.maps.MapTypeId.TERRAIN,
 			'localMap' ]  //定义地图类型
-		  },
-		  panControl: true,
-		  zoomControl: true,
-		  mapTypeControl: true,
+		  },*/
+		  panControl: false,
+		  zoomControl: false,
+		  mapTypeControl: false,
 		  scaleControl: true,
-		  streetViewControl: true,
-		  overviewMapControl: true
+		  streetViewControl: false,
+		  overviewMapControl: false
         }
 
 
         map = new google.maps.Map(document.getElementById('map_canvas'), mapOptions);
 		map.mapTypes.set('localMap', localMapType);   //绑定本地地图类型
         map.setMapTypeId('localMap');    //指定显示本地地图
-		map.setOptions({draggable: true});
-		
+		map.setOptions({draggable: false});
+		//map.getUiSettings().setZoomControlsEnabled(false);
 		var infowindow = new google.maps.InfoWindow({
             content:  '<img src="images/flowers.jpg"><br/><center>Wuhan</center>'
         });
