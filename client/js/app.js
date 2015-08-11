@@ -1,87 +1,64 @@
 var app = angular.module('aiyou', [
-    "ngRoute",
-    "mobile-angular-ui.gestures",
-    "mobile-angular-ui"
-]);
- 
-app.config(function($routeProvider, $locationProvider) {
-    $routeProvider.when('/',			{templateUrl: "home.html", reloadOnSearch: false});
-	$routeProvider.otherwise({redirectTo: '/'});
+			"ngRoute",
+			"mobile-angular-ui.gestures",
+			"mobile-angular-ui"
+		]);
+
+app.config(function ($routeProvider, $controllerProvider) {
+	app.registerCtrl = $controllerProvider.register;
+
+	$routeProvider.when('/', {
+		templateUrl : "home.html",
+		reloadOnSearch : false
+	});
+	$routeProvider.otherwise({
+		redirectTo : '/'
+	});
 });
 
-app.service('lazyLoad', ['$document', '$q', '$timeout', function ($document, $q, $timeout) {
-
-    function loader(createElement) {
-        var promises = {};
-
-        return function (url) {
-            if (typeof promises[url] === 'undefined') {
-                var deferred = $q.defer();
-                var element = createElement(url);
-
-                element.onload = element.onreadystatechange = function (e) {
-                    $timeout(function () {
-                        deferred.resolve(e);
-                    });
-                };
-                element.onerror = function (e) {
-                    $timeout(function () {
-                        deferred.reject(e);
-                    });
-                };
-
-                promises[url] = deferred.promise;
-            }
-
-            return promises[url];
-        };
-    }
-
-
-    this.loadScript = loader(function (src) {
-        var script = $document[0].createElement('script');
-
-        script.src = src;
-
-        $document[0].body.appendChild(script);
-        return script;
-    });
-
-
-    this.loadCSS = loader(function (href) {
-        var style = $document[0].createElement('link');
-
-        style.rel = 'stylesheet';
-        style.type = 'text/css';
-        style.href = href;
-
-        $document[0].head.appendChild(style);
-        return style;
-    });
-}]);
-
-app.service('map', function ($window, $q, lazyLoad) {
-    this.MAP = function () {
-        var deferred = $q.defer();
-
-        if (typeof $window.MAP === "undefined") {
-				lazyLoad.loadScript('lib/ckeditor/ckeditor.js').then(function () {
-                deferred.resolve($window.MAP);
-            }).catch(function () {
-                console.log('Error loading ');
-                deferred.resolve($window.MAP);
-            });
-        } else {
-            deferred.resolve($window.MAP);
-        }
-
-        return deferred.promise;
-    }
-
-});
-
-app.controller('mapper', function (map) {
-
-     map.MAP();
-
-})
+app.directive('script', ['$window', '$q', function ($window, $q) {
+			function load_script(code) {
+				var f = new Function(code);
+				f();
+			}
+			function lazyLoadApi(code) {
+				var deferred = $q.defer();
+				$window.initialize = function () {
+					deferred.resolve();
+				};
+				// thanks to Emil Stenstr?m: http://friendlybit.com/js/lazy-loading-asyncronous-javascript/
+				if ($window.attachEvent) {
+					$window.attachEvent('onload', function() {load_script(code);});
+				} else {
+					$window.addEventListener('load', function() {load_script(code);}, false);
+				}
+				return deferred.promise;
+			}
+			return {
+				restrict : 'E',
+				scope : false,
+				link : function (scope, elem, attr) {
+					if (attr.type === 'text/javascript-lazy') {
+						var code = elem.text();
+						/*if ($window.google && $window.google.maps) {
+							console.log('gmaps already loaded');
+							lazyLoadApi(code);
+						} else {
+							lazyLoadApi(code).then(function () {
+								console.log('promise resolved');
+								if ($window.google && $window.google.maps) {
+									console.log('gmaps loaded');
+								} else {
+									console.log('gmaps not loaded');
+								}
+							}, function () {
+								console.log('promise rejected');
+							});
+						}*/
+						var f = new Function(code);
+						f();
+					}
+				}
+			};
+		}
+	]);
