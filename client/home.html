@@ -1,34 +1,141 @@
 ﻿<div id="mapper" class="scrollable" style="left:0;top:0;width:100%;height:100%;position:absolute;">
 </div>
 <script type="text/javascript-lazy">
-
-	var map;
-	function LocalMapType() {}
-
-	LocalMapType.prototype.tileSize = new google.maps.Size(256, 256);
-	LocalMapType.prototype.maxZoom = 16; 
-	LocalMapType.prototype.minZoom = 13; 
-	LocalMapType.prototype.name = "home";
-	LocalMapType.prototype.alt = "home";
-	LocalMapType.prototype.getTile = function (coord, zoom, ownerDocument) {
-		var img = ownerDocument.createElement("img");
-		img.style.width = this.tileSize.width + "px";
-		img.style.height = this.tileSize.height + "px";
-
-		mapPicDir = "../3rd-lib/maptile/tiles/";
-		var curSize = Math.pow(2, zoom);
-		strURL = mapPicDir + zoom + "/" + (coord.x % curSize) + "/" + (coord.y % curSize) + ".PNG";
-		img.src = strURL;
-		console.log("It works! "+img.src);
-		return img;
+(function () {
+	var pin = [['ufemale.png','umale.png','ushop.png','unreg.png'],['female.png','male.png','shop.png','reg.png']];
+	function LabelFmt() {
+					 
+		this.cols = [
+		  /*  0 female      1 male     2 shop     3 self   4 */
+		[this.avatar, this.avatar, this.name, this.avatar, this.mgr] /*col 1*/,
+		[this.empty, this.play, this.empty, this.empty, this.empty],
+		[this.empty, this.msg, this.empty, this.empty, this.empty],
+		[this.empty, this.empty, this.empty, this.setting, this.setting] /* col setting*/
+		];
+		
+	}
+	LabelFmt.prototype.avatar = function(id, name) {
+		return '<a href="'+id+'" class="btn btn-default" ><img src="data:image/png;base64,"/></a>';
 	};
+	LabelFmt.prototype.name = function(id, name) {
+		return '<a href="'+id+'" class="btn btn-default" >'+name+'</a>';
+	};
+	LabelFmt.prototype.play = function(id, name) {
+		return '<a href="'+id+'" class="btn btn-default fa fa-gamepad"></a>';
+	};
+	LabelFmt.prototype.msg = function(id, name) {
+		return '<a href="'+id+'" class="btn btn-default fa fa-comments-o"></a>';
+	};
+	LabelFmt.prototype.setting = function(id, name) {
+		return '<a href="'+id+'" class="btn btn-default fa fa-gear"></a>';
+	};
+	LabelFmt.prototype.mgr = function(id, name){
+		return '<a href="'+id+'" class="btn btn-default fa fa-calculator"></a>';
+	};
+	LabelFmt.prototype.empty = function(id, name){
+		return '';
+	};
+	LabelFmt.prototype.format = function(clz, id, name) {
+		var str = '';
+		if( clz.length == 4 ) {
+			for( var i = 0; i < 4 ; i ++ ) {
+				var j = parseInt(clz[i]);
+				str += this.cols[i][j](id, name);
+			}
+		}
+		return '<div class="btn-group">'+str+'</div>';
+	};
+	
+	var stars = {
+		id : 0,
+		clz : '',
+		gender : 0,
+		name : '',
+		avatar : '',
+		x : 0,
+		y : 0
+	};
+	function Lable(home, clz, id, name, latLng){
+		this.map_ = home.map;
+		this.text_ = home.labelFormat.format(clz, id, name);
+		this.latLng_ = latLng;
+		this.div_ = null;
+		this.hidden = true;
+		this.setMap(home.map);
+	};
+	Lable.prototype = new google.maps.OverlayView();
+	Lable.prototype.onAdd = function(){
+		var div = document.createElement('DIV');
+		div.style.border = 'none';
+		div.style.position='absolute';   
+		div.innerHTML = this.text_;   
+		this.div_ = div;   
+		var panes = this.getPanes();
+		panes.overlayLayer.appendChild(div);
+	};
+	Lable.prototype.draw = function(){
+		var overlayProjection = this.getProjection();
+		var latLng = overlayProjection.fromLatLngToDivPixel(this.latLng_);
+		var div = this.div_;
+		var size = new google.maps.Size(-56, -62);
+		div.style.left = (latLng.x + size.width) + 'px';
+		div.style.top = (latLng.y + size.height) + 'px';
+	};
+	Lable.prototype.onRemove = function(){
+		this.div_.parentNode.removeChild(this.div_);
+		this.div_ = null;
+	};
+	Lable.prototype.show = function () {
+		if (this.div_) {
+			this.div_.style.display = "";
+			this.redraw();
+		}
+	}
+	Lable.prototype.hide = function () {
+		if (this.div_) {
+			this.div_.style.display = "none";
+		}
+	}
+	Lable.prototype.toggle = function () {
+		this.hidden = !this.hidden;
+		if( this.hidden ) {
+			this.hide();
+		}else {
+			this.show();
+		}
+	}
 
-	var localMapType = new LocalMapType();
+	function Home() {
+		this.map = null;
+		this.labelFormat = new LabelFmt();
+		this.labels = new Array();
+		this.markers = new Array();
+	};
+	Home.prototype.layout = function(lat, lng) {
+		
+		function LocalMapType() {}
+		LocalMapType.prototype.tileSize = new google.maps.Size(256, 256);
+		LocalMapType.prototype.maxZoom = 16; 
+		LocalMapType.prototype.minZoom = 13; 
+		LocalMapType.prototype.name = "home";
+		LocalMapType.prototype.alt = "home";
+		LocalMapType.prototype.getTile = function (coord, zoom, ownerDocument) {
+			var img = ownerDocument.createElement("img");
+			img.style.width = this.tileSize.width + "px";
+			img.style.height = this.tileSize.height + "px";
 
-	function initialize() {
-		var myLatlng = new google.maps.LatLng(31.268964, 121.443794); //(30.587, 114.312);
+			mapPicDir = "../3rd-lib/maptile/tiles/";
+			var curSize = Math.pow(2, zoom);
+			strURL = mapPicDir + zoom + "/" + (coord.x % curSize) + "/" + (coord.y % curSize) + ".PNG";
+			img.src = strURL;
+			console.log("It works! "+img.src);
+			return img;
+		};
+		var localMapType = new LocalMapType();
+		
+		var myLatlng = new google.maps.LatLng(lat, lng)//(31.268964, 121.443794);
 		var mapOptions = {
-			zoom : 5,
+			zoom : 3,
 			center : myLatlng,
 			disableDefaultUI : true,
 			mapTypeId : google.maps.MapTypeId.ROADMAP,
@@ -40,47 +147,63 @@
 			overviewMapControl : false
 		}
 
-		map = new google.maps.Map(document.getElementById('mapper'), mapOptions);
+		var map = new google.maps.Map(document.getElementById('mapper'), mapOptions);
 		map.mapTypes.set('localMap', localMapType); 
 		map.setMapTypeId('localMap'); 
 		map.setOptions({
 			draggable : false
 		});
-		var infowindow = new google.maps.InfoWindow({
-				content : '<img src="../3rd-lib/images/flowers.jpg"><br/><center>Wuhan</center>'
-			});
-		var image = '../3rd-lib/images/user.png';
-		var myLatLng = new google.maps.LatLng(31.268964, 121.443794); 
-
-		var marker = new google.maps.Marker({
-				position : myLatlng,
-				map : map,
-				title : '',
-				icon : image
-			});
-		google.maps.event.addListener(marker, 'click', function () {
-			infowindow.open(map, marker);
-		});
-
-		//default icons
-		var parliament = new google.maps.LatLng(31.266617, 121.416328); 
-		var marker2 = new google.maps.Marker({
-				map : map,
-				draggable : true,
-				animation : google.maps.Animation.DROP,
-				position : parliament
-			});
-		google.maps.event.addListener(marker2, 'click', toggleBounce);
-
-		function toggleBounce() {
-
-			if (marker2.getAnimation() != null) {
-				marker2.setAnimation(null);
-			} else {
-				marker2.setAnimation(google.maps.Animation.BOUNCE);
-			}
-		}
+		this.map = map;
 	};
-	initialize();
+	Home.prototype.hideLabels = function() {
+		for( var i in this.labels ) {
+			this.labels[i].setMap(null); 
+			this.labels[i].hide();
+		}
+	}
+	Home.prototype.clean = function() {
+		for( var i in this.labels ) {
+			this.labels[i].setMap(null); 
+		}
+		for( var i in this.markers ) {
+			this.markers[i].setMap(null); 
+		}
+		this.labels.splice(0, this.labels.length);
+		this.markers.splice(0, this.markers.length);
+	}
+	Home.prototype.star = function(isreg, star) {
+		for( var a in star ) {
+			this.mark(isreg, star[a].x, star[a].y, star[a].clz, star[a].id, star[a].name);
+		}
+	}
+	Home.prototype.mark = function(isreg, x, y, clz, id, name) {
+		var image = 'asserts/map/'+pin[isreg][parseInt(clz.substr(0,1))];
+		var myLatLng = new google.maps.LatLng(x, y); 
+		var marker = new google.maps.Marker({
+				position : myLatLng,
+				map : this.map,
+				title : '',
+				icon : image,
+				draggable : false,
+				animation : google.maps.Animation.DROP
+			});
+		var _this = this;
+		google.maps.event.addListener(marker, 'click', function () {
+			_this.hideLabels();
+			var label = new Lable(_this, clz, id, name, myLatLng);
+			label.show();
+			_this.labels.push(label);
+		});
+		this.markers.push(marker);
+	};
+	if (typeof exports !== "undefined" && exports !== null) {
+		exports.Home = new Home();
+	}
+	if (typeof window !== "undefined" && window !== null) {
+		window.Home = new Home();
+	} else if (!exports) {
+		self.Home = new Home();
+	}
+}).call(this);
 
 </script>

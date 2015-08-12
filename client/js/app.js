@@ -17,46 +17,17 @@ app.config(function ($routeProvider, $controllerProvider) {
 });
 
 app.directive('script', ['$window', '$q', function ($window, $q) {
-			function load_script(code) {
-				var f = new Function(code);
-				f();
-			}
-			function lazyLoadApi(code) {
-				var deferred = $q.defer();
-				$window.initialize = function () {
-					deferred.resolve();
-				};
-				// thanks to Emil Stenstr?m: http://friendlybit.com/js/lazy-loading-asyncronous-javascript/
-				if ($window.attachEvent) {
-					$window.attachEvent('onload', function() {load_script(code);});
-				} else {
-					$window.addEventListener('load', function() {load_script(code);}, false);
-				}
-				return deferred.promise;
-			}
 			return {
 				restrict : 'E',
 				scope : false,
 				link : function (scope, elem, attr) {
 					if (attr.type === 'text/javascript-lazy') {
 						var code = elem.text();
-						/*if ($window.google && $window.google.maps) {
-							console.log('gmaps already loaded');
-							lazyLoadApi(code);
-						} else {
-							lazyLoadApi(code).then(function () {
-								console.log('promise resolved');
-								if ($window.google && $window.google.maps) {
-									console.log('gmaps loaded');
-								} else {
-									console.log('gmaps not loaded');
-								}
-							}, function () {
-								console.log('promise rejected');
-							});
-						}*/
 						var f = new Function(code);
 						f();
+						Home.clean();
+						Home.layout(31.268964, 121.443794);
+						Home.star(0, [{x: 31.268964, y: 121.443794, clz : '3110', id: 158, name:'test1'}, {x: 31.266617, y: 121.416328, clz : '0110', id: 158, name:'test2'}] );
 					}
 				}
 			};
