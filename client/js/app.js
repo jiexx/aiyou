@@ -9,11 +9,29 @@ app.config(function ($routeProvider, $controllerProvider) {
 
 	$routeProvider.when('/', {
 		templateUrl : "home.html",
+    controller: 'homeReq',
 		reloadOnSearch : false
 	});
 	$routeProvider.otherwise({
 		redirectTo : '/'
 	});
+});
+
+app.controller('homeReq', function ($scope, $location, $cookieStore) {
+  $scope.title = 'home';
+
+  $http({
+        url: 'http://samedomain.com/GetPersons',
+        method: "POST",
+        data: '',
+        headers: {'Content-Type': 'application/x-www-form-urlencoded'}
+    }).success(function (data, status, headers, config) {
+        var token = data.token;
+        $cookieStore.put('token', token);
+      //$location.path('/');
+    }).error(function (data, status, headers, config) {
+        $scope.status = status;
+    });
 });
 
 app.directive('script', ['$window', '$q', function ($window, $q) {
