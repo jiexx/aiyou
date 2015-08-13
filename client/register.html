@@ -1,0 +1,21 @@
+﻿<div class="scrollable-content section">
+  <form role="form" ng-submit='login()'>
+	<fieldset>
+	  <legend>注册</legend>
+	  <div class="form-group">
+	  <label>名字</label> 
+	  <input type="text" class="form-control" placeholder="昵称" /></div>
+	  <div class="form-group">
+	  <label>头像</label> 
+	  <input type="file" class="form-control" name="file" onchange="angular.element(this).scope().uploadFile(this.files)"/></div>
+	  <div class="form-group">
+	  <label>标语</label> 
+	  <input type="text" class="form-control" placeholder="标语" /></div>
+	</fieldset>
+	<hr />
+	<button class="btn btn-primary btn-block">提交</button>
+	<div ui-content-for="navbarAction">
+	  <a class='btn' ng-click='login()'>Login</a>
+	</div>
+  </form>
+</div>

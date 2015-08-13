@@ -1,4 +1,4 @@
-﻿<div id="mapper" class="scrollable" style="left:0;top:0;width:100%;height:100%;position:absolute;">
+﻿<div id="mapper" class="scrollable-content" style="left:0;top:0;width:100%;height:100%;position:absolute;">
 </div>
 <script type="text/javascript-lazy">
 (function () {
@@ -15,7 +15,7 @@
 		
 	}
 	LabelFmt.prototype.avatar = function(id, name) {
-		return '<a href="'+id+'" class="btn btn-default" ><img src="data:image/png;base64,"/></a>';
+		return '<a href="'+id+'" class="btn btn-default" ><img height="18" src="data:image/png;base64,"/></a>';
 	};
 	LabelFmt.prototype.name = function(id, name) {
 		return '<a href="'+id+'" class="btn btn-default" >'+name+'</a>';

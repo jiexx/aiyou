@@ -1,3 +1,8 @@
+var GLOBAL = {
+	userid : '15800000000',
+	lng : 121.443794,
+	lat : 31.268964
+}
 var app = angular.module('aiyou', [
 			"ngRoute",
 			"mobile-angular-ui.gestures",
@@ -7,9 +12,26 @@ var app = angular.module('aiyou', [
 app.config(function ($routeProvider, $controllerProvider) {
 	app.registerCtrl = $controllerProvider.register;
 
-	$routeProvider.when('/', {
+	$routeProvider.when('/home', {
 		templateUrl : "home.html",
-    controller: 'homeReq',
+		controller : 'homeCtrl',
+		reloadOnSearch : false
+	});
+	$routeProvider.when('/homelist', {
+		templateUrl : "homelist.html",
+		reloadOnSearch : false
+	});
+	$routeProvider.when('/user', {
+		templateUrl : "user.html",
+		reloadOnSearch : false
+	});
+	$routeProvider.when('/', {
+		templateUrl : "shop.html",
+		reloadOnSearch : false
+	});
+	$routeProvider.when('/register', {
+		templateUrl : "register.html",
+		controller : 'registerCtrl',
 		reloadOnSearch : false
 	});
 	$routeProvider.otherwise({
@@ -17,35 +39,167 @@ app.config(function ($routeProvider, $controllerProvider) {
 	});
 });
 
-app.controller('homeReq', function ($scope, $location, $cookieStore) {
-  $scope.title = 'home';
+app.controller('homeCtrl', function ($scope, $location, $cookieStore) {
+	$scope.uploadFile = function(files) {
+		var fd = new FormData();
+		//Take the first selected file
+		fd.append("file", files[0]);
 
-  $http({
-        url: 'http://samedomain.com/GetPersons',
-        method: "POST",
-        data: '',
-        headers: {'Content-Type': 'application/x-www-form-urlencoded'}
-    }).success(function (data, status, headers, config) {
-        var token = data.token;
-        $cookieStore.put('token', token);
-      //$location.path('/');
-    }).error(function (data, status, headers, config) {
-        $scope.status = status;
-    });
+		$http.post(uploadUrl, fd, {
+			withCredentials: true,
+			headers: {'Content-Type': undefined },
+			transformRequest: angular.identity
+		}).success( function (resp, status, headers, config) {
+		}).error( function (data, status, headers, config) {
+		});
+	};
 });
 
-app.directive('script', ['$window', '$q', function ($window, $q) {
+app.controller('homeCtrl', function ($scope, $location, $cookieStore) {
+	$scope.title = 'home';
+	$http({
+		method : 'GET',
+		url : 'http://127.0.0.1:9090/home.do?id=' + GLOBAL.userid + '&lng=' + GLOBAL.lng + '&lat=' + GLOBAL.lat
+	}).success(function (resp, status, headers, config) {
+	//var token = data.token;
+	//$cookieStore.put('token', token);
+	//$location.path('/');
+		console.log(resp);
+		Home.clean();
+		Home.layout(31.268964, 121.443794);
+		Home.star(0, [{
+					x : 31.268964,
+					y : 121.443794,
+					clz : '3110',
+					id : 158,
+					name : 'test1'
+				}, {
+					x : 31.266617,
+					y : 121.416328,
+					clz : '0110',
+					id : 158,
+					name : 'test2'
+				}
+			]);
+	}).error(function (data, status, headers, config) {
+		$scope.status = status;
+	});
+});
+
+app.directive('carousel', function(){
+  return {
+    restrict: 'C',
+    scope: {},
+    controller: function() {
+      this.itemCount = 0;
+      this.activeItem = null;
+
+      this.addItem = function(){
+        var newId = this.itemCount++;
+        this.activeItem = this.itemCount === 1 ? newId : this.activeItem;
+        return newId;
+      };
+
+      this.next = function(){
+        this.activeItem = this.activeItem || 0;
+        this.activeItem = this.activeItem === this.itemCount - 1 ? 0 : this.activeItem + 1;
+      };
+
+      this.prev = function(){
+        this.activeItem = this.activeItem || 0;
+        this.activeItem = this.activeItem === 0 ? this.itemCount - 1 : this.activeItem - 1;
+      };
+    }
+  };
+});
+
+app.directive('carouselItem', function($drag) {
+  return {
+    restrict: 'C',
+    require: '^carousel',
+    scope: {},
+    transclude: true,
+    template: '<div class="item"><div ng-transclude></div></div>',
+    link: function(scope, elem, attrs, carousel) {
+      scope.carousel = carousel;
+      var id = carousel.addItem();
+      
+      var zIndex = function(){
+        var res = 0;
+        if (id === carousel.activeItem){
+          res = 2000;
+        } else if (carousel.activeItem < id) {
+          res = 2000 - (id - carousel.activeItem);
+        } else {
+          res = 2000 - (carousel.itemCount - 1 - carousel.activeItem + id);
+        }
+        return res;
+      };
+
+      scope.$watch(function(){
+        return carousel.activeItem;
+      }, function(){
+        elem[0].style.zIndex = zIndex();
+      });
+      
+      $drag.bind(elem, {
+        //
+        // This is an example of custom transform function
+        //
+        transform: function(element, transform, touch) {
+          // 
+          // use translate both as basis for the new transform:
+          // 
+          var t = $drag.TRANSLATE_BOTH(element, transform, touch);
+          
+          //
+          // Add rotation:
+          //
+          var Dx    = touch.distanceX, 
+              t0    = touch.startTransform, 
+              sign  = Dx < 0 ? -1 : 1,
+              angle = sign * Math.min( ( Math.abs(Dx) / 700 ) * 30 , 30 );
+          
+          t.rotateZ = angle + (Math.round(t0.rotateZ));
+          
+          return t;
+        },
+        move: function(drag){
+          if(Math.abs(drag.distanceX) >= drag.rect.width / 4) {
+            elem.addClass('dismiss');  
+          } else {
+            elem.removeClass('dismiss');  
+          }
+        },
+        cancel: function(){
+          elem.removeClass('dismiss');
+        },
+        end: function(drag) {
+          elem.removeClass('dismiss');
+          if(Math.abs(drag.distanceX) >= drag.rect.width / 4) {
+            scope.$apply(function() {
+              carousel.next();
+            });
+          }
+          drag.reset();
+        }
+      });
+    }
+  };
+});
+
+app.directive('script', ['$window', '$q', '$http', function ($window, $q, $http) {
 			return {
 				restrict : 'E',
 				scope : false,
+				controller : function ($scope) {
+					console.log($scope);
+				},
 				link : function (scope, elem, attr) {
 					if (attr.type === 'text/javascript-lazy') {
 						var code = elem.text();
 						var f = new Function(code);
 						f();
-						Home.clean();
-						Home.layout(31.268964, 121.443794);
-						Home.star(0, [{x: 31.268964, y: 121.443794, clz : '3110', id: 158, name:'test1'}, {x: 31.266617, y: 121.416328, clz : '0110', id: 158, name:'test2'}] );
 					}
 				}
 			};
