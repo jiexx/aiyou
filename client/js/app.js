@@ -1,28 +1,26 @@
-var GLOBAL = {
-	userid : '15800000000',
-	lng : 121.443794,
-	lat : 31.268964
-}
+
 var app = angular.module('aiyou', [
 			"ngRoute",
 			"mobile-angular-ui.gestures",
 			"mobile-angular-ui"
 		]);
 
-app.config(function ($routeProvider, $controllerProvider) {
+app.config(function ($routeProvider, $controllerProvider, $locationProvider,) {
 	app.registerCtrl = $controllerProvider.register;
-
+  //$locationProvider.html5Mode(true);
 	$routeProvider.when('/home', {
 		templateUrl : "home.html",
 		controller : 'homeCtrl',
 		reloadOnSearch : false
 	});
 	$routeProvider.when('/homelist', {
-		templateUrl : "homelist.html",
+		templateUrl : "home-list.html",
+    controller : 'homeListCtrl',
 		reloadOnSearch : false
 	});
 	$routeProvider.when('/user', {
 		templateUrl : "user.html",
+    controller : 'userCtrl',
 		reloadOnSearch : false
 	});
 	$routeProvider.when('/', {
@@ -39,7 +37,16 @@ app.config(function ($routeProvider, $controllerProvider) {
 	});
 });
 
-app.controller('homeCtrl', function ($scope, $location, $cookieStore) {
+app.factory('DATA', function() {
+  return {
+    userid : 15800000000,
+    lng : 121.443794,
+    lat : 31.268964,
+    stars : []
+  }
+});
+
+app.controller('registerCtrl', function ($scope, $location, $cookieStore) {
 	$scope.uploadFile = function(files) {
 		var fd = new FormData();
 		//Take the first selected file
@@ -50,21 +57,44 @@ app.controller('homeCtrl', function ($scope, $location, $cookieStore) {
 			headers: {'Content-Type': undefined },
 			transformRequest: angular.identity
 		}).success( function (resp, status, headers, config) {
-		}).error( function (data, status, headers, config) {
+		}).error( function (resp, status, headers, config) {
 		});
 	};
 });
 
-app.controller('homeCtrl', function ($scope, $location, $cookieStore) {
+app.controller('userCtrl', function ($scope, $location, $cookieStore, DATA) {
+	$http({
+		method : 'GET',
+    //$location.path('/myURL/').search({param: 'value'});
+		url : 'http://127.0.0.1:9090/home.do?id=' + $location.search().id + '&lng=' + DATA.lng + '&lat=' + DATA.lat
+	}).success(function (resp, status, headers, config) {
+	//var token = data.token;
+	//$cookieStore.put('token', token);
+	//$location.path('/');
+	}).error(function (data, status, headers, config) {
+		$scope.status = status;
+	});
+});
+
+app.controller('homeListCtrl', function ($scope, $location, $cookieStore, DATA) {
+	$scope.bottomReached = function() {
+    /* global alert: false; */
+    //alert('Congrats you scrolled to the end of the list!');
+  };
+  $scope.stars = DATA.stars;
+});
+
+app.controller('homeCtrl', function ($scope, $location, $cookieStore, DATA) {
 	$scope.title = 'home';
 	$http({
 		method : 'GET',
-		url : 'http://127.0.0.1:9090/home.do?id=' + GLOBAL.userid + '&lng=' + GLOBAL.lng + '&lat=' + GLOBAL.lat
+		url : 'http://127.0.0.1:9090/home.do?id=' + DATA.userid + '&lng=' + DATA.lng + '&lat=' + DATA.lat
 	}).success(function (resp, status, headers, config) {
 	//var token = data.token;
 	//$cookieStore.put('token', token);
 	//$location.path('/');
 		console.log(resp);
+    DATA.stars = resp;
 		Home.clean();
 		Home.layout(31.268964, 121.443794);
 		Home.star(0, [{

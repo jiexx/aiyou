@@ -6396,6 +6396,7 @@ a.label:focus {
 }
 
 .label-info {
+  margin-left : 20px;
   background-color: #34aadc;
 }
 
@@ -7866,6 +7867,32 @@ button.close {
   line-height: 1;
 }
 
+.carousel {
+  padding: 20px;
+  overflow: visible;
+}
+
+.carousel-inner {
+  position: relative;
+  overflow: visible;
+}
+
+.carousel>.item, .carousel-item {
+  top: 0;
+  left: 0;
+  position: absolute;
+  display: block;
+  width: 100%;
+  height: 100%;
+  background-size: cover;
+}
+
+.carousel-item {
+  -webkit-transition: -webkit-transform 500ms;
+  -moz-transition: -moz-transform 500ms;
+  transition: transform 500ms;
+}
+
 .carousel-inner > .active,
 .carousel-inner > .next,
 .carousel-inner > .prev {
@@ -8850,4 +8877,23 @@ ui-switch {
 
 .dropdown-menu {
   display: block;
+}
+
+.avatar {
+  display: inline-block;
+  overflow: hidden;
+  line-height: 1;
+  vertical-align: middle;
+  border-radius: 3px;
+  margin: -2px 3px 0 0;
+}
+
+.avatar-small > img {
+    height: 18px;
+    width: 18px;
+}
+
+.avatar-big > img {
+    height: 38px;
+    width: 38px;
 }
