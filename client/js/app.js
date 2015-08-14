@@ -58,6 +58,10 @@ app.controller('appCtrl', function ($scope, $location, $cookieStore, DATA) {
 });
 
 app.controller('registerCtrl', function ($scope, $location, $cookieStore) {
+	var nav = $scope.$parent;
+	nav.title = '注册';
+	nav.navLnk = '/';
+	nav.listStyle = false;
 	$scope.uploadFile = function (files) {
 		var fd = new FormData();
 		//Take the first selected file
