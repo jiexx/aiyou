@@ -13,6 +13,7 @@
     <link rel="stylesheet" href="lib/dist/css/mobile-angular-ui-desktop.css" />
  
     <script src="lib/angular.js"></script>
+	<script src="lib/angular-cookies.js"></script>
     <script src="lib/angular-route.js"></script>
     <script src="lib/dist/js/mobile-angular-ui.gestures.js"></script>
     <script src="lib/dist/js/mobile-angular-ui.js"></script>
@@ -24,20 +25,18 @@
  
 <body ng-app="aiyou">
  
-<div class="app">
+<div class="app" ng-controller="appCtrl">
  
     <div class="navbar navbar-app navbar-absolute-top">
  
         <div class="navbar-brand navbar-brand-center" yield-to="title">
-            <span>哎呦</span>
+            <span>{{ title }}</span>
         </div>
  
  
  
         <div class="btn-group pull-right" yield-to="navbarAction">
-            <div class="btn btn-navbar">
-                <i class="fa fa-th-list"></i>
-            </div>
+            <a ng-class="{'fa fa-th-list': listStyle, 'fa fa-reply': !listStyle}" ng-href="#/{{ navLnk }}" class="btn btn-navbar"></a>
         </div>
  
     </div>

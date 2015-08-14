@@ -4,7 +4,7 @@
 (function () {
 	var pin = [['ufemale.png','umale.png','ushop.png','unreg.png'],['female.png','male.png','shop.png','reg.png']];
 	function LabelFmt() {
-					 
+		this.auth = 0;
 		this.cols = [
 		  /*  0 female      1 male     2 shop     3 self   4 */
 		[this.avatar, this.avatar, this.name, this.avatar, this.mgr] /*col 1*/,
@@ -14,33 +14,39 @@
 		];
 		
 	}
-	LabelFmt.prototype.avatar = function(id, name) {
-		return '<a href="'+id+'" class="btn btn-default avatar" ><img src="data:image/png;base64,"/></a>';
+	LabelFmt.prototype.avatar = function(id, name, thumb, c, isReg) {
+		return '<a href="#/'+c+'/?id='+id+'" class="btn btn-default avatar-small" ><img src="data:image/png;base64,'+thumb+'"/></a>';
 	};
-	LabelFmt.prototype.name = function(id, name) {
-		return '<a href="'+id+'" class="btn btn-default" >'+name+'</a>';
+	LabelFmt.prototype.name = function(id, name, thumb, c, isReg) {
+		return '<a href="#/'+c+'/?id='+id+'" class="btn btn-default" >'+name+'</a>';
 	};
-	LabelFmt.prototype.play = function(id, name) {
-		return '<a href="'+id+'" class="btn btn-default fa fa-gamepad"></a>';
+	LabelFmt.prototype.play = function(id, name, thumb, c, isReg) {
+		var str = ( isReg == 0 ? 'register' : 'game') ;
+		return '<a href="#/'+str+'/?id='+id+'" class="btn btn-default fa fa-gamepad"></a>';
 	};
-	LabelFmt.prototype.msg = function(id, name) {
-		return '<a href="'+id+'" class="btn btn-default fa fa-comments-o"></a>';
+	LabelFmt.prototype.msg = function(id, name, thumb, c, isReg) {
+		var str = ( isReg == 0 ? 'register' : 'message') ;
+		return '<a href="#/'+str+'/?id='+id+'" class="btn btn-default fa fa-comments-o"></a>';
 	};
-	LabelFmt.prototype.setting = function(id, name) {
-		return '<a href="'+id+'" class="btn btn-default fa fa-gear"></a>';
+	LabelFmt.prototype.setting = function(id, name, thumb, c, isReg) {
+		var str = ( isReg == 0 ? 'register' : 'setting') 
+		return '<a href="#/'+str+'/?id='+id+'" class="btn btn-default fa fa-gear"></a>';
 	};
-	LabelFmt.prototype.mgr = function(id, name){
-		return '<a href="'+id+'" class="btn btn-default fa fa-calculator"></a>';
+	LabelFmt.prototype.mgr = function(id, name, thumb, c, isReg){
+		var str = ( isReg == 0 ? 'register' : 'manage') 
+		return '<a href="#/'+str+'/?id='+id+'" class="btn btn-default fa fa-calculator"></a>';
 	};
-	LabelFmt.prototype.empty = function(id, name){
+	LabelFmt.prototype.empty = function(id, name, thumb, c, isReg){
 		return '';
 	};
-	LabelFmt.prototype.format = function(clz, id, name) {
+	LabelFmt.prototype.format = function(clz, id, name, thumb, isReg) {
+		var prefix = parseInt(clz[0]);
+		var c = (prefix == 2 || prefix == 4 ? 'shop' : 'user');
 		var str = '';
 		if( clz.length == 4 ) {
 			for( var i = 0; i < 4 ; i ++ ) {
 				var j = parseInt(clz[i]);
-				str += this.cols[i][j](id, name);
+				str += this.cols[i][j](id, name, thumb, c, this.auth);
 			}
 		}
 		return '<div class="btn-group">'+str+'</div>';
@@ -55,9 +61,9 @@
 		x : 0,
 		y : 0
 	};
-	function Lable(home, clz, id, name, latLng){
+	function Lable(home, clz, id, name, latLng, thumb){
 		this.map_ = home.map;
-		this.text_ = home.labelFormat.format(clz, id, name);
+		this.text_ = home.labelFormat.format(clz, id, name, thumb);
 		this.latLng_ = latLng;
 		this.div_ = null;
 		this.hidden = true;
@@ -71,7 +77,7 @@
 		div.innerHTML = this.text_;   
 		this.div_ = div;   
 		var panes = this.getPanes();
-		panes.overlayLayer.appendChild(div);
+		panes.overlayImage.appendChild(div);
 	};
 	Lable.prototype.draw = function(){
 		var overlayProjection = this.getProjection();
@@ -87,8 +93,8 @@
 	};
 	Lable.prototype.show = function () {
 		if (this.div_) {
+			//this.setMap(this.map_);
 			this.div_.style.display = "";
-			this.redraw();
 		}
 	}
 	Lable.prototype.hide = function () {
@@ -98,6 +104,7 @@
 	}
 	Lable.prototype.toggle = function () {
 		this.hidden = !this.hidden;
+		console.log(this.hidden);
 		if( this.hidden ) {
 			this.hide();
 		}else {
@@ -155,28 +162,42 @@
 		});
 		this.map = map;
 	};
-	Home.prototype.hideLabels = function() {
-		for( var i in this.labels ) {
-			this.labels[i].setMap(null); 
-			this.labels[i].hide();
+	Home.prototype.hideLabels = function(a) {
+		if( a == null ) {
+			for( var i in this.labels ) {
+				//this.labels[i].setMap(null); 
+				this.labels[i].hide();
+			}
+		}else {
+			for( var i in this.labels ) {
+				//this.labels[i].setMap(null); 
+				if( a != this.labels[i] )
+					this.labels[i].hidden = true;
+				this.labels[i].hide();
+			}
 		}
 	}
 	Home.prototype.clean = function() {
 		for( var i in this.labels ) {
 			this.labels[i].setMap(null); 
+			delete this.labels[i];
+			this.labels[i] = null;
 		}
 		for( var i in this.markers ) {
 			this.markers[i].setMap(null); 
+			delete this.markers[i];
+			this.markers[i] = null;
 		}
 		this.labels.splice(0, this.labels.length);
 		this.markers.splice(0, this.markers.length);
 	}
 	Home.prototype.star = function(isreg, star) {
+		this.labelFormat.auth = isreg;
 		for( var a in star ) {
-			this.mark(isreg, star[a].x, star[a].y, star[a].clz, star[a].id, star[a].name);
+			this.mark(isreg, star[a].x, star[a].y, star[a].clz, star[a].id, star[a].name, star[a].thumb);
 		}
 	}
-	Home.prototype.mark = function(isreg, x, y, clz, id, name) {
+	Home.prototype.mark = function(isreg, x, y, clz, id, name, thumb) {
 		var image = 'asserts/map/'+pin[isreg][parseInt(clz.substr(0,1))];
 		var myLatLng = new google.maps.LatLng(x, y); 
 		var marker = new google.maps.Marker({
@@ -189,10 +210,16 @@
 			});
 		var _this = this;
 		google.maps.event.addListener(marker, 'click', function () {
-			_this.hideLabels();
-			var label = new Lable(_this, clz, id, name, myLatLng);
-			label.show();
-			_this.labels.push(label);
+			var a = _this.labels['i'+id];
+			if( a != undefined || a != null ) {
+				_this.hideLabels(a);
+				a.toggle();
+			}else {
+				_this.hideLabels(null);
+				var label = new Lable(_this, clz, id, name, myLatLng, thumb);
+				label.toggle();
+				_this.labels['i'+id] = label;
+			}
 		});
 		this.markers.push(marker);
 	};
