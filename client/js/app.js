@@ -9,7 +9,7 @@ var app = angular.module('aiyou', [
 app.config(function ($routeProvider, $controllerProvider, $locationProvider) {
 	app.registerCtrl = $controllerProvider.register;
 	//$locationProvider.html5Mode(true);
-	$routeProvider.when('/', {
+	$routeProvider.when('/home', {
 		templateUrl : "home.html",
 		controller : 'homeCtrl',
 		reloadOnSearch : false
@@ -28,7 +28,7 @@ app.config(function ($routeProvider, $controllerProvider, $locationProvider) {
 		templateUrl : "shop.html",
 		reloadOnSearch : false
 	});
-	$routeProvider.when('/register', {
+	$routeProvider.when('/', {
 		templateUrl : "register.html",
 		controller : 'registerCtrl',
 		reloadOnSearch : false
@@ -62,18 +62,65 @@ app.controller('registerCtrl', function ($scope, $location, $cookieStore) {
 	nav.title = '注册';
 	nav.navLnk = '/';
 	nav.listStyle = false;
-	$scope.uploadFile = function (files) {
-		var fd = new FormData();
-		//Take the first selected file
-		fd.append("file", files[0]);
-
-		$http.post(uploadUrl, fd, {
-			withCredentials : true,
-			headers : {
-				'Content-Type' : undefined
-			},
-			transformRequest : angular.identity
-		}).success(function (resp, status, headers, config) {}).error(function (resp, status, headers, config) {});
+  
+  var fd = new FormData();
+  
+  $scope.avatarHint = 1;
+  $scope.holder = '昵称';
+  $scope.nickName = '';
+  
+  $scope.submit = function () {
+    if( $scope.avatarHint != 0 ) {
+      $scope.avatarHint = -1;
+    }else if( $scope.nickName == '') {
+      $scope.holder = '请输入昵称';
+    }else {
+      fd.append("name", $scope.nickName);
+      $http.post('http://127.0.0.1:9090/register.do', fd, {
+        withCredentials : true,
+        headers : {
+          'Content-Type' : undefined
+        },
+        transformRequest : angular.identity
+      }).success(function (resp, status, headers, config) {
+        delete fd;
+        fd = null;
+        $location.path('/');
+        $scope.$apply();
+      }).error(function (resp, status, headers, config) {});
+    }
+  };
+  
+	$scope.uploadAvatar = function (files) {
+    //Take the first selected file
+    if( files[0] == undefined || files[0] == null || files[0].type == undefined || files[0].type == null )
+      return;
+    var chars = ['飞','雪','连','天','射','白','鹿','笑','书','神','侠','倚','碧','鸳'];
+    var name = "";
+    var n = Math.ceil(Math.random()*5);
+    for(var i = 0; i < n ; i ++) {
+      var id = Math.ceil(Math.random()*13);
+      name += chars[id];
+    }
+    $scope.nickName = name;
+    if( files[0].type.indexOf('image') > -1 ) {
+      var reader = new FileReader();  
+      reader.onloadend = function(evt){
+        var avatar = document.getElementById("imgAvatar");
+        var ctx = avatar.getContext("2d");
+        var img = new Image();
+        img.src = evt.target.result;
+        ctx.clearRect(0, 0, avatar.width, avatar.height);
+        ctx.drawImage(img, 0, 0, avatar.width, avatar.height);
+        fd.append('avatar', avatar.toDataURL());
+        $scope.avatarHint = 0;
+        $scope.$apply();
+      }  
+      reader.readAsDataURL(files[0]);  
+    }else {
+      $scope.avatarHint = 1;
+      $scope.$apply();
+    }
 	};
 });
 

@@ -51,3 +51,9 @@ http://tomcat.apache.org/maven-plugin-2.2/run-mojo-features.html
 run as -> maven build ( download )
 
 http://dev.mysql.com/downloads/workbench/
+
+function MyCtrl($scope) {
+    angular.element(document).ready(function () {
+        console.log('Hello World');
+    });
+}

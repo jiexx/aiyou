@@ -1,20 +1,18 @@
-﻿<div class="scrollable-content section">
+﻿
+<div class="section">
   <form role="form" ng-submit='login()'>
 	<fieldset>
+    <div class="user-avatar">
+      <div><a class="fa fa-user feature-icon text-primary" ng-class="{'collapse': avatarHint==0}"></a></div>
+      <div><canvas id="imgAvatar"/></div>
+      <div><span ng-class="{'label label-danger': avatarHint==-1, 'label label-info': avatarHint==1, 'collapse': avatarHint==0}" >请选择头像</span></div>
+      <div><input type="file" style="opacity: 0;" class="form-control" onchange="angular.element(this).scope().uploadAvatar(this.files)"/></div>
+    </div>
+    
 	  <div class="form-group">
-	  <label>名字</label> 
-	  <input type="text" class="form-control" placeholder="昵称" /></div>
-	  <div class="form-group">
-	  <label>头像</label> 
-	  <input type="file" class="form-control" name="file" onchange="angular.element(this).scope().uploadFile(this.files)"/></div>
-	  <div class="form-group">
-	  <label>标语</label> 
-	  <input type="text" class="form-control" placeholder="标语" /></div>
+	  <input type="text" class="form-control" placeholder="{{holder}}" ng-model="nickName"/></div>
 	</fieldset>
-	<hr />
-	<button class="btn btn-primary btn-block">提交</button>
-	<div ui-content-for="navbarAction">
-	  <a class='btn' ng-click='login()'>Login</a>
-	</div>
+  <br>
+	<button class="btn btn-primary btn-block" ng-click='submit()'>提交</button>
   </form>
 </div>

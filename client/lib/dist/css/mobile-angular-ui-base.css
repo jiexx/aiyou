@@ -8907,3 +8907,36 @@ ui-switch {
     width: 38px;
 	border-radius: 3px;
 }
+
+.user-avatar {
+  //background: #00c;
+  height: 60px;
+}
+
+.user-avatar > div{
+  position:absolute;
+  left: 45%;
+  width: 46px;
+  height: 58px;
+}
+
+.user-avatar > div > a{
+  font-size: 58px;
+}
+
+.user-avatar > div > canvas{
+  width: 46px;
+  height: 58px;
+  border: 0;
+  border-radius: 3px;
+}
+
+.user-avatar > div > input{
+  width: 46px;
+  height: 58px;
+}
+
+.user-avatar > div > span{
+  position:absolute;
+  left: 50%;
+}
