@@ -8916,7 +8916,7 @@ ui-switch {
 .user-avatar > div{
   position:absolute;
   left: 45%;
-  width: 46px;
+  width: 58px;
   height: 58px;
 }
 
@@ -8925,14 +8925,14 @@ ui-switch {
 }
 
 .user-avatar > div > canvas{
-  width: 46px;
+  width: 58px;
   height: 58px;
   border: 0;
   border-radius: 3px;
 }
 
 .user-avatar > div > input{
-  width: 46px;
+  width: 58px;
   height: 58px;
 }
 
