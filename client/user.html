@@ -5,13 +5,16 @@
 	</div>
 	<div class="carousel">
 	  <div class="carousel-inner">
-		<div class="carousel-item" 
-			style='background-image: url(asserts/1.jpg);'>
-		</div>
-		<div class="pull-right pull-top"></div>
+		<canvas id="car"  class="carousel-item" />
 	  </div>
 	</div>
 	</div>
 	<a class="btn btn-block btn-lg btn-primary scrollable-footer fa fa-comments-o" ng-href="#/{{userLnk}}">
 	</a>
 </div>
+<script type="text/javascript-user">
+(function () {
+	var canvas = document.getElementById("car");
+	Car.create( canvas );
+}).call(this);
+</script>

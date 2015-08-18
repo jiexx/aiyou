@@ -3370,7 +3370,7 @@ mark,
 }
 
 .text-primary {
-  color: #007aff;
+  color: #007aff !important; 
 }
 
 a.text-primary:focus {
@@ -8726,6 +8726,7 @@ a.list-group-item .icon.pull-right {
 
 .scrollable-footer {
   bottom: 0;
+  z-index: 3000;
 }
 
 .scrollable-content {

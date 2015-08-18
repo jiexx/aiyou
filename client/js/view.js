@@ -369,6 +369,7 @@
 		this.tmp = null;
 		this.cardDraw = INVALIDCARD; //invalid card
 		this.canvas = null;
+		this.engine = null;
 		this.scene = null;
 		this.go = null;
 		//this.data = new Data();
@@ -458,6 +459,11 @@
 			}
 			
 		};
+		this.clean = function (canvas) {
+			if( this.scene != null ) {
+				this.scene.dispose();
+			}
+		};
 		this.isReady = function () {
 			for (var key in tags)
 				if (!this.cardMats[key].diffuseTexture.isReady())
@@ -466,7 +472,7 @@
 		};
 		this.create = function (canvas) {
 			this.canvas = canvas;
-			var engine = new BABYLON.Engine(canvas, true);
+			this.engine = new BABYLON.Engine(canvas, true);
 			this.scene = new BABYLON.Scene(engine);
 			this.scene.clearColor = new BABYLON.Color3(35 / 255.0, 116 / 255.0, 172 / 255.0);
 			var light = new BABYLON.PointLight("Point", new BABYLON.Vector3(3 * MAX, 0, -100), this.scene);

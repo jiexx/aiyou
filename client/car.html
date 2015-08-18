@@ -6,6 +6,7 @@
   <script src="lib/babylon.max.js"></script>
   <script src="lib/hands.js"></script>
   <script src="js/car.js"></script>
+  
   <style>
     html {
       height: 100%;
@@ -25,9 +26,11 @@
   </style>
 </head>
 <body>
-<div id="progress"
-     style="width:100%; height:100%;color:white;background-color:white;text-align:center;padding-top:200px;font-size:2em;font-family: sans-serif"></div>
-  <canvas>
+  <canvas id="car">
   </canvas>
+  <script type="text/javascript">
+	var c = Car.load("./asserts/car/bmw_m3_e92/", "bmw.babylon");
+	c.render();
+  </script>
 </body>
 </html>

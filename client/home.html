@@ -1,10 +1,17 @@
 ﻿<div id="mapper" class="scrollable-content" style="left:0;top:0;width:100%;height:100%;position:absolute;">
 </div>
-<script type="text/javascript-lazy">
+<script type="text/javascript-home">
 (function () {
 	var pin = [['ufemale.png','umale.png','ushop.png','unreg.png'],['female.png','male.png','shop.png','reg.png']];
+	function classify(clz) {
+		var c1 = parseInt(clz[0]);
+		var su = (c1 == 2 || c1 == 4 ? 'shop' : 'user');
+		return {
+			who : su,
+		};
+	}
 	function LabelFmt() {
-		this.auth = 0;
+		this.isAuth = 0;
 		this.cols = [
 		  /*  0 female      1 male     2 shop     3 self   4 */
 		[this.avatar, this.avatar, this.name, this.avatar, this.mgr] /*col 1*/,
@@ -14,39 +21,38 @@
 		];
 		
 	}
-	LabelFmt.prototype.avatar = function(id, name, thumb, c, isReg) {
-		return '<a href="#/'+c+'/?id='+id+'" class="btn btn-default avatar-small" ><img src="data:image/png;base64,'+thumb+'"/></a>';
+	LabelFmt.prototype.avatar = function(isAuth, id, name, thumb, clazz) {
+		return '<a href="#/'+clazz.who+'/?id='+id+'" class="btn btn-default avatar-small" ><img src="data:image/png;base64,'+thumb+'"/></a>';
 	};
-	LabelFmt.prototype.name = function(id, name, thumb, c, isReg) {
-		return '<a href="#/'+c+'/?id='+id+'" class="btn btn-default" >'+name+'</a>';
+	LabelFmt.prototype.name = function(isAuth, id, name, thumb, clazz) {
+		return '<a href="#/'+clazz.who+'/?id='+id+'" class="btn btn-default text-primary" >'+name+'</a>';
 	};
-	LabelFmt.prototype.play = function(id, name, thumb, c, isReg) {
-		var str = ( isReg == 0 ? 'register' : 'game') ;
-		return '<a href="#/'+str+'/?id='+id+'" class="btn btn-default fa fa-gamepad"></a>';
+	LabelFmt.prototype.play = function(isAuth, id, name, thumb, clazz) {
+		var str = ( isAuth == 0 ? '#/register': '#/game/?id='+id ) ;
+		return '<a href="'+str+'" class="btn btn-default fa fa-gamepad text-primary "></a>';
 	};
-	LabelFmt.prototype.msg = function(id, name, thumb, c, isReg) {
-		var str = ( isReg == 0 ? 'register' : 'message') ;
-		return '<a href="#/'+str+'/?id='+id+'" class="btn btn-default fa fa-comments-o"></a>';
+	LabelFmt.prototype.msg = function(isAuth, id, name, thumb, clazz) {
+		var str = ( isAuth == 0 ? '#/register': '#/message/?id='+id) ;
+		return '<a href="'+str+'" class="btn btn-default fa fa-comments-o text-primary "></a>';
 	};
-	LabelFmt.prototype.setting = function(id, name, thumb, c, isReg) {
-		var str = ( isReg == 0 ? 'register' : 'setting') 
-		return '<a href="#/'+str+'/?id='+id+'" class="btn btn-default fa fa-gear"></a>';
+	LabelFmt.prototype.setting = function(isAuth, id, name, thumb, clazz) {
+		var str = ( isAuth == 0 ? '#/register': '#/setting/?id='+id) ;
+		return '<a href="'+str+'" class="btn btn-default fa fa-gear text-primary"></a>';
 	};
-	LabelFmt.prototype.mgr = function(id, name, thumb, c, isReg){
-		var str = ( isReg == 0 ? 'register' : 'manage') 
-		return '<a href="#/'+str+'/?id='+id+'" class="btn btn-default fa fa-calculator"></a>';
+	LabelFmt.prototype.mgr = function(isAuth, id, name, thumb, clazz){
+		var str = ( isAuth == 0 ? 'register' : 'manage') 
+		return '<a href="'+str+'" class="btn btn-default fa fa-calculator text-primary"></a>';
 	};
-	LabelFmt.prototype.empty = function(id, name, thumb, c, isReg){
+	LabelFmt.prototype.empty = function(isAuth, id, name, thumb, clazz){
 		return '';
 	};
-	LabelFmt.prototype.format = function(clz, id, name, thumb, isReg) {
-		var prefix = parseInt(clz[0]);
-		var c = (prefix == 2 || prefix == 4 ? 'shop' : 'user');
+	LabelFmt.prototype.format = function(clz, id, name, thumb) {
+		var clazz = classify(clz);
 		var str = '';
 		if( clz.length == 4 ) {
 			for( var i = 0; i < 4 ; i ++ ) {
 				var j = parseInt(clz[i]);
-				str += this.cols[i][j](id, name, thumb, c, this.auth);
+				str += this.cols[i][j](this.isAuth, id, name, thumb, clazz);
 			}
 		}
 		return '<div class="btn-group">'+str+'</div>';
@@ -62,6 +68,7 @@
 		y : 0
 	};
 	function Lable(home, clz, id, name, latLng, thumb){
+		this.isPlaying = 0;
 		this.map_ = home.map;
 		this.text_ = home.labelFormat.format(clz, id, name, thumb);
 		this.latLng_ = latLng;
@@ -192,7 +199,7 @@
 		this.markers.splice(0, this.markers.length);
 	}
 	Home.prototype.star = function(isreg, star) {
-		this.labelFormat.auth = isreg;
+		this.labelFormat.isAuth = isreg;
 		for( var a in star ) {
 			this.mark(isreg, star[a].x, star[a].y, star[a].clz, star[a].id, star[a].name, star[a].thumb);
 		}

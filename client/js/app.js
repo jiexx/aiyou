@@ -9,7 +9,7 @@ var app = angular.module('aiyou', [
 app.config(function ($routeProvider, $controllerProvider, $locationProvider) {
 	app.registerCtrl = $controllerProvider.register;
 	//$locationProvider.html5Mode(true);
-	$routeProvider.when('/home', {
+	$routeProvider.when('/', {
 		templateUrl : "home.html",
 		controller : 'homeCtrl',
 		reloadOnSearch : false
@@ -28,7 +28,7 @@ app.config(function ($routeProvider, $controllerProvider, $locationProvider) {
 		templateUrl : "shop.html",
 		reloadOnSearch : false
 	});
-	$routeProvider.when('/', {
+	$routeProvider.when('/register', {
 		templateUrl : "register.html",
 		controller : 'registerCtrl',
 		reloadOnSearch : false
@@ -164,7 +164,7 @@ app.controller('homeCtrl', function ($scope, $location, $cookieStore, DATA) {
 	DATA.stars = [{
 					x : 31.268964,
 					y : 121.443794,
-					clz : '3110',
+					clz : '3100',
 					id : 15800000000,
 					name : 'test1',
 					avatar : 'asserts/1.jpg',
@@ -319,13 +319,19 @@ app.directive('script', ['$window', '$q', '$http', 'DATA', function ($window, $q
 					console.log($scope);
 				},
 				link : function (scope, elem, attr) {
-					if (attr.type === 'text/javascript-lazy') {
+					if (attr.type === 'text/javascript-home') {
 						var code = elem.text();
 						var f = new Function(code);
 						f();
 						Home.clean();
 						Home.layout(31.268964, 121.443794);
 						Home.star(0, DATA.stars);
+					}else if(attr.type === 'text/javascript-user') {
+						var code = elem.text();
+						var f = new Function(code);
+						f();
+						var c = Car.load("./asserts/car/bmw_m3_e92/", "bmw.babylon");
+						c.render();
 					}
 				}
 			};
