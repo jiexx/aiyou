@@ -33,6 +33,11 @@ app.config(function ($routeProvider, $controllerProvider, $locationProvider) {
 		controller : 'registerCtrl',
 		reloadOnSearch : false
 	});
+	$routeProvider.when('/game', {
+		templateUrl : "game.html",
+		controller : 'gameCtrl',
+		reloadOnSearch : false
+	});
 	$routeProvider.otherwise({
 		redirectTo : '/'
 	});
@@ -43,9 +48,9 @@ app.factory('DATA', function () {
 		userid : 15800000000,
 		lng : 121.443794,
 		lat : 31.268964,
-		au : 0,
-		auth : function(a){
-			if( this.au == 0 )
+		au : 1,
+		auth : function (a) {
+			if (this.au == 0)
 				return 'register';
 			return a;
 		},
@@ -55,6 +60,18 @@ app.factory('DATA', function () {
 app.controller('appCtrl', function ($scope, $location, $cookieStore, DATA) {
 	console.log(DATA.title);
 	$scope.title = DATA.title;
+	$scope.titleVisible = true;
+	DATA.userid = $location.search().id;
+	DATA.lng = $location.search().lng;
+	DATA.lat = $location.search().lat;
+	//debug for test : ?id=15800000000&lng=31.268964&lat=121.443794
+});
+
+app.controller('gameCtrl', function ($scope, $location, $cookieStore, DATA) {
+	console.log(DATA.title);
+	$scope.$parent.titleVisible = false;
+	$scope.avatar1 = '';
+	$scope.avatar2 = 'asserts/1.jpg';
 });
 
 app.controller('registerCtrl', function ($scope, $location, $cookieStore) {
@@ -62,65 +79,65 @@ app.controller('registerCtrl', function ($scope, $location, $cookieStore) {
 	nav.title = '注册';
 	nav.navLnk = '/';
 	nav.listStyle = false;
-  
-  var fd = new FormData();
-  
-  $scope.avatarHint = 1;
-  $scope.holder = '昵称';
-  $scope.nickName = '';
-  
-  $scope.submit = function () {
-    if( $scope.avatarHint != 0 ) {
-      $scope.avatarHint = -1;
-    }else if( $scope.nickName == '') {
-      $scope.holder = '请输入昵称';
-    }else {
-      fd.append("name", $scope.nickName);
-      $http.post('http://127.0.0.1:9090/register.do', fd, {
-        withCredentials : true,
-        headers : {
-          'Content-Type' : undefined
-        },
-        transformRequest : angular.identity
-      }).success(function (resp, status, headers, config) {
-        delete fd;
-        fd = null;
-        $location.path('/');
-        $scope.$apply();
-      }).error(function (resp, status, headers, config) {});
-    }
-  };
-  
+
+	var fd = new FormData();
+
+	$scope.avatarHint = 1;
+	$scope.holder = '昵称';
+	$scope.nickName = '';
+
+	$scope.submit = function () {
+		if ($scope.avatarHint != 0) {
+			$scope.avatarHint = -1;
+		} else if ($scope.nickName == '') {
+			$scope.holder = '请输入昵称';
+		} else {
+			fd.append("name", $scope.nickName);
+			$http.post('http://127.0.0.1:9090/register.do', fd, {
+				withCredentials : true,
+				headers : {
+					'Content-Type' : undefined
+				},
+				transformRequest : angular.identity
+			}).success(function (resp, status, headers, config) {
+				delete fd;
+				fd = null;
+				$location.path('/');
+				$scope.$apply();
+			}).error(function (resp, status, headers, config) {});
+		}
+	};
+
 	$scope.uploadAvatar = function (files) {
-    //Take the first selected file
-    if( files[0] == undefined || files[0] == null || files[0].type == undefined || files[0].type == null )
-      return;
-    var chars = ['飞','雪','连','天','射','白','鹿','笑','书','神','侠','倚','碧','鸳'];
-    var name = "";
-    var n = Math.ceil(Math.random()*5);
-    for(var i = 0; i < n ; i ++) {
-      var id = Math.ceil(Math.random()*13);
-      name += chars[id];
-    }
-    $scope.nickName = name;
-    if( files[0].type.indexOf('image') > -1 ) {
-      var reader = new FileReader();  
-      reader.onloadend = function(evt){
-        var avatar = document.getElementById("imgAvatar");
-        var ctx = avatar.getContext("2d");
-        var img = new Image();
-        img.src = evt.target.result;
-        ctx.clearRect(0, 0, avatar.width, avatar.height);
-        ctx.drawImage(img, 0, 0, avatar.width, avatar.height);
-        fd.append('avatar', avatar.toDataURL());
-        $scope.avatarHint = 0;
-        $scope.$apply();
-      }  
-      reader.readAsDataURL(files[0]);  
-    }else {
-      $scope.avatarHint = 1;
-      $scope.$apply();
-    }
+		//Take the first selected file
+		if (files[0] == undefined || files[0] == null || files[0].type == undefined || files[0].type == null)
+			return;
+		var chars = ['飞', '雪', '连', '天', '射', '白', '鹿', '笑', '书', '神', '侠', '倚', '碧', '鸳'];
+		var name = "";
+		var n = Math.ceil(Math.random() * 5);
+		for (var i = 0; i < n; i++) {
+			var id = Math.ceil(Math.random() * 13);
+			name += chars[id];
+		}
+		$scope.nickName = name;
+		if (files[0].type.indexOf('image') > -1) {
+			var reader = new FileReader();
+			reader.onloadend = function (evt) {
+				var avatar = document.getElementById("imgAvatar");
+				var ctx = avatar.getContext("2d");
+				var img = new Image();
+				img.src = evt.target.result;
+				ctx.clearRect(0, 0, avatar.width, avatar.height);
+				ctx.drawImage(img, 0, 0, avatar.width, avatar.height);
+				fd.append('avatar', avatar.toDataURL());
+				$scope.avatarHint = 0;
+				$scope.$apply();
+			}
+			reader.readAsDataURL(files[0]);
+		} else {
+			$scope.avatarHint = 1;
+			$scope.$apply();
+		}
 	};
 });
 
@@ -128,9 +145,9 @@ app.controller('userCtrl', function ($scope, $location, $cookieStore, $http, DAT
 	var nav = $scope.$parent;
 	nav.navLnk = '/';
 	nav.listStyle = false;
-	
+
 	$scope.userLnk = DATA.auth('message/?id=' + $location.search().id);
-	
+
 	$http({
 		method : 'GET',
 		//$location.path('/myURL/').search({param: 'value'});
@@ -156,57 +173,57 @@ app.controller('homeListCtrl', function ($scope, $location, $cookieStore, DATA) 
 	$scope.stars = DATA.stars;
 });
 
-app.controller('homeCtrl', function ($scope, $location, $cookieStore, DATA) {
+app.controller('homeCtrl', function ($scope, $location, $cookieStore, $http, DATA) {
 	var nav = $scope.$parent;
 	nav.title = '哎呦';
 	nav.navLnk = 'home-list';
 	nav.listStyle = true;
 	DATA.stars = [{
+			x : 31.268964,
+			y : 121.443794,
+			clz : '3100',
+			id : 15800000000,
+			name : 'test1',
+			avatar : 'asserts/1.jpg',
+			thumb : '/9j/4AAQSkZJRgABAQEAYABgAAD/4QDoRXhpZgAATU0AKgAAAAgAAwEPAAIAAAAFAAAAMgEQAAIAAAAIAAAAOIdpAAQAAAABAAAAQAAAAABTT05ZAABJTENFLTdSAAAHgpoABQAAAAEAAACagp0ABQAAAAEAAACiiCcAAwAAAAEGQAAAkAMAAgAAABQAAACqkgkAAwAAAAEAEAAAkgoABQAAAAEAAAC+pDQAAgAAABgAAADGAAAAAAAAAAEAAAA8AAAABAAAAAEyMDE0OjEyOjA4IDA4OjMyOjU0AAAAABwAAAABRkUgMjgtNzBtbSBGMy41LTUuNiBPU1MAAAD/2wBDAAIBAQIBAQICAgICAgICAwUDAwMDAwYEBAMFBwYHBwcGBwcICQsJCAgKCAcHCg0KCgsMDAwMBwkODw0MDgsMDAz/2wBDAQICAgMDAwYDAwYMCAcIDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAz/wAARCAAPABUDASIAAhEBAxEB/8QAHwAAAQUBAQEBAQEAAAAAAAAAAAECAwQFBgcICQoL/8QAtRAAAgEDAwIEAwUFBAQAAAF9AQIDAAQRBRIhMUEGE1FhByJxFDKBkaEII0KxwRVS0fAkM2JyggkKFhcYGRolJicoKSo0NTY3ODk6Q0RFRkdISUpTVFVWV1hZWmNkZWZnaGlqc3R1dnd4eXqDhIWGh4iJipKTlJWWl5iZmqKjpKWmp6ipqrKztLW2t7i5usLDxMXGx8jJytLT1NXW19jZ2uHi4+Tl5ufo6erx8vP09fb3+Pn6/8QAHwEAAwEBAQEBAQEBAQAAAAAAAAECAwQFBgcICQoL/8QAtREAAgECBAQDBAcFBAQAAQJ3AAECAxEEBSExBhJBUQdhcRMiMoEIFEKRobHBCSMzUvAVYnLRChYkNOEl8RcYGRomJygpKjU2Nzg5OkNERUZHSElKU1RVVldYWVpjZGVmZ2hpanN0dXZ3eHl6goOEhYaHiImKkpOUlZaXmJmaoqOkpaanqKmqsrO0tba3uLm6wsPExcbHyMnK0tPU1dbX2Nna4uPk5ebn6Onq8vP09fb3+Pn6/9oADAMBAAIRAxEAPwD7a+Bvx08M3/wJ8F3PiTVviRrfiTW9DsbxtF02eZlsbgwW/mxvPLsjkkSWZUaRQxDHdghhXmP7Un7duueONctdG0PSb7QdFjupraxTTUtpLzUZoI4pDvVmzu5KIskZjlYSsGIGG/PH4k+JvG1pBp/iix11GuNUMd41jql/fKIUk2zNbRyW0g2geewUgICV+fKnZXHfEr9qq603xFp0fgnw2mg6lpCm18u88T6hebhFaXUZXzDgpIuSEZSVBBLKxYMnlYqtnmPpum5JcultVsuqa/4c9ChTyLL6sask5KWt9Gte1m/+AfWs37UHxW1K58vwton/AAnFnaxRRPdWev6bbhDsGCz/AGUJNu5/eJLODt5kJzRXzb8C/wBtzQtL0nUrzXvEPxz0rWdVuVuLk2OvQ62bnEaqjyXUxtpXbYFADIdqBVHKksV8nUyrjBStT9m10bSv+n5H0X9rcLy97kkr/wCJ/jc//9k='
+		}, {
+			x : 31.266617,
+			y : 121.416328,
+			clz : '0110',
+			id : 15800000001,
+			name : 'test2',
+			avatar : 'asserts/1.jpg',
+			thumb : '/9j/4AAQSkZJRgABAQEAYABgAAD/4QDoRXhpZgAATU0AKgAAAAgAAwEPAAIAAAAFAAAAMgEQAAIAAAAIAAAAOIdpAAQAAAABAAAAQAAAAABTT05ZAABJTENFLTdSAAAHgpoABQAAAAEAAACagp0ABQAAAAEAAACiiCcAAwAAAAEGQAAAkAMAAgAAABQAAACqkgkAAwAAAAEAEAAAkgoABQAAAAEAAAC+pDQAAgAAABgAAADGAAAAAAAAAAEAAAA8AAAABAAAAAEyMDE0OjEyOjA4IDA4OjMyOjU0AAAAABwAAAABRkUgMjgtNzBtbSBGMy41LTUuNiBPU1MAAAD/2wBDAAIBAQIBAQICAgICAgICAwUDAwMDAwYEBAMFBwYHBwcGBwcICQsJCAgKCAcHCg0KCgsMDAwMBwkODw0MDgsMDAz/2wBDAQICAgMDAwYDAwYMCAcIDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAz/wAARCAAPABUDASIAAhEBAxEB/8QAHwAAAQUBAQEBAQEAAAAAAAAAAAECAwQFBgcICQoL/8QAtRAAAgEDAwIEAwUFBAQAAAF9AQIDAAQRBRIhMUEGE1FhByJxFDKBkaEII0KxwRVS0fAkM2JyggkKFhcYGRolJicoKSo0NTY3ODk6Q0RFRkdISUpTVFVWV1hZWmNkZWZnaGlqc3R1dnd4eXqDhIWGh4iJipKTlJWWl5iZmqKjpKWmp6ipqrKztLW2t7i5usLDxMXGx8jJytLT1NXW19jZ2uHi4+Tl5ufo6erx8vP09fb3+Pn6/8QAHwEAAwEBAQEBAQEBAQAAAAAAAAECAwQFBgcICQoL/8QAtREAAgECBAQDBAcFBAQAAQJ3AAECAxEEBSExBhJBUQdhcRMiMoEIFEKRobHBCSMzUvAVYnLRChYkNOEl8RcYGRomJygpKjU2Nzg5OkNERUZHSElKU1RVVldYWVpjZGVmZ2hpanN0dXZ3eHl6goOEhYaHiImKkpOUlZaXmJmaoqOkpaanqKmqsrO0tba3uLm6wsPExcbHyMnK0tPU1dbX2Nna4uPk5ebn6Onq8vP09fb3+Pn6/9oADAMBAAIRAxEAPwD7a+Bvx08M3/wJ8F3PiTVviRrfiTW9DsbxtF02eZlsbgwW/mxvPLsjkkSWZUaRQxDHdghhXmP7Un7duueONctdG0PSb7QdFjupraxTTUtpLzUZoI4pDvVmzu5KIskZjlYSsGIGG/PH4k+JvG1pBp/iix11GuNUMd41jql/fKIUk2zNbRyW0g2geewUgICV+fKnZXHfEr9qq603xFp0fgnw2mg6lpCm18u88T6hebhFaXUZXzDgpIuSEZSVBBLKxYMnlYqtnmPpum5JcultVsuqa/4c9ChTyLL6sask5KWt9Gte1m/+AfWs37UHxW1K58vwton/AAnFnaxRRPdWev6bbhDsGCz/AGUJNu5/eJLODt5kJzRXzb8C/wBtzQtL0nUrzXvEPxz0rWdVuVuLk2OvQ62bnEaqjyXUxtpXbYFADIdqBVHKksV8nUyrjBStT9m10bSv+n5H0X9rcLy97kkr/wCJ/jc//9k='
+		}
+	];
+	$http({
+		method : 'GET',
+		url : 'http://127.0.0.1:9090/home.do?id=' + DATA.userid + '&lng=' + DATA.lng + '&lat=' + DATA.lat
+	}).success(function (resp, status, headers, config) {
+		//var token = data.token;
+		//$cookieStore.put('token', token);
+		//$location.path('/');
+		console.log(resp);
+		DATA.stars = resp;
+		Home.clean();
+		Home.layout(31.268964, 121.443794);
+		Home.star(0, [{
 					x : 31.268964,
 					y : 121.443794,
-					clz : '3100',
-					id : 15800000000,
-					name : 'test1',
-					avatar : 'asserts/1.jpg',
-					thumb : '/9j/4AAQSkZJRgABAQEAYABgAAD/4QDoRXhpZgAATU0AKgAAAAgAAwEPAAIAAAAFAAAAMgEQAAIAAAAIAAAAOIdpAAQAAAABAAAAQAAAAABTT05ZAABJTENFLTdSAAAHgpoABQAAAAEAAACagp0ABQAAAAEAAACiiCcAAwAAAAEGQAAAkAMAAgAAABQAAACqkgkAAwAAAAEAEAAAkgoABQAAAAEAAAC+pDQAAgAAABgAAADGAAAAAAAAAAEAAAA8AAAABAAAAAEyMDE0OjEyOjA4IDA4OjMyOjU0AAAAABwAAAABRkUgMjgtNzBtbSBGMy41LTUuNiBPU1MAAAD/2wBDAAIBAQIBAQICAgICAgICAwUDAwMDAwYEBAMFBwYHBwcGBwcICQsJCAgKCAcHCg0KCgsMDAwMBwkODw0MDgsMDAz/2wBDAQICAgMDAwYDAwYMCAcIDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAz/wAARCAAPABUDASIAAhEBAxEB/8QAHwAAAQUBAQEBAQEAAAAAAAAAAAECAwQFBgcICQoL/8QAtRAAAgEDAwIEAwUFBAQAAAF9AQIDAAQRBRIhMUEGE1FhByJxFDKBkaEII0KxwRVS0fAkM2JyggkKFhcYGRolJicoKSo0NTY3ODk6Q0RFRkdISUpTVFVWV1hZWmNkZWZnaGlqc3R1dnd4eXqDhIWGh4iJipKTlJWWl5iZmqKjpKWmp6ipqrKztLW2t7i5usLDxMXGx8jJytLT1NXW19jZ2uHi4+Tl5ufo6erx8vP09fb3+Pn6/8QAHwEAAwEBAQEBAQEBAQAAAAAAAAECAwQFBgcICQoL/8QAtREAAgECBAQDBAcFBAQAAQJ3AAECAxEEBSExBhJBUQdhcRMiMoEIFEKRobHBCSMzUvAVYnLRChYkNOEl8RcYGRomJygpKjU2Nzg5OkNERUZHSElKU1RVVldYWVpjZGVmZ2hpanN0dXZ3eHl6goOEhYaHiImKkpOUlZaXmJmaoqOkpaanqKmqsrO0tba3uLm6wsPExcbHyMnK0tPU1dbX2Nna4uPk5ebn6Onq8vP09fb3+Pn6/9oADAMBAAIRAxEAPwD7a+Bvx08M3/wJ8F3PiTVviRrfiTW9DsbxtF02eZlsbgwW/mxvPLsjkkSWZUaRQxDHdghhXmP7Un7duueONctdG0PSb7QdFjupraxTTUtpLzUZoI4pDvVmzu5KIskZjlYSsGIGG/PH4k+JvG1pBp/iix11GuNUMd41jql/fKIUk2zNbRyW0g2geewUgICV+fKnZXHfEr9qq603xFp0fgnw2mg6lpCm18u88T6hebhFaXUZXzDgpIuSEZSVBBLKxYMnlYqtnmPpum5JcultVsuqa/4c9ChTyLL6sask5KWt9Gte1m/+AfWs37UHxW1K58vwton/AAnFnaxRRPdWev6bbhDsGCz/AGUJNu5/eJLODt5kJzRXzb8C/wBtzQtL0nUrzXvEPxz0rWdVuVuLk2OvQ62bnEaqjyXUxtpXbYFADIdqBVHKksV8nUyrjBStT9m10bSv+n5H0X9rcLy97kkr/wCJ/jc//9k='
+					clz : '3110',
+					id : 158,
+					name : 'test1'
 				}, {
 					x : 31.266617,
 					y : 121.416328,
 					clz : '0110',
-					id : 15800000001,
-					name : 'test2',
-					avatar : 'asserts/1.jpg',
-					thumb : '/9j/4AAQSkZJRgABAQEAYABgAAD/4QDoRXhpZgAATU0AKgAAAAgAAwEPAAIAAAAFAAAAMgEQAAIAAAAIAAAAOIdpAAQAAAABAAAAQAAAAABTT05ZAABJTENFLTdSAAAHgpoABQAAAAEAAACagp0ABQAAAAEAAACiiCcAAwAAAAEGQAAAkAMAAgAAABQAAACqkgkAAwAAAAEAEAAAkgoABQAAAAEAAAC+pDQAAgAAABgAAADGAAAAAAAAAAEAAAA8AAAABAAAAAEyMDE0OjEyOjA4IDA4OjMyOjU0AAAAABwAAAABRkUgMjgtNzBtbSBGMy41LTUuNiBPU1MAAAD/2wBDAAIBAQIBAQICAgICAgICAwUDAwMDAwYEBAMFBwYHBwcGBwcICQsJCAgKCAcHCg0KCgsMDAwMBwkODw0MDgsMDAz/2wBDAQICAgMDAwYDAwYMCAcIDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAz/wAARCAAPABUDASIAAhEBAxEB/8QAHwAAAQUBAQEBAQEAAAAAAAAAAAECAwQFBgcICQoL/8QAtRAAAgEDAwIEAwUFBAQAAAF9AQIDAAQRBRIhMUEGE1FhByJxFDKBkaEII0KxwRVS0fAkM2JyggkKFhcYGRolJicoKSo0NTY3ODk6Q0RFRkdISUpTVFVWV1hZWmNkZWZnaGlqc3R1dnd4eXqDhIWGh4iJipKTlJWWl5iZmqKjpKWmp6ipqrKztLW2t7i5usLDxMXGx8jJytLT1NXW19jZ2uHi4+Tl5ufo6erx8vP09fb3+Pn6/8QAHwEAAwEBAQEBAQEBAQAAAAAAAAECAwQFBgcICQoL/8QAtREAAgECBAQDBAcFBAQAAQJ3AAECAxEEBSExBhJBUQdhcRMiMoEIFEKRobHBCSMzUvAVYnLRChYkNOEl8RcYGRomJygpKjU2Nzg5OkNERUZHSElKU1RVVldYWVpjZGVmZ2hpanN0dXZ3eHl6goOEhYaHiImKkpOUlZaXmJmaoqOkpaanqKmqsrO0tba3uLm6wsPExcbHyMnK0tPU1dbX2Nna4uPk5ebn6Onq8vP09fb3+Pn6/9oADAMBAAIRAxEAPwD7a+Bvx08M3/wJ8F3PiTVviRrfiTW9DsbxtF02eZlsbgwW/mxvPLsjkkSWZUaRQxDHdghhXmP7Un7duueONctdG0PSb7QdFjupraxTTUtpLzUZoI4pDvVmzu5KIskZjlYSsGIGG/PH4k+JvG1pBp/iix11GuNUMd41jql/fKIUk2zNbRyW0g2geewUgICV+fKnZXHfEr9qq603xFp0fgnw2mg6lpCm18u88T6hebhFaXUZXzDgpIuSEZSVBBLKxYMnlYqtnmPpum5JcultVsuqa/4c9ChTyLL6sask5KWt9Gte1m/+AfWs37UHxW1K58vwton/AAnFnaxRRPdWev6bbhDsGCz/AGUJNu5/eJLODt5kJzRXzb8C/wBtzQtL0nUrzXvEPxz0rWdVuVuLk2OvQ62bnEaqjyXUxtpXbYFADIdqBVHKksV8nUyrjBStT9m10bSv+n5H0X9rcLy97kkr/wCJ/jc//9k='
+					id : 158,
+					name : 'test2'
 				}
-			];
-	/*$http({
-	method : 'GET',
-	url : 'http://127.0.0.1:9090/home.do?id=' + DATA.userid + '&lng=' + DATA.lng + '&lat=' + DATA.lat
-	}).success(function (resp, status, headers, config) {
-	//var token = data.token;
-	//$cookieStore.put('token', token);
-	//$location.path('/');
-	console.log(resp);
-	DATA.stars = resp;
-	Home.clean();
-	Home.layout(31.268964, 121.443794);
-	Home.star(0, [{
-	x : 31.268964,
-	y : 121.443794,
-	clz : '3110',
-	id : 158,
-	name : 'test1'
-	}, {
-	x : 31.266617,
-	y : 121.416328,
-	clz : '0110',
-	id : 158,
-	name : 'test2'
-	}
-	]);
+			]);
 	}).error(function (data, status, headers, config) {
-	$scope.status = status;
-	});*/
+		$scope.status = status;
+	});
 });
 
 app.directive('carousel', function () {
@@ -325,13 +342,21 @@ app.directive('script', ['$window', '$q', '$http', 'DATA', function ($window, $q
 						f();
 						Home.clean();
 						Home.layout(31.268964, 121.443794);
-						Home.star(0, DATA.stars);
-					}else if(attr.type === 'text/javascript-user') {
+						Home.star(DATA.au, DATA.stars);
+					} else if (attr.type === 'text/javascript-user') {
 						var code = elem.text();
 						var f = new Function(code);
 						f();
 						var c = Car.load("./asserts/car/bmw_m3_e92/", "bmw.babylon");
 						c.render();
+					} else if (attr.type === 'text/javascript-game') {
+						var code = elem.text();
+						var f = new Function(code);
+						f();
+						var round = new RoundImpl('15800000000');
+						round.view = View.instance();
+						round.view.attach(round);
+						round.connect();
 					}
 				}
 			};

@@ -157,7 +157,7 @@
 
 			this.needUpdate = true;
 		}
-		this.start = function (scene, _that, card_y, showcard_y, discard_y, isCardCB, isDiscardCB) {
+		this.layout = function (scene, _that, card_y, showcard_y, discard_y, isCardCB, isDiscardCB) {
 			var _this = this;
 			_this.card_y = card_y;
 			var i;
@@ -290,7 +290,7 @@
 			this.yo.isVisible = false;
 			this.draw.isVisible = false;
 		}
-		this.start = function (scene, that) {
+		this.layout = function (scene, that) {
 			var _this = this;
 			_this.draw = createOO(scene, 'draw', 6 * (MAX - 5), 0, 0, true, CARDSIZE);
 			this.draw.isVisible = true;
@@ -473,12 +473,12 @@
 		this.create = function (canvas) {
 			this.canvas = canvas;
 			this.engine = new BABYLON.Engine(canvas, true);
-			this.scene = new BABYLON.Scene(engine);
+			this.scene = new BABYLON.Scene(this.engine);
 			this.scene.clearColor = new BABYLON.Color3(35 / 255.0, 116 / 255.0, 172 / 255.0);
 			var light = new BABYLON.PointLight("Point", new BABYLON.Vector3(3 * MAX, 0, -100), this.scene);
 			var camera = new BABYLON.FreeCamera("Camera", new BABYLON.Vector3(3 * MAX, 0, -70), this.scene);
 			//var camera = new BABYLON.ArcRotateCamera('Camera', 1, .8, 10, new BABYLON.Vector3(0, 0, 0), scene);
-			this.start();
+			this.layout();
 
 			//this.scene.activeCamera.attachControl(canvas);
 
@@ -496,10 +496,11 @@
 			//	_this.invalidate();
 			//	_this.scene.render();
 			//});
-
+		};
+		this.instance = function() {
 			return this;
 		};
-		this.start = function () {
+		this.layout = function () {
 			var _this = this;
 			_this.cardMats[INVALIDCARD] = new BABYLON.StandardMaterial('00' + INVALIDCARD, _this.scene);
 			//_this.cardMats[transparent].specularColor = new BABYLON.Color3(0, 0, 0);
@@ -518,11 +519,11 @@
 			//_this.cardMats[tbg].specularPower = 100;
 			_this.cardMats[tbg].diffuseColor = new BABYLON.Color3(35 / 255.0, 116 / 255.0, 172 / 255.0);
 
-			_this.mycards.start(_this.scene, this, -25, -15, -5, true, false);
-			_this.hiscards.start(_this.scene, this, 25, 15, 5, false, true);
+			_this.mycards.layout(_this.scene, this, -25, -15, -5, true, false);
+			_this.hiscards.layout(_this.scene, this, 25, 15, 5, false, true);
 
-			_this.buttons.start(_this.scene, _this);
-
+			_this.buttons.layout(_this.scene, this);
+ 
 			_this.desk = BABYLON.Mesh.CreatePlane('desk', 500, _this.scene);
 			_this.desk.position.x = 0;
 			_this.desk.position.y = 0;

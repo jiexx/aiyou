@@ -21,6 +21,10 @@
 	<script src="map/mapapi.js"></script>
 	
 	<script src="lib/babylon.max.js"></script>
+	<script src="./lib/sockjs-0.3.js"></script>
+	<script src="./lib/stomp.js"></script>
+	<script src="js/view.js"></script>
+	<script src="js/go.js"></script>
 	<script src="js/car.js"></script>
  
     <script src="js/app.js"></script>
@@ -30,7 +34,7 @@
  
 <div class="app" ng-controller="appCtrl">
  
-    <div class="navbar navbar-app navbar-absolute-top">
+    <div class="navbar navbar-app " ng-class="{'navbar-absolute-top':titleVisible}" ng-hide="{{!titleVisible}}">
  
         <div class="navbar-brand navbar-brand-center" yield-to="title">
             <span>{{ title }}</span>

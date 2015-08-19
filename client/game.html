@@ -1,47 +1,13 @@
-<!DOCTYPE html>
-<html>
-    <head>
-        <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-
-        <title>game</title>
-        <!-- Babylon.js -->
-        <script src="./lib/babylon.max.js"></script>
-		<script src="./lib/hands.js"></script>
-		<script src="./lib/sockjs-0.3.js"></script>
-		<script src="./lib/stomp.js"></script>
-		<script src="./js/view.js"></script>
-		<script src="./js/go.js"></script>
-        <style>
-            html, body {
-                overflow: hidden;
-                width: 100%;
-                height: 100%;
-                margin: 0;
-                padding: 0;
-            }
-
-            #renderCanvas {
-                width: 100%;
-                height: 100%;
-                touch-action: none;
-            }
-        </style>
-    </head>
-<body>
-    <canvas id="renderCanvas"></canvas>
-    <script>
-        var canvas = document.getElementById("renderCanvas");
-		var view = View.create(canvas);
-		//test 1.discard ; 2.undiscard
-		//3.draw card; 4.pong; 5.chi; 6.hu
-		//view.roundDealcards(new Array(1,2,3,3,5,6,7,8,2,4,11,12,13,3));
-		//view.who(new Array(1,2,3,3,5,6,7,8,2,4,11,12,13),false);
-		//view.heDiscard(3,3,[]);
-		//view.invalidate();
-		var round = new RoundImpl('15800000000');
-		round.view = view;
-		view.attach(round);
-        round.connect();
-    </script>
-</body>
-</html>
+<canvas id="game" class="scrollable-content" style="left:0;top:0;width:100%;height:100%;position:absolute;"></canvas>
+<img ng-src="{{avatar1}}" class="game-avatar0"/>
+<img ng-src="{{avatar2}}" class="game-avatar2"/>
+<script type="text/javascript-game">
+	var canvas = document.getElementById("game");
+	var view = View.create(canvas);
+	//test 1.discard ; 2.undiscard
+	//3.draw card; 4.pong; 5.chi; 6.hu
+	//view.roundDealcards(new Array(1,2,3,3,5,6,7,8,2,4,11,12,13,3));
+	//view.who(new Array(1,2,3,3,5,6,7,8,2,4,11,12,13),false);
+	//view.heDiscard(3,3,[]);
+	//view.invalidate();
+</script>
