@@ -11,10 +11,11 @@ public class UserList extends Response{
 	    public String clz;
 	    public long id = 0;
 	    public int gender;
-	    public String avatar;
+	    public String img;
 	    public float x;
 	    public float y;
 	    public String name;
+	    public String thumb;
 	}
 	public Star[] star;
 	
@@ -27,13 +28,15 @@ public class UserList extends Response{
 		code = md5;
 	}
 	
-	public void clone( List<User> users ) {
+	public void copy( List<User> users ) {
 		star = new Star[users.size()];
 		for( int i = 0 ; i < users.size() ; i ++ ) {
-			star[i].clz = users.get(i).clz;
+			star[i] = new Star();
+			star[i].clz = users.get(i).clazz;
 			star[i].id = users.get(i).id;
 			star[i].gender = users.get(i).gender;
-			star[i].avatar = Util.blobToBase64(users.get(i).avatar);
+			star[i].img = users.get(i).img;
+			star[i].thumb = users.get(i).avatar;
 			star[i].x = users.get(i).x;
 			star[i].y = users.get(i).y;
 			star[i].name = users.get(i).name;

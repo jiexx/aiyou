@@ -28,17 +28,17 @@ public class Home extends DataService {
 	@Autowired
 	private ApplicationContext appContext;
 	
-	@RequestMapping(value="home.do", params = {"id", "lat", "lon"}, method=RequestMethod.GET)
+	@RequestMapping(value="home.do", params = {"id", "lat", "lng"}, method=RequestMethod.GET)
 	@ResponseBody
     public String home(
     		@RequestParam(value = "id") long id, 
     		@RequestParam(value = "lat") float lat, 
-    		@RequestParam(value = "lon") float lon)
+    		@RequestParam(value = "lng") float lng)
 	{
-		System.out.println("test  "+DATA);
+		System.out.println("test  "+id + " "+lat+" "+lng);
 		//System.out.println(appContext.getClassLoader().getResource("jdbc.properties"));
 		
-		UserList resp;
+		UserList resp = new UserList();
 		Integer sellor = DATA.existSellor(id);
 		Integer driver = DATA.existDriver(id);
 		Integer user = DATA.existUser(id);
@@ -47,11 +47,13 @@ public class Home extends DataService {
 		if( user == null ) {
 			System.out.println("test1");
 			resp = new UserList(Const.UNREGISTERED, md5);
-			DATA.createUser(id, Const.CLZ_COMMON.str(), lat, lon, md5);
+			DATA.createUser(id, Const.CLZ_COMMON.str(), lat, lng, md5);
+		}else if( user != null ) {
+			DATA.updateLocByUser(id, lat, lng);
 		}else if( driver != null && sellor == null ) {
 			System.out.println("test2");
 			resp = new UserList(Const.REGISTERED, md5);
-			DATA.updateLocByUser(id, lat, lon, md5);
+			DATA.updateLocByUser(id, lat, lng);
 		}else if( sellor != null && driver == null ){
 			resp = new UserList(Const.REGISTERED, md5);
 			DATA.updateUser(id, md5);
@@ -61,17 +63,17 @@ public class Home extends DataService {
 			return gson.toJson(resp);
 		}
 		
-		LB lb = new LB(lat, lon);
-		System.out.println(" "+lb.lat_start+ " "+ lb.lat_end+ " "+ lb.lon_start+ " "+  lb.lon_end);
+		LB lb = new LB(lat, lng);
+		System.out.println(" "+lb.lat_start+ " "+ lb.lat_end+ " "+ lb.lng_start+ " "+  lb.lng_end);
 		
-		List<User> s = DATA.querySellorByLoc(lb.lat_start, lb.lat_end, lb.lon_start, lb.lon_end);
-		List<User> d = DATA.queryDriverByLoc(lb.lat_start, lb.lat_end, lb.lon_start, lb.lon_end);
+		List<User> s = DATA.querySellorByLoc(lb.lat_start, lb.lat_end, lb.lng_start, lb.lng_end);
+		List<User> d = DATA.queryDriverByLoc(lb.lat_start, lb.lat_end, lb.lng_start, lb.lng_end);
 		
 		s.addAll(d);
 		
-		resp.clone(s);
+		resp.copy(s);
 			
-        return gson.toJson(resp);
+        return "angular.callbacks._0("+gson.toJson(resp)+")";
     }
 	
 	@RequestMapping(value="/home/donotdisturb.do", params = {"id"}, method=RequestMethod.GET)

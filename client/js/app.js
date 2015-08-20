@@ -6,7 +6,7 @@ var app = angular.module('aiyou', [
 			"ngCookies"
 		]);
 
-app.config(function ($routeProvider, $controllerProvider, $locationProvider) {
+app.config(function ($routeProvider, $controllerProvider, $locationProvider, $httpProvider) {
 	app.registerCtrl = $controllerProvider.register;
 	//$locationProvider.html5Mode(true);
 	$routeProvider.when('/', {
@@ -148,11 +148,10 @@ app.controller('userCtrl', function ($scope, $location, $cookieStore, $http, DAT
 
 	$scope.userLnk = DATA.auth('message/?id=' + $location.search().id);
 
-	$http({
-		method : 'GET',
+	$http.jsonp(
 		//$location.path('/myURL/').search({param: 'value'});
-		url : 'http://127.0.0.1:9090/home.do?id=' + $location.search().id + '&lng=' + DATA.lng + '&lat=' + DATA.lat
-	}).success(function (resp, status, headers, config) {
+		'http://127.0.0.1:9090/home.do?id=' + $location.search().id + '&lng=' + DATA.lng + '&lat=' + DATA.lat
+	).success(function (resp, status, headers, config) {
 		//var token = data.token;
 		//$cookieStore.put('token', token);
 		//$location.path('/');
@@ -197,31 +196,20 @@ app.controller('homeCtrl', function ($scope, $location, $cookieStore, $http, DAT
 		}
 	];
 	$http({
-		method : 'GET',
+		method : 'JSONP',
 		url : 'http://127.0.0.1:9090/home.do?id=' + DATA.userid + '&lng=' + DATA.lng + '&lat=' + DATA.lat
 	}).success(function (resp, status, headers, config) {
 		//var token = data.token;
 		//$cookieStore.put('token', token);
 		//$location.path('/');
 		console.log(resp);
-		DATA.stars = resp;
+		DATA.stars = resp.star;
 		Home.clean();
-		Home.layout(31.268964, 121.443794);
-		Home.star(0, [{
-					x : 31.268964,
-					y : 121.443794,
-					clz : '3110',
-					id : 158,
-					name : 'test1'
-				}, {
-					x : 31.266617,
-					y : 121.416328,
-					clz : '0110',
-					id : 158,
-					name : 'test2'
-				}
-			]);
+		Home.layout(DATA.lat, DATA.lng);
+		var isreg = resp.au == 268435456 ? 0 : 1;
+		Home.star(isreg, resp.star);
 	}).error(function (data, status, headers, config) {
+		console.log(data);
 		$scope.status = status;
 	});
 });
@@ -347,7 +335,7 @@ app.directive('script', ['$window', '$q', '$http', 'DATA', function ($window, $q
 						var code = elem.text();
 						var f = new Function(code);
 						f();
-						var c = Car.load("./asserts/car/bmw_m3_e92/", "bmw.babylon");
+						var c = Car.load("./asserts/car/bmw_m3_e92/", "bmw");
 						c.render();
 					} else if (attr.type === 'text/javascript-game') {
 						var code = elem.text();

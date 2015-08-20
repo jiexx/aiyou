@@ -16,33 +16,33 @@ import com.mysql.jdbc.Blob;
 import com.mysql.jdbc.Clob;
 
 public interface Data {
-	@Update("UPDATE user(lat, lon) VALUES(#{latitude}, #{longitude}) WHERE id=#{userid};")
+	@Update("UPDATE user(lat, lng) VALUES(#{latitude}, #{longitude}) WHERE id=#{userid};")
 	public int updateLocation(@Param("userid") long userid, @Param("latitude") float latitude, @Param("longitude") float longitude);
 	
 	@Select("SELECT 1 FROM sellor WHERE id=#{userid};")
 	public Integer existSellor(@Param("userid") long userid);
 	
-	@Select("SELECT u.class, u.id, 2, s.avatar, u.lat AS x, u.lon AS y, s.name FROM sellor AS s  RIGHT JOIN "
-			+ "(SELECT * FROM user WHERE lat > #{latstart} AND lat < #{latend} AND lon > #{lonstart} AND lon < #{lonend} ) AS u "
+	@Select("SELECT u.clazz, u.id,  2, s.img, s.avatar, u.lat AS x, u.lng AS y, s.name FROM sellor AS s  LEFT JOIN "
+			+ "(SELECT * FROM user WHERE lat > #{latstart} AND lat < #{latend} AND lng > #{lonstart} AND lng < #{lonend} ) AS u "
 			+ "ON u.id = s.id;")
 	public List<User> querySellorByLoc(@Param("latstart") float latstart, @Param("latend") float latend, @Param("lonstart") float lonstart, @Param("lonend") float lonend);
 	
 	@Select("SELECT 1 FROM driver WHERE id=#{userid};")
 	public Integer existDriver(@Param("userid") long userid);
 	
-	@Select("SELECT u.class, u.id, s.gender, s.avatar, u.lat, u.lon, s.name FROM driver AS s  RIGHT JOIN "
-			+ "(SELECT * FROM user WHERE lat > #{latstart} AND lat < #{latend} AND lon > #{lonstart} AND lon < #{lonend} ) AS u "
+	@Select("SELECT u.clazz, u.id, s.img, s.gender, s.avatar, u.lat AS x, u.lng AS y, s.name FROM driver AS s  LEFT JOIN "
+			+ "(SELECT * FROM user WHERE lat > #{latstart} AND lat < #{latend} AND lng > #{lonstart} AND lng < #{lonend} ) AS u "
 			+ "ON u.id = s.id;")
 	public List<User> queryDriverByLoc(@Param("latstart") float latstart, @Param("latend") float latend, @Param("lonstart") float lonstart, @Param("lonend") float lonend);
 	
 	@Select("SELECT 1 FROM user WHERE id=#{userid};")
 	public Integer existUser(@Param("userid") long userid);
 		
-	@Insert("INSERT user(id, class, lat, lon, code) VALUES(#{userid}, #{clz}, #{latitude}, #{longitude}, #{code});")
+	@Insert("INSERT user(id, clazz, lat, lng, code) VALUES(#{userid}, #{clz}, #{latitude}, #{longitude}, #{code});")
 	public int createUser(@Param("userid") long userid,  @Param("clz") String clz, @Param("latitude") float latitude, @Param("longitude") float longitude, @Param("code") String code);
 	
-	@Update("UPDATE user SET lat = #{latitude}, lon = #{longitude}, code = #{code} WHERE id = #{userid};")
-	public int updateLocByUser(@Param("userid") long userid,  @Param("latitude") float latitude, @Param("longitude") float longitude, @Param("code") String code);
+	@Update("UPDATE user SET lat = #{latitude}, lng = #{longitude} WHERE id = #{userid};")
+	public int updateLocByUser(@Param("userid") long userid,  @Param("latitude") float latitude, @Param("longitude") float longitude);
 	
 	@Update("UPDATE user SET code = #{code} WHERE id = #{userid};")
 	public int updateUser(@Param("userid") long userid,  @Param("code") String code);
