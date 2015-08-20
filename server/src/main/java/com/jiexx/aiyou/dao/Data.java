@@ -65,6 +65,6 @@ public interface Data {
 	public int insertSellor(@Param("id") long userid,  @Param("name") String name, @Param("intro") String intro, @Param("balance") int balance, @Param("avatar") byte[] avatar, @Param("img") String img);
 	
 	@Update("INSERT driver(id,name,gender,intro,car,visible,balance,avatar,img)VALUES(#{id},#{name},#{gender},#{intro},#{car},#{visible},#{balance},#{avatar},#{img});")
-	public int insertDriver(@Param("id") long userid,  @Param("name") String name, @Param("gender") String gender, @Param("intro") String intro, @Param("car") String car, @Param("visible") String visible, @Param("balance") int balance, @Param("avatar") byte[] avatar, @Param("img") String img);
+	public int insertDriver(@Param("id") long userid,  @Param("name") String name, @Param("gender") int gender, @Param("intro") String intro, @Param("car") String car, @Param("visible") int visible, @Param("balance") int balance, @Param("avatar") String avatar, @Param("img") String img);
 
 }

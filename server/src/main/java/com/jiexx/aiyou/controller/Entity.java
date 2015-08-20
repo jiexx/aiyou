@@ -44,18 +44,18 @@ public class Entity extends DataService {
 		return gson.toJson(resp);
 	}
 
-	@RequestMapping(value = "/reg_sellor.do", params = { "n", "i", "c", "p", "a" }, method = RequestMethod.GET)
+	@RequestMapping(value = "/reg.do", params = { "id", "n", "a" }, method = RequestMethod.GET)
 	@ResponseBody
-	public String reg_sellor(@RequestParam(value = "n") String name, @RequestParam(value = "i") String intro,
-			@RequestParam(value = "c") String call, @RequestParam(value = "p") String img,
+	public String register(@RequestParam(value = "n") String name, 
+			@RequestParam(value = "id") long call,
 			@RequestParam(value = "a") String avatar) {
 		System.out.println("test");
 		Response resp = new Response();
 
-		Integer u = DATA.insertSellor(Long.parseLong(call), name, intro, 0, Util.base64ToBytes(avatar), img);
+		Integer u = DATA.insertDriver(call, name, 2, "", "bmw_m3_e92/bmw", 1, 100,avatar, "");
 		if (u != null && u == 1) {
 			String md5 = DigestUtils.md5DigestAsHex(String.valueOf(System.currentTimeMillis()).getBytes());
-			DATA.updateUser(Long.parseLong(call), md5);
+			DATA.updateUser(call, md5);
 			resp.err = Const.SUCCESS.val();
 			resp.au = Const.REGISTERED.val();
 			resp.code = md5;
@@ -63,31 +63,6 @@ public class Entity extends DataService {
 			resp.err = Const.FAILED.val();
 		}
 
-		return gson.toJson(resp);
-	}
-
-	@RequestMapping(value = "/reg_driver.do", params = { "n", "g", "i", "r", "c", "p",
-			"a" }, method = RequestMethod.GET)
-	@ResponseBody
-	public String reg_driver(@RequestParam(value = "n") String name, @RequestParam(value = "g") String gender,
-			@RequestParam(value = "i") String intro, @RequestParam(value = "r") String car,
-			@RequestParam(value = "c") String call, @RequestParam(value = "p") String img,
-			@RequestParam(value = "a") String avatar) {
-		System.out.println("test");
-		Response resp = new Response();
-
-		Integer u = DATA.insertDriver(Long.parseLong(call), name, gender, intro, car, Const.CLZ_LOVE.str(), 20,
-				Util.base64ToBytes(avatar), img);
-		if (u != null && u == 1) {
-			String md5 = DigestUtils.md5DigestAsHex(String.valueOf(System.currentTimeMillis()).getBytes());
-			DATA.updateUser(Long.parseLong(call), md5);
-			resp.err = Const.SUCCESS.val();
-			resp.au = Const.REGISTERED.val();
-			resp.code = md5;
-		} else {
-			resp.err = Const.FAILED.val();
-		}
-
-		return gson.toJson(resp);
+		return "angular.callbacks._0("+gson.toJson(resp)+")";
 	}
 }

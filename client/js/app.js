@@ -311,9 +311,9 @@ app.directive('script', ['$window', '$q', '$http', 'DATA', function ($window, $q
 						var code = elem.text();
 						var f = new Function(code);
 						f();
-						Home.clean();
-						Home.layout(31.268964, 121.443794);
-						Home.star(DATA.au, DATA.stars);
+						//Home.clean();
+						//Home.layout(DATA.lat, DATA.lng);
+						//Home.star(DATA.au, DATA.stars);
 					} else if (attr.type === 'text/javascript-user') {
 						var code = elem.text();
 						var f = new Function(code);
