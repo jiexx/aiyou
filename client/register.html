@@ -13,13 +13,13 @@
 	  <div class="form-group">
 	  <input type="text" class="form-control" placeholder="{{holder}}" ng-model="nickName"/></div>
 	  
-	<ui-state id='activeTab' default='1' ng-model="clazz"></ui-state>
-	<div class="btn-group justified nav-tabs">
-        <a ui-set="{'activeTab': 1}" ui-class="{'active': activeTab == 1}" class="btn btn-default active" >男生</a>
 
-        <a ui-set="{'activeTab': 2}" ui-class="{'active': activeTab == 2}" class="btn btn-default" >女生</a>
+	<div class="btn-group justified nav-tabs" ui-state='activeTab' default='1'>
+        <a ui-set="{'activeTab': 1}" ui-class="{'active': activeTab == 1}" class="btn btn-default active" ng-click="classify(1)">男生</a>
 
-        <a ui-set="{'activeTab': 3}" ui-class="{'active': activeTab == 3}" class="btn btn-default" >开店</a>
+        <a ui-set="{'activeTab': 2}" ui-class="{'active': activeTab == 2}" class="btn btn-default" ng-click="classify(0)" >女生</a>
+
+        <a ui-set="{'activeTab': 3}" ui-class="{'active': activeTab == 3}" class="btn btn-default" ng-click="classify(2)">开店</a>
     </div>
 	</fieldset>
   <br>

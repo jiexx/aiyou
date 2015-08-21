@@ -1,9 +1,9 @@
 
 var app = angular.module('aiyou', [
 			"ngRoute",
-			"mobile-angular-ui.gestures",
 			"mobile-angular-ui",
-			"ngCookies"
+			"mobile-angular-ui.gestures",
+			"ngCookies",
 		]);
 
 app.config(function ($routeProvider, $controllerProvider, $locationProvider, $httpProvider) {
@@ -80,6 +80,12 @@ app.controller('registerCtrl', function ($scope, $location, $cookieStore, $http,
 	nav.title = '注册';
 	nav.navLnk = '/';
 	nav.listStyle = false;
+	
+	var clazz;
+	
+	$scope.classify = function(activeTab) {
+		clazz = activeTab;
+	}
 
 	var fd = '';// new FormData();
 
@@ -98,7 +104,7 @@ app.controller('registerCtrl', function ($scope, $location, $cookieStore, $http,
 			$http({
 				method  : 'POST',
 				url: 'http://127.0.0.1:9090/entity/reg.do', 
-				data: {id: DATA.userid, n : $scope.nickName, a : fd, s : $scope.clazz, lat : DATA.lat, lng : DATA.lng}, 
+				data: {id: DATA.userid, n : $scope.nickName, a : fd, s : clazz, lat : DATA.lat, lng : DATA.lng}, 
 				//dataType: 'json',
 				//headers : {
 				//	'Content-Type': 'application/x-requested-with; charset=UTF-8'
@@ -106,8 +112,8 @@ app.controller('registerCtrl', function ($scope, $location, $cookieStore, $http,
 			}).success(function (resp, status, headers, config) {
 				delete fd;
 				fd = null;
-				$location.path('/');
-				$scope.$apply();
+				$location.path('#/?id=' + DATA.userid + '&lng=' + DATA.lng + '&lat=' + DATA.lat);
+				//$scope.$apply();
 			}).error(function (resp, status, headers, config) {
 				console.log(resp);
 			});

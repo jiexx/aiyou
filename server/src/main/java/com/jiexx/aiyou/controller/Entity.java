@@ -64,7 +64,7 @@ public class Entity extends DataService {
 		
 		if( call < 13000000000L || reg.s > 3 || avatar.length() == 0 ) {
 			resp.err = Const.FAILED.val();
-			return resp.toResp();
+			return resp.toJason();
 		}
 		
 		int m = DATA.existDriver(call);
@@ -72,7 +72,7 @@ public class Entity extends DataService {
 		if( m > 0 || n <= 0 ) {
 			resp.err = Const.FAILED.val();
 			resp.au = Const.REGISTERED.val();
-			return resp.toResp();
+			return resp.toJason();
 		}
 
 		String md5 = DigestUtils.md5DigestAsHex(String.valueOf(System.currentTimeMillis()).getBytes());
@@ -87,6 +87,6 @@ public class Entity extends DataService {
 			resp.err = Const.FAILED.val();
 		}
 
-		return resp.toResp();
+		return resp.toJason();
 	}
 }
