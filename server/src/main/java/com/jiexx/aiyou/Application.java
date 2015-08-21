@@ -2,6 +2,7 @@ package com.jiexx.aiyou;
 
 import java.util.concurrent.TimeUnit;
 
+import javax.servlet.Filter;
 import javax.sql.DataSource;
 
 import org.apache.commons.dbcp.BasicDataSource;
@@ -19,6 +20,8 @@ import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.ImportResource;
 import org.springframework.http.HttpStatus;
 import org.springframework.jdbc.datasource.DataSourceTransactionManager;
+
+import com.jiexx.aiyou.controller.Interceptor;
 
 @SpringBootApplication
 //@ImportResource({ "file:src/main/resources/conf/spring.xml", "file:src/main/resources/conf/spring-mybatis.xml" })
@@ -61,5 +64,14 @@ public class Application {
 	    //factory.addErrorPages(new ErrorPage(HttpStatus.NOT_FOUND, "/notfound.html"));
 	    return factory;
 	}
+	
+//	@Bean
+//	public Filter logFilter() {
+//		Interceptor filter = new AbstractRequestLoggingFilter ();
+//	    filter.setIncludeQueryString(true);
+//	    filter.setIncludePayload(true);
+//	    filter.setMaxPayloadLength(5120);
+//	    return filter;
+//	}
 
 }

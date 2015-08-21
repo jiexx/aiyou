@@ -47,7 +47,6 @@ public class Home extends DataService {
 		if( user == null ) {
 			System.out.println("test1");
 			resp = new UserList(Const.UNREGISTERED, md5);
-			DATA.createUser(id, Const.CLZ_COMMON.str(), lat, lng, md5);
 		}else if( user != null ) {
 			DATA.updateLocByUser(id, lat, lng);
 		}else if( driver != null && sellor == null ) {
@@ -60,7 +59,7 @@ public class Home extends DataService {
 		}else {
 			resp = new UserList();
 			resp.err = Const.FAILED.val();
-			return gson.toJson(resp);
+			return resp.toResp();
 		}
 		
 		LB lb = new LB(lat, lng);
@@ -73,7 +72,7 @@ public class Home extends DataService {
 		
 		resp.copy(s);
 			
-        return "angular.callbacks._0("+gson.toJson(resp)+")";
+        return resp.toResp();
     }
 	
 	@RequestMapping(value="/home/donotdisturb.do", params = {"id"}, method=RequestMethod.GET)
@@ -87,7 +86,7 @@ public class Home extends DataService {
 		if( DATA.toggleClass(id) != 0 )
 			resp.err = Const.FAILED.val();
 			
-        return gson.toJson(resp);
+        return resp.toResp();
     }
 	
 }

@@ -46,6 +46,13 @@ public class GameService {
 			r.receive(msg);
 		}
 	}
+	public int findUser(long id) {
+		for( int i = 0 ; i < active.size() ; i ++ ) {
+			if( active.get(i).isExistedUser(id) )
+				return i;
+		}
+		return -1;
+	}
 	public void delRound(int id) {
 		active.remove(id);
 	}

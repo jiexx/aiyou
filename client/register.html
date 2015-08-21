@@ -5,13 +5,22 @@
 	<fieldset>
     <div class="user-avatar">
       <div><a class="fa fa-user feature-icon text-primary" ng-class="{'collapse': avatarHint==0}"></a></div>
-      <div><canvas id="imgAvatar"/></div>
+      <div><canvas id="imgAvatar" width="58px" height="58px" /><canvas id="imgAvatarScale" width="58px" height="58px"/></div>
       <div><span ng-class="{'label label-danger': avatarHint==-1, 'label label-primary': avatarHint==1, 'collapse': avatarHint==0}" >请选择头像</span></div>
       <div><input type="file" style="opacity: 0;" class="form-control" onchange="angular.element(this).scope().uploadAvatar(this.files)"/></div>
     </div>
-    
+	
 	  <div class="form-group">
 	  <input type="text" class="form-control" placeholder="{{holder}}" ng-model="nickName"/></div>
+	  
+	<ui-state id='activeTab' default='1' ng-model="clazz"></ui-state>
+	<div class="btn-group justified nav-tabs">
+        <a ui-set="{'activeTab': 1}" ui-class="{'active': activeTab == 1}" class="btn btn-default active" >男生</a>
+
+        <a ui-set="{'activeTab': 2}" ui-class="{'active': activeTab == 2}" class="btn btn-default" >女生</a>
+
+        <a ui-set="{'activeTab': 3}" ui-class="{'active': activeTab == 3}" class="btn btn-default" >开店</a>
+    </div>
 	</fieldset>
   <br>
 	<button class="btn btn-primary btn-block" ng-click='submit()'>提交</button>

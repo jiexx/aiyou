@@ -5,9 +5,11 @@
 	var pin = [['ufemale.png','umale.png','ushop.png','unreg.png'],['female.png','male.png','shop.png','reg.png']];
 	function classify(clz) {
 		var c1 = parseInt(clz[0]);
+		var c2 = parseInt(clz[0]);
 		var su = (c1 == 2 || c1 == 4 ? 'shop' : 'user');
 		return {
 			who : su,
+			isplaying : c2
 		};
 	}
 	function LabelFmt() {
@@ -22,14 +24,15 @@
 		
 	}
 	LabelFmt.prototype.avatar = function(isAuth, id, name, thumb, clazz) {
-		return '<a href="#/'+clazz.who+'/?id='+id+'" class="btn btn-default avatar-small" ><img src="data:image/png;base64,'+thumb+'"/></a>';
+		return '<a href="#/'+clazz.who+'/?id='+id+'" class="btn btn-default avatar-small" ><img src="'+thumb+'"/></a>';
 	};
 	LabelFmt.prototype.name = function(isAuth, id, name, thumb, clazz) {
 		return '<a href="#/'+clazz.who+'/?id='+id+'" class="btn btn-default text-primary" >'+name+'</a>';
 	};
 	LabelFmt.prototype.play = function(isAuth, id, name, thumb, clazz) {
-		var str = ( isAuth == 0 ? '#/register': '#/game/?id='+id ) ;
-		return '<a href="'+str+'" class="btn btn-default fa fa-gamepad text-primary "></a>';
+		var str = ( isAuth == 0 ? '#/register': (clazz.isplaying == 2 ? '#/' : '#/game/?id='+id) ) ;
+		var playing = ( clazz.isplaying == 2 ? 'text-default' : 'text-primary' );
+		return '<a href="'+str+'" class="btn btn-default fa fa-gamepad '+playing+' "></a>';
 	};
 	LabelFmt.prototype.msg = function(isAuth, id, name, thumb, clazz) {
 		var str = ( isAuth == 0 ? '#/register': '#/message/?id='+id) ;
@@ -205,6 +208,8 @@
 		}
 	}
 	Home.prototype.mark = function(isreg, x, y, clz, id, name, thumb) {
+		if( clz == undefined || clz == null ) 
+			return;
 		var image = 'asserts/map/'+pin[isreg][parseInt(clz.substr(0,1))];
 		var myLatLng = new google.maps.LatLng(x, y); 
 		var marker = new google.maps.Marker({

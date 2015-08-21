@@ -56,6 +56,14 @@ public class Round {
 		return "/"+String.valueOf(id)+"/player";
 	}
 	
+	public boolean isExistedUser(long uid) {
+		if( user[0] != Const.INVALID_PLAYER.val() && user[0] == uid )
+			return true;
+		if( user[1] != Const.INVALID_PLAYER.val() && user[1] == uid )
+			return true;
+		return false;
+	}
+	
 	public void addUser(Hand who, long uid) {
 		user[who.val()] = uid;
 	}

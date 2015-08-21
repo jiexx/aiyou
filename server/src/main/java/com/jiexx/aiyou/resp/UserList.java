@@ -5,6 +5,7 @@ import java.util.List;
 import com.jiexx.aiyou.comm.Util;
 import com.jiexx.aiyou.model.Const;
 import com.jiexx.aiyou.model.User;
+import com.jiexx.aiyou.service.GameService;
 
 public class UserList extends Response{
 	public class Star {
@@ -33,6 +34,8 @@ public class UserList extends Response{
 		for( int i = 0 ; i < users.size() ; i ++ ) {
 			star[i] = new Star();
 			star[i].clz = users.get(i).clazz;
+			if( GameService.instance.findUser(users.get(i).id) > -1 )
+				star[i].clz = star[i].clz.substring(0, 0)+"2"+ star[i].clz.substring(2);
 			star[i].id = users.get(i).id;
 			star[i].gender = users.get(i).gender;
 			star[i].img = users.get(i).img;

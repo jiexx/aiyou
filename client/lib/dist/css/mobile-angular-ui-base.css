@@ -8957,6 +8957,9 @@ ui-switch {
 }
 
 .user-avatar > div > canvas{
+  position:absolute;
+  left: 0;
+  top: 0;
   width: 58px;
   height: 58px;
   border: 0;

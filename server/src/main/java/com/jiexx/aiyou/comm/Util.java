@@ -15,9 +15,15 @@ import javax.crypto.spec.DESKeySpec;
 
 import org.springframework.util.Base64Utils;
 
+import com.google.gson.Gson;
+import com.jiexx.aiyou.resp.Response;
 import com.mysql.jdbc.Blob;
 
 public class Util {
+	protected static Gson gson = new Gson();
+	public static String toResp(Response resp) {
+		return "angular.callbacks._0("+gson.toJson(resp)+")";
+	}
 	public static String decrypt(String encryptedData, String key) {
 		String ret = null;
 		byte[] keyByte = getByteArray(key);

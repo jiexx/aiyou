@@ -41,6 +41,7 @@ app.config(function ($routeProvider, $controllerProvider, $locationProvider, $ht
 	$routeProvider.otherwise({
 		redirectTo : '/'
 	});
+	delete $httpProvider.defaults.headers.common['Access-Control-Request-Headers'];
 });
 
 app.factory('DATA', function () {
@@ -74,13 +75,13 @@ app.controller('gameCtrl', function ($scope, $location, $cookieStore, DATA) {
 	$scope.avatar2 = 'asserts/1.jpg';
 });
 
-app.controller('registerCtrl', function ($scope, $location, $cookieStore) {
+app.controller('registerCtrl', function ($scope, $location, $cookieStore, $http, DATA) {
 	var nav = $scope.$parent;
 	nav.title = '注册';
 	nav.navLnk = '/';
 	nav.listStyle = false;
 
-	var fd = new FormData();
+	var fd = '';// new FormData();
 
 	$scope.avatarHint = 1;
 	$scope.holder = '昵称';
@@ -92,19 +93,24 @@ app.controller('registerCtrl', function ($scope, $location, $cookieStore) {
 		} else if ($scope.nickName == '') {
 			$scope.holder = '请输入昵称';
 		} else {
-			fd.append("name", $scope.nickName);
-			$http.post('http://127.0.0.1:9090/register.do', fd, {
-				withCredentials : true,
-				headers : {
-					'Content-Type' : undefined
-				},
-				transformRequest : angular.identity
+			//fd.append("n", $scope.nickName);
+			//fd.append("id", DATA.userid);
+			$http({
+				method  : 'POST',
+				url: 'http://127.0.0.1:9090/entity/reg.do', 
+				data: {id: DATA.userid, n : $scope.nickName, a : fd, s : $scope.clazz, lat : DATA.lat, lng : DATA.lng}, 
+				//dataType: 'json',
+				//headers : {
+				//	'Content-Type': 'application/x-requested-with; charset=UTF-8'
+				//}
 			}).success(function (resp, status, headers, config) {
 				delete fd;
 				fd = null;
 				$location.path('/');
 				$scope.$apply();
-			}).error(function (resp, status, headers, config) {});
+			}).error(function (resp, status, headers, config) {
+				console.log(resp);
+			});
 		}
 	};
 
@@ -129,7 +135,10 @@ app.controller('registerCtrl', function ($scope, $location, $cookieStore) {
 				img.src = evt.target.result;
 				ctx.clearRect(0, 0, avatar.width, avatar.height);
 				ctx.drawImage(img, 0, 0, avatar.width, avatar.height);
-				fd.append('avatar', avatar.toDataURL());
+				//ctx.font = "30px Arial";
+				//ctx.fillText("Hello",0,30);
+				fd = avatar.toDataURL("image/jpeg");
+				//document.write("<img src='"+fd+"' />");
 				$scope.avatarHint = 0;
 				$scope.$apply();
 			}
@@ -148,10 +157,11 @@ app.controller('userCtrl', function ($scope, $location, $cookieStore, $http, DAT
 
 	$scope.userLnk = DATA.auth('message/?id=' + $location.search().id);
 
-	$http.jsonp(
+	$http({
+		method : 'JSONP',
 		//$location.path('/myURL/').search({param: 'value'});
-		'http://127.0.0.1:9090/home.do?id=' + $location.search().id + '&lng=' + DATA.lng + '&lat=' + DATA.lat
-	).success(function (resp, status, headers, config) {
+		url: 'http://127.0.0.1:9090/home.do?id=' + $location.search().id + '&lng=' + DATA.lng + '&lat=' + DATA.lat
+	}).success(function (resp, status, headers, config) {
 		//var token = data.token;
 		//$cookieStore.put('token', token);
 		//$location.path('/');
