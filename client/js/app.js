@@ -112,7 +112,7 @@ app.controller('registerCtrl', function ($scope, $location, $cookieStore, $http,
 			}).success(function (resp, status, headers, config) {
 				delete fd;
 				fd = null;
-				$location.path('#/?id=' + DATA.userid + '&lng=' + DATA.lng + '&lat=' + DATA.lat);
+				$location.path('/').search({id:DATA.userid,lng:DATA.lng,lat:DATA.lat});
 				//$scope.$apply();
 			}).error(function (resp, status, headers, config) {
 				console.log(resp);
