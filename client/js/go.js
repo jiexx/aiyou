@@ -87,19 +87,29 @@ var Round = (function (_super) {
         this.roundid = '';
         this.client = null;
     }
-    Round.prototype.connect = function (toid) {
+	Round.prototype.open = function () {
+		var _this = this;
+        var socket = new SockJS('http://localhost:9090/game');
+        this.client = Stomp.over(socket);
+        this.client.connect({}, function (frame) {
+			var a = new Ack();
+			a.cmd = V_OPEN;
+			a.uid = parseInt(_this.userid);
+			a.toid = 0xffffffff;
+			_this.send(a);
+			_this.client.subscribe('/hook/' + _this.userid, function (frame) {
+                var msg = JSON.parse(frame.body);
+                _this.recv(msg);
+            });
+		});
+	}
+    Round.prototype.join = function (toid) {
         var _this = this;
         var socket = new SockJS('http://localhost:9090/game');
         this.client = Stomp.over(socket);
         this.client.connect({}, function (frame) {
             console.log('Connected: ' + frame);
-			if( toid == undefined || toid == null ) {
-				var a = new Ack();
-				a.cmd = V_OPEN;
-				a.uid = parseInt(_this.userid);
-				a.toid = 0xffffffff;
-				_this.send(a);
-			}else {
+			if( toid != undefined && toid != null ) {
 				var a = new Ack();
 				a.cmd = V_JOIN;
 				a.uid = parseInt(_this.userid);

@@ -21,10 +21,10 @@ import com.mysql.jdbc.Blob;
 
 public class Util {
 	protected static Gson gson = new Gson();
-	public static String toJasonp(Response resp) {
+	public static String toJsonp(Response resp) {
 		return "angular.callbacks._0("+gson.toJson(resp)+")";
 	}
-	public static String toJason(Response resp) {
+	public static String toJson(Response resp) {
 		return gson.toJson(resp);
 	}
 	public static String decrypt(String encryptedData, String key) {

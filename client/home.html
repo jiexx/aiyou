@@ -5,7 +5,7 @@
 	var pin = [['ufemale.png','umale.png','ushop.png','unreg.png'],['female.png','male.png','shop.png','reg.png']];
 	function classify(clz) {
 		var c1 = parseInt(clz[0]);
-		var c2 = parseInt(clz[0]);
+		var c2 = parseInt(clz[1]);
 		var su = (c1 == 2 || c1 == 4 ? 'shop' : 'user');
 		return {
 			who : su,
@@ -17,9 +17,10 @@
 		this.cols = [
 		  /*  0 female      1 male     2 shop     3 self   4 */
 		[this.avatar, this.avatar, this.name, this.avatar, this.mgr] /*col 1*/,
-		[this.empty, this.play, this.empty, this.empty, this.empty],
+		/*  0 disable      1 on going     2 not going     3 self   4 */
+		[this.empty, this.playing, this.play, this.empty, this.empty],
 		[this.empty, this.msg, this.empty, this.empty, this.empty],
-		[this.empty, this.empty, this.empty, this.setting, this.setting] /* col setting*/
+		[this.empty, this.setting, this.empty, this.empty, this.empty] /* col setting*/
 		];
 		
 	}
@@ -30,9 +31,12 @@
 		return '<a href="#/'+clazz.who+'/?id='+id+'" class="btn btn-default text-primary" >'+name+'</a>';
 	};
 	LabelFmt.prototype.play = function(isAuth, id, name, thumb, clazz) {
-		var str = ( isAuth == 0 ? '#/register': (clazz.isplaying == 2 ? '#/' : '#/game/?id='+id) ) ;
-		var playing = ( clazz.isplaying == 2 ? 'text-default' : 'text-primary' );
-		return '<a href="'+str+'" class="btn btn-default fa fa-gamepad '+playing+' "></a>';
+		var str = ( isAuth == 0 ? '#/register': 'javascript:void(0);') ;
+		return '<a href="'+str+'" class="btn btn-default fa fa-gamepad text-default "></a>';
+	};
+	LabelFmt.prototype.playing = function(isAuth, id, name, thumb, clazz) {
+		var str = ( isAuth == 0 ? '#/register': '#/game/?id='+id ) ;
+		return '<a href="'+str+'" class="btn btn-default fa fa-gamepad text-primary "></a>';
 	};
 	LabelFmt.prototype.msg = function(isAuth, id, name, thumb, clazz) {
 		var str = ( isAuth == 0 ? '#/register': '#/message/?id='+id) ;

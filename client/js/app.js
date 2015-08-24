@@ -71,8 +71,37 @@ app.controller('appCtrl', function ($scope, $location, $cookieStore, DATA) {
 app.controller('gameCtrl', function ($scope, $location, $cookieStore, DATA) {
 	console.log(DATA.title);
 	$scope.$parent.titleVisible = false;
-	$scope.avatar1 = '';
+	$scope.avatar1 = 'asserts/stop.png';
 	$scope.avatar2 = 'asserts/1.jpg';
+	
+	if( DATA.userid == undefined || DATA.userid == null || $location.search().id == undefined || $location.search().id == null )
+		return;
+	var round = null;
+	$scope.close = function() {
+		round.disconnect();
+		$location.path('/').search({id:DATA.userid,lng:DATA.lng,lat:DATA.lat});
+	}
+	
+	if( DATA.userid == $location.search().id ) {
+		round = new RoundImpl(DATA.userid);
+		round.view = View.instance();
+		round.view.attach(round);
+		round.open();
+	}else {
+		$http({
+			method  : 'GET',
+			url: 'http://127.0.0.1:9090/entity/gqry.do', 
+			data: {id: DATA.userid}, 
+		}).success(function (resp, status, headers, config) {
+			if( resp.err == 0 && resp.gid > -1 ) {
+				round = new RoundImpl(DATA.userid);
+				round.view = View.instance();
+				round.view.attach(round);
+				round.join(resp.gid);
+			}
+		}).error(function (resp, status, headers, config) {
+		});
+	}
 });
 
 app.controller('registerCtrl', function ($scope, $location, $cookieStore, $http, DATA) {
@@ -164,7 +193,7 @@ app.controller('userCtrl', function ($scope, $location, $cookieStore, $http, DAT
 	$scope.userLnk = DATA.auth('message/?id=' + $location.search().id);
 
 	$http({
-		method : 'JSONP',
+		method : 'GET',
 		//$location.path('/myURL/').search({param: 'value'});
 		url: 'http://127.0.0.1:9090/home.do?id=' + $location.search().id + '&lng=' + DATA.lng + '&lat=' + DATA.lat
 	}).success(function (resp, status, headers, config) {
@@ -195,7 +224,7 @@ app.controller('homeCtrl', function ($scope, $location, $cookieStore, $http, DAT
 	nav.listStyle = true;
 
 	$http({
-		method : 'JSONP',
+		method : 'GET',
 		url : 'http://127.0.0.1:9090/home.do?id=' + DATA.userid + '&lng=' + DATA.lng + '&lat=' + DATA.lat
 	}).success(function (resp, status, headers, config) {
 		//var token = data.token;
@@ -319,9 +348,9 @@ app.directive('script', ['$window', '$q', '$http', 'DATA', function ($window, $q
 			return {
 				restrict : 'E',
 				scope : false,
-				controller : function ($scope) {
-					console.log($scope);
-				},
+				//controller : function ($scope) {
+				//	console.log($scope);
+				//},
 				link : function (scope, elem, attr) {
 					if (attr.type === 'text/javascript-home') {
 						var code = elem.text();
@@ -340,10 +369,6 @@ app.directive('script', ['$window', '$q', '$http', 'DATA', function ($window, $q
 						var code = elem.text();
 						var f = new Function(code);
 						f();
-						var round = new RoundImpl('15800000000');
-						round.view = View.instance();
-						round.view.attach(round);
-						round.connect();
 					}
 				}
 			};

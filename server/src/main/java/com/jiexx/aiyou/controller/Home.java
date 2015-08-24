@@ -48,6 +48,7 @@ public class Home extends DataService {
 			System.out.println("test1");
 			resp = new UserList(Const.UNREGISTERED, md5);
 		}else if( user != null ) {
+			resp = new UserList(Const.REGISTERED, md5);
 			DATA.updateLocByUser(id, lat, lng);
 		}else if( driver != null && sellor == null ) {
 			System.out.println("test2");
@@ -70,7 +71,7 @@ public class Home extends DataService {
 		
 		s.addAll(d);
 		
-		resp.copy(s);
+		resp.copyAndFilter(s, id);
 			
         return resp.toResp();
     }

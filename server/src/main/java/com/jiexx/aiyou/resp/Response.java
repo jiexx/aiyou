@@ -8,9 +8,9 @@ public class Response {
     public int au = Const.UNREGISTERED.val();
     public String code;
     public String toResp() {
-    	return Util.toJasonp(this);
+    	return Util.toJson(this);
     }
-    public String toJason() {
-    	return Util.toJason(this);
+    public String toJson() {
+    	return Util.toJson(this);
     }
 }

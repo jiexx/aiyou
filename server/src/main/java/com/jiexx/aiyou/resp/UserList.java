@@ -29,13 +29,21 @@ public class UserList extends Response{
 		code = md5;
 	}
 	
-	public void copy( List<User> users ) {
+	public void copyAndFilter( List<User> users, long selfid ) {
 		star = new Star[users.size()];
 		for( int i = 0 ; i < users.size() ; i ++ ) {
 			star[i] = new Star();
 			star[i].clz = users.get(i).clazz;
-			if( GameService.instance.findUser(users.get(i).id) > -1 )
-				star[i].clz = star[i].clz.substring(0, 0)+"2"+ star[i].clz.substring(2);
+			if( star[i].clz != null ) {
+				if( star[i].clz.charAt(1) == '1' ) {
+					if( GameService.instance.findUser(users.get(i).id) > -1 )
+						star[i].clz = star[i].clz.substring(0, 1)+"1"+ star[i].clz.substring(2);
+					else
+						star[i].clz = star[i].clz.substring(0, 1)+"2"+ star[i].clz.substring(2);
+				}
+				if( users.get(i).id == selfid  )
+					star[i].clz = "3111";
+			}
 			star[i].id = users.get(i).id;
 			star[i].gender = users.get(i).gender;
 			star[i].img = users.get(i).img;

@@ -19,7 +19,7 @@ public interface Data {
 	@Update("UPDATE user(lat, lng) VALUES(#{latitude}, #{longitude}) WHERE id=#{userid};")
 	public int updateLocation(@Param("userid") long userid, @Param("latitude") float latitude, @Param("longitude") float longitude);
 	
-	@Select("SELECT 1 FROM sellor WHERE id=#{userid};")
+	@Select("SELECT 8 FROM sellor WHERE id=#{userid};")
 	public Integer existSellor(@Param("userid") long userid);
 	
 	@Select("SELECT u.clazz, u.id,  2, s.img, s.avatar, u.lat AS x, u.lng AS y, s.name FROM sellor AS s  LEFT JOIN "
