@@ -73,7 +73,7 @@ public class Entity extends DataService {
 		}
 
 		String md5 = DigestUtils.md5DigestAsHex(String.valueOf(System.currentTimeMillis()).getBytes());
-		Integer c = DATA.createUser(call, reg.s+"100", reg.lat, reg.lng, md5);
+		Integer c = DATA.createUser(call, reg.s+"110", reg.lat, reg.lng, md5);
 		Integer u = DATA.insertDriver(call, name, 2, "", "bmw_m3_e92/bmw", 1, 100,avatar, "");
 		if (u != null && u == 1 && c != null && c == 1) {
 			DATA.updateUser(call, md5);

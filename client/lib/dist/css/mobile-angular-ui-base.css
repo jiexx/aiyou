@@ -8647,6 +8647,10 @@ a.list-group-item .icon.pull-right {
 .section.section-condensed {
   padding-top: 0;
   padding-bottom: 0;
+  margin-right: 20px;
+  margin-left: 20px;
+  margin-bottom: 1px;
+  margin-top: 60px;
 }
 
 .section.section-break {
@@ -8938,6 +8942,16 @@ ui-switch {
   height: 38px;
   border-radius: 50%;
   opacity: 0.5;
+}
+
+.driver-avatar {
+  position:absolute;
+  left: 92%;
+  top: 8%;
+  width: 58px;
+  height: 58px;
+  border-radius: 3px;
+  z-index: 3000;
 }
 
 .user-avatar {

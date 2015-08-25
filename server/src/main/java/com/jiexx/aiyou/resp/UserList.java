@@ -29,7 +29,7 @@ public class UserList extends Response{
 		code = md5;
 	}
 	
-	public void copyAndFilter( List<User> users, long selfid ) {
+	public void copyAndFilter( List<User> users, long selfid, float lat, float lng ) {
 		star = new Star[users.size()];
 		for( int i = 0 ; i < users.size() ; i ++ ) {
 			star[i] = new Star();
@@ -48,8 +48,13 @@ public class UserList extends Response{
 			star[i].gender = users.get(i).gender;
 			star[i].img = users.get(i).img;
 			star[i].thumb = users.get(i).avatar;
-			star[i].x = users.get(i).x;
-			star[i].y = users.get(i).y;
+			if( users.get(i).x - lat < 0.001f && users.get(i).x - lat > -0.001f && users.get(i).y - lng < 0.001f && users.get(i).y - lng > -0.001f && users.get(i).id != selfid){
+				star[i].x = users.get(i).x + 0.003f;
+				star[i].y = users.get(i).y + 0.003f;
+			}else {
+				star[i].x = users.get(i).x;
+				star[i].y = users.get(i).y;
+			}
 			star[i].name = users.get(i).name;
 		}
 	}

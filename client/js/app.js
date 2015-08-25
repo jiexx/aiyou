@@ -55,9 +55,18 @@ app.factory('DATA', function () {
 				return 'register';
 			return a;
 		},
-		stars : []
+		stars : [],
+		getUserById : function(id) {
+			for( var u in this.stars ) {
+				if( this.stars[u].id == id )
+					return this.stars[u];
+			}
+			return null;
+		}
 	}
 });
+
+
 app.controller('appCtrl', function ($scope, $location, $cookieStore, DATA) {
 	console.log(DATA.title);
 	$scope.title = DATA.title;
@@ -68,7 +77,7 @@ app.controller('appCtrl', function ($scope, $location, $cookieStore, DATA) {
 	//debug for test : ?id=15800000000&lng=31.268964&lat=121.443794
 });
 
-app.controller('gameCtrl', function ($scope, $location, $cookieStore, DATA) {
+app.controller('gameCtrl', function ($scope, $location, $cookieStore, $http, DATA) {
 	console.log(DATA.title);
 	$scope.$parent.titleVisible = false;
 	$scope.avatar1 = 'asserts/stop.png';
@@ -78,7 +87,8 @@ app.controller('gameCtrl', function ($scope, $location, $cookieStore, DATA) {
 		return;
 	var round = null;
 	$scope.close = function() {
-		round.disconnect();
+		if( round != null )
+			round.disconnect();
 		$location.path('/').search({id:DATA.userid,lng:DATA.lng,lat:DATA.lat});
 	}
 	
@@ -91,15 +101,20 @@ app.controller('gameCtrl', function ($scope, $location, $cookieStore, DATA) {
 		$http({
 			method  : 'GET',
 			url: 'http://127.0.0.1:9090/entity/gqry.do', 
-			data: {id: DATA.userid}, 
+			params: {id: $location.search().id}, 
 		}).success(function (resp, status, headers, config) {
 			if( resp.err == 0 && resp.gid > -1 ) {
 				round = new RoundImpl(DATA.userid);
 				round.view = View.instance();
 				round.view.attach(round);
 				round.join(resp.gid);
+			}else {
+				$location.path('/').search({id:DATA.userid,lng:DATA.lng,lat:DATA.lat});
 			}
 		}).error(function (resp, status, headers, config) {
+			if( round != null )
+				round.disconnect();
+			$location.path('/').search({id:DATA.userid,lng:DATA.lng,lat:DATA.lat});
 		});
 	}
 });
@@ -110,7 +125,7 @@ app.controller('registerCtrl', function ($scope, $location, $cookieStore, $http,
 	nav.navLnk = '/';
 	nav.listStyle = false;
 	
-	var clazz;
+	var clazz = 1;
 	
 	$scope.classify = function(activeTab) {
 		clazz = activeTab;
@@ -191,6 +206,7 @@ app.controller('userCtrl', function ($scope, $location, $cookieStore, $http, DAT
 	nav.listStyle = false;
 
 	$scope.userLnk = DATA.auth('message/?id=' + $location.search().id);
+	$scope.avatar = DATA.getUserById($location.search().id).thumb;
 
 	$http({
 		method : 'GET',
@@ -218,6 +234,8 @@ app.controller('homeListCtrl', function ($scope, $location, $cookieStore, DATA) 
 });
 
 app.controller('homeCtrl', function ($scope, $location, $cookieStore, $http, DATA) {
+	$scope.$parent.titleVisible = true;
+
 	var nav = $scope.$parent;
 	nav.title = '哎呦';
 	nav.navLnk = 'home-list';

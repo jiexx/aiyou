@@ -71,7 +71,7 @@ public class Home extends DataService {
 		
 		s.addAll(d);
 		
-		resp.copyAndFilter(s, id);
+		resp.copyAndFilter(s, id, lat, lng);
 			
         return resp.toResp();
     }

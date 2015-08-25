@@ -1,4 +1,7 @@
-﻿<div id="mapper" class="scrollable-content" style="left:0;top:0;width:100%;height:100%;position:absolute;">
+﻿<div ui-content-for="modals">
+  <div ng-include="'msgbox.html'"></div>
+</div>
+<div id="mapper" class="scrollable-content" style="left:0;top:0;width:100%;height:100%;position:absolute;">
 </div>
 <script type="text/javascript-home">
 (function () {
@@ -39,8 +42,8 @@
 		return '<a href="'+str+'" class="btn btn-default fa fa-gamepad text-primary "></a>';
 	};
 	LabelFmt.prototype.msg = function(isAuth, id, name, thumb, clazz) {
-		var str = ( isAuth == 0 ? '#/register': '#/message/?id='+id) ;
-		return '<a href="'+str+'" class="btn btn-default fa fa-comments-o text-primary "></a>';
+		var str = ( isAuth == 0 ? '#/register': 'javascript:void(0);');//'#/message/?id='+id) ;
+		return '<a href="'+str+'"  ui-turn-on="modal1" class="btn btn-default fa fa-comments-o text-primary "></a>';
 	};
 	LabelFmt.prototype.setting = function(isAuth, id, name, thumb, clazz) {
 		var str = ( isAuth == 0 ? '#/register': '#/setting/?id='+id) ;

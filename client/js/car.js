@@ -14,6 +14,7 @@
 		this.canvas = null;
 		this.engine = null;
 		this.scene = null;
+		this.delta = 0.1;
 		writeViewPort();
 	};
 	
@@ -197,13 +198,15 @@
 			_this.engine.stopRenderLoop();
 		};*/
 		_this.scene.registerBeforeRender(function(){
+			if( _this.delta > 0.001 )
+				_this.delta -= 0.0008;
 			if (_this.scene.isReady())
-				_this.scene.getCameraByID("Camera").alpha += 0.03;
+				_this.scene.getCameraByID("Camera").alpha += _this.delta;
 		});
         _this.engine.runRenderLoop(function() {
 			if (_this.scene.isReady()) {
 				_this.scene.render();
-				if( _this.scene.getCameraByID("Camera").alpha > Math.PI*2 ) {
+				if( _this.delta < 0.001 ) {
 					_this.engine.stopRenderLoop();
 				}
 			}
