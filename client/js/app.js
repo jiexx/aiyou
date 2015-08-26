@@ -96,7 +96,7 @@ app.controller('gameCtrl', function ($scope, $location, $cookieStore, $http, DAT
 		round = new RoundImpl(DATA.userid);
 		round.view = View.instance();
 		round.view.attach(round);
-		round.open();
+		round.open($location.search().chip);
 	}else {
 		$http({
 			method  : 'GET',
@@ -233,13 +233,70 @@ app.controller('homeListCtrl', function ($scope, $location, $cookieStore, DATA) 
 	$scope.stars = DATA.stars;
 });
 
-app.controller('homeCtrl', function ($scope, $location, $cookieStore, $http, DATA) {
+app.controller('homeCtrl', function ($scope, $rootScope, $location, $cookieStore, $http, $compile, DATA) {
 	$scope.$parent.titleVisible = true;
 
 	var nav = $scope.$parent;
 	nav.title = '哎呦';
 	nav.navLnk = 'home-list';
 	nav.listStyle = true;
+	
+	$scope.clickPlay = function(userid, $event){
+		console.log("play click");
+		if( DATA.au == 0 ) {
+			$location.path('/register');
+			return;
+		}
+		if( userid == DATA.userid ) {
+			$rootScope.Ui.turnOn('mbi');
+			$scope.mbiChip = '2';
+			$scope.mbiConfirm = function() {
+				$http({
+					method : 'GET',
+					//$location.path('/myURL/').search({param: 'value'});
+					url: 'http://127.0.0.1:9090/entity/eqry.do?id=' + userid + '&chip=' + $scope.mbiChip,
+				}).success(function (resp, status, headers, config) {
+					if( resp.enough ) 
+						$location.path('/game').search({id:userid,chip:$scope.mbiChip});
+					else
+						$location.path('/game').search({id:userid,chip:resp.chip});
+				}).error(function (data, status, headers, config) {
+					$scope.status = status;
+				});
+			};
+		}else {
+			$http({
+				method : 'GET',
+				//$location.path('/myURL/').search({param: 'value'});
+				url: 'http://127.0.0.1:9090/entity/cqry.do?id=' + userid + '&myid=' + DATA.userid,
+			}).success(function (resp, status, headers, config) {
+				$rootScope.Ui.turnOn('mb');
+				if( resp.enough ) {
+					$scope.mbChip = '本局金币 '+resp.chip;
+					$scope.mbOptionText = '取消';
+					$scope.mbOption = function() {
+					};
+					$scope.mbConfirmText = '继续';
+					$scope.mbConfirm = function() {
+						$location.path('/game').search({id:userid,chip:resp.chip});
+					};
+				}else {
+					$scope.mbChip = '您的金币不足,可以选择好友推广挣金币<br>或者直接充值';
+					$scope.mbOptionText = '充值';
+					$scope.mbOption = function() {
+						$location.path('/recharge').search({id:DATA.userid});
+					};
+					$scope.mbConfirmText = '推广';
+					$scope.mbConfirm = function() {
+						window.location.href = "aiyou://1.1.1.1/register.do?ref="+DATA.userid;
+					};
+				}
+			}).error(function (data, status, headers, config) {
+				$scope.status = status;
+			});
+			
+		}
+	}
 
 	$http({
 		method : 'GET',
@@ -253,7 +310,7 @@ app.controller('homeCtrl', function ($scope, $location, $cookieStore, $http, DAT
 		Home.clean();
 		Home.layout(DATA.lat, DATA.lng);
 		DATA.au = resp.au == 268435456 ? 0 : 1;
-		Home.star(DATA.au, resp.star);
+		Home.star(DATA.au, resp.star, $compile, $scope);
 	}).error(function (data, status, headers, config) {
 		console.log(data);
 		$scope.status = status;

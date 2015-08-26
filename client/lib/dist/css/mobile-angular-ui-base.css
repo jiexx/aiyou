@@ -7452,7 +7452,7 @@ button.close {
   right: 0;
   bottom: 0;
   left: 0;
-  z-index: 1050;
+  z-index: 3050;
   -webkit-overflow-scrolling: touch;
   outline: 0;
 }
@@ -7481,9 +7481,11 @@ button.close {
 }
 
 .modal-dialog {
-  position: relative;
+  position: absolute;
   width: auto;
-  margin: 10px;
+  margin: 30px;
+  left: 45%;
+  top: 25%;
 }
 
 .modal-content {
@@ -8792,7 +8794,7 @@ a.panel-heading {
 }
 
 .modal-dialog {
-  z-index: 1050;
+  z-index: 3050;
 }
 
 .modal-overlay {

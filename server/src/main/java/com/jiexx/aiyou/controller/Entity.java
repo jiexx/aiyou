@@ -13,6 +13,7 @@ import com.jiexx.aiyou.model.Const;
 import com.jiexx.aiyou.model.Driver;
 import com.jiexx.aiyou.model.Sellor;
 import com.jiexx.aiyou.resp.DriverDetail;
+import com.jiexx.aiyou.resp.GameChip;
 import com.jiexx.aiyou.resp.GameId;
 import com.jiexx.aiyou.resp.Response;
 import com.jiexx.aiyou.resp.SellorDetail;
@@ -24,12 +25,12 @@ import com.jiexx.aiyou.service.GameService;
 public class Entity extends DataService {
 	@RequestMapping(value = "gqry.do", params = { "id" }, method = RequestMethod.GET)
 	@ResponseBody
-	public String entity(@RequestParam(value = "id") long id ) {
-		System.out.println("query");
+	public String gameRoundQry(@RequestParam(value = "id") long id ) {
+		System.out.println("gameRoundQry");
 		
-		int toid = GameService.instance.findUser(id);
-		GameId resp = new GameId(toid);
-		if( toid > -1 ) {
+		int roundid = GameService.instance.findWaitingUser(id);
+		GameId resp = new GameId(roundid);
+		if( roundid > -1 ) {
 			resp.err = Const.SUCCESS.val();
 			resp.au = Const.REGISTERED.val();
 		}else {
@@ -37,6 +38,47 @@ public class Entity extends DataService {
 			resp.au = Const.REGISTERED.val();
 		}
 		return resp.toResp();
+	}
+	
+	@RequestMapping(value = "cqry.do", params = { "id", "myid" }, method = RequestMethod.GET)
+	@ResponseBody
+	public String chipQry(@RequestParam(value = "id") long id, @RequestParam(value = "myid") long myid  ) {
+		System.out.println("chipQry");
+		
+		int roundid = GameService.instance.findWaitingUser(id);
+		GameChip resp = new GameChip();
+		if( roundid > -1 ) {
+			resp.err = Const.SUCCESS.val();
+			resp.au = Const.REGISTERED.val();
+			Driver d = DATA.queryDriverById( myid );
+			resp.chip =  GameService.instance.getRoundChip(roundid);
+			resp.enough = d.balance >= resp.chip;
+		}else {
+			resp.err = Const.FAILED.val();
+			resp.au = Const.REGISTERED.val();
+		}
+		return resp.toJson();
+	}
+	
+	@RequestMapping(value = "eqry.do", params = { "id", "chip" }, method = RequestMethod.GET)
+	@ResponseBody
+	public String enoughQry(@RequestParam(value = "id") long id, @RequestParam(value = "chip") int chip  ) {
+		System.out.println("enoughQry");
+		
+		Driver d = DATA.queryDriverById( id );
+		GameChip resp = new GameChip();
+		if( d.balance >= chip ) {
+			resp.err = Const.SUCCESS.val();
+			resp.au = Const.REGISTERED.val();
+			resp.chip = d.balance;
+			resp.enough = true;
+		}else {
+			resp.err = Const.FAILED.val();
+			resp.au = Const.REGISTERED.val();
+			resp.chip = d.balance;
+			resp.enough = false;
+		}
+		return resp.toJson();
 	}
 
 	public static class Reg {

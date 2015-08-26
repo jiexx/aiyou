@@ -15,6 +15,7 @@ public class Round {
 
 	State curr ;
 	GoingState going;
+	private int chip;
 	private int id;
 	private long user[] = {Const.INVALID_PLAYER.val(), Const.INVALID_PLAYER.val()};
 	private long time;
@@ -57,9 +58,9 @@ public class Round {
 	}
 	
 	public boolean isExistedUser(long uid) {
-		if( user[0] != Const.INVALID_PLAYER.val() && user[0] == uid )
+		if( user[0] != Const.INVALID_PLAYER.val() && user[0] == uid  && user[1] == Const.INVALID_PLAYER.val())
 			return true;
-		if( user[1] != Const.INVALID_PLAYER.val() && user[1] == uid )
+		if( user[1] != Const.INVALID_PLAYER.val() && user[1] == uid && user[0] == Const.INVALID_PLAYER.val() )
 			return true;
 		return false;
 	}
@@ -93,9 +94,13 @@ public class Round {
 	public int getId() {
 		return id;
 	}
-	public Round( int Id ) {
+	public int getChip() {
+		return chip;
+	}
+	public Round( int Id, int openChip ) {
 		time = System.currentTimeMillis();
 		id = Id;
+		chip = openChip;
 		
 		curr = new NullState(null);
 		curr.setRound(this);

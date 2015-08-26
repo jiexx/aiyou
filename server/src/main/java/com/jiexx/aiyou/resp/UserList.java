@@ -29,14 +29,14 @@ public class UserList extends Response{
 		code = md5;
 	}
 	
-	public void copyAndFilter( List<User> users, long selfid, float lat, float lng ) {
+	public void fixcopy( List<User> users, long selfid, float lat, float lng ) {
 		star = new Star[users.size()];
 		for( int i = 0 ; i < users.size() ; i ++ ) {
 			star[i] = new Star();
 			star[i].clz = users.get(i).clazz;
 			if( star[i].clz != null ) {
 				if( star[i].clz.charAt(1) == '1' ) {
-					if( GameService.instance.findUser(users.get(i).id) > -1 )
+					if( GameService.instance.findWaitingUser(users.get(i).id) > -1 )
 						star[i].clz = star[i].clz.substring(0, 1)+"1"+ star[i].clz.substring(2);
 					else
 						star[i].clz = star[i].clz.substring(0, 1)+"2"+ star[i].clz.substring(2);

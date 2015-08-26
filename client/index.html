@@ -40,8 +40,6 @@
             <span>{{ title }}</span>
         </div>
  
- 
- 
         <div class="btn-group pull-right" yield-to="navbarAction">
             <a ng-class="{'fa fa-th-list': listStyle, 'fa fa-reply': !listStyle}" ng-href="#/{{ navLnk }}" class="btn btn-navbar"></a>
         </div>
@@ -62,9 +60,10 @@
           <ng-view></ng-view>
         </div>
     </div>
-	<div ui-yield-to="modals"></div>
  
 </div>
+
+<div ui-yield-to="modals"></div>
  
 </body>
  

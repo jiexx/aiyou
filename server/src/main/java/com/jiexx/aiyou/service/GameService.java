@@ -41,18 +41,23 @@ public class GameService {
 				r.receive(msg);
 			}
 		}else if ( msg.cmd == Command.OPEN.val()  ) {
-			r = new Round( active.size() );
+			r = new Round( active.size(), msg.opt );
 			active.add(r);
 			r.receive(msg);
 		}
 	}
-	public int findUser(long id) {
+	public int findWaitingUser(long id) {
 		for( int i = 0 ; i < active.size() ; i ++ ) {
 			if( active.get(i).isExistedUser(id) )
 				return i;
 		}
 		return -1;
 	}
+	
+	public int getRoundChip(int index) {
+		return active.get(index).getChip()  ;
+	}
+	
 	public void delRound(int id) {
 		active.remove(id);
 	}

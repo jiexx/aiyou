@@ -87,7 +87,7 @@ var Round = (function (_super) {
         this.roundid = '';
         this.client = null;
     }
-	Round.prototype.open = function () {
+	Round.prototype.open = function (chip) {
 		var _this = this;
         var socket = new SockJS('http://localhost:9090/game');
         this.client = Stomp.over(socket);
@@ -96,6 +96,7 @@ var Round = (function (_super) {
 			a.cmd = V_OPEN;
 			a.uid = parseInt(_this.userid);
 			a.toid = 0xffffffff;
+			a.opt = chip;
 			_this.send(a);
 			_this.client.subscribe('/hook/' + _this.userid, function (frame) {
                 var msg = JSON.parse(frame.body);
