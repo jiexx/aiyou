@@ -5,7 +5,7 @@ import com.jiexx.aiyou.model.Driver;
 public class DriverDetail extends Response{
     public long id;
     public String name;
-    public int car;
+    public String car;
     public String avatar;
     public String intro;
     public int balance;
