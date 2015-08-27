@@ -14,18 +14,17 @@
 		this.canvas = null;
 		this.engine = null;
 		this.scene = null;
-		this.delta = 0.1;
 		writeViewPort();
 	};
 	
 	Car.prototype.create = function(canvas) {
-		if( this.engine == null ) {
+		//if( this.engine == null ) {
 			//document.querySelector("canvas");
 			this.canvas = canvas;
 			this.engine = new BABYLON.Engine(this.canvas);
 			this.scene = new BABYLON.Scene(this.engine);
 			this.scene.clearColor = new BABYLON.Color3(1, 1, 1);
-		}
+		//}
 	}
 	
 	Car.prototype.clean = function() {
@@ -34,12 +33,14 @@
 		}
 	}
 	
-	Car.prototype.load = function(dir, file) {
+	Car.prototype.load = function(dir, file, onLoaded) {
 		var scene = this.scene;
 		var engine = this.engine;
-		BABYLON.SceneLoader.ImportMesh("", "./asserts/car/bmw_m3_e92/", "bmw.babylon", scene, function (newMeshes) {
+		BABYLON.SceneLoader.ImportMesh("", dir, file, scene, function (newMeshes) {
 			scene.executeWhenReady(function () {
-				scene.render();
+				if( onLoaded != undefined && onLoaded != null )
+					onLoaded();
+				//scene.render();
 			})
 
 			//Create Lights
@@ -102,7 +103,7 @@
 			var RotorFL				= scene.getMeshByName("RotorFL");
 			var TireFL1				= scene.getMeshByName("TireFL1");
 			var BrakeFL				= scene.getMeshByName("BrakeFL");
-			var HoodCarbon			= scene.getMeshByName("HoodCarbon");
+			var HoodCarbon			= scene.getMeshByName("Hood Carbon");
 			var LicenseF			= scene.getMeshByName("LicenseF");
 			var LicenseR			= scene.getMeshByName("LicenseR");
 			var SeatR01				= scene.getMeshByName("SeatR01");
@@ -186,6 +187,46 @@
 		});
 		return this;
 	};
+	
+	function simpleDelta(velocity, high, acceleration, loss) {
+		this.v0= -velocity;
+		this.v = 0.0;
+		this.t = 0;
+		this.a = -acceleration;
+		this.h = high;
+		this.d = loss;
+		this.delta = high;
+		this.restart = function() {
+			this.v0 = -velocity;
+			this.v = 0;
+			this.t = 0;
+			this.a = -acceleration;
+			this.h = high;
+			this.d = loss;
+			this.delta = high;
+		};
+		this.step = function() {
+			this.t ++;
+			if( this.delta > -0.00001 ) {
+				this.v = this.v0 + this.a*this.t;
+				this.delta = this.h + this.v*this.t*0.5;
+				if( this.v < 0.00001 && this.v > -0.000001 ) {
+					console.log(this.v);
+				}
+				console.log(this.v+"        "+this.delta);
+			}else {
+				this.v0 = -(this.v - 0.001);
+				this.delta = 0.0;
+				this.t = 0;
+				this.h = 0.0;
+				this.d --;
+			}
+			return this.delta;
+		};
+		this.isStill = function() {
+			return this.d == 0;
+		};
+	}
 
 	Car.prototype.render = function() {
 		var _this = this;
@@ -197,16 +238,15 @@
 			clearInterval(timer);
 			_this.engine.stopRenderLoop();
 		};*/
+		var delta = new simpleDelta(0.0, 5.3, 0.005, 3);
 		_this.scene.registerBeforeRender(function(){
-			if( _this.delta > 0.001 )
-				_this.delta -= 0.0008;
 			if (_this.scene.isReady())
-				_this.scene.getCameraByID("Camera").alpha += _this.delta;
+				_this.scene.getCameraByID("Camera").alpha = delta.step();
 		});
         _this.engine.runRenderLoop(function() {
 			if (_this.scene.isReady()) {
 				_this.scene.render();
-				if( _this.delta < 0.001 ) {
+				if( delta.isStill() ) {
 					_this.engine.stopRenderLoop();
 				}
 			}

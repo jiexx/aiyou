@@ -40,6 +40,27 @@ public class Entity extends DataService {
 		return resp.toResp();
 	}
 	
+	@RequestMapping(value = "dqry.do", params = { "id" }, method = RequestMethod.GET)
+	@ResponseBody
+	public String detailQry(@RequestParam(value = "id") long id ) {
+		System.out.println("detailQry");
+		
+		Driver d = DATA.queryDriverById( id );
+		GameChip resp = new GameChip();
+		if( d.balance >= chip ) {
+			resp.err = Const.SUCCESS.val();
+			resp.au = Const.REGISTERED.val();
+			resp.chip = d.balance;
+			resp.enough = true;
+		}else {
+			resp.err = Const.FAILED.val();
+			resp.au = Const.REGISTERED.val();
+			resp.chip = d.balance;
+			resp.enough = false;
+		}
+		return resp.toJson();
+	}
+	
 	@RequestMapping(value = "cqry.do", params = { "id", "myid" }, method = RequestMethod.GET)
 	@ResponseBody
 	public String chipQry(@RequestParam(value = "id") long id, @RequestParam(value = "myid") long myid  ) {

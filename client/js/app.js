@@ -216,6 +216,8 @@ app.controller('userCtrl', function ($scope, $location, $cookieStore, $http, DAT
 		//var token = data.token;
 		//$cookieStore.put('token', token);
 		//$location.path('/');
+		var c = Car.load("./asserts/car/bmw_m3_e92/", "bmw.babylon");
+		c.render();
 	}).error(function (data, status, headers, config) {
 		$scope.status = status;
 	});
@@ -438,8 +440,8 @@ app.directive('script', ['$window', '$q', '$http', 'DATA', function ($window, $q
 						var code = elem.text();
 						var f = new Function(code);
 						f();
-						var c = Car.load("./asserts/car/bmw_m3_e92/", "bmw");
-						c.render();
+						//var c = Car.load("./asserts/car/bmw_m3_e92/", "bmw");
+						//c.render();
 					} else if (attr.type === 'text/javascript-game') {
 						var code = elem.text();
 						var f = new Function(code);

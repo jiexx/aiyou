@@ -29,6 +29,8 @@
   <canvas id="car">
   </canvas>
   <script type="text/javascript">
+    var canvas = document.getElementById("car");
+	Car.create( canvas );
 	var c = Car.load("./asserts/car/bmw_m3_e92/", "bmw.babylon");
 	c.render();
   </script>
