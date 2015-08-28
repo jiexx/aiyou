@@ -14,6 +14,7 @@
 		this.canvas = null;
 		this.engine = null;
 		this.scene = null;
+		this.car = null;
 		writeViewPort();
 	};
 	
@@ -24,6 +25,8 @@
 			this.engine = new BABYLON.Engine(this.canvas);
 			this.scene = new BABYLON.Scene(this.engine);
 			this.scene.clearColor = new BABYLON.Color3(1, 1, 1);
+			this.car = new BABYLON.Mesh.CreateBox("car", 1, this.scene);
+			this.car.isVisible = false;
 		//}
 	}
 	
@@ -36,10 +39,15 @@
 	Car.prototype.load = function(dir, file, onLoaded) {
 		var scene = this.scene;
 		var engine = this.engine;
+		var car = this.car;
 		BABYLON.SceneLoader.ImportMesh("", dir, file, scene, function (newMeshes) {
 			scene.executeWhenReady(function () {
 				if( onLoaded != undefined && onLoaded != null )
 					onLoaded();
+				for( var i in newMeshes ) {
+					newMeshes[i].parent = car;
+					newMeshes[i].isVisible = true;
+				}
 				//scene.render();
 			})
 
@@ -178,26 +186,29 @@
 				scene.materials[index].backFaceCulling = true;
 			}
 			//Camera
-			var camera = new BABYLON.ArcRotateCamera("Camera", -Math.PI / 1, Math.PI / 3, 8, new BABYLON.Vector3(0, 0, 0), scene);
+			var camera = new BABYLON.ArcRotateCamera("Camera", 0, 1.30, 30, new BABYLON.Vector3(0, 0, 0), scene);
 			camera.lowerBetaLimit = 0.1;
 			camera.upperBetaLimit = (Math.PI / 2) * 0.9;
 			camera.lowerRadiusLimit = 4;
 			camera.upperRadiusLimit = 8;
 			//camera.attachControl(canvas, false);
+			for( var i in newMeshes ) {
+				newMeshes[i].isVisible = false;
+			}
 		});
 		return this;
 	};
 	
 	function simpleDelta(velocity, high, acceleration, loss) {
-		this.v0= -velocity;
-		this.v = 0.0;
+		this.v0= -velocity-1;
+		this.v = 0;
 		this.t = 0;
 		this.a = -acceleration;
 		this.h = high;
 		this.d = loss;
 		this.delta = high;
 		this.restart = function() {
-			this.v0 = -velocity;
+			this.v0 = -velocity-1;
 			this.v = 0;
 			this.t = 0;
 			this.a = -acceleration;
@@ -207,24 +218,50 @@
 		};
 		this.step = function() {
 			this.t ++;
-			if( this.delta > -0.00001 ) {
+			if( this.delta >= 0 ) {
 				this.v = this.v0 + this.a*this.t;
-				this.delta = this.h + this.v*this.t*0.5;
-				if( this.v < 0.00001 && this.v > -0.000001 ) {
-					console.log(this.v);
-				}
-				console.log(this.v+"        "+this.delta);
+				this.delta = this.h + (this.v0+this.v)*this.t;
+				//console.log(this.v+"			"+this.delta+"			"+this.v0);
 			}else {
-				this.v0 = -(this.v - 0.001);
-				this.delta = 0.0;
+				if( this.v+this.d > 0 ) 
+					this.v0 = 0;
+				else
+					this.v0 = -(this.v+this.d);
+				this.delta = 0;
 				this.t = 0;
-				this.h = 0.0;
-				this.d --;
+				this.h = 0;
 			}
-			return this.delta;
+			return this.delta * 0.001;
 		};
 		this.isStill = function() {
-			return this.d == 0;
+			return this.v0 == 0
+		};
+	}
+	function cirleDelta(radius, z0, velocity, acceleration) {
+		this.v0= velocity;
+		this.v = 0;
+		this.t = 0;
+		this.a = -acceleration;
+		this.restart = function() {
+			this.v0 = velocity;
+			this.v = 0;
+			this.t = 0;
+			this.a = -acceleration;
+		};
+		this.step = function() {
+			this.t ++;
+			this.v = this.v0 + this.a*this.t;
+			console.log(this.v);
+			return -this.v;
+		};
+		this.x = function() {
+			return radius*Math.cos(this.v);
+		};
+		this.z = function() {
+			return radius*Math.sin(this.v)+z0;
+		};
+		this.isStill = function() {
+			return this.v <= 0;
 		};
 	}
 
@@ -238,12 +275,22 @@
 			clearInterval(timer);
 			_this.engine.stopRenderLoop();
 		};*/
-		var delta = new simpleDelta(0.0, 5.3, 0.005, 3);
+		//var delta = new simpleDelta(0, 1230, 5, 10);
+		var delta = new cirleDelta(3, 0, 6.28, 0.1);
+		var car = this.car;
+		//car.rotate(BABYLON.Axis.Y, delta.step(), BABYLON.Space.LOCAL);
+		//car.translate(BABYLON.Axis.Z, delta.z(), BABYLON.Space.LOCAL);
 		_this.scene.registerBeforeRender(function(){
-			if (_this.scene.isReady())
-				_this.scene.getCameraByID("Camera").alpha = delta.step();
+			if (_this.scene.isReady()) {
+				car.rotation.y = delta.step();
+				car.position.x = delta.x();
+				car.position.z = delta.z();
+			}
+				//_this.scene.getCameraByID("Camera").alpha = -0.3+delta.step();
 		});
+		
         _this.engine.runRenderLoop(function() {
+			
 			if (_this.scene.isReady()) {
 				_this.scene.render();
 				if( delta.isStill() ) {
