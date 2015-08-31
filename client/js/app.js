@@ -207,17 +207,22 @@ app.controller('userCtrl', function ($scope, $location, $cookieStore, $http, DAT
 
 	$scope.userLnk = DATA.auth('message/?id=' + $location.search().id);
 	$scope.avatar = DATA.getUserById($location.search().id).thumb;
+	$scope.avatarVisible = false;
 
 	$http({
 		method : 'GET',
 		//$location.path('/myURL/').search({param: 'value'});
-		url: 'http://127.0.0.1:9090/home.do?id=' + $location.search().id + '&lng=' + DATA.lng + '&lat=' + DATA.lat
+		url: 'http://127.0.0.1:9090/dqry.do?id=' + $location.search().id
 	}).success(function (resp, status, headers, config) {
 		//var token = data.token;
 		//$cookieStore.put('token', token);
 		//$location.path('/');
-		var c = Car.load("./asserts/car/bmw_m3_e92/", "bmw.babylon");
-		c.render();
+		if( resp.err == 0 ) {
+			var c = Car.load("./asserts/car/bmw_m3_e92/", "bmw.babylon", function() {
+				$scope.avatarVisible = true;
+			});
+			c.render();
+		}
 	}).error(function (data, status, headers, config) {
 		$scope.status = status;
 	});

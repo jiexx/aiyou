@@ -32,10 +32,8 @@ public class Entity extends DataService {
 		GameId resp = new GameId(roundid);
 		if( roundid > -1 ) {
 			resp.err = Const.SUCCESS.val();
-			resp.au = Const.REGISTERED.val();
 		}else {
 			resp.err = Const.FAILED.val();
-			resp.au = Const.REGISTERED.val();
 		}
 		return resp.toResp();
 	}
@@ -46,17 +44,12 @@ public class Entity extends DataService {
 		System.out.println("detailQry");
 		
 		Driver d = DATA.queryDriverById( id );
-		GameChip resp = new GameChip();
-		if( d.balance >= chip ) {
+		DriverDetail resp = new DriverDetail();
+		if( d != null  ) {
 			resp.err = Const.SUCCESS.val();
-			resp.au = Const.REGISTERED.val();
-			resp.chip = d.balance;
-			resp.enough = true;
+			resp.copy(d);
 		}else {
 			resp.err = Const.FAILED.val();
-			resp.au = Const.REGISTERED.val();
-			resp.chip = d.balance;
-			resp.enough = false;
 		}
 		return resp.toJson();
 	}
@@ -70,13 +63,11 @@ public class Entity extends DataService {
 		GameChip resp = new GameChip();
 		if( roundid > -1 ) {
 			resp.err = Const.SUCCESS.val();
-			resp.au = Const.REGISTERED.val();
 			Driver d = DATA.queryDriverById( myid );
 			resp.chip =  GameService.instance.getRoundChip(roundid);
 			resp.enough = d.balance >= resp.chip;
 		}else {
 			resp.err = Const.FAILED.val();
-			resp.au = Const.REGISTERED.val();
 		}
 		return resp.toJson();
 	}
@@ -90,12 +81,10 @@ public class Entity extends DataService {
 		GameChip resp = new GameChip();
 		if( d.balance >= chip ) {
 			resp.err = Const.SUCCESS.val();
-			resp.au = Const.REGISTERED.val();
 			resp.chip = d.balance;
 			resp.enough = true;
 		}else {
 			resp.err = Const.FAILED.val();
-			resp.au = Const.REGISTERED.val();
 			resp.chip = d.balance;
 			resp.enough = false;
 		}

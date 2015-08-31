@@ -42,12 +42,13 @@
 		var car = this.car;
 		BABYLON.SceneLoader.ImportMesh("", dir, file, scene, function (newMeshes) {
 			scene.executeWhenReady(function () {
-				if( onLoaded != undefined && onLoaded != null )
-					onLoaded();
 				for( var i in newMeshes ) {
 					newMeshes[i].parent = car;
 					newMeshes[i].isVisible = true;
 				}
+				if( onLoaded != undefined && onLoaded != null )
+					onLoaded();
+				
 				//scene.render();
 			})
 

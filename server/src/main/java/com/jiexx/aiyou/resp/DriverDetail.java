@@ -11,7 +11,10 @@ public class DriverDetail extends Response{
     public int balance;
     public int visible; 
 	
-	public DriverDetail(Driver d) {
+	public DriverDetail() {
+	}
+	
+	public void copy(Driver d) {
 	    id = d.id;
 	    name = d.name;
 	    car = d.car;

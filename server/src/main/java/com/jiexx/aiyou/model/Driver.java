@@ -1,6 +1,5 @@
 package com.jiexx.aiyou.model;
 
-import com.mysql.jdbc.Blob;
 
 public class Driver {
     public long id;
