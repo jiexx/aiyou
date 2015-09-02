@@ -83,7 +83,8 @@ app.controller('gameCtrl', function ($scope, $location, $cookieStore, $http, DAT
 	$scope.avatar1 = 'asserts/stop.png';
 	$scope.avatar2 = 'asserts/1.jpg';
 	
-	if( DATA.userid == undefined || DATA.userid == null || $location.search().id == undefined || $location.search().id == null )
+	var toid = $location.search().id;
+	if( DATA.userid == undefined || DATA.userid == null || toid == undefined || toid == null )
 		return;
 	var round = null;
 	$scope.close = function() {
@@ -91,21 +92,52 @@ app.controller('gameCtrl', function ($scope, $location, $cookieStore, $http, DAT
 			round.disconnect();
 		$location.path('/').search({id:DATA.userid,lng:DATA.lng,lat:DATA.lat});
 	}
-	
-	if( DATA.userid == $location.search().id ) {
+	$scope.gameUiVisible = false;
+	if( DATA.userid == toid ) {
 		round = new RoundImpl(DATA.userid);
-		round.view = View.instance();
+		round.view = View.instance(function() {
+			$scope.gameUiVisible = true;
+		});
 		round.view.attach(round);
-		round.open($location.search().chip);
+		round.open($location.search().chip, function(id){
+			$http({
+				method  : 'GET',
+				url: 'http://127.0.0.1:9090/entity/gqry.do', 
+				params: {id: toid, id2: DATA.userid}, 
+			}).success(function (resp, status, headers, config) {
+				if( resp.err == 0 && resp.gid > -1 ) {
+					var user1 = DATA.getUserById(toid);
+					$scope.avatar1 = user1.thumb;
+					$scope.name1 = user1.name;
+					$scope.money1 = resp.balance1;
+				}else {
+					$location.path('/').search({id:DATA.userid,lng:DATA.lng,lat:DATA.lat});
+				}
+			}).error(function (resp, status, headers, config) {
+				if( round != null )
+					round.disconnect();
+				$location.path('/').search({id:DATA.userid,lng:DATA.lng,lat:DATA.lat});
+			});
+		});
 	}else {
 		$http({
 			method  : 'GET',
 			url: 'http://127.0.0.1:9090/entity/gqry.do', 
-			params: {id: $location.search().id}, 
+			params: {id: toid, id2: DATA.userid}, 
 		}).success(function (resp, status, headers, config) {
 			if( resp.err == 0 && resp.gid > -1 ) {
 				round = new RoundImpl(DATA.userid);
-				round.view = View.instance();
+				round.view = View.instance(function() {
+					$scope.gameUiVisible = true;
+					var user1 = DATA.getUserById(toid);
+					$scope.avatar1 = user1.thumb;
+					$scope.name1 = user1.name;
+					$scope.money1 = resp.balance1;
+					var user2 = DATA.getUserById(DATA.userid);
+					$scope.avatar2 = user2.thumb;
+					$scope.name2 = user2.name;
+					$scope.money2 = resp.balance2;
+				});
 				round.view.attach(round);
 				round.join(resp.gid);
 			}else {

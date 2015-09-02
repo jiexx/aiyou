@@ -23,13 +23,15 @@ import com.jiexx.aiyou.service.GameService;
 @Controller
 @RequestMapping("/entity")
 public class Entity extends DataService {
-	@RequestMapping(value = "gqry.do", params = { "id" }, method = RequestMethod.GET)
+	@RequestMapping(value = "gqry.do", params = { "id", "id2" }, method = RequestMethod.GET)
 	@ResponseBody
-	public String gameRoundQry(@RequestParam(value = "id") long id ) {
+	public String gameRoundQry(@RequestParam(value = "id") long id, @RequestParam(value = "id2") long id2 ) {
 		System.out.println("gameRoundQry");
 		
-		int roundid = GameService.instance.findWaitingUser(id);
-		GameId resp = new GameId(roundid);
+		int roundid = GameService.instance.findWaitingUser( id );
+		Driver d1 = DATA.queryDriverById( id );
+		Driver d2 = DATA.queryDriverById( id2 );
+		GameId resp = new GameId(roundid, d1.balance, d2.balance);
 		if( roundid > -1 ) {
 			resp.err = Const.SUCCESS.val();
 		}else {

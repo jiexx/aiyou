@@ -1,7 +1,9 @@
 <canvas id="game" class="scrollable-content" style="left:0;top:0;width:100%;height:100%;position:absolute;"></canvas>
-<div  ng-class="{'':gameAidBtn, 'collapse':!gameAidBtn}">
+<div  ng-class="{'':gameUiVisible, 'collapse':!gameUiVisible}">
 	<img ng-src="{{avatar1}}" class="game-avatar0" ng-click="close()"/>
+	<div><p>{{name1}}</p><img src="asserts/Mahjong/gold.png"></img><p>{{money1}}</p></div>
 	<img ng-src="{{avatar2}}" class="game-avatar2"/>
+	<div><p>{{name2}}</p><img src="asserts/Mahjong/gold.png"></img><p>{{money2}}</p></div>
 </div>
 <script type="text/javascript-game">
 	var canvas = document.getElementById("game");

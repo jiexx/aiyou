@@ -482,7 +482,7 @@
 
 			//this.scene.activeCamera.attachControl(canvas);
 
-			var _this = this;
+			/*var _this = this;
 			var timer = setInterval(function () {
 					looper()
 				}, 1000);
@@ -491,13 +491,15 @@
 					_this.invalidate();
 					clearInterval(timer);
 				}
-			}
-			//engine.runRenderLoop(function () {
-			//	_this.invalidate();
-			//	_this.scene.render();
-			//});
+			}*/
 		};
-		this.instance = function() {
+		this.instance = function(onLoaded) {
+			var _this = this;
+			this.scene.executeWhenReady(function () {
+				_this.invalidate();
+				if( onLoaded != undefined && onLoaded != null )
+					onLoaded();
+			})
 			return this;
 		};
 		this.layout = function () {

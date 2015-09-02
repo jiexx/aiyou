@@ -86,8 +86,9 @@ var Round = (function (_super) {
         this.userid = '';
         this.roundid = '';
         this.client = null;
+		this.onJoin = null;
     }
-	Round.prototype.open = function (chip) {
+	Round.prototype.open = function (chip, onJoin) {
 		var _this = this;
         var socket = new SockJS('http://localhost:9090/game');
         this.client = Stomp.over(socket);
@@ -103,6 +104,7 @@ var Round = (function (_super) {
                 _this.recv(msg);
             });
 		});
+		this.onJoin = onJoin;
 	}
     Round.prototype.join = function (toid) {
         var _this = this;
@@ -174,6 +176,8 @@ var Wait = (function (_super) {
 			round.roundid = open.roundid;
         round.view.reset();
 		round.view.invalidate();
+		if( round.onJoin != null )
+			round.onJoin(msg.);
     };
     return Wait;
 })(State);
@@ -188,8 +192,8 @@ var Going = (function (_super) {
 			var start = msg;
 			if( start.endp != undefined && start.endp != null )
 				round.subscribe(start.endp);
-			if( start.roundid != undefined && start.roundid != null )
-				round.roundid = start.roundid;
+			if( round.onJoin != null )
+				round.onJoin(start.id);
 			round.view.roundDealcards(start.card);
 			round.view.whohint(start.hu);
 			round.view.invalidate();

@@ -33,6 +33,7 @@ public class GoingState extends State{
 				ackdealer.cmd = Command.START.val();
 				ackdealer.card = cards.getInitHandCards(Round.Hand.DEALER);
 				ackdealer.hu = Card.hu(ackdealer.card);
+				ackdealer.id = msg.uid;
 				GameService.instance.sendMessage(getRound().endPoint(Round.Hand.DEALER), gson.toJson(ackdealer));
 				
 				JoinAck ackplayer = new JoinAck();
