@@ -96,17 +96,17 @@ app.controller('gameCtrl', function ($scope, $location, $cookieStore, $http, DAT
 	if( DATA.userid == toid ) {
 		round = new RoundImpl(DATA.userid);
 		round.view = View.instance(function() {
-			$scope.gameUiVisible = true;
+			//$scope.gameUiVisible = true;
 		});
 		round.view.attach(round);
-		round.open($location.search().chip, function(id){
+		round.open($location.search().chip, function(uid){
 			$http({
 				method  : 'GET',
 				url: 'http://127.0.0.1:9090/entity/gqry.do', 
-				params: {id: toid, id2: DATA.userid}, 
+				params: {id: uid, id2: DATA.userid}, 
 			}).success(function (resp, status, headers, config) {
 				if( resp.err == 0 && resp.gid > -1 ) {
-					var user1 = DATA.getUserById(toid);
+					var user1 = DATA.getUserById(uid);
 					$scope.avatar1 = user1.thumb;
 					$scope.name1 = user1.name;
 					$scope.money1 = resp.balance1;

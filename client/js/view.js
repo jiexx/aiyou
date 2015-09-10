@@ -495,11 +495,11 @@
 		};
 		this.instance = function(onLoaded) {
 			var _this = this;
-			this.scene.executeWhenReady(function () {
+			/*this.scene.executeWhenReady(function () {
 				_this.invalidate();
 				if( onLoaded != undefined && onLoaded != null )
 					onLoaded();
-			})
+			});*/
 			return this;
 		};
 		this.layout = function () {

@@ -57,10 +57,17 @@ public class Round {
 		return "/"+String.valueOf(id)+"/player";
 	}
 	
-	public boolean isExistedUser(long uid) {
+	public boolean isWatingUser(long uid) {
 		if( user[0] != Const.INVALID_PLAYER.val() && user[0] == uid  && user[1] == Const.INVALID_PLAYER.val())
 			return true;
 		if( user[1] != Const.INVALID_PLAYER.val() && user[1] == uid && user[0] == Const.INVALID_PLAYER.val() )
+			return true;
+		return false;
+	}
+	public boolean isExistedUser(long uid) {
+		if( user[0] != Const.INVALID_PLAYER.val() && user[0] == uid )
+			return true;
+		if( user[1] != Const.INVALID_PLAYER.val() && user[1] == uid )
 			return true;
 		return false;
 	}

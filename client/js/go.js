@@ -133,11 +133,12 @@ var Round = (function (_super) {
         });
     };
     Round.prototype.disconnect = function () {
-        if (this.client != null) {
-            this.client.disconnect();
-        }
+		if (this.client != null) {
+			this.client.disconnect();
+		}
         console.log("Disconnected");
     };
+	
     Round.prototype.send = function (msg) {
         msg.toid = parseInt(this.roundid);
         this.client.send("/go/game", {}, JSON.stringify(msg));
@@ -176,8 +177,6 @@ var Wait = (function (_super) {
 			round.roundid = open.roundid;
         round.view.reset();
 		round.view.invalidate();
-		if( round.onJoin != null )
-			round.onJoin(msg.);
     };
     return Wait;
 })(State);
@@ -192,7 +191,7 @@ var Going = (function (_super) {
 			var start = msg;
 			if( start.endp != undefined && start.endp != null )
 				round.subscribe(start.endp);
-			if( round.onJoin != null )
+			else if( round.onJoin != null )
 				round.onJoin(start.id);
 			round.view.roundDealcards(start.card);
 			round.view.whohint(start.hu);
@@ -321,12 +320,14 @@ var RoundImpl = (function (_super) {
 			this.send(a);
 		break;
 		case V_EXIT:
-			a.cmd = V_EXIT;
+			/*a.cmd = V_EXIT;
 			a.uid = parseInt(this.userid);
 			a.toid = parseInt(this.roundid);
 			a.opt = cardid;
-			this.send(a);
-			this.disconnect();
+			this.send(a);*/
+			if (this.client != null) {
+				this.client.disconnect();
+			}
 		break;
 		}
 	};

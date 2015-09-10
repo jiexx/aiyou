@@ -1,5 +1,6 @@
 package com.jiexx.aiyou.service;
 
+import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.LinkedList;
 import java.util.List;
@@ -48,6 +49,13 @@ public class GameService {
 	}
 	public int findWaitingUser(long id) {
 		for( int i = 0 ; i < active.size() ; i ++ ) {
+			if( active.get(i).isWatingUser(id) )
+				return i;
+		}
+		return -1;
+	}
+	public int findExistedUser(long id) {
+		for( int i = 0 ; i < active.size() ; i ++ ) {
 			if( active.get(i).isExistedUser(id) )
 				return i;
 		}
@@ -73,5 +81,21 @@ public class GameService {
 	}
 	public void reward(long  id) {
 		
+	}
+	//----------------------------------------------
+	private HashMap<String, Long> sessionWithId = new HashMap<String, Long>();
+	public void regSessionWithId(String sessionid, long uid) {
+		sessionWithId.put(sessionid, uid);
+	}
+	public void exitSession(String sessionid) {
+		long uid = sessionWithId.get(sessionid);
+		int roundid = findExistedUser(uid);
+		if( roundid > -1 ) {
+			Message msg = new Message();
+			msg.cmd = Command.EXIT.val();
+			msg.toid = roundid;
+			msg.uid = uid;
+			receive(msg);
+		}
 	}
 }
