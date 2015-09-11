@@ -493,6 +493,10 @@
 				}
 			}*/
 		};
+		this.createGUI = function () {
+			var gui = new bGUI.GUISystem(scene, 1200, 780);
+			//http://temechon.github.io/bGUI/ https://doc.babylonjs.com/search?q=gui
+		};
 		this.instance = function(onLoaded) {
 			var _this = this;
 			/*this.scene.executeWhenReady(function () {
