@@ -372,6 +372,12 @@
 		this.engine = null;
 		this.scene = null;
 		this.go = null;
+		this.myAvator = null;
+		this.hisAvator = null;
+		this.myName = null;
+		this.hisName = null;
+		this.myChip = null;
+		this.hisChip = null;
 		//this.data = new Data();
 
 		// Resize
@@ -494,8 +500,47 @@
 			}*/
 		};
 		this.createGUI = function () {
-			var gui = new bGUI.GUISystem(scene, 1200, 780);
+			var gui = new bGUI.GUISystem(this.scene, 1200, 780);
 			//http://temechon.github.io/bGUI/ https://doc.babylonjs.com/search?q=gui
+			this.myAvator = new bGUI.GUIPanel("myAvator", new BABYLON.Texture('./asserts/Mahjong/gold.png', this.scene), null, gui);
+            this.myAvator.relativePosition(new BABYLON.Vector3(0.1, 0.1, 0));
+			this.hisAvator = new bGUI.GUIPanel("hisAvator", new BABYLON.Texture('./asserts/Mahjong/gold.png', this.scene), null, gui);
+            this.hisAvator.relativePosition(new BABYLON.Vector3(0.1, 0.85, 0));
+			
+			this.myName = new bGUI.GUIText("myName", 32, 128, {font:"20px Segoe UI", text:"bGUI", color:"#cecb7a"}, gui);
+            this.myName.relativePosition(new BABYLON.Vector3(0.15, 0.1, 0));
+			this.hisName = new bGUI.GUIText("hisName", 32, 128, {font:"20px Segoe UI", text:"bGUI", color:"#cecb7a"}, gui);
+            this.hisName.relativePosition(new BABYLON.Vector3(0.15, 0.85, 0));
+			
+			var myChipIcon = new bGUI.GUIPanel("myChipIcon", new BABYLON.Texture('./asserts/Mahjong/gold.png', this.scene), null, gui);
+            myChipIcon.relativePosition(new BABYLON.Vector3(0.1, 0.2, 0));
+			myChipIcon.scaling(new BABYLON.Vector3(0.25, 0.25, 0));
+			var hisChipIcon = new bGUI.GUIPanel("hisChipIcon", new BABYLON.Texture('./asserts/Mahjong/gold.png', this.scene), null, gui);
+            hisChipIcon.relativePosition(new BABYLON.Vector3(0.1, 0.9, 0));
+			hisChipIcon.scaling(new BABYLON.Vector3(0.25, 0.25, 0));
+			
+			this.myChip = new bGUI.GUIText("myChip", 32, 128, {font:"20px Segoe UI", text:"bGUI", color:"#cecb7a"}, gui);
+            this.myChip.relativePosition(new BABYLON.Vector3(0.15, 0.2, 0));
+			this.hisChip = new bGUI.GUIText("hisChip", 32, 128, {font:"20px Segoe UI", text:"bGUI", color:"#cecb7a"}, gui);
+            this.hisChip.relativePosition(new BABYLON.Vector3(0.15, 0.9, 0));			
+		};
+		this.setMyAvator = function(d) {
+			this.myAvator = BABYLON.Texture.CreateFromBase64String(d, "myAvator", this.scene); 
+		};
+		this.setHisAvator = function(d) {
+			this.hisAvator = BABYLON.Texture.CreateFromBase64String(d, "hisAvator", this.scene); 
+		};
+		this.setMyName = function(d) {
+			this.myName.update(d);
+		};
+		this.setHisName = function(d) {
+			this.hisName.update(d);
+		};
+		this.setMyChip = function(d) {
+			this.myChip.update(d);
+		};
+		this.setHisChip = function(d) {
+			this.hisChip.update(d);
 		};
 		this.instance = function(onLoaded) {
 			var _this = this;
