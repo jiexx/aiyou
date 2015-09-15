@@ -175,8 +175,10 @@ var Wait = (function (_super) {
 			round.subscribe(open.endp);
 		if( open.roundid != undefined && open.roundid != null )
 			round.roundid = open.roundid;
+		round.view.loadingGUI();
         round.view.reset();
 		round.view.invalidate();
+		
     };
     return Wait;
 })(State);
@@ -193,6 +195,7 @@ var Going = (function (_super) {
 				round.subscribe(start.endp);
 			else if( round.onJoin != null )
 				round.onJoin(start.id);
+			round.view.layout();
 			round.view.roundDealcards(start.card);
 			round.view.whohint(start.hu);
 			round.view.invalidate();

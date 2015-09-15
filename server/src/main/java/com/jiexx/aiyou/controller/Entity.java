@@ -31,7 +31,7 @@ public class Entity extends DataService {
 		int roundid = GameService.instance.findWaitingUser( id );
 		Driver d1 = DATA.queryDriverById( id );
 		Driver d2 = DATA.queryDriverById( id2 );
-		GameId resp = new GameId(roundid, d1.balance, d2.balance);
+		GameId resp = new GameId(roundid, d1.avatar,d2.avatar,d1.name,d2.name,d1.balance, d2.balance);
 		if( roundid > -1 ) {
 			resp.err = Const.SUCCESS.val();
 		}else {

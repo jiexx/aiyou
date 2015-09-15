@@ -372,6 +372,7 @@
 		this.engine = null;
 		this.scene = null;
 		this.go = null;
+		this.gui = null;
 		this.myAvator = null;
 		this.hisAvator = null;
 		this.myName = null;
@@ -484,7 +485,9 @@
 			var light = new BABYLON.PointLight("Point", new BABYLON.Vector3(3 * MAX, 0, -100), this.scene);
 			var camera = new BABYLON.FreeCamera("Camera", new BABYLON.Vector3(3 * MAX, 0, -70), this.scene);
 			//var camera = new BABYLON.ArcRotateCamera('Camera', 1, .8, 10, new BABYLON.Vector3(0, 0, 0), scene);
-			this.layout();
+			this.gui = new bGUI.GUISystem(this.scene, 1200, 780);
+			//this.layout();
+			//this.layoutGUI();
 
 			//this.scene.activeCamera.attachControl(canvas);
 
@@ -499,17 +502,26 @@
 				}
 			}*/
 		};
-		this.createGUI = function () {
-			var gui = new bGUI.GUISystem(this.scene, 1200, 780);
+		this.loadingGUI = function () {
+			var gui = this.gui;
+			gui.dispose();
+			var txt = new bGUI.GUIText("myName", 32, 128, {font:"40px Segoe UI", text:"等待对手...", color:"#cecb7a"}, gui);
+            txt.relativePosition(new BABYLON.Vector3(0.5, 0.5, 0));
+		}
+		this.layoutGUI = function (myAvator,hisAvator,myName,hisName,myChip,hisChip) {
+			var gui = this.gui;
+			gui.dispose();
 			//http://temechon.github.io/bGUI/ https://doc.babylonjs.com/search?q=gui
-			this.myAvator = new bGUI.GUIPanel("myAvator", new BABYLON.Texture('./asserts/Mahjong/gold.png', this.scene), null, gui);
+			var a1 = BABYLON.Texture.CreateFromBase64String(myAvator, "myAvator", this.scene);
+			var a2 = BABYLON.Texture.CreateFromBase64String(hisAvator, "hisAvator", this.scene);
+			this.myAvator = new bGUI.GUIPanel("myAvator", a1, null, gui);
             this.myAvator.relativePosition(new BABYLON.Vector3(0.1, 0.1, 0));
-			this.hisAvator = new bGUI.GUIPanel("hisAvator", new BABYLON.Texture('./asserts/Mahjong/gold.png', this.scene), null, gui);
+			this.hisAvator = new bGUI.GUIPanel("hisAvator", a2, null, gui);
             this.hisAvator.relativePosition(new BABYLON.Vector3(0.1, 0.85, 0));
 			
-			this.myName = new bGUI.GUIText("myName", 32, 128, {font:"20px Segoe UI", text:"bGUI", color:"#cecb7a"}, gui);
+			this.myName = new bGUI.GUIText("myName", 32, 128, {font:"20px Segoe UI", text:myName, color:"#cecb7a"}, gui);
             this.myName.relativePosition(new BABYLON.Vector3(0.15, 0.1, 0));
-			this.hisName = new bGUI.GUIText("hisName", 32, 128, {font:"20px Segoe UI", text:"bGUI", color:"#cecb7a"}, gui);
+			this.hisName = new bGUI.GUIText("hisName", 32, 128, {font:"20px Segoe UI", text:hisName, color:"#cecb7a"}, gui);
             this.hisName.relativePosition(new BABYLON.Vector3(0.15, 0.85, 0));
 			
 			var myChipIcon = new bGUI.GUIPanel("myChipIcon", new BABYLON.Texture('./asserts/Mahjong/gold.png', this.scene), null, gui);
@@ -519,28 +531,10 @@
             hisChipIcon.relativePosition(new BABYLON.Vector3(0.1, 0.9, 0));
 			hisChipIcon.scaling(new BABYLON.Vector3(0.25, 0.25, 0));
 			
-			this.myChip = new bGUI.GUIText("myChip", 32, 128, {font:"20px Segoe UI", text:"bGUI", color:"#cecb7a"}, gui);
+			this.myChip = new bGUI.GUIText("myChip", 32, 128, {font:"20px Segoe UI", text:myChip, color:"#cecb7a"}, gui);
             this.myChip.relativePosition(new BABYLON.Vector3(0.15, 0.2, 0));
-			this.hisChip = new bGUI.GUIText("hisChip", 32, 128, {font:"20px Segoe UI", text:"bGUI", color:"#cecb7a"}, gui);
+			this.hisChip = new bGUI.GUIText("hisChip", 32, 128, {font:"20px Segoe UI", text:hisChip, color:"#cecb7a"}, gui);
             this.hisChip.relativePosition(new BABYLON.Vector3(0.15, 0.9, 0));			
-		};
-		this.setMyAvator = function(d) {
-			this.myAvator = BABYLON.Texture.CreateFromBase64String(d, "myAvator", this.scene); 
-		};
-		this.setHisAvator = function(d) {
-			this.hisAvator = BABYLON.Texture.CreateFromBase64String(d, "hisAvator", this.scene); 
-		};
-		this.setMyName = function(d) {
-			this.myName.update(d);
-		};
-		this.setHisName = function(d) {
-			this.hisName.update(d);
-		};
-		this.setMyChip = function(d) {
-			this.myChip.update(d);
-		};
-		this.setHisChip = function(d) {
-			this.hisChip.update(d);
 		};
 		this.instance = function(onLoaded) {
 			var _this = this;

@@ -106,10 +106,8 @@ app.controller('gameCtrl', function ($scope, $location, $cookieStore, $http, DAT
 				params: {id: uid, id2: DATA.userid}, 
 			}).success(function (resp, status, headers, config) {
 				if( resp.err == 0 && resp.gid > -1 ) {
-					var user1 = DATA.getUserById(uid);
-					$scope.avatar1 = user1.thumb;
-					$scope.name1 = user1.name;
-					$scope.money1 = resp.balance1;
+					var user = DATA.getUserById(DATA.userid);
+					round.view.layoutGUI(user.thumb,resp.avatar1,user.name,resp.name1,resp.balance1,resp.balance2);
 				}else {
 					$location.path('/').search({id:DATA.userid,lng:DATA.lng,lat:DATA.lat});
 				}
