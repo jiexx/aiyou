@@ -79,27 +79,26 @@ app.controller('appCtrl', function ($scope, $location, $cookieStore, DATA) {
 
 app.controller('gameCtrl', function ($scope, $location, $cookieStore, $http, DATA) {
 	console.log(DATA.title);
-	$scope.$parent.titleVisible = false;
-	$scope.avatar1 = 'asserts/stop.png';
-	$scope.avatar2 = 'asserts/1.jpg';
+	var nav = $scope.$parent;
+	nav.titleVisible = true;
+	nav.title = '麻将';
+	nav.navLnk = '/';
+	nav.listStyle = false;
 	
 	var toid = $location.search().id;
 	if( DATA.userid == undefined || DATA.userid == null || toid == undefined || toid == null )
 		return;
-	var round = null;
-	$scope.close = function() {
+	var round = new RoundImpl(DATA.userid);;
+	nav.navClick = function(){
 		if( round != null )
 			round.disconnect();
-		$location.path('/').search({id:DATA.userid,lng:DATA.lng,lat:DATA.lat});
-	}
-	$scope.gameUiVisible = false;
+		return true;
+	};
 	if( DATA.userid == toid ) {
-		round = new RoundImpl(DATA.userid);
-		round.view = View.instance(function() {
-			//$scope.gameUiVisible = true;
-		});
+		round.view = View.instance();
 		round.view.attach(round);
 		round.open($location.search().chip, function(uid){
+			nav.titleVisible = false;
 			$http({
 				method  : 'GET',
 				url: 'http://127.0.0.1:9090/entity/gqry.do', 
@@ -118,26 +117,18 @@ app.controller('gameCtrl', function ($scope, $location, $cookieStore, $http, DAT
 			});
 		});
 	}else {
+		round.view = View.instance();
+		round.view.attach(round);
+		round.join(resp.gid);
 		$http({
 			method  : 'GET',
 			url: 'http://127.0.0.1:9090/entity/gqry.do', 
 			params: {id: toid, id2: DATA.userid}, 
 		}).success(function (resp, status, headers, config) {
 			if( resp.err == 0 && resp.gid > -1 ) {
-				round = new RoundImpl(DATA.userid);
-				round.view = View.instance(function() {
-					$scope.gameUiVisible = true;
-					var user1 = DATA.getUserById(toid);
-					$scope.avatar1 = user1.thumb;
-					$scope.name1 = user1.name;
-					$scope.money1 = resp.balance1;
-					var user2 = DATA.getUserById(DATA.userid);
-					$scope.avatar2 = user2.thumb;
-					$scope.name2 = user2.name;
-					$scope.money2 = resp.balance2;
-				});
-				round.view.attach(round);
-				round.join(resp.gid);
+				var user = DATA.getUserById(DATA.userid);
+				nav.titleVisible = false;
+				round.view.layoutGUI(user.thumb,resp.avatar1,user.name,resp.name1,resp.balance1,resp.balance2);
 			}else {
 				$location.path('/').search({id:DATA.userid,lng:DATA.lng,lat:DATA.lat});
 			}
@@ -154,12 +145,15 @@ app.controller('registerCtrl', function ($scope, $location, $cookieStore, $http,
 	nav.title = '注册';
 	nav.navLnk = '/';
 	nav.listStyle = false;
+	nav.navClick = function(){
+		return true;
+	};
 	
 	var clazz = 1;
 	
 	$scope.classify = function(activeTab) {
 		clazz = activeTab;
-	}
+	};
 
 	var fd = '';// new FormData();
 
@@ -234,6 +228,9 @@ app.controller('userCtrl', function ($scope, $location, $cookieStore, $http, DAT
 	var nav = $scope.$parent;
 	nav.navLnk = '/';
 	nav.listStyle = false;
+	nav.navClick = function(){
+		return true;
+	};
 
 	$scope.userLnk = DATA.auth('message/?id=' + $location.search().id);
 	$scope.avatar = DATA.getUserById($location.search().id).thumb;
@@ -262,6 +259,9 @@ app.controller('homeListCtrl', function ($scope, $location, $cookieStore, DATA) 
 	var nav = $scope.$parent;
 	nav.navLnk = '/';
 	nav.listStyle = false;
+	nav.navClick = function(){
+		return true;
+	};
 
 	$scope.bottomReached = function () {
 		/* global alert: false; */
@@ -277,6 +277,9 @@ app.controller('homeCtrl', function ($scope, $rootScope, $location, $cookieStore
 	nav.title = '哎呦';
 	nav.navLnk = 'home-list';
 	nav.listStyle = true;
+	nav.navClick = function(){
+		return true;
+	};
 	
 	$scope.clickPlay = function(userid, $event){
 		console.log("play click");

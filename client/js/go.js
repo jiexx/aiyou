@@ -176,9 +176,6 @@ var Wait = (function (_super) {
 		if( open.roundid != undefined && open.roundid != null )
 			round.roundid = open.roundid;
 		round.view.loadingGUI();
-        round.view.reset();
-		round.view.invalidate();
-		
     };
     return Wait;
 })(State);

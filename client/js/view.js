@@ -505,8 +505,10 @@
 		this.loadingGUI = function () {
 			var gui = this.gui;
 			gui.dispose();
+			this.scene.activeCamera.layerMask    = 1;
 			var txt = new bGUI.GUIText("myName", 32, 128, {font:"40px Segoe UI", text:"等待对手...", color:"#cecb7a"}, gui);
             txt.relativePosition(new BABYLON.Vector3(0.5, 0.5, 0));
+			this.scene.render();
 		}
 		this.layoutGUI = function (myAvator,hisAvator,myName,hisName,myChip,hisChip) {
 			var gui = this.gui;

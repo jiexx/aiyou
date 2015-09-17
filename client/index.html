@@ -42,7 +42,7 @@
         </div>
  
         <div class="btn-group pull-right" yield-to="navbarAction">
-            <a ng-class="{'fa fa-th-list': listStyle, 'fa fa-reply': !listStyle}" ng-href="#/{{ navLnk }}" class="btn btn-navbar"></a>
+            <a ng-class="{'fa fa-th-list': listStyle, 'fa fa-reply': !listStyle}" ng-href="#/{{ navLnk }}" ng-click="navClick()" class="btn btn-navbar"></a>
         </div>
  
     </div>
