@@ -88,7 +88,7 @@ app.controller('gameCtrl', function ($scope, $location, $cookieStore, $http, DAT
 	var toid = $location.search().id;
 	if( DATA.userid == undefined || DATA.userid == null || toid == undefined || toid == null )
 		return;
-	var round = new RoundImpl(DATA.userid);;
+	var round = new RoundImpl(DATA.userid);
 	nav.navClick = function(){
 		if( round != null )
 			round.disconnect();
@@ -102,7 +102,7 @@ app.controller('gameCtrl', function ($scope, $location, $cookieStore, $http, DAT
 			$http({
 				method  : 'GET',
 				url: 'http://127.0.0.1:9090/entity/gqry.do', 
-				params: {id: uid, id2: DATA.userid}, 
+				params: {id: DATA.userid, id2: uid}, 
 			}).success(function (resp, status, headers, config) {
 				if( resp.err == 0 && resp.gid > -1 ) {
 					var user = DATA.getUserById(DATA.userid);
@@ -119,7 +119,7 @@ app.controller('gameCtrl', function ($scope, $location, $cookieStore, $http, DAT
 	}else {
 		round.view = View.instance();
 		round.view.attach(round);
-		round.join(resp.gid);
+		round.join(toid);
 		$http({
 			method  : 'GET',
 			url: 'http://127.0.0.1:9090/entity/gqry.do', 

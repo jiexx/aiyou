@@ -89,20 +89,21 @@ var Round = (function (_super) {
 		this.onJoin = null;
     }
 	Round.prototype.open = function (chip, onJoin) {
+		this.disconnect();
 		var _this = this;
         var socket = new SockJS('http://localhost:9090/game');
         this.client = Stomp.over(socket);
         this.client.connect({}, function (frame) {
+			_this.client.subscribe('/hook/' + _this.userid, function (frame) {
+                var msg = JSON.parse(frame.body);
+                _this.recv(msg);
+            });
 			var a = new Ack();
 			a.cmd = V_OPEN;
 			a.uid = parseInt(_this.userid);
 			a.toid = 0xffffffff;
 			a.opt = chip;
 			_this.send(a);
-			_this.client.subscribe('/hook/' + _this.userid, function (frame) {
-                var msg = JSON.parse(frame.body);
-                _this.recv(msg);
-            });
 		});
 		this.onJoin = onJoin;
 	}
@@ -112,6 +113,10 @@ var Round = (function (_super) {
         this.client = Stomp.over(socket);
         this.client.connect({}, function (frame) {
             console.log('Connected: ' + frame);
+			_this.client.subscribe('/hook/' + _this.userid, function (frame) {
+                var msg = JSON.parse(frame.body);
+                _this.recv(msg);
+            });
 			if( toid != undefined && toid != null ) {
 				var a = new Ack();
 				a.cmd = V_JOIN;
@@ -119,10 +124,6 @@ var Round = (function (_super) {
 				a.toid = toid;
 				_this.send(a);
 			}
-            _this.client.subscribe('/hook/' + _this.userid, function (frame) {
-                var msg = JSON.parse(frame.body);
-                _this.recv(msg);
-            });
         });
     };
     Round.prototype.subscribe = function (point) {

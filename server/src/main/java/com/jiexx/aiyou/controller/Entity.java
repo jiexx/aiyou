@@ -28,7 +28,7 @@ public class Entity extends DataService {
 	public String gameRoundQry(@RequestParam(value = "id") long id, @RequestParam(value = "id2") long id2 ) {
 		System.out.println("gameRoundQry");
 		
-		int roundid = GameService.instance.findWaitingUser( id );
+		int roundid = GameService.instance.findExistedUser( id );
 		Driver d1 = DATA.queryDriverById( id );
 		Driver d2 = DATA.queryDriverById( id2 );
 		GameId resp = new GameId(roundid, d1.avatar,d2.avatar,d1.name,d2.name,d1.balance, d2.balance);

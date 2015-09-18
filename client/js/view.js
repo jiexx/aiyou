@@ -167,8 +167,9 @@
 				_this.cards[i].position.y = card_y;
 				_this.cards[i].position.z = 0;
 				_this.cards[i].scaling.x = 0.6
-					//_this.cards[i].rotation.x = Math.PI/12;
-					fix(_this.cards[i]);
+				_this.cards[i].layerMask = 1;
+				//_this.cards[i].rotation.x = Math.PI/12;
+				fix(_this.cards[i]);
 				if (isCardCB) {
 					_this.cards[i].actionManager = new BABYLON.ActionManager(scene);
 					_this.cards[i].actionManager.registerAction(new BABYLON.ExecuteCodeAction(BABYLON.ActionManager.OnPickTrigger, function (evt) { // chu card
@@ -203,15 +204,17 @@
 				_this.showcards[i].position.y = showcard_y;
 				_this.showcards[i].position.z = 0;
 				_this.showcards[i].scaling.x = 0.6
-					//_this.cards[i].rotation.x = Math.PI/12;
-					fix(_this.showcards[i]);
+				//_this.cards[i].rotation.x = Math.PI/12;
+				_this.showcards[i].layerMask = 1;
+				fix(_this.showcards[i]);
 			}
 			_this.discard = BABYLON.Mesh.CreatePlane('discard', CARDSIZE, scene);
 			_this.discard.position.x = 6 * 3;
 			_this.discard.position.y = discard_y;
 			_this.discard.position.z = 0;
 			_this.discard.scaling.x = 0.6
-				fix(_this.discard);
+			_this.discard.layerMask = 1;
+			fix(_this.discard);
 			if (isDiscardCB) {
 				_this.discard.actionManager = new BABYLON.ActionManager(scene);
 				_this.discard.actionManager.registerAction(new BABYLON.ExecuteCodeAction(BABYLON.ActionManager.OnPickTrigger, function (evt) { //chi card/pong card
@@ -467,8 +470,11 @@
 			
 		};
 		this.clean = function (canvas) {
-			if( this.scene != null ) {
-				this.scene.dispose();
+			if( this.engine != null ) {
+				this.engine.dispose();
+			}
+			if( this.gui != null ) {
+				this.gui.dispose();
 			}
 		};
 		this.isReady = function () {
@@ -484,6 +490,7 @@
 			this.scene.clearColor = new BABYLON.Color3(35 / 255.0, 116 / 255.0, 172 / 255.0);
 			var light = new BABYLON.PointLight("Point", new BABYLON.Vector3(3 * MAX, 0, -100), this.scene);
 			var camera = new BABYLON.FreeCamera("Camera", new BABYLON.Vector3(3 * MAX, 0, -70), this.scene);
+			this.scene.activeCamera.layerMask = 1;
 			//var camera = new BABYLON.ArcRotateCamera('Camera', 1, .8, 10, new BABYLON.Vector3(0, 0, 0), scene);
 			this.gui = new bGUI.GUISystem(this.scene, 1200, 780);
 			//this.layout();
@@ -504,43 +511,41 @@
 		};
 		this.loadingGUI = function () {
 			var gui = this.gui;
-			gui.dispose();
-			this.scene.activeCamera.layerMask    = 1;
-			var txt = new bGUI.GUIText("myName", 32, 128, {font:"40px Segoe UI", text:"等待对手...", color:"#cecb7a"}, gui);
-            txt.relativePosition(new BABYLON.Vector3(0.5, 0.5, 0));
+			//this.scene.activeCamera.layerMask    = 1;
+			var txt = new bGUI.GUIText("myName", 512, 32, {font:"16px Segoe UI", text:"等待对手...", color:"#cecb7a"}, gui);
+            txt.relativePosition(new BABYLON.Vector3(0.5, 0.5, -1000));
 			this.scene.render();
 		}
 		this.layoutGUI = function (myAvator,hisAvator,myName,hisName,myChip,hisChip) {
 			var gui = this.gui;
-			gui.dispose();
 			//http://temechon.github.io/bGUI/ https://doc.babylonjs.com/search?q=gui
 			var a1 = BABYLON.Texture.CreateFromBase64String(myAvator, "myAvator", this.scene);
 			var a2 = BABYLON.Texture.CreateFromBase64String(hisAvator, "hisAvator", this.scene);
 			this.myAvator = new bGUI.GUIPanel("myAvator", a1, null, gui);
-            this.myAvator.relativePosition(new BABYLON.Vector3(0.1, 0.1, 0));
+            this.myAvator.relativePosition(new BABYLON.Vector3(0.1, 0.1, -1000));
 			this.hisAvator = new bGUI.GUIPanel("hisAvator", a2, null, gui);
-            this.hisAvator.relativePosition(new BABYLON.Vector3(0.1, 0.85, 0));
+            this.hisAvator.relativePosition(new BABYLON.Vector3(0.1, 0.85, -1000));
 			
 			this.myName = new bGUI.GUIText("myName", 32, 128, {font:"20px Segoe UI", text:myName, color:"#cecb7a"}, gui);
-            this.myName.relativePosition(new BABYLON.Vector3(0.15, 0.1, 0));
+            this.myName.relativePosition(new BABYLON.Vector3(0.15, 0.1, -1000));
 			this.hisName = new bGUI.GUIText("hisName", 32, 128, {font:"20px Segoe UI", text:hisName, color:"#cecb7a"}, gui);
-            this.hisName.relativePosition(new BABYLON.Vector3(0.15, 0.85, 0));
+            this.hisName.relativePosition(new BABYLON.Vector3(0.15, 0.85, -1000));
 			
 			var myChipIcon = new bGUI.GUIPanel("myChipIcon", new BABYLON.Texture('./asserts/Mahjong/gold.png', this.scene), null, gui);
-            myChipIcon.relativePosition(new BABYLON.Vector3(0.1, 0.2, 0));
+            myChipIcon.relativePosition(new BABYLON.Vector3(0.1, 0.2, -1000));
 			myChipIcon.scaling(new BABYLON.Vector3(0.25, 0.25, 0));
 			var hisChipIcon = new bGUI.GUIPanel("hisChipIcon", new BABYLON.Texture('./asserts/Mahjong/gold.png', this.scene), null, gui);
-            hisChipIcon.relativePosition(new BABYLON.Vector3(0.1, 0.9, 0));
+            hisChipIcon.relativePosition(new BABYLON.Vector3(0.1, 0.9, -1000));
 			hisChipIcon.scaling(new BABYLON.Vector3(0.25, 0.25, 0));
 			
 			this.myChip = new bGUI.GUIText("myChip", 32, 128, {font:"20px Segoe UI", text:myChip, color:"#cecb7a"}, gui);
-            this.myChip.relativePosition(new BABYLON.Vector3(0.15, 0.2, 0));
+            this.myChip.relativePosition(new BABYLON.Vector3(0.15, 0.2, -1000));
 			this.hisChip = new bGUI.GUIText("hisChip", 32, 128, {font:"20px Segoe UI", text:hisChip, color:"#cecb7a"}, gui);
-            this.hisChip.relativePosition(new BABYLON.Vector3(0.15, 0.9, 0));			
+            this.hisChip.relativePosition(new BABYLON.Vector3(0.15, 0.9, -1000));			
 		};
 		this.instance = function(onLoaded) {
-			var _this = this;
-			/*this.scene.executeWhenReady(function () {
+			/*var _this = this;
+			this.scene.executeWhenReady(function () {
 				_this.invalidate();
 				if( onLoaded != undefined && onLoaded != null )
 					onLoaded();
@@ -575,6 +580,7 @@
 			_this.desk.position.x = 0;
 			_this.desk.position.y = 0;
 			_this.desk.position.z = 10;
+			_this.desk.layerMask = 1;
 			//_this.draw.rotation.x = Math.PI*2;
 			//fix(_this.desk);
 			//----------------------------undiscard------------------------
