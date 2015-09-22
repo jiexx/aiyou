@@ -102,10 +102,14 @@ app.controller('gameCtrl', function ($scope, $location, $cookieStore, $http, DAT
 			$http({
 				method  : 'GET',
 				url: 'http://127.0.0.1:9090/entity/gqry.do', 
-				params: {id: DATA.userid, id2: uid}, 
+				params: {id: uid, id2: DATA.userid}, 
 			}).success(function (resp, status, headers, config) {
 				if( resp.err == 0 && resp.gid > -1 ) {
 					var user = DATA.getUserById(DATA.userid);
+					round.view.onExit = function(){
+						round.view.clean();
+						$location.path('/').search({id:DATA.userid,lng:DATA.lng,lat:DATA.lat});
+					};
 					round.view.layoutGUI(user.thumb,resp.avatar1,user.name,resp.name1,resp.balance1,resp.balance2);
 				}else {
 					$location.path('/').search({id:DATA.userid,lng:DATA.lng,lat:DATA.lat});
@@ -119,23 +123,28 @@ app.controller('gameCtrl', function ($scope, $location, $cookieStore, $http, DAT
 	}else {
 		round.view = View.instance();
 		round.view.attach(round);
-		round.join(toid);
-		$http({
-			method  : 'GET',
-			url: 'http://127.0.0.1:9090/entity/gqry.do', 
-			params: {id: toid, id2: DATA.userid}, 
-		}).success(function (resp, status, headers, config) {
-			if( resp.err == 0 && resp.gid > -1 ) {
-				var user = DATA.getUserById(DATA.userid);
-				nav.titleVisible = false;
-				round.view.layoutGUI(user.thumb,resp.avatar1,user.name,resp.name1,resp.balance1,resp.balance2);
-			}else {
+		round.join(toid, function(uid){
+			nav.titleVisible = false;
+			$http({
+				method  : 'GET',
+				url: 'http://127.0.0.1:9090/entity/gqry.do', 
+				params: {id: toid, id2: DATA.userid}, 
+			}).success(function (resp, status, headers, config) {
+				if( resp.err == 0 && resp.gid > -1 ) {
+					var user = DATA.getUserById(DATA.userid);
+					round.view.onExit = function(){
+						round.view.clean();
+						$location.path('/').search({id:DATA.userid,lng:DATA.lng,lat:DATA.lat});
+					};
+					round.view.layoutGUI(user.thumb,resp.avatar1,user.name,resp.name1,resp.balance1,resp.balance2);
+				}else {
+					$location.path('/').search({id:DATA.userid,lng:DATA.lng,lat:DATA.lat});
+				}
+			}).error(function (resp, status, headers, config) {
+				if( round != null )
+					round.disconnect();
 				$location.path('/').search({id:DATA.userid,lng:DATA.lng,lat:DATA.lat});
-			}
-		}).error(function (resp, status, headers, config) {
-			if( round != null )
-				round.disconnect();
-			$location.path('/').search({id:DATA.userid,lng:DATA.lng,lat:DATA.lat});
+			});
 		});
 	}
 });

@@ -87,6 +87,7 @@ var Round = (function (_super) {
         this.roundid = '';
         this.client = null;
 		this.onJoin = null;
+		this.onOpen = null;
     }
 	Round.prototype.open = function (chip, onJoin) {
 		this.disconnect();
@@ -107,7 +108,7 @@ var Round = (function (_super) {
 		});
 		this.onJoin = onJoin;
 	}
-    Round.prototype.join = function (toid) {
+    Round.prototype.join = function (toid, onOpen) {
         var _this = this;
         var socket = new SockJS('http://localhost:9090/game');
         this.client = Stomp.over(socket);
@@ -125,6 +126,7 @@ var Round = (function (_super) {
 				_this.send(a);
 			}
         });
+		this.onOpen = onOpen;
     };
     Round.prototype.subscribe = function (point) {
         var _this = this;
@@ -134,7 +136,7 @@ var Round = (function (_super) {
         });
     };
     Round.prototype.disconnect = function () {
-		if (this.client != null) {
+		if (this.client != null && this.client.ws.readyState == SockJS.OPEN) {
 			this.client.disconnect();
 		}
         console.log("Disconnected");
@@ -193,6 +195,8 @@ var Going = (function (_super) {
 				round.subscribe(start.endp);
 			else if( round.onJoin != null )
 				round.onJoin(start.id);
+			if( round.onOpen != null )
+				round.onOpen(start.id);
 			round.view.layout();
 			round.view.roundDealcards(start.card);
 			round.view.whohint(start.hu);

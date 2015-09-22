@@ -376,12 +376,8 @@
 		this.scene = null;
 		this.go = null;
 		this.gui = null;
-		this.myAvator = null;
-		this.hisAvator = null;
-		this.myName = null;
-		this.hisName = null;
-		this.myChip = null;
-		this.hisChip = null;
+		this.msgbox = null;
+		this.onExit = null;
 		//this.data = new Data();
 
 		// Resize
@@ -476,6 +472,11 @@
 			if( this.gui != null ) {
 				this.gui.dispose();
 			}
+			if( this.go != null ) {
+				this.go.disconnect();
+				delete this.go;
+				this.go = null;
+			}
 		};
 		this.isReady = function () {
 			for (var key in tags)
@@ -512,36 +513,72 @@
 		this.loadingGUI = function () {
 			var gui = this.gui;
 			//this.scene.activeCamera.layerMask    = 1;
-			var txt = new bGUI.GUIText("myName", 512, 32, {font:"16px Segoe UI", text:"等待对手...", color:"#cecb7a"}, gui);
-            txt.relativePosition(new BABYLON.Vector3(0.5, 0.5, -1000));
+			this.msgbox = new bGUI.GUIText("myName", 128, 32, {font:"16px Segoe UI", text:"等待对手...", color:"#cecb7a"}, gui);
+            this.msgbox.relativePosition(new BABYLON.Vector3(0.5, 0.5, -1000));
+			this.msgbox.scaling(new BABYLON.Vector3(128, 32, 1));
 			this.scene.render();
 		}
 		this.layoutGUI = function (myAvator,hisAvator,myName,hisName,myChip,hisChip) {
 			var gui = this.gui;
+			if( this.msgbox != null )
+				this.msgbox.dispose();
 			//http://temechon.github.io/bGUI/ https://doc.babylonjs.com/search?q=gui
-			var a1 = BABYLON.Texture.CreateFromBase64String(myAvator, "myAvator", this.scene);
-			var a2 = BABYLON.Texture.CreateFromBase64String(hisAvator, "hisAvator", this.scene);
-			this.myAvator = new bGUI.GUIPanel("myAvator", a1, null, gui);
-            this.myAvator.relativePosition(new BABYLON.Vector3(0.1, 0.1, -1000));
-			this.hisAvator = new bGUI.GUIPanel("hisAvator", a2, null, gui);
-            this.hisAvator.relativePosition(new BABYLON.Vector3(0.1, 0.85, -1000));
+			var a1 = BABYLON.Texture.CreateFromBase64String(myAvator, "myAvator", this.scene, false, true, BABYLON.Texture.BILINEAR_SAMPLINGMODE, 
+				function(){
+					var myAvator = new bGUI.GUIPanel("myAvator", a1, null, gui);
+					myAvator.relativePosition(new BABYLON.Vector3(0.1, 0.8, 0));
+					myAvator.scaling(new BABYLON.Vector3(25.0, 25.0, 1.0));
+				});
+			var a2 = BABYLON.Texture.CreateFromBase64String(hisAvator, "hisAvator", this.scene, false, true, BABYLON.Texture.BILINEAR_SAMPLINGMODE, 
+				function(){
+					hisAvator = new bGUI.GUIPanel("hisAvator", a2, null, gui);
+					hisAvator.relativePosition(new BABYLON.Vector3(0.1, 0.1, 0));
+					hisAvator.scaling(new BABYLON.Vector3(25.0, 25.0, 1.0));
+				});
 			
-			this.myName = new bGUI.GUIText("myName", 32, 128, {font:"20px Segoe UI", text:myName, color:"#cecb7a"}, gui);
-            this.myName.relativePosition(new BABYLON.Vector3(0.15, 0.1, -1000));
-			this.hisName = new bGUI.GUIText("hisName", 32, 128, {font:"20px Segoe UI", text:hisName, color:"#cecb7a"}, gui);
-            this.hisName.relativePosition(new BABYLON.Vector3(0.15, 0.85, -1000));
+			this.myName = new bGUI.GUIText("myName", 128, 32, {font:"16px Segoe UI", text:myName, color:"#cecb7a"}, gui);
+            this.myName.relativePosition(new BABYLON.Vector3(0.15, 0.8, -1000));
+			this.myName.scaling(new BABYLON.Vector3(128, 32, 1));
+			this.hisName = new bGUI.GUIText("hisName", 128, 32, {font:"16px Segoe UI", text:hisName, color:"#cecb7a"}, gui);
+            this.hisName.relativePosition(new BABYLON.Vector3(0.15, 0.1, -1000));
+			this.hisName.scaling(new BABYLON.Vector3(128, 32, 1));
 			
-			var myChipIcon = new bGUI.GUIPanel("myChipIcon", new BABYLON.Texture('./asserts/Mahjong/gold.png', this.scene), null, gui);
-            myChipIcon.relativePosition(new BABYLON.Vector3(0.1, 0.2, -1000));
-			myChipIcon.scaling(new BABYLON.Vector3(0.25, 0.25, 0));
-			var hisChipIcon = new bGUI.GUIPanel("hisChipIcon", new BABYLON.Texture('./asserts/Mahjong/gold.png', this.scene), null, gui);
-            hisChipIcon.relativePosition(new BABYLON.Vector3(0.1, 0.9, -1000));
-			hisChipIcon.scaling(new BABYLON.Vector3(0.25, 0.25, 0));
+			var _scene = this.scene;
+			var chipIcon = new BABYLON.Texture('./asserts/Mahjong/gold.png', this.scene, false, true, BABYLON.Texture.BILINEAR_SAMPLINGMODE,
+				function(){
+					var myChipIcon = new bGUI.GUIPanel("myChipIcon", chipIcon, null, gui);
+					myChipIcon.relativePosition(new BABYLON.Vector3(0.1, 0.9, 0));
+					myChipIcon.scaling(new BABYLON.Vector3(25.0, 25.0, 1.0));
+					var hisChipIcon = new bGUI.GUIPanel("hisChipIcon", chipIcon, null, gui);
+					hisChipIcon.relativePosition(new BABYLON.Vector3(0.1, 0.2, 0));
+					hisChipIcon.scaling(new BABYLON.Vector3(25.0, 25.0, 1.0));
+					setTimeout(function(){
+						_scene.render();
+					}, 1);
+				});
 			
-			this.myChip = new bGUI.GUIText("myChip", 32, 128, {font:"20px Segoe UI", text:myChip, color:"#cecb7a"}, gui);
-            this.myChip.relativePosition(new BABYLON.Vector3(0.15, 0.2, -1000));
-			this.hisChip = new bGUI.GUIText("hisChip", 32, 128, {font:"20px Segoe UI", text:hisChip, color:"#cecb7a"}, gui);
-            this.hisChip.relativePosition(new BABYLON.Vector3(0.15, 0.9, -1000));			
+			this.myChip = new bGUI.GUIText("myChip", 128, 32, {font:"16px Segoe UI", text:myChip, color:"#cecb7a"}, gui);
+            this.myChip.relativePosition(new BABYLON.Vector3(0.15, 0.9, -1000));
+			this.myChip.scaling(new BABYLON.Vector3(128, 32, 1));
+			
+			this.hisChip = new bGUI.GUIText("hisChip", 128, 32, {font:"16px Segoe UI", text:hisChip, color:"#cecb7a"}, gui);
+            this.hisChip.relativePosition(new BABYLON.Vector3(0.15, 0.2, -1000));	
+			this.hisChip.scaling(new BABYLON.Vector3(128, 32, 1));	
+
+			var onExit = this.onExit;
+			var exit = new BABYLON.Texture('./asserts/Mahjong/exit.png', this.scene, false, true, BABYLON.Texture.BILINEAR_SAMPLINGMODE,
+				function(){
+					var exitIcon = new bGUI.GUIPanel("hisChipIcon", exit, null, gui);
+					exitIcon.relativePosition(new BABYLON.Vector3(0.9, 0.1, 0));
+					exitIcon.scaling(new BABYLON.Vector3(50.0, 50.0, 1.0));
+					exitIcon.onClick = function() {
+						if( onExit != null )
+							onExit();
+					};					
+					setTimeout(function(){
+						_scene.render();
+					}, 1);
+				});
 		};
 		this.instance = function(onLoaded) {
 			/*var _this = this;
