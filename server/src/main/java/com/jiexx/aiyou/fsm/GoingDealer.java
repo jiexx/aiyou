@@ -54,7 +54,7 @@ public class GoingDealer extends State{
 			DiscardAck self = new DiscardAck();
 			self.cmd = Command.DISCARD.val();
 			self.disc = (byte) msg.opt;
-			//self.deal = cards.cards[cards.pos++];
+			self.deal = cards.cards[cards.pos++];
 			self.hu = cards.hu(handcards, self.disc);
 			GameService.instance.sendMessage(getRound().endPoint(endPoint), gson.toJson(self));
 		}
@@ -96,6 +96,7 @@ public class GoingDealer extends State{
 				self.cmd = Command.DISCARD_DRAW.val();
 				self.deal = cards.cards[cards.pos];
 				self.hu = cards.hu(handcards, self.deal );
+				System.out.println("DISCARD_DRAW "+cards.pos+" "+self.deal);
 				GameService.instance.sendMessage(getRound().endPoint(endPoint), gson.toJson(self));
 				
 				int pos = Util.insBytes(handcards,  (byte) msg.opt);

@@ -1,6 +1,7 @@
 (function () {
 	var MAX = 14;
 	var tags = new Array(
+			'who',
 			'east',
 			'west',
 			'south',
@@ -8,7 +9,7 @@
 			'zhong',
 			'fa',
 			'bai',
-			'dot1', //7
+			'dot1', //8
 			'dot2',
 			'dot3',
 			'dot4',
@@ -16,8 +17,8 @@
 			'dot6',
 			'dot7',
 			'dot8',
-			'dot9', //15
-			'Bamboo1', //16
+			'dot9', //16
+			'Bamboo1', //17
 			'Bamboo2',
 			'Bamboo3',
 			'Bamboo4',
@@ -25,8 +26,8 @@
 			'Bamboo6',
 			'Bamboo7',
 			'Bamboo8',
-			'Bamboo9', //24
-			'Char1', //25
+			'Bamboo9', //25
+			'Char1', //26
 			'Char2',
 			'Char3',
 			'Char4',
@@ -34,25 +35,24 @@
 			'Char6',
 			'Char7',
 			'Char8',
-			'Char9', //33
+			'Char9', //34
 			'back',
 			'draw',
-			'who',
 			'continue',
 			'exit',
 			'loss',
 			'win');
 	//var transparent = tags.length;
 	var
-	tback = tags.length - 7,
-	tdraw = tags.length - 6,
-	twho = tags.length - 5,
+	tback = tags.length - 6,
+	tdraw = tags.length - 5,
+	twho = 0,
 	tcont = tags.length - 4,
 	texit = tags.length - 3,
 	tloss = tags.length - 2,
 	twin = tags.length - 1,
-	tbg = tags.length + 1;
-	var INVALIDCARD = tags.length,
+	tbg = tags.length;
+	var INVALIDCARD = 0x1fffffff,
 	CARDSIZE = 9;
 	var
 	EXIT = 0x10000003,
@@ -79,7 +79,7 @@
 		oo.scaling.x = 0.6;
 	}
 	function createOO(scene, name, x, y, z, needfix, size) {
-		var oo = BABYLON.Mesh.CreatePlane('draw', size, scene);
+		var oo = BABYLON.Mesh.CreatePlane(name, size, scene);
 		oo.position.x = x;
 		oo.position.y = y;
 		oo.position.z = z;
@@ -182,7 +182,7 @@
 									_this.pump.push(pos);
 								} else if (evt.source.position.y == card_y + 3 && no != INVALIDCARD) {
 									//----------------------------discard------------------------
-									if (_this.pump.length == 1 && _this.countOfCard() == MAX-1) {
+									if (_this.pump.length == 1 && _this.countOfCard() == MAX) {
 										evt.source.position.y = card_y;
 										_this.disCard(pos, no);
 										_this.pumpRestore();
@@ -300,7 +300,7 @@
 			//_this.draw.rotation.x = Math.PI*2;
 			//----------------------------single draw------------------------
 			_this.draw.actionManager.registerAction(new BABYLON.ExecuteCodeAction(BABYLON.ActionManager.OnPickTrigger, function (evt) { // draw card
-					if (that.cardDraw != INVALIDCARD && that.mycards.data.cards.length == MAX - 1) {
+					if (that.cardDraw != INVALIDCARD && that.mycards.countOfCard() == MAX - 1) {
 						that.mycards.data.cards[MAX - 1] = that.cardDraw;
 						that.mycards.data.cards.sort(function (a, b) {
 							return a - b
@@ -393,6 +393,7 @@
 			this.buttons.reset();
 		}
 		this.roundDealcards = function (cards) {
+			console.log("roundDealcards " + cards);
 			this.mycards.data.cards = cards;
 			this.hiscards.data.cards = new Array();
 			var num = MAX;
@@ -426,7 +427,7 @@
 			this.hiscards.needUpdate = true;	
 		};
 		this.heDiscard = function (dealcard, hediscard) {
-			console.log("disCard " + hediscard);
+			console.log("deal " + dealcard + " heDiscard " + this.hiscards.data.cards);
 			this.enableDraw(dealcard);
 			this.hiscards.data.discard = hediscard;
 			if (this.hiscards.data.length == MAX) {
@@ -465,17 +466,12 @@
 			}
 			
 		};
-		this.clean = function (canvas) {
+		this.clean = function () {
 			if( this.engine != null ) {
 				this.engine.dispose();
 			}
 			if( this.gui != null ) {
 				this.gui.dispose();
-			}
-			if( this.go != null ) {
-				this.go.disconnect();
-				delete this.go;
-				this.go = null;
 			}
 		};
 		this.isReady = function () {
@@ -485,13 +481,14 @@
 			return true;
 		};
 		this.create = function (canvas) {
+			this.clean();
 			this.canvas = canvas;
 			this.engine = new BABYLON.Engine(canvas, true);
 			this.scene = new BABYLON.Scene(this.engine);
 			this.scene.clearColor = new BABYLON.Color3(35 / 255.0, 116 / 255.0, 172 / 255.0);
 			var light = new BABYLON.PointLight("Point", new BABYLON.Vector3(3 * MAX, 0, -100), this.scene);
 			var camera = new BABYLON.FreeCamera("Camera", new BABYLON.Vector3(3 * MAX, 0, -70), this.scene);
-			this.scene.activeCamera.layerMask = 1;
+			camera.layerMask = 1;
 			//var camera = new BABYLON.ArcRotateCamera('Camera', 1, .8, 10, new BABYLON.Vector3(0, 0, 0), scene);
 			this.gui = new bGUI.GUISystem(this.scene, 1200, 780);
 			//this.layout();
@@ -637,6 +634,11 @@
 			this.scene.render();
 		};
 		this.attach = function (g) {
+			if( this.go != null ) {
+				this.go.disconnect();
+				delete this.go;
+				this.go = null;
+			}
 			this.go = g;
 		}
 	}

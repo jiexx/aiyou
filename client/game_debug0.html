@@ -37,12 +37,12 @@
 	 
     var engine          = new BABYLON.Engine(canvas, true);
     var scene           = new BABYLON.Scene(engine);
-	scene.clearColor = new BABYLON.Color3(35 / 255.0, 116 / 255.0, 172 / 255.0);
+	//scene.clearColor = new BABYLON.Color3(35 / 255.0, 116 / 255.0, 172 / 255.0);
 			var light = new BABYLON.PointLight("Point", new BABYLON.Vector3(3 * 14, 0, -100), scene);
 	//var camera = new BABYLON.ArcRotateCamera("Camera", 0, 0, 10, BABYLON.Vector3.Zero(), scene);
 	var camera = new BABYLON.FreeCamera("Camera", new BABYLON.Vector3(3 * 14, 0, -30), scene);
 	//camera.setPosition(new BABYLON.Vector3(-15, 3, 0));
-        //scene.activeCamera.layerMask    = 1;
+        scene.activeCamera.layerMask    = 1;
 		
 		var mat = new BABYLON.StandardMaterial('00' , scene);
 			mat.specularColor = new BABYLON.Color3(0, 0, 0);
@@ -51,11 +51,30 @@
 		//var desk = BABYLON.Mesh.CreatePlane('desk', 500, scene);
 		//	desk.position.x = 0;
 		//	desk.position.y = 0;
-		//	desk.position.z = 10;
-		//	desk.material = mat;
+			//desk.position.z = 10;
+			//desk.material = mat;
 			//desk.layerMask = 1;
 			
-			var tex = new BABYLON.Texture('./asserts/Mahjong/gold.png', scene,
+			var matt = new BABYLON.StandardMaterial('008', scene);
+			matt.diffuseTexture = new BABYLON.Texture('./asserts/Mahjong/char1.png', scene,  true, true, BABYLON.Texture.NEAREST_SAMPLINGMODE, function () {
+						card.material = matt;
+						scene.render();
+					});
+			matt.diffuseTexture.hasAlpha = true;
+			matt.specularColor = new BABYLON.Color3(0, 0, 0);
+			var card = BABYLON.Mesh.CreatePlane('0001', 10, scene);
+			card.position.x = 0;
+			card.position.y = 0;
+			card.position.z = 0;
+			card.scaling.x = 0.6
+			card.layerMask = 1;
+			card.material = matt;
+			card.actionManager = new BABYLON.ActionManager(scene);
+			card.actionManager.registerAction(new BABYLON.ExecuteCodeAction(BABYLON.ActionManager.OnPickTrigger, function (evt) { 
+				console.log("click ...");
+			}) );
+			scene.render();
+	/*		var tex = new BABYLON.Texture('./asserts/Mahjong/gold.png', scene,
 			false, true, BABYLON.Texture.BILINEAR_SAMPLINGMODE, function(){
 				var hisChipIcon = new bGUI.GUIPanel("hisChipIcon", tex, null, gui);
 				//hisChipIcon.guiposition(new BABYLON.Vector3(0, 0, 0));
@@ -73,36 +92,38 @@
 				var myAvator = new bGUI.GUIPanel("myAvator", a1, null, gui);
 				myAvator.relativePosition(new BABYLON.Vector3(0.1, 0.1, 0));
         //scene.render();
-			});
+			});*/
 			
 			
-            /* GUI CREATION when all texture are loaded*/
+
             var gui = new bGUI.GUISystem(scene, 1200, 780);
             // The vault boy head
            gui._camera.layerMask = 8;
+		   camera.layerMask = 1;
             // Title
             //var title = new bGUI.GUIText("helpText", 256, 128, {font:"40px Segoe UI", text:"bGUI", color:"#cecb7a"}, gui);
-			var title = new bGUI.GUIText("myName", 512, 32, {font:"16px Segoe UI", text:"等待对手...", color:"#cecb7a"}, gui);
+	/*		var title = new bGUI.GUIText("myName", 512, 32, {font:"16px Segoe UI", text:"等待对手...", color:"#cecb7a"}, gui);
 			title.relativePosition(new BABYLON.Vector3(0.5, 0.5, -1000));
       title.scaling().x = 512;
       title.scaling().y = 32;
 
 			 var textGroup = new bGUI.GUIGroup("text", gui);
             // Baseline
-            var baseline = new bGUI.GUIText("helpText", 1024, 128, {font:"30px Segoe UI", text:"a Babylon.js extension", color:"#ffffff"}, gui);
-            baseline.guiposition(new BABYLON.Vector3(170, 90, 0));
+            var baseline = new bGUI.GUIText("helpText", 256, 32, {font:"30px Segoe UI", text:"a Babylon.js extension", color:"#ffffff"}, gui);
+			//baseline.relativePosition(new BABYLON.Vector3(0.1, 0.5, 0));
+            baseline.guiposition(new BABYLON.Vector3(170, 90, -20));
             textGroup.add(baseline);
-            baseline.scaling().x = 1024;
-      baseline.scaling().y = 128;
+            //baseline.scaling().x = 512;
+      //baseline.scaling().y = 64;
 
-            // author
+       /*     // author
             var author = new bGUI.GUIText("helpText", 512, 128, {font:"20px Segoe UI", text:"by Temechon", color:"#72bce3"}, gui);
             author.guiposition(new BABYLON.Vector3(170, 130, 0));
             textGroup.add(author);
- var count = 0;
+ var count = 0;*/
  //engine.runRenderLoop(function() {
-            count ++;
-            console.log( ""+count);
+            //count ++;
+            //console.log( ""+count);
             //setTimeout(function(){
             //  scene.render();
             //}, 100);

@@ -230,6 +230,7 @@ var Hu = (function (_super) {
         _super.call(this, r);
     }
     Hu.prototype.Enter = function (msg) {
+		var round = this.getRoot();
 		if( msg.cmd == V_WHO ) {
 			if( msg.other != undefined && msg.other != null ) { //self
 				round.view.who(msg.other, msg.hu);

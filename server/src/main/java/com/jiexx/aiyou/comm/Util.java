@@ -168,7 +168,7 @@ public class Util {
 	}
 	public static int findBytes(LinkedList<Byte> arr, byte value) {
 		int i = 0;
-		while( arr.get(i) != value && i < arr.size() ) i++;
+		while( i < arr.size() && arr.get(i) != value  ) i++;
 		if( i < arr.size() )
 			return i;
 		return -1;

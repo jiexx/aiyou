@@ -90,6 +90,7 @@ public class GoingPlayer extends State{
 				self.cmd = Command.DISCARD_DRAW.val();
 				self.deal = cards.cards[cards.pos];
 				self.hu = cards.hu(handcards, self.deal );
+				System.out.println("DISCARD_DRAW "+cards.pos+" "+self.deal);
 				GameService.instance.sendMessage(getRound().endPoint(endPoint), gson.toJson(self));
 				
 				int pos = Util.insBytes(handcards,  (byte) msg.opt);

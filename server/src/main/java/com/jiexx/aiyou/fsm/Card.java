@@ -103,12 +103,12 @@ public class Card {
 		if(first == hand) {
 			len = MAX;
 		}
-		byte[] cards = {1,1,2,2,3,3,4,4,5,5,6,6,7,7};
+		byte[] cards = {1,1,2,2,3,3,4,4,5,5,6,6,7,8};
 		for( int i = 0 ; i < len ;  i ++ ) {
 			//arr.add(Byte.valueOf(handcards[hand.val()][i]) );
 			arr.add(Byte.valueOf(cards[i]) );
 		}
-		//System.arraycopy(handcards[hand.val()], 0, arr, 0, MAX-1);
+		//System.arraycopy(handcards[hand.val()], 0, arr, 0, len);
 		return arr;
 	}
 	
