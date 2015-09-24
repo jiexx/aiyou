@@ -1,117 +1,110 @@
 var Property = (function () {
 	function Property() {
-		this.position = null;
+		this.position = new BABYLON.Vector3(0,0,0);
 		this.materials = null;
 		this.isVisible = false;
-		this.data = -1;
+    this.onClick = null;
 	};
-	Property.prototype.invalidate = function (mesh, data) {
-		mesh.position.x = this.position.x;
-		mesh.position.y = this.position.y;
-		mesh.position.z = this.position.z;
-		mesh.isVisible = this.isVisible;
-		if( data > -1 ) {
-			mesh.material = this.materials[data];
-		}
+	Property.prototype.invalidate = function (stuff, data) {
+		stuff.set(this.materials[data], this.position.x, this.position.y, this.position.z, this.isVisible, this.onClick);
 	};
-	Property.prototype.set = function (mats, x, y, z, isVisible) {
+	Property.prototype.set = function (mats, x, y, z, isVisible, onClick) {
 		this.position.x = x;
 		this.position.y = y;
 		this.position.z = z;
 		this.isVisible = isVisible;
 		this.materials = mats;
+    this.onClick = onClick;
 	};
 	return Property;
 })();
 var Stuff = (function () {
-	function Stuff(scene, name, size, onClick, that) {
+	function Stuff(scene, name, size, that) {
 		this.mesh = BABYLON.Mesh.CreatePlane(name, size, scene);
 		this.mesh.layerMask = 1;
-		if (onClick != null) {
+	};
+	Stuff.prototype.set = function (material, x, y, z, isVisible, onClick) {
+		this.mesh.position.x = x;
+		this.mesh.position.y = y;
+		this.mesh.position.z = z;
+    this.mesh.isVisible = isVisible;
+		this.mesh.material = material;
+    if (onClick != null) {
 			this.mesh.actionManager = new BABYLON.ActionManager(scene);
 			this.mesh.actionManager.registerAction(new BABYLON.ExecuteCodeAction(BABYLON.ActionManager.OnPickTrigger, function (evt) {
 					onClick(that);
 				}));
 		}
 	};
-	Stuff.prototype.set = function (material, x, y, z) {
-		this.mesh.position.x = x;
-		this.mesh.position.y = y;
-		this.mesh.position.z = z;
-		this.mesh.material = material;
-	};
 	return Stuff;
 })();
 var Card = (function () {
-	var SHOW1 = 0, UNFOCUSED1 = 1, FOCUSED1 = 2, DISCARD1 = 3;
-	var BACK2 = 0, SHOW2 = 1, DISCARD2 = 2;
-	function Card(scene, index, count, onClick) {
-		this.stuff = new Stuff(scene, '000' + index, 9, onClick, this);
-		
+  var INVALID = -1;
+	var EMPTY1 = 0, SHOW1 = 1, UNFOCUSED1 = 2, FOCUSED1 = 3, DISCARD1 = 4;
+	var EMPTY2 = 0, BACK2 = 1, SHOW2 = 2, DISCARD2 = 3;
+	function Card(scene, index, count) {
+		this.stuff = new Stuff(scene, '000' + index, 9, this);
+    this.next = null;
 		var mesh = this.stuff.mesh;
 		mesh.scaling.x = 0.6
 		var uv = mesh.getVerticesData(BABYLON.VertexBuffer.UVKind);
 		uv[0] = 0.2; uv[2] = 0.8; uv[4] = 0.8; uv[6] = 0.2;
 		mesh.setVerticesData(BABYLON.VertexBuffer.UVKind, uv, false);
 		
-		this.state = UNFOCUSED;
+		this.state = EMPTY1;
 		this.properties = new Array(count);
-		this.data = -1;
+		this.data = INVALID;
 	};
 	Card.prototype.invalidate = function () {
-		this.properties[this.state].invalidate(this.stuff.mesh, this.data);
+		this.properties[this.state].invalidate(this.stuff, this.data);
 	};
 	return Card;
 })();
 
 var CardGroup = (function () {
 	var MAX = 15;
-	function CardGroup(scene, mats, count, onClick) {
+	function CardGroup(scene, mats, count, xdelta) {
 		this.cards = new Array();
 		this.material = mats;
 		this.xdelta = 0;
 		this.pump = new Array();
 		this.show = new Array();
 		for (var i = 0; i < MAX; i++) {
-			var card = new Card(scene, i, count, onClick);
-			this.cards.push(card2);
+			var card = new Card(scene, i, count, xdelta);
+			this.cards.push(card);
 		}
 	};
-	CardGroup.prototype.init1 = function (state, xdelta, y, z, isVisible) {
+	CardGroup.prototype.init = function (state, xdelta, y, z, isVisible, onClick) {
 		this.xdelta = xdelta;
 		for (var i = 0; i < MAX; i++) {
-			this.cards[i].properties[state].set(this.material, xdelta * i, y, z, isVisible);
+			this.cards[i].properties[state].set(this.material, xdelta * i, y, z, isVisible, onClick);
 		}
 	};
-	CardGroup.prototype.init2 = function (state, x, y, z, isVisible) {
+	CardGroup.prototype.init2 = function (state, x, y, z, isVisible, onClick) {
 		for (var i = 0; i < MAX; i++) {
-			this.cards[i].properties[state].set(this.material, x, y, z, isVisible);
+			this.cards[i].properties[state].set(this.material, x, y, z, isVisible, onClick);
 		}
 	};
-	CardGroup.prototype.resetState = function (state) {
-		for (var i = 0; i < MAX; i++) {
+	CardGroup.prototype.reset = function (state, data) {
+    var count = data.length;
+    if( count > MAX - 1 )
+      return;
+    var i;
+		for (i = 0; i < count; i++) {
 			this.cards[i].state = state;
+      this.cards[i].data = data[i];
+		}
+    for (i = count; i < MAX; i++) {
+			this.cards[i].state = Card.EMPTY1;
+      this.cards[i].data = Card.INVALID;
 		}
 	};
-	CardGroup.prototype.resetData = function (data) {
-		for (var i = 0; i < MAX; i++) {
-			this.cards[i].data = data;
+  CardGroup.prototype.cancel = function (state, origin) {
+    for (var i = count; i < MAX; i++) {
+      if( this.cards[i].state == state )
+        this.cards[i].state = origin;
 		}
-	};
-	CardGroup.prototype.setStateByArray = function (a) {
-		if( a.length != MAX )
-			return;
-		for (var i = 0; i < MAX; i++) {
-			this.cards[i].state = a[i];
-		}
-	};
-	CardGroup.prototype.setDataByArray = function (a) {
-		if( a.length != MAX )
-			return;
-		for (var i = 0; i < MAX; i++) {
-			this.cards[i].data = a[i];
-		}
-	};
+  };
 	CardGroup.prototype.hasPong = function (data) {
 		this.pump.splice(0,this.pump.length);
 		for (var key in this.cards) {
@@ -154,14 +147,15 @@ var CardGroup = (function () {
 		}
 		return c == MAX - 1;  //include discard card in desktop
 	};
-	CardGroup.prototype.getDiscard = function () {
-		for (var key in this.cards) {
-			if( this.cards[key].state == Card.DISCARD2 ) 
-				return this.cards[key];
-		}
-		return null;
+  CardGroup.prototype.collect = function (state) {
+    var tail = null;
+		for (var i = 0 ; i < this.cards.length ; i ++ ) {
+      if( this.cards[i].state == state ) {
+        if( 
+      }
+    }
 	};
-	CardGroup.prototype.invalidate = function (show, unfocused, focus) {
+	CardGroup.prototype.invalidate = function () {
 		var c = 0, d = 0;
 		for (var i = 0 ; i < this.cards.length ; i ++ ) {
 			var state = this.cards[i].state;
@@ -208,28 +202,28 @@ var Layout = (function () {
 			};
 		});
 		loader.onFinish = function () {
-			_this.myCards = new CardGroup(scene, _this.mats, 5, this.cardOnClick);
-			_this.myCards.init1(Card.UNFOCUSED1, 6, -25, 0, true);
-			_this.myCards.init1(Card.FOCUSED1, 6, -22, 0, true);
-			_this.myCards.init1(Card.SHOW1, 6, -15, 0, true);
-			_this.myCards.init2(Card.DISCARD1, 6 * 3, -5, 10, false);
+			_this.myCards = new CardGroup(scene, _this.mats, 5);
+      _this.myCards.init(Card.EMPTY1, _this.mats, 0, 0, 0, false, null);
+			_this.myCards.init(Card.UNFOCUSED1, 6, -25, 0, true, this.cardOnClick);
+			_this.myCards.init(Card.FOCUSED1, 6, -22, 0, true, this.cardOnClick);
+			_this.myCards.init(Card.SHOW1, 6, -15, 0, true, null);
+			_this.myCards.init2(Card.DISCARD1, 6 * 3, -5, 10, true, null);
 			
-			_this.hisCards = new CardGroup(scene, _this.mats, 4, null);
-			_this.hisCards.init1(Card.BACK2, _this.mats, 6, 25, 0, true);
-			_this.hisCards.init1(Card.SHOW2, _this.mats, 6, 15, 0, true);
-			_this.hisCards.init2(Card.DISCARD2, _this.mats, 6 * 3, 5, 10, false);
-			
-			_this.invalidate();
+			_this.hisCards = new CardGroup(scene, _this.mats, 4);
+      _this.hisCards.init(Card.EMPTY2, 0, 0, 0, false, null);
+			_this.hisCards.init(Card.BACK2, 6, 25, 0, true, null);
+			_this.hisCards.init(Card.SHOW2, 6, 15, 0, true, null);
+			_this.hisCards.init2(Card.DISCARD2, 6 * 3, 5, 10, true, this.cardOnClick);
 		};
 		
 		var mat = new BABYLON.StandardMaterial('desktop', scene);
 		mat.specularColor = new BABYLON.Color3(0, 0, 0);
 		mat.diffuseColor = new BABYLON.Color3(35 / 255.0, 116 / 255.0, 172 / 255.0);
-		this.desktop = new Stuff(scene, 'desktop', 500, this.desktopOnClick, this.desktop);
-		this.desktop.set(mat, 0, 0, 10);
+		this.desktop = new Stuff(scene, 'desktop', 500, this.desktop);
+		this.desktop.set(mat, 0, 0, 10, this.desktopOnClick);
 	};
 	Layout.prototype.desktopOnClick = function (that) {
-		this.myCards.resetState(Card.UNFOCUSED1)
+		this.myCards.cancel(Card.FOCUSED1, Card.UNFOCUSED1);
 		this.invalidate();
 	};
 	Layout.prototype.cardOnClick = function (that) {
@@ -257,24 +251,13 @@ var Layout = (function () {
 		this.go.command(cmd, id);
 	};
 	Layout.prototype.deal = function (cards) {
-		if( cards.length == MAX ) {
-			this.myCards.resetState(Card.UNFOCUSED1);
-			this.myCards.setDataByArray(cards);
-
-			this.hisCards.resetState(Card.BACK2);
-			this.hisCards.cards[MAX-1].state = Card.EMPTY2;
-			this.hisCards.resetData(0);
+    this.myCards.reset(Card.UNFOCUSED1, cards);
+		if( cards.length == CardGroup.MAX - 1 ) {
+			this.hisCards.reset(Card.BACK2, [0,0,0,0,0,0,0,0,0,0,0,0,0]);
 		}
-		else if ( cards.length == MAX-1 ) {
-			cards.push(0);
-			this.myCards.resetState(Card.UNFOCUSED1);
-			this.myCards.setDataByArray(cards);
-			this.myCards.cards[MAX-1].state = Card.EMPTY1;
-			
-			this.hisCards.resetState(Card.BACK2);
-			this.hisCards.resetData(0);
+		else if ( cards.length == CardGroup.MAX - 2 ) {
+			this.hisCards.reset(Card.BACK2, [0,0,0,0,0,0,0,0,0,0,0,0,0,0]);
 		}
-		this.myCards.number = cards.length;
 		this.invalidate();
 	};
 	Layout.prototype.invalidate = function () {
