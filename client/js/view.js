@@ -280,15 +280,11 @@
 	function Buttons() {
 		this.draw = null;
 		this.who = null;
-		this.resume = null; // continue
-		this.exit = null;
 		//this.ai = null;
 		this.yo = null;
 		this.reset = function () {
 			this.draw.isVisible = false;
 			this.who.isVisible = false;
-			this.resume.isVisible = false;
-			this.exit.isVisible = false;
 			//this.ai.isVisible = false;
 			this.yo.isVisible = false;
 			this.draw.isVisible = false;
@@ -320,41 +316,11 @@
 			_this.who = createOO(scene, 'who', 6 * (MAX - 6), 0, 0, true, CARDSIZE);
 			_this.who.material = that.cardMats[twho];
 			_this.who.actionManager.registerAction(new BABYLON.ExecuteCodeAction(BABYLON.ActionManager.OnPickTrigger, function (evt) { // draw card
-					/*if (that.isWinning) {
-						//_this.ai.isVisible = true;
-						//_this.ai.material = that.cardMats[tai];
-						_this.yo.isVisible = true;
-						_this.yo.material = that.cardMats[twin];
-
-						_this.resume.isVisible = true;
-						_this.exit.isVisible = true;
-					}
-					_this.who.isVisible = false;
-					_this.draw.isVisible = false;
-					that.hiscards.needUpdate = true;
-					that.hiscards.data.cards = that.tmp;*/
 					that.command(WHO, 0);
 					//that.invalidate();
 				}));
 
 			//----------------------------for who------------------------
-			_this.resume = createOO(scene, 'resume', 6 * 12, 10, 2, true, CARDSIZE - 3);
-			_this.resume.material = that.cardMats[tcont];
-			_this.resume.actionManager.registerAction(new BABYLON.ExecuteCodeAction(BABYLON.ActionManager.OnPickTrigger, function (evt) {
-					_this.reset();
-					that.reset();
-					that.command(CONTINUE, 0);
-					that.invalidate();
-				}));
-
-			_this.exit = createOO(scene, 'exit', 6 * 12, -10, 2, true, CARDSIZE - 3);
-			_this.exit.material = that.cardMats[texit];
-			_this.exit.actionManager.registerAction(new BABYLON.ExecuteCodeAction(BABYLON.ActionManager.OnPickTrigger, function (evt) { // draw card
-					_this.reset();
-					that.reset();
-					that.command(EXIT, 0);
-					that.invalidate();
-				}));
 
 			//_this.ai = createOO(scene, 'ai', 6 * 3, 0, 2, false, CARDSIZE * 4);
 
@@ -450,8 +416,9 @@
 				_this.yo.isVisible = true;
 				_this.yo.material = this.cardMats[twin];
 				
-				_this.resume.isVisible = true;
-				_this.exit.isVisible = true;
+				this.exitIcon.setVisible(true);
+				this.resumeIcon.setVisible(true);
+				
 				this.hiscards.data.cards = hiscards;
 			}else {
 				var _this = this.buttons;
@@ -460,8 +427,9 @@
 				_this.yo.isVisible = true;
 				_this.yo.material = this.cardMats[tloss];
 				
-				_this.resume.isVisible = true;
-				_this.exit.isVisible = true;
+				this.exitIcon.setVisible(true);
+				this.resumeIcon.setVisible(true);
+				
 				this.hiscards.data.cards = hiscards;
 			}
 			
@@ -563,15 +531,39 @@
 			this.hisChip.scaling(new BABYLON.Vector3(128, 32, 1));	
 
 			var onExit = this.onExit;
+			var _this = this;
 			var exit = new BABYLON.Texture('./asserts/Mahjong/exit.png', this.scene, false, true, BABYLON.Texture.BILINEAR_SAMPLINGMODE,
 				function(){
-					var exitIcon = new bGUI.GUIPanel("hisChipIcon", exit, null, gui);
-					exitIcon.relativePosition(new BABYLON.Vector3(0.9, 0.1, 0));
-					exitIcon.scaling(new BABYLON.Vector3(50.0, 50.0, 1.0));
-					exitIcon.onClick = function() {
+					_this.exitIcon = new bGUI.GUIPanel("hisChipIcon", exit, null, gui);
+					_this.exitIcon.relativePosition(new BABYLON.Vector3(0.9, 0.1, 0));
+					_this.exitIcon.scaling(new BABYLON.Vector3(50.0, 50.0, 1.0));
+					_this.exitIcon.onClick = function() {
+						_this.reset();
+						_this.command(EXIT, 0);
+						_this.invalidate();
 						if( onExit != null )
 							onExit();
-					};					
+					};	
+						
+					setTimeout(function(){
+						_scene.render();
+					}, 1);
+				});
+			var onResume = this.onResume;
+			var resume = new BABYLON.Texture('./asserts/Mahjong/exit.png', this.scene, false, true, BABYLON.Texture.BILINEAR_SAMPLINGMODE,
+				function(){
+					_this.resumeIcon = new bGUI.GUIPanel("hisChipIcon", resume, null, gui);
+					_this.resumeIcon.relativePosition(new BABYLON.Vector3(0.8, 0.1, 0));
+					_this.resumeIcon.scaling(new BABYLON.Vector3(50.0, 50.0, 1.0));
+					_this.resumeIcon.setVisible(false);
+					_this.resumeIcon.onClick = function() {
+						_this.reset();
+						_this.command(CONTINUE, 0);
+						_this.invalidate();
+						if( onResume != null )
+							onResume();
+					};	
+						
 					setTimeout(function(){
 						_scene.render();
 					}, 1);
