@@ -6,6 +6,7 @@ import com.jiexx.aiyou.comm.Util;
 import com.jiexx.aiyou.message.Ack;
 import com.jiexx.aiyou.message.Command;
 import com.jiexx.aiyou.message.DiscardAck;
+import com.jiexx.aiyou.message.DrawAck;
 import com.jiexx.aiyou.message.HuAck;
 import com.jiexx.aiyou.message.Message;
 import com.jiexx.aiyou.message.PongchiAck;
@@ -48,8 +49,6 @@ public class GoingPlayer extends State{
 			DiscardAck self = new DiscardAck();
 			self.cmd = Command.DISCARD.val();
 			self.disc = (byte) msg.opt;
-			self.deal = cards.cards[++cards.pos];
-			self.hu = cards.hu(handcards, self.disc);
 			GameService.instance.sendMessage(getRound().endPoint(endPoint), gson.toJson(self));
 		}
 		else if( msg.cmd == Command.DISCARD_PONG.val()  ){
@@ -84,18 +83,16 @@ public class GoingPlayer extends State{
 				GameService.instance.sendMessage(getRound().endPoint(endPoint.opponent()), gson.toJson(other));
 			}
 		}
-		else if( msg.cmd == Command.DISCARD_DRAW.val() ){
-			if( msg.opt ==  cards.cards[cards.pos] ) {				
-				DiscardAck self = new DiscardAck();
-				self.cmd = Command.DISCARD_DRAW.val();
-				self.deal = cards.cards[cards.pos];
-				self.hu = cards.hu(handcards, self.deal );
-				System.out.println("DISCARD_DRAW "+cards.pos+" "+self.deal);
-				GameService.instance.sendMessage(getRound().endPoint(endPoint), gson.toJson(self));
-				
-				int pos = Util.insBytes(handcards,  (byte) msg.opt);
-				handcards.add(pos, (byte) msg.opt);
-			}
+		else if( msg.cmd == Command.DISCARD_DRAW.val() && getRound().getHand( msg.uid ) == endPoint ){		
+			DrawAck self = new DrawAck();
+			self.cmd = Command.DISCARD_DRAW.val();
+			self.deal = cards.cards[++cards.pos];
+			self.hu = cards.hu(handcards, self.deal );
+			System.out.println("DISCARD_DRAW "+cards.pos+" "+self.deal);
+			GameService.instance.sendMessage(getRound().endPoint(endPoint), gson.toJson(self));
+			
+			int pos = Util.insBytes(handcards,  (byte) msg.opt);
+			handcards.add(pos, (byte) msg.opt);
 		}
 		System.out.println("GoingPlayer Enter   "+msg.cmd + " :" + getRound().getHand( msg.uid ).toString() +handcards.toString());
 	}
