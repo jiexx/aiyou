@@ -80,6 +80,7 @@ var CardGroup = (function () {
 	function CardGroup(scene, mats, count) {
 		this.cards = new Array();
 		this.material = mats;
+		this.pump = new Array();
 		for( var i = 0 ; i < MAX ; i ++ ) {
 			this.cards.push( new Card(scene, 0, count) );
 		}
@@ -148,12 +149,17 @@ var CardGroup = (function () {
 		return false;
 	};
 	CardGroup.prototype.tryPong = function (card) {
-		if( 
+		this.pump.splice(0, this.pump.length);
 		for (var key in this.cards) {
-			if (this.cards[key].state == Card.FOCUSED1 && this.cards[key].data == data)
-				this.pump.push(this.cards[key]);
+			if (this.cards[key].state == Card.FOCUSED1 && this.cards[key].data == card.data)
+				this.pump.push( key );
 		}
-		return this.pump.length == 2;
+		if( this.pump.length == 2 && this.cards[DRAWINDEX].isEmpty() ) {
+			this.cards[this.pump[0]].state = Card.SHOW1;
+			this.cards[this.pump[1]].state = Card.SHOW1;
+			this.cards[DRAWINDEX].state = Card.SHOW1;
+			this.cards[DRAWINDEX].data = data;
+		}
 	};
 	CardGroup.prototype.discard = function (data) {
 		if( !this.cards[DRAWINDEX].isEmpty() ) {
