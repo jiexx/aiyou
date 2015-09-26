@@ -80,7 +80,6 @@ var CardGroup = (function () {
 	function CardGroup(scene, mats, count) {
 		this.cards = new Array();
 		this.material = mats;
-		this.pump = new Array();
 		for( var i = 0 ; i < MAX ; i ++ ) {
 			this.cards.push( new Card(scene, 0, count) );
 		}
@@ -112,7 +111,15 @@ var CardGroup = (function () {
 	CardGroup.prototype.find = function (data) {
 		var i;
 		for (i = 0; i < DRAWINDEX; i++) {
-			if (data >= this.cards[i].data)
+			if (data <= this.cards[i].data)
+				break;
+		}
+		return i;
+	};
+  CardGroup.prototype.seek = function (data) {
+		var i;
+		for (i = 0; i < DRAWINDEX; i++) {
+			if (data == this.cards[i].data)
 				break;
 		}
 		return i;
@@ -126,10 +133,12 @@ var CardGroup = (function () {
 	};
 	CardGroup.prototype.tryDraw = function (data) {
 		if( this.cards[DRAWINDEX].isEmpty() ) {
-			this.cards[DRAWINDEX].state = Card.UNFOCUSED1;
-			this.cards[DRAWINDEX].data = data;
+      var card = this.cards[DRAWINDEX];
+			card.state = Card.UNFOCUSED1;
+			card.data = data;
 			var i = this.find(data);
-			this.cards.splice(i, 0, this.cards[DRAWINDEX]);
+      this.cards.splice(DRAWINDEX, 1);
+			this.cards.splice(i, 0, card);
 			return true;
 		}
 		return false;
@@ -148,75 +157,84 @@ var CardGroup = (function () {
 		}
 		return false;
 	};
-	CardGroup.prototype.tryPong = function (card) {
-		this.pump.splice(0, this.pump.length);
-		for (var key in this.cards) {
-			if (this.cards[key].state == Card.FOCUSED1 && this.cards[key].data == card.data)
-				this.pump.push( key );
+  CardGroup.prototype.hisDiscard = function () {
+    return this.cards[DISCARDINDEX];
+  };
+	CardGroup.prototype.tryPong = function (that) {
+		if( this.cards[DRAWINDEX].isEmpty() ) {
+			var i = this.find(that.data);
+      if( this.cards[i].data == that.data && this.cards[i].state == Card.FOCUSED1 && this.cards[i+1].data == that.data && this.cards[i+1].state == Card.FOCUSED1){
+        var card = this.cards[DRAWINDEX];
+        card.state = Card.SHOW1;
+        card.data = data;
+        this.cards.splice(DRAWINDEX, 1);
+        this.cards.splice(i, 0, card);
+        this.cards[i+1].state = Card.SHOW1;
+        this.cards[i+2].state = Card.SHOW1;
+        return true;
+      }
 		}
-		if( this.pump.length == 2 && this.cards[DRAWINDEX].isEmpty() ) {
-			this.cards[this.pump[0]].state = Card.SHOW1;
-			this.cards[this.pump[1]].state = Card.SHOW1;
-			this.cards[DRAWINDEX].state = Card.SHOW1;
-			this.cards[DRAWINDEX].data = data;
+		return false;
+	};
+  CardGroup.prototype.eat = function(i, j, k) {
+		var a;
+		if (i > j) {
+			a = i; i = j;	j = a;
 		}
+		if (j > k) {
+			a = k; k = j;	j = a;
+		}
+    if (i > j) {
+			a = i; i = j;	j = a;
+		}
+		if (i + 1 == j && j + 1 == k)
+			if ((i >= 8 && k <= 16) || (i >= 17 && k <= 25) || (i >= 26 && k <= 34))
+				return true;
+		return false;
+	};
+  CardGroup.prototype.tryCi = function (that) {
+		if( this.cards[DRAWINDEX].isEmpty() ) {
+			var i = this.find(data);
+      if( i > 0 && this.eat( this.cards[i-1].data, that.data, this.cards[i].data ) && this.cards[i-1].state = Card.FOCUSED1 && this.cards[i].state = Card.FOCUSED1){
+        var card = this.cards[DRAWINDEX];
+        card.state = Card.SHOW1;
+        card.data = data;
+        this.cards.splice(DRAWINDEX, 1);
+        this.cards.splice(i, 0, card);
+        this.cards[i-1].state = Card.SHOW1;
+        this.cards[i+1].state = Card.SHOW1;
+        return true;
+      }
+		}
+		return false;
 	};
 	CardGroup.prototype.discard = function (data) {
 		if( !this.cards[DRAWINDEX].isEmpty() ) {
 			this.cards[DISCARDINDEX].state = Card.DISCARD2;
 			this.cards[DISCARDINDEX].data = data;
 			this.cards[DRAWINDEX].state = Card.EMPTY1;
+      return true;
 		}
 		return false;
 	};
 	CardGroup.prototype.draw = function () {
 		if( this.cards[DRAWINDEX].isEmpty() ) {
 			this.cards[DRAWINDEX].state = Card.BACK2;
+      return true;
 		}
 		return false;
 	};
-	
-
-	CardGroup.prototype.hasChi = function (data) {
-		this.pump.splice(0, this.pump.length);
-		for (var key in this.cards) {
-			if (this.cards[key].state == Card.FOCUSED1)
-				this.pump.push(this.cards[key]);
-		}
-		if (this.pump.length == 2) {
-			if (this.pump[0].data - 1 == data && data == this.pump[1].data + 1)
-				return true;
-		}
-		return false;
-	};
-	CardGroup.prototype.pong = function () {
-		for (var key in this.pump) {
-			this.pump[key].state = Card.SHOW1;
-		}
-		var card = new Card(scene, cards.length, 1, null);
-		card.properties[Card.SHOW1].set(mat, 0, y, z, isVisible);
-		this.cards.push(card2);
-	};
-	CardGroup.prototype.chi = function () {
-		for (var key in this.pump) {
-			this.pump[key].state = Card.SHOW1;
-		}
-	};
-	
-	
-	CardGroup.prototype.tryPongci = function (d1, d2) {
-		if( this.dataSet.length == MAX - 1 ) {
-			for (var i = 0; i < this.dataSet.length; i++) {
-				if(this.dataSet[i] == d1 ) {
-					this.dataSet.splice(i, 1);
-					d1 = 0;
-				}else if( this.dataSet[i] == d2 ) {
-					this.dataSet.splice(i, 1);
-					d2 = 0;
-				}
-			}
-			if( d1 == 0 && d2 == 0 ) 
-				return true;
+  CardGroup.prototype.pongci = function (disc1, disc2, disc3) {
+		if( this.cards[DRAWINDEX].isEmpty() ) {
+      this.cards[DRAWINDEX].state = Card.BACK2;
+			var i = this.seek(0);
+      this.cards[i].state = Card.SHOW1;
+      this.cards[i+1].state = Card.SHOW1;
+      this.cards[i+2].state = Card.SHOW1;
+      this.cards[i].data = disc1;
+      this.cards[i+1].data = disc2;
+      this.cards[i+2].data = disc3;
+      return true;
 		}
 		return false;
 	};
@@ -255,7 +273,7 @@ var CardGroup = (function () {
 })();
 
 var Layout = (function () {
-
+  //'back'  card.data = 0
 	var asserts = ['back', 'east', 'west', 'south', 'north', 'zhong', 'fa', 'bai', 'dot1', 'dot2', 'dot3', 'dot4', 'dot5', 'dot6', 'dot7', 'dot8', 'dot9',
 		'Bamboo1', 'Bamboo2', 'Bamboo3', 'Bamboo4', 'Bamboo5', 'Bamboo6', 'Bamboo7', 'Bamboo8', 'Bamboo9',
 		'Char1', 'Char2', 'Char3', 'Char4', 'Char5', 'Char6', 'Char7', 'Char8', 'Char9', ];
@@ -309,24 +327,28 @@ var Layout = (function () {
 	Layout.prototype.cardOnClick = function (that) {
 		if (that.state == Card.UNFOCUSED1) {
 			that.state = Card.FOCUSED1;
-		} else if (that.state == Card.FOCUSED1 && this.myCards.canDiscard()) {
-			that.state = Card.DISCARD1;
-			this.notify(DISCARD, that.data);
-		} else if (that.state == Card.FOCUSED1 || that.state == Card.DISCARD2) {
-			if (this.hisCards.getDiscard().data == that.data && this.myCards.hasPong(that.data)) {
-				this.myCards.pong();
-				this.notify(DISCARD_PONG, that.data);
-			}
+		} else if (that.state == Card.FOCUSED1) {
+      if(myCards.tryDiscard(that)) 
+        this.notify(DISCARD, that.data);
+      else if(myCards.tryPong( this.hisCards.hisDiscard() ))
+        this.notify(DISCARD_PONG, that.data);
+      else if(myCards.tryCi( this.hisCards.hisDiscard() ))
+        this.notify(DISCARD_CHI, that.data);
 		}
 		this.invalidate();
 	};
-	Layout.prototype.discard = function (data) { // only for his
-		
+	Layout.prototype.heDiscard = function (data) { // only for his
+		this.hisCards.discard(data);
+	};
+  Layout.prototype.heDraw = function (data) { // only for his
+		this.hisCards.draw(data);
+	};
+  Layout.prototype.hePongci = function (disc1, disc2, disc3) { // only for his
+		this.hisCards.pongci(disc1, disc2, disc3);
 	};
 	Layout.prototype.draw = function (data) {
-		if( this.myCards.tryDraw() ) {
+		if( this.myCards.tryDraw(data) )
 			this.notify(cmd, id);
-		}
 	};
 	Layout.prototype.notify = function (cmd, id) {
 		console.log("layout notify: " + cmd + " " + cardid);
