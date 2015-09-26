@@ -48,10 +48,7 @@ var Card = (function () {
 		var mesh = this.stuff.mesh;
 		mesh.scaling.x = 0.6;
 		var uv = mesh.getVerticesData(BABYLON.VertexBuffer.UVKind);
-		uv[0] = 0.2;
-		uv[2] = 0.8;
-		uv[4] = 0.8;
-		uv[6] = 0.2;
+		uv[0] = 0.2;		uv[2] = 0.8;		uv[4] = 0.8;		uv[6] = 0.2;
 		mesh.setVerticesData(BABYLON.VertexBuffer.UVKind, uv, false);
 
 		this.state = EMPTY1;
@@ -76,9 +73,12 @@ var Card = (function () {
 
 var CardGroup = (function () {
 	var MAX = 15;  // include one discard card;
-	var DRAWINDEX = MAX - 2, DISCARDINDEX = MAX - 1;
+	var STARTTIME = 0, DISCARDTIME = 1, DRAWTIME = 2;
 	function CardGroup(scene, mats, count) {
 		this.cards = new Array();
+    this.drop = null;
+    this.pick = null;
+    this.state = STARTTIME;
 		this.material = mats;
 		for( var i = 0 ; i < MAX ; i ++ ) {
 			this.cards.push( new Card(scene, 0, count) );
@@ -89,18 +89,44 @@ var CardGroup = (function () {
 			this.cards[i].properties[state].set(this.material, xdelta, y, z, isVisible, onClick);
 		}
 	};
+  CardGroup.prototype.nextState = function(count) (
+    if(this.state == STARTTIME) {
+      if( count == MAX - 2 ) {
+        this.state = DRAWTIME;
+        this.pick = this.cards[MAX-2];
+        this.drop = this.cards[MAX-1];
+      }else if( count == MAX - 1 ) {
+        this.state = DISCARDTIME;
+        this.pick = null;
+        this.drop = this.cards[MAX-1];
+      }else{
+        return false;
+      }
+    }else if(this.state == DISCARDTIME) {
+      if( this.pick == null || this.pick.state != Card.EMPTY1)
+        this.state = DRAWTIME;
+      else
+        return false;
+    }else if(this.state == DRAWTIME) {
+      if( this.pick != null && this.pick.state == Card.EMPTY1 )
+        this.state = DISCARDTIME;
+      else
+        return false;
+    }
+    return true;
+  }
 	CardGroup.prototype.reset = function (state, data) {
-		var count = data.length;
-		if( count != MAX - 2 || count != MAX - 1 )
-			return;
-		var i;
-		for (i = 0; i < count; i++) {
-			this.cards[i].state = state;
-			this.cards[i].data = data[i];
-		}
-		for (i = count; i < MAX; i++) {
-			this.cards[i].reset();
-		}
+    var count = data.length;
+    if(this.nextState(count)){
+      var i ;
+      for (i = 0; i < count; i++) {
+        this.cards[i].state = state;
+        this.cards[i].data = data[i];
+      }
+      for (i = count; i < MAX; i++) {
+        this.cards[i].reset();
+      }
+    }
 	};
 	CardGroup.prototype.replace = function (src, dst) {
 		for (var i = 0; i < MAX; i++) {
@@ -108,72 +134,61 @@ var CardGroup = (function () {
 				this.cards[i].state = dst;
 		}
 	};
-	CardGroup.prototype.find = function (data) {
+	CardGroup.prototype.findState = function (index, state) {
 		var i;
-		for (i = 0; i < DRAWINDEX; i++) {
-			if (data <= this.cards[i].data)
+		for (i = index; i < MAX; i++) {
+			if (state == this.cards[i].state)
 				break;
 		}
-		return i;
+    if( i != MAX )
+      return i;
+    else
+      return -1;
 	};
-  CardGroup.prototype.seek = function (data) {
+  CardGroup.prototype.findBack = function (data) {
 		var i;
 		for (i = 0; i < DRAWINDEX; i++) {
-			if (data == this.cards[i].data)
+			if (Card.BACK2 == this.cards[i].state)
 				break;
 		}
-		return i;
+		if( i != MAX )
+      return i;
+    else
+      return -1;
 	};
-	CardGroup.prototype.indexOf = function (card) {
-		for (var i = 0; i < DRAWINDEX; i++) {
-			if (card == this.cards[i])
-				return i;
-		}
-		return -1;
-	};
+  CardGroup.prototype.hisDiscard = function () {
+    return this.drop;
+  };
 	CardGroup.prototype.tryDraw = function (data) {
-		if( this.cards[DRAWINDEX].isEmpty() ) {
-      var card = this.cards[DRAWINDEX];
-			card.state = Card.UNFOCUSED1;
-			card.data = data;
-			var i = this.find(data);
-      this.cards.splice(DRAWINDEX, 1);
-			this.cards.splice(i, 0, card);
+		if(this.state == DRAWTIME && this.nextState(0)) {
+      this.pick.state = Card.UNFOCUSED1;
+      this.pick.data = data;
 			return true;
 		}
 		return false;
 	};
 	CardGroup.prototype.tryDiscard = function (that) {
-		if( !this.cards[DRAWINDEX].isEmpty() ) {
-			this.cards[DISCARDINDEX].state = Card.DISCARD1;
-			this.cards[DISCARDINDEX].data = that.data;
-			var i = this.indexOf(that);
-			if( i > 0 ) {
-				this.cards.splice(i, 1);
-				that.state = Card.EMPTY1;
-				this.cards.push(that);
-				return true;
-			}
+		if(this.state == DISCARDTIME && this.nextState(0)) {
+      this.drop.state = Card.DISCARD1;
+      this.drop.data = that.data;
+      this.pick = that;
+      this.pick.state = Card.EMPTY1;
+      return true;
 		}
 		return false;
 	};
-  CardGroup.prototype.hisDiscard = function () {
-    return this.cards[DISCARDINDEX];
-  };
 	CardGroup.prototype.tryPong = function (that) {
-		if( this.cards[DRAWINDEX].isEmpty() ) {
-			var i = this.find(that.data);
-      if( this.cards[i].data == that.data && this.cards[i].state == Card.FOCUSED1 && this.cards[i+1].data == that.data && this.cards[i+1].state == Card.FOCUSED1){
-        var card = this.cards[DRAWINDEX];
-        card.state = Card.SHOW1;
-        card.data = data;
-        this.cards.splice(DRAWINDEX, 1);
-        this.cards.splice(i, 0, card);
-        this.cards[i+1].state = Card.SHOW1;
-        this.cards[i+2].state = Card.SHOW1;
+    var i = this.findState(0, Card.FOCUSED1);
+    var j = this.findState(i+1, Card.FOCUSED1);
+    if( i > -1 && j > -1 && this.cards[i].data == that.data && this.cards[j].data == that.data){
+      if(this.state == DRAWTIME && this.nextState(0)) {
+        this.pick.state = Card.SHOW1;
+        this.pick.data = data;
+        this.cards[i].state = Card.SHOW1;
+        this.cards[j].state = Card.SHOW1;
         return true;
       }
-		}
+    }
 		return false;
 	};
   CardGroup.prototype.eat = function(i, j, k) {
@@ -193,53 +208,54 @@ var CardGroup = (function () {
 		return false;
 	};
   CardGroup.prototype.tryCi = function (that) {
-		if( this.cards[DRAWINDEX].isEmpty() ) {
-			var i = this.find(data);
-      if( i > 0 && this.eat( this.cards[i-1].data, that.data, this.cards[i].data ) && this.cards[i-1].state = Card.FOCUSED1 && this.cards[i].state = Card.FOCUSED1){
-        var card = this.cards[DRAWINDEX];
-        card.state = Card.SHOW1;
-        card.data = data;
-        this.cards.splice(DRAWINDEX, 1);
-        this.cards.splice(i, 0, card);
-        this.cards[i-1].state = Card.SHOW1;
-        this.cards[i+1].state = Card.SHOW1;
+    var i = this.findState(0, Card.FOCUSED1);
+    var j = this.findState(i+1, Card.FOCUSED1);
+    if( i > -1 && j > -1 && this.eat( this.cards[i].data, that.data, this.cards[j].data )){
+      if(his.state == DRAWTIME && this.nextState(0)) {
+			  this.pick.state = Card.SHOW1;
+        this.pick.data = data;
+        this.cards[i].state = Card.SHOW1;
+        this.cards[j].state = Card.SHOW1;
         return true;
       }
 		}
 		return false;
 	};
 	CardGroup.prototype.discard = function (data) {
-		if( !this.cards[DRAWINDEX].isEmpty() ) {
-			this.cards[DISCARDINDEX].state = Card.DISCARD2;
-			this.cards[DISCARDINDEX].data = data;
-			this.cards[DRAWINDEX].state = Card.EMPTY1;
+		if(this.state == DISCARDTIME && this.nextState(0)) {
+      this.drop.state = Card.DISCARD2;
+      this.drop.data = data;
+      this.pick.state = Card.EMPTY1;
       return true;
 		}
 		return false;
 	};
 	CardGroup.prototype.draw = function () {
-		if( this.cards[DRAWINDEX].isEmpty() ) {
-			this.cards[DRAWINDEX].state = Card.BACK2;
+		if(this.state == DRAWTIME && this.nextState(0)) {
+      this.pick.state = Card.BACK2;
       return true;
 		}
 		return false;
 	};
   CardGroup.prototype.pongci = function (disc1, disc2, disc3) {
-		if( this.cards[DRAWINDEX].isEmpty() ) {
-      this.cards[DRAWINDEX].state = Card.BACK2;
-			var i = this.seek(0);
-      this.cards[i].state = Card.SHOW1;
-      this.cards[i+1].state = Card.SHOW1;
-      this.cards[i+2].state = Card.SHOW1;
+		if(this.state == DRAWTIME && this.nextState(0)) {
+      this.pick.state = Card.BACK2;
+			var i = this.findBack();
       this.cards[i].data = disc1;
       this.cards[i+1].data = disc2;
       this.cards[i+2].data = disc3;
+      this.cards[i].state = Card.SHOW1;
+      this.cards[i+1].state = Card.SHOW1;
+      this.cards[i+2].state = Card.SHOW1;
       return true;
 		}
 		return false;
 	};
 	CardGroup.prototype.hisUpdate = function () {
 		var c = 0, d = 0;
+    this.cards.sort(function(a,b){
+      return a.data - b.data;  
+    });
 		for (var i = 0; i < this.cards.length; i++) {
 			if (this.cards[i].state == Card.BACK2) {
 				this.cards[i].sequence = c ;
@@ -250,13 +266,14 @@ var CardGroup = (function () {
 				d ++;
 				
 			}
-			else if (this.cards[i].state == Card.DISCARD2) {
-			}
 			this.cards[i].invalidate();
 		}
 	};
 	CardGroup.prototype.myUpdate = function () {
 		var c = 0, d = 0;
+    this.cards.sort(function(a,b){
+      return a.data - b.data;  
+    });
 		for (var i = 0; i < this.cards.length; i++) {
 			if (this.cards[i].state == Card.FOCUSED1 || this.cards[i].state == Card.UNFOCUSED1) {
 				this.cards[i].sequence = c ;
