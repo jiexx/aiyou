@@ -289,6 +289,82 @@ var CardGroup = (function () {
 	return CardGroup;
 })();
 
+var Image = (function () {
+  function Image(src, xsize, ysize, xper, yper) {
+    this.src = src;
+    this.sizex = xsize;
+    this.sizey = ysize;
+    this.perx = xper;
+    this.pery = yper;
+    this.obj = null;
+  };
+  return Image;
+})();
+var GuiLayer = (function () {
+  function GuiLayer(scene) {
+    this.gui = new bGUI.GUISystem(this.scene, 1200, 780);
+    this.txtObjs = new Array();
+    this.img64Objs = new Array();
+    this.asserts = new Array();
+  };
+  GuiLayer.prototype.drawText = function (str, xper, yper, style, clr) {
+    if(style == undefined || style == null)
+      style = "16px Segoe UI";
+    if(clr == undefined || clr == null)
+      clr = "#cecb7a";
+    var id = this.txtObjs.length;
+    var obj = new bGUI.GUIText(""+id, 128, 32, {font:style, text:str, color:clr}, this.gui);
+    obj.relativePosition(new BABYLON.Vector3(xper, yper, -1000));
+		obj.scaling(new BABYLON.Vector3(128, 32, 1));
+    this.txtObjs.push(obj);
+    return id;
+  };
+  GuiLayer.prototype.dropText = function(index) {
+    var obj = this.txtObjs[index];
+    if( obj != null );
+      obj.dispose();
+    this.txtObjs[index] = null;
+  };
+  GuiLayer.prototype.draw64Image = function (src, xper, yper, xsize, ysize) {
+    var id = this.img64Objs.length;
+    var _this = this;
+    var t = BABYLON.Texture.CreateFromBase64String(src, ""+id, this.gui._scene, false, true, BABYLON.Texture.BILINEAR_SAMPLINGMODE, 
+				function(){
+					var a = new bGUI.GUIPanel(""+id, t, null, _this.gui);
+					a.relativePosition(new BABYLON.Vector3(0.1, 0.1, 0));
+					a.scaling(new BABYLON.Vector3(25.0, 25.0, 1.0));
+          _this.img64Objs.push(new Image(src, xsize, ysize, xper, yper));
+				});
+    
+    return id;
+  };
+  GuiLayer.prototype.addImage = function (src, xper, yper, xsize, ysize) {
+    var id = this.asserts.length;
+    this.asserts.push(new Image(src, xsize, ysize, xper, yper));
+    return id;
+  };
+  GuiLayer.prototype.dropImage = function(index) {
+    var obj = this.asserts[index].obj;
+    if( obj != null );
+      obj.dispose();
+    this.asserts[index].obj = null;
+  };
+  GuiLayer.prototype.draw = function () {
+    var _this = this;
+    var asserts = this.asserts;
+    for (var key in asserts) {
+			var img = loader.addTextureTask(key, './asserts/Mahjong/' + asserts[key].src + '.png');
+			img.onSuccess = function (t) {
+				var obj = new bGUI.GUIPanel(""+key, t.texture, null, _this.gui);
+        obj.relativePosition(new BABYLON.Vector3(asserts[key].perx, asserts[key].pery, 0));
+        obj.scaling(new BABYLON.Vector3(asserts[key].sizex, asserts[key].sizey, 1.0));
+        asserts[key].obj = obj;
+			};
+		});
+  };
+	return GuiLayer;
+})();
+
 var Layout = (function () {
   //'back'  card.data = 0
 	var asserts = ['back', 'east', 'west', 'south', 'north', 'zhong', 'fa', 'bai', 'dot1', 'dot2', 'dot3', 'dot4', 'dot5', 'dot6', 'dot7', 'dot8', 'dot9',
@@ -302,10 +378,33 @@ var Layout = (function () {
 		this.mats = new Array();
 		this.desktop = null;
 		this.go = go;
+    this.gui = null;
+    this.msg = -1;
 		this.init();
+    this.initLoading();
 	}
-	Layout.prototype.initGUI = function (scene) {}
+	Layout.prototype.initLoading = function (scene) {
+    this.gui = new GuiLayer(scene);
+    this.msg = this.gui.drawText("µÈ´ý¶ÔÊÖ...",0.5, 0.5);
+  }
+  Layout.prototype.initGUI = function (myAvator,hisAvator,myName,hisName,myChip,hisChip) {
+    if( this.msg != -1 )
+      this.gui.dropText(this.msg);
+    this.gui.drawText(myName, 0.15, 0.8);
+    this.gui.drawText(hisName, 0.15, 0.1);
+    this.gui.drawText(myChip, 0.15, 0.9);
+    this.gui.drawText(hisChip, 0.15, 0.2);
+    
+    this.gui.draw64Image(myAvator, 0.1, 0.8, 25.0, 25.0);
+    this.gui.draw64Image(hisAvator, 0.1, 0.1, 25.0, 25.0);
+    
+    this.gui.addImage("exit", 0.8, 0.1, 50.0, 50.0);
+    this.gui.addImage("gold", 0.1, 0.9, 25.0, 25.0);
+    this.gui.addImage("gold", 0.1, 0.2, 25.0, 25.0);
+    this.gui.draw();
+  }
 	Layout.prototype.init = function (scene) {
+    
 		var loader = new BABYLON.AssetsManager(scene);
 		var _this = this;
 		for (var key in asserts) {
@@ -354,24 +453,37 @@ var Layout = (function () {
 		}
 		this.invalidate();
 	};
+  Layout.prototype.draw = function (data) {
+		if( this.myCards.tryDraw(data) ) {
+			this.notify(cmd, id);
+      this.invalidate();
+    }
+	};
+  
 	Layout.prototype.heDiscard = function (data) { // only for his
 		this.hisCards.discard(data);
+    this.invalidate();
 	};
   Layout.prototype.heDraw = function (data) { // only for his
 		this.hisCards.draw(data);
+    this.invalidate();
 	};
   Layout.prototype.hePongci = function (disc1, disc2, disc3) { // only for his
 		this.hisCards.pongci(disc1, disc2, disc3);
+    this.invalidate();
 	};
-	Layout.prototype.draw = function (data) {
-		if( this.myCards.tryDraw(data) )
-			this.notify(cmd, id);
-	};
+
 	Layout.prototype.notify = function (cmd, id) {
 		console.log("layout notify: " + cmd + " " + cardid);
 		if( this.go != null ) 
 			this.go.command(cmd, id);
 	};
+  
+  Layout.prototype.who = function (mycards, hiscards) {
+    this.myCards.reset(Card.UNFOCUSED1, mycards);
+    this.hiscards.reset(Card.UNFOCUSED1, hiscards);
+    this.invalidate();
+  }
 	Layout.prototype.deal = function (cards) {
 		this.myCards.reset(Card.UNFOCUSED1, cards);
 		if (cards.length == CardGroup.MAX - 1) {
