@@ -665,9 +665,15 @@ var Layout = (function () {
 		});
 	};
 	Layout.prototype.loss = function (hiscards) {
-		this.gui.showImage("loss", true);
-		this.hisCards.reset(Card.UNFOCUSED1, hiscards);
-		this.invalidate();
+		var _this = this;
+		this.scene.executeWhenReady(function () {
+			_this.gui.showImage("loss", true);
+			_this.gui.showImage("who", false);
+			_this.gui.showImage("continue", true);
+			_this.gui.showImage("draw", false);
+			_this.hisCards.reset(Card.SHOW1, hiscards);
+			_this.invalidate();
+		});
 	};
 	Layout.prototype.deal = function (cards) {
 		var _this = this;
