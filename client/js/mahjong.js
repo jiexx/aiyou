@@ -21,7 +21,7 @@
 var Stuff = (function () {
 	function Stuff(scene, name, size, that) {
 		this.mesh = BABYLON.Mesh.CreatePlane(name, size, scene);
-		this.mesh.layerMask = 1;
+		this.mesh.layerMask = 5;
 		this.mesh.actionManager = new BABYLON.ActionManager(scene);
 		this.mesh.actionManager.registerAction(new BABYLON.ExecuteCodeAction(BABYLON.ActionManager.OnPickTrigger, function (evt) {
 				var onClick = that.properties[that.state].onClick;
@@ -129,7 +129,7 @@ var CardGroup = (function () {
 				this.drop = this.cards[MAX - 1];
 			} else if (count == MAX - 1) {
 				this.state = DISCARDTIME;
-				this.pick = null;
+				this.pick = this.cards[MAX - 2];
 				this.drop = this.cards[MAX - 1];
 			} else {
 				return false;
@@ -193,6 +193,9 @@ var CardGroup = (function () {
 	CardGroup.prototype.hisDiscard = function () {
 		return this.drop;
 	};
+	CardGroup.prototype.hisDiscardPongci = function () {
+		this.drop.state = Card.EMPTY1;
+	};
 	CardGroup.prototype.tryDraw = function (data) {
 		if (this.state == DRAWTIME && this.nextState(0)) {
 			this.pick.state = Card.UNFOCUSED1;
@@ -217,7 +220,7 @@ var CardGroup = (function () {
 		if (i > -1 && j > -1 && this.cards[i].data == that.data && this.cards[j].data == that.data) {
 			if (this.state == DRAWTIME && this.nextState(0)) {
 				this.pick.state = Card.SHOW1;
-				this.pick.data = data;
+				this.pick.data = that.data;
 				this.cards[i].state = Card.SHOW1;
 				this.cards[j].state = Card.SHOW1;
 				return true;
@@ -245,9 +248,9 @@ var CardGroup = (function () {
 		var i = this.findState(0, Card.FOCUSED1);
 		var j = this.findState(i + 1, Card.FOCUSED1);
 		if (i > -1 && j > -1 && this.eat(this.cards[i].data, that.data, this.cards[j].data)) {
-			if (his.state == DRAWTIME && this.nextState(0)) {
+			if (this.state == DRAWTIME && this.nextState(0)) {
 				this.pick.state = Card.SHOW1;
-				this.pick.data = data;
+				this.pick.data = that.data;
 				this.cards[i].state = Card.SHOW1;
 				this.cards[j].state = Card.SHOW1;
 				return true;
@@ -291,7 +294,6 @@ var CardGroup = (function () {
 		this.cards.sort(function (a, b) {
 			return a.data - b.data;
 		});
-		var debug = [];
 		for (var i = 0; i < this.cards.length; i++) {
 			if (this.cards[i].state == Card.BACK2) {
 				this.cards[i].sequence = c;
@@ -302,13 +304,17 @@ var CardGroup = (function () {
 
 			}
 			this.cards[i].invalidate();
+		}
+	};
+	CardGroup.prototype.debug = function () {
+		var debug = [];
+		for (var i = 0; i < this.cards.length; i++) {
 			if( this.cards[i].data > -1 ) {
-				debug.push(this.cards[i].properties[this.cards[i].state].materials[this.cards[i].data].name);
-				debug.push(""+this.cards[i].data);
+				debug.push(this.cards[i].stuff.mesh.position.y);
 				//debug.push(""+this.cards[i].state);
 			}
 		}
-		//console.log(debug);		
+		console.log(debug);		
 	};
 	CardGroup.prototype.myUpdate = function () {
 		var c = 0, d = 0;
@@ -334,7 +340,7 @@ var ImageProp = (function () {
 		this.sizey = ysize;
 		this.perx = xper;
 		this.pery = yper;
-		this.onClick = null;
+		this.onClick = onClick;
 		this.obj = null;
 		this.isVisible = true;
 	};
@@ -350,10 +356,12 @@ var Picture = (function () {
 		this.prop.push(new ImageProp(xsize, ysize, xper, yper, onClick));
 	};
 	Picture.prototype.show = function (isVisible) {
+		var prop;
 		for(var key in this.prop){
-			this.prop[key].isVisible = isVisible;
-			if(this.prop[key].obj != null){
-				this.prop[key].obj.isVisible = isVisible;
+			prop = this.prop[key];
+			prop.isVisible = isVisible;
+			if(prop.obj != null){
+				prop.obj.setVisible(prop.isVisible);
 			}
 		}
 	};
@@ -362,9 +370,10 @@ var Picture = (function () {
 var GuiLayer = (function () {
 	function GuiLayer(scene) {
 		this.gui = new bGUI.GUISystem(scene, 1200, 780);
+		this.gui.enableClick();
 		this.txtObjs = new Array();
-		this.img64Objs = new Array();
 		this.asserts = new Array();
+		this.img64Objs = 0;
 	};
 	GuiLayer.prototype.drawText = function (str, xper, yper, style, clr, onClick) {
 		if (style == undefined || style == null)
@@ -375,7 +384,7 @@ var GuiLayer = (function () {
 			onClick = null;
 		var id = this.txtObjs.length;
 		var obj = new bGUI.GUIText("" + id, 128, 32, {font : style,	text : str,	color : clr}, this.gui);
-		obj.relativePosition(new BABYLON.Vector3(xper, yper, -1000));
+		obj.relativePosition(new BABYLON.Vector3(xper, yper, 0));
 		obj.scaling(new BABYLON.Vector3(128, 32, 1));
 		obj.onClick = onClick;
 		this.txtObjs.push(obj);
@@ -390,15 +399,15 @@ var GuiLayer = (function () {
 	GuiLayer.prototype.draw64Image = function (src, xper, yper, xsize, ysize, onClick) {
 		if (onClick == undefined || onClick == null)
 			onClick = null;
-		var id = this.img64Objs.length;
+		this.img64Objs ++;
+		var id = this.img64Objs;
 		var _this = this;
 		var t = BABYLON.Texture.CreateFromBase64String(src, "" + id, this.gui._scene, false, true, BABYLON.Texture.BILINEAR_SAMPLINGMODE,
 				function () {
 				var a = new bGUI.GUIPanel("" + id, t, null, _this.gui);
-				a.relativePosition(new BABYLON.Vector3(0.1, 0.1, 0));
-				a.scaling(new BABYLON.Vector3(25.0, 25.0, 1.0));
+				a.relativePosition(new BABYLON.Vector3(xper, yper, 0));
+				a.scaling(new BABYLON.Vector3(xsize, ysize, 1.0));
 				a.onClick = onClick;
-				_this.img64Objs.push(new Image(src, xsize, ysize, xper, yper));
 			});
 
 		return id;
@@ -449,11 +458,11 @@ var GuiLayer = (function () {
 			img.onSuccess = function (t) {
 				var prop = asserts[t.name].prop;
 				for(var j = 0 ; j < prop.length ; j ++ ){
-					var obj = new bGUI.GUIPanel("" + i, t.texture, null, _this.gui);
+					var obj = new bGUI.GUIPanel("img_" + t.name + j, t.texture, null, _this.gui);
 					obj.relativePosition(new BABYLON.Vector3(prop[j].perx, prop[j].pery, 0));
 					obj.scaling(new BABYLON.Vector3(prop[j].sizex, prop[j].sizey, 1.0));
 					obj.onClick = prop[j].onClick;
-					obj.isVisible = prop[j].isVisible;
+					obj.setVisible(prop[j].isVisible);
 					prop[j].obj = obj;
 				}
 			};
@@ -493,13 +502,14 @@ var Layout = (function () {
 		this.go = go;
 		this.gui = null;
 		this.msg = -1;
+		this.dealCard = Card.INVALID;
 		
 		this.engine = new BABYLON.Engine(canvas, true);
 		this.scene = new BABYLON.Scene(this.engine);
 		this.scene.clearColor = new BABYLON.Color3(35 / 255.0, 116 / 255.0, 172 / 255.0);
 		var light = new BABYLON.PointLight("Point", new BABYLON.Vector3(3 * 14, 0, -100), this.scene);
 		var camera = new BABYLON.FreeCamera("Camera", new BABYLON.Vector3(3 * 14, 0, -70), this.scene);
-		camera.layerMask = 1;
+		camera.layerMask = 5;
 		
 		this.init(this.scene);
 		this.initLoadGUI(this.scene);
@@ -510,6 +520,7 @@ var Layout = (function () {
 		this.msg = this.gui.drawText("等待对手...", 0.5, 0.5);
 	};
 	Layout.prototype.initGUI = function (myAvator, hisAvator, myName, hisName, myChip, hisChip) {
+		this.scene.activeCamera.layerMask    = 1;
 		if (this.msg != -1)
 			this.gui.dropText(this.msg);
 		this.gui.drawText(myName, 0.15, 0.8);
@@ -521,12 +532,20 @@ var Layout = (function () {
 		this.gui.draw64Image(hisAvator, 0.1, 0.1, 25.0, 25.0);
 		
 		this.gui.addImage("draw", 0.7, 0.5, 50.0, 50.0, this.drawOnClick);
+		this.gui.addImage("who", 0.8, 0.5, 50.0, 50.0, this.whoOnClick);
 		this.gui.showImage("draw", false);
-
+		this.gui.showImage("who", false);
+		
+		this.gui.addImage("win", 0.5, 0.5, 200.0, 200.0);
+		this.gui.addImage("loss", 0.5, 0.5, 200.0, 200.0);
 		this.gui.addImage("continue", 0.9, 0.1, 50.0, 50.0);
 		this.gui.addImage("exit", 0.8, 0.1, 50.0, 50.0);
 		this.gui.addImage("gold", 0.1, 0.9, 25.0, 25.0);
 		this.gui.addImage("gold", 0.1, 0.2, 25.0, 25.0);
+		
+		this.gui.showImage("win", false);
+		this.gui.showImage("loss", false);
+		this.gui.showImage("continue", false);
 		this.gui.draw();
 	};
 	Layout.prototype.init = function (scene) {
@@ -566,9 +585,18 @@ var Layout = (function () {
 	Layout.prototype.instance = function () {
 		return this;
 	};
-	Layout.prototype.drawOnClick = function (that) {
+	Layout.prototype.whoOnClick = function (that) {
 		var _this = Mahjong.instance();
-		_this.draw();
+		_this.gui.showImage("who", false);
+		_this.gui.showImage("win", true);
+		_this.gui.showImage("continue", true);
+		_this.gui.showImage("draw", false);
+		_this.notify(WHO, 0);
+		_this.invalidate();
+	};
+	Layout.prototype.drawOnClick = function (that) {  //bGUI, if breakpoint, BABYLON.ActionManager.OnPickUpTrigger will be failed, this function will not be called
+		var _this = Mahjong.instance();
+		_this.draw(_this.dealCard);
 		_this.invalidate();
 	};
 	Layout.prototype.desktopOnClick = function (that) {
@@ -581,24 +609,27 @@ var Layout = (function () {
 		if (that.state == Card.UNFOCUSED1) {
 			that.state = Card.FOCUSED1;
 		} else if (that.state == Card.FOCUSED1) {
-			if (_this.myCards.tryDiscard(that))
+			if (_this.myCards.tryDiscard(that)){
 				_this.notify(DISCARD, that.data);
-			else if (_this.myCards.tryPong(_this.hisCards.hisDiscard()))
+			}else if (_this.myCards.tryPong(_this.hisCards.hisDiscard())){
+				_this.hisCards.hisDiscardPongci();
 				_this.notify(DISCARD_PONG, that.data);
-			else if (_this.myCards.tryCi(_this.hisCards.hisDiscard()))
+			}else if (_this.myCards.tryCi(_this.hisCards.hisDiscard())){
+				_this.hisCards.hisDiscardPongci();
 				_this.notify(DISCARD_CHI, that.data);
+			}
 		}
 		_this.invalidate();
 	};
 	Layout.prototype.draw = function (data) {
 		if (this.myCards.tryDraw(data)) {
-			this.notify(cmd, id);
-			this.invalidate();
+			this.notify(DISCARD_DRAW, 0);
 		}
 	};
 
-	Layout.prototype.heDiscard = function (data) { // only for his
+	Layout.prototype.heDiscard = function (data, dealCard) { // only for his
 		var _this = this;
+		_this.dealCard = dealCard;
 		this.scene.executeWhenReady(function () {
 			_this.hisCards.discard(data);
 			_this.gui.showImage("draw", true);
@@ -619,15 +650,33 @@ var Layout = (function () {
 		if (this.go != null)
 			this.go.command(cmd, id);
 	};
-
-	Layout.prototype.who = function (mycards, hiscards) {
-		this.myCards.reset(Card.UNFOCUSED1, mycards);
-		this.hiscards.reset(Card.UNFOCUSED1, hiscards);
+	Layout.prototype.showHand = function (hiscards) {
+		var _this = this;
+		this.scene.executeWhenReady(function () {
+			_this.hisCards.reset(Card.SHOW1, hiscards);
+			//_this.invalidate();
+		});
+	};
+	Layout.prototype.win = function () {
+		var _this = this;
+		this.scene.executeWhenReady(function () {
+			_this.gui.showImage("who", true);
+			_this.invalidate();
+		});
+	};
+	Layout.prototype.loss = function (hiscards) {
+		this.gui.showImage("loss", true);
+		this.hisCards.reset(Card.UNFOCUSED1, hiscards);
 		this.invalidate();
-	}
+	};
 	Layout.prototype.deal = function (cards) {
 		var _this = this;
 		this.scene.executeWhenReady(function () {
+			_this.gui.showImage("draw", false);
+			_this.gui.showImage("who", false);
+			_this.gui.showImage("win", false);
+			_this.gui.showImage("loss", false);
+		
 			_this.myCards.reset(Card.UNFOCUSED1, cards);
 			console.log(cards);
 			if (cards.length == CardGroup.MAX - 1) {
