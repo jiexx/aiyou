@@ -18,13 +18,30 @@
 	};
 	return Property;
 })();
+var PropSet = (function () {
+	function PropSet(mats, count) {
+		this.properties = new Array();
+		this.materials = mats;
+		for (var i = 0; i < count; i++) {
+			this.properties.push(new Property());
+		}
+	};
+	PropSet.prototype.init = function (state, xdelta, y, z, isVisible, onClick) {
+		this.properties[state].set(this.materials, xdelta, y, z, isVisible, onClick);
+	};
+	PropSet.prototype.invalidate = function (state, stuff, data, sequence) {
+		this.properties[state].invalidate(stuff, data);
+		stuff.mesh.position.x = this.properties[state].position.x * sequence;
+	};
+	return PropSet;
+})();
 var Stuff = (function () {
 	function Stuff(scene, name, size, that) {
 		this.mesh = BABYLON.Mesh.CreatePlane(name, size, scene);
 		this.mesh.layerMask = 5;
 		this.mesh.actionManager = new BABYLON.ActionManager(scene);
 		this.mesh.actionManager.registerAction(new BABYLON.ExecuteCodeAction(BABYLON.ActionManager.OnPickTrigger, function (evt) {
-				var onClick = that.properties[that.state].onClick;
+				var onClick = that.prop.properties[that.state].onClick;
 				if (onClick != null)
 					onClick(that);
 			}));
@@ -45,12 +62,11 @@ var Desktop = (function () {
 		mat.diffuseColor = new BABYLON.Color3(35 / 255.0, 116 / 255.0, 172 / 255.0);
 		this.stuff = new Stuff(scene, 'desktop', 500, this);
 		this.stuff.set(mat, 0, 0, 10, true);
-		this.properties = new Array();
+		this.prop = new PropSet(null, 1);
 		this.state = 0;
-		this.properties.push(new Property());
 	};
 	Desktop.prototype.init = function (x, y, z, isVisible, onClick) {
-		this.properties[0].set(null, x, y, z, isVisible, onClick);
+		this.prop.init(0, x, y, z, isVisible, onClick);
 	};
 	return Desktop;
 })();
@@ -58,7 +74,7 @@ var Card = (function () {
 	var INVALID = -1;
 	var EMPTY1 = 0,	SHOW1 = 1,	UNFOCUSED1 = 2,	FOCUSED1 = 3,	DISCARD1 = 4;
 	var EMPTY2 = 0,	BACK2 = 1,	SHOW2 = 2,	DISCARD2 = 3;
-	function Card(scene, index, count) {
+	function Card(scene, index, ps) {
 		this.stuff = new Stuff(scene, '000' + index, 9, this);
 		var mesh = this.stuff.mesh;
 		mesh.scaling.x = 0.6;
@@ -67,13 +83,9 @@ var Card = (function () {
 		mesh.setVerticesData(BABYLON.VertexBuffer.UVKind, uv, false);
 
 		this.state = EMPTY1;
-		this.properties = new Array();
+		this.prop = ps;
 		this.data = INVALID;
 		this.sequence = 0;
-		
-		for (var i = 0; i < count; i++) {
-			this.properties.push(new Property());
-		}
 	};
 	Card.INVALID = INVALID;
 	
@@ -91,8 +103,7 @@ var Card = (function () {
 		return this.state == Card.EMPTY1;
 	};
 	Card.prototype.invalidate = function () {
-		this.properties[this.state].invalidate(this.stuff, this.data);
-		this.stuff.mesh.position.x = this.properties[this.state].position.x * this.sequence;
+		this.prop.invalidate(this.state, this.stuff, this.data, this.sequence);
 	};
 	Card.prototype.reset = function () {
 		this.state = Card.EMPTY1;
@@ -105,22 +116,16 @@ var Card = (function () {
 var CardGroup = (function () {
 	var MAX = 15; // include one discard card;
 	var STARTTIME = 0,	DISCARDTIME = 1,	DRAWTIME = 2;
-	function CardGroup(scene, mats, count) {
+	function CardGroup(scene, ps) {
 		this.cards = new Array();
 		this.drop = null;
 		this.pick = null;
 		this.state = STARTTIME;
-		this.material = mats;
 		for (var i = 0; i < MAX; i++) {
-			this.cards.push(new Card(scene, 0, count));
+			this.cards.push(new Card(scene, i, ps));
 		}
 	};
 	CardGroup.MAX = MAX; 
-	CardGroup.prototype.init = function (state, xdelta, y, z, isVisible, onClick) {
-		for (var i = 0; i < MAX; i++) {
-			this.cards[i].properties[state].set(this.material, xdelta, y, z, isVisible, onClick);
-		}
-	};
 	CardGroup.prototype.nextState = function (count){
 		if (this.state == STARTTIME) {
 			if (count == MAX - 2) {
@@ -390,6 +395,11 @@ var GuiLayer = (function () {
 		this.txtObjs.push(obj);
 		return id;
 	};
+	GuiLayer.prototype.setTextVisible = function (index, isVisible) {
+		var obj = this.txtObjs[index];
+		if (obj != null);
+			obj.isVisible = isVisible;
+	};
 	GuiLayer.prototype.dropText = function (index) {
 		var obj = this.txtObjs[index];
 		if (obj != null);
@@ -468,7 +478,9 @@ var GuiLayer = (function () {
 			};
 		}
 		loader.onFinish = function () {
-			_this.gui._scene.render();
+			setTimeout(function() {
+				_this.gui._scene.render();
+			}, 10);
 		};
 		loader.useDefaultLoadingScreen = false;
 		loader.load();
@@ -503,6 +515,7 @@ var Layout = (function () {
 		this.gui = null;
 		this.msg = -1;
 		this.dealCard = Card.INVALID;
+		this.userid = -1;
 		
 		this.engine = new BABYLON.Engine(canvas, true);
 		this.scene = new BABYLON.Scene(this.engine);
@@ -522,7 +535,7 @@ var Layout = (function () {
 	Layout.prototype.initGUI = function (myAvator, hisAvator, myName, hisName, myChip, hisChip) {
 		this.scene.activeCamera.layerMask    = 1;
 		if (this.msg != -1)
-			this.gui.dropText(this.msg);
+			this.gui.setTextVisible(this.msg, false);
 		this.gui.drawText(myName, 0.15, 0.8);
 		this.gui.drawText(hisName, 0.15, 0.1);
 		this.gui.drawText(myChip, 0.15, 0.9);
@@ -538,7 +551,7 @@ var Layout = (function () {
 		
 		this.gui.addImage("win", 0.5, 0.5, 200.0, 200.0);
 		this.gui.addImage("loss", 0.5, 0.5, 200.0, 200.0);
-		this.gui.addImage("continue", 0.9, 0.1, 50.0, 50.0);
+		this.gui.addImage("continue", 0.9, 0.1, 50.0, 50.0, this.resumeOnClick);
 		this.gui.addImage("exit", 0.8, 0.1, 50.0, 50.0);
 		this.gui.addImage("gold", 0.1, 0.9, 25.0, 25.0);
 		this.gui.addImage("gold", 0.1, 0.2, 25.0, 25.0);
@@ -563,18 +576,20 @@ var Layout = (function () {
 			};
 		}
 		loader.onFinish = function () {
-			_this.myCards = new CardGroup(scene, _this.mats, 5);
-			_this.myCards.init(Card.EMPTY1, 0, 0, 0, false, null);
-			_this.myCards.init(Card.UNFOCUSED1, 6, -25, 0, true, _this.cardOnClick);
-			_this.myCards.init(Card.FOCUSED1, 6, -22, 0, true, _this.cardOnClick);
-			_this.myCards.init(Card.SHOW1, 6, -15, 0, true, null);
-			_this.myCards.init(Card.DISCARD1, 6 * 3, -5, 10, true, null);
-
-			_this.hisCards = new CardGroup(scene, _this.mats, 4);
-			_this.hisCards.init(Card.EMPTY2, 0, 0, 0, false, null);
-			_this.hisCards.init(Card.BACK2, 6, 25, 0, true, null);
-			_this.hisCards.init(Card.SHOW2, 6, 15, 0, true, null);
-			_this.hisCards.init(Card.DISCARD2, 6 * 3, 5, 10, true, _this.cardOnClick);
+			var ps1 = new PropSet(_this.mats, 5);
+			ps1.init(Card.EMPTY1, 0, 0, 0, false, null);
+			ps1.init(Card.UNFOCUSED1, 6, -25, 0, true, _this.cardOnClick);
+			ps1.init(Card.FOCUSED1, 6, -22, 0, true, _this.cardOnClick);
+			ps1.init(Card.SHOW1, 6, -15, 0, true, null);
+			ps1.init(Card.DISCARD1, 6 * 3, -5, 10, true, null);
+			_this.myCards = new CardGroup(scene, ps1);
+      
+      var ps2 = new PropSet(_this.mats, 5);
+			ps2.init(Card.EMPTY2, 0, 0, 0, false, null);
+			ps2.init(Card.BACK2, 6, 25, 0, true, null);
+			ps2.init(Card.DISCARD2, 6 * 3, 5, 10, true, _this.cardOnClick);
+			ps2.init(Card.SHOW2, 6, 15, 0, true, null);
+			_this.hisCards = new CardGroup(scene, ps2);
 		};
 		loader.useDefaultLoadingScreen = false;
 		loader.load();
@@ -584,6 +599,17 @@ var Layout = (function () {
 	};
 	Layout.prototype.instance = function () {
 		return this;
+	};
+	Layout.prototype.resumeOnClick = function (that) {
+		var _this = Mahjong.instance();
+		_this.gui.showImage("who", false);
+		_this.gui.showImage("win", false);
+		_this.gui.showImage("continue", false);
+		_this.gui.showImage("draw", false);
+		if (_this.msg != -1)
+			_this.gui.setTextVisible(_this.msg, true);
+		_this.notify(CONTINUE, this.userid);
+		_this.invalidate();
 	};
 	Layout.prototype.whoOnClick = function (that) {
 		var _this = Mahjong.instance();
