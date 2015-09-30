@@ -31,4 +31,8 @@ public enum Command {
     public int val() {
         return value;
     }
+    
+    public boolean equal(int val) {
+    	return this.value == val;
+    }
 }

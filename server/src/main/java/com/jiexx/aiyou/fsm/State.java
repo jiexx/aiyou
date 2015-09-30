@@ -6,7 +6,6 @@ import java.util.Map;
 import com.google.gson.Gson;
 import com.jiexx.aiyou.message.Command;
 import com.jiexx.aiyou.message.Message;
-import com.jiexx.aiyou.service.Round;
 
 public abstract class State {
 	protected static Gson gson = new Gson();
@@ -14,11 +13,10 @@ public abstract class State {
 	private State init = null;
 	private State child = null;
 	private State parent = null;
-	private Round round = null;
 	private State previous = null;
 	
-	public State(State root) {
-		parent = root;
+	public State(State r) {
+		parent = r;
 	}
 	
 	public State getParent() {
@@ -29,16 +27,11 @@ public abstract class State {
 		return previous;
 	}
 	
-	public void setRound(Round r) {
-		round = r;
-	}
-	
-	public Round getRound() {
-		State that = this;
-		Round r;
-		while( (r = that.round) == null ) 
-			that = that.parent;
-		return r;
+	public State getRoot() {
+		State p = this;
+		while( p.parent != null ) 
+			p = p.parent;
+		return p;
 	}
 	public void Exit(final Message msg){
 		child = init;

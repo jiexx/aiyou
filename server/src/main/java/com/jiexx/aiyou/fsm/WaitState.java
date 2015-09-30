@@ -9,7 +9,6 @@ import com.jiexx.aiyou.message.Message;
 import com.jiexx.aiyou.message.OpenAck;
 import com.jiexx.aiyou.model.Const;
 import com.jiexx.aiyou.service.GameService;
-import com.jiexx.aiyou.service.Round;
 
 public class WaitState extends State{
 
@@ -34,39 +33,28 @@ public class WaitState extends State{
 	@Override
 	public void Enter(final Message msg) {
 		// TODO Auto-generated method stub
-		if( msg.cmd == Command.OPEN.val() /*&& getRound().getHand( msg.uid ) == Round.Hand.DEALER */) {
-			getRound().addUser(Round.Hand.DEALER , msg.uid);
+		Round r = (Round) getRoot();
+		if(Command.OPEN.equal(msg.cmd)) {
 			
-			OpenAck ack = new OpenAck();
-			ack.cmd = Command.WAIT.val();
-			ack.endp = getRound().endPoint(Round.Hand.DEALER);
-			ack.roundid = getRound().getId();
-			GameService.instance.sendMessage("/"+String.valueOf(msg.uid), gson.toJson(ack));
+			/*Layout create*/
+			r.addUser(msg.uid);
+			
+			//OpenAck ack = new OpenAck();
+			//ack.cmd = Command.WAIT.val();
+			//ack.endp = getRound().endPoint(com.jiexx.aiyou.fsm.Hand.DEALER);
+			//ack.roundid = getRound().getId();
+			//GameService.instance.sendMessage("/"+String.valueOf(msg.uid), gson.toJson(ack));
 		}
-		else if( msg.cmd == Command.CONTINUE.val() ) {
-			//getRound().dealer = msg.uid; no more change dealerid;
-			final long id = msg.uid;
-			new Thread() {
-				public void run() {
-					try {
-						Thread.sleep(1800000);
-						if (getRound().getCurrState() == self) {
-							//getRound().removeUser(getRound().getHand(id).opponent());
-							Ack ackdealer = new Ack();
-							ackdealer.cmd = Command.TIMEOUT.val();
-							GameService.instance.sendMessage(getRound().endPoint(getRound().getHand(id).opponent()), gson.toJson(ackdealer));
-						}
-					} catch (InterruptedException e) {
-					}
-				}
-			}.start();
+		else if(Command.CONTINUE.equal(msg.cmd)) {
+			Round r = (Round) getRoot();
+			r.addUser(msg.uid);
 		}
 		else if( msg.cmd == Command.TIMEOUT.val() ) {
 			Ack ackdealer = new Ack();
 			ackdealer.cmd = Command.TIMEOUT.val();
-			GameService.instance.sendMessage(getRound().endPoint(Round.Hand.DEALER), gson.toJson(ackdealer));
+			GameService.instance.sendMessage(getRound().endPoint(com.jiexx.aiyou.fsm.Hand.DEALER), gson.toJson(ackdealer));
 
-			GameService.instance.sendMessage(getRound().endPoint(Round.Hand.PLAYER), gson.toJson(ackdealer));
+			GameService.instance.sendMessage(getRound().endPoint(com.jiexx.aiyou.fsm.Hand.PLAYER), gson.toJson(ackdealer));
 		}
 		else if( msg.cmd == Command.EXIT.val() ) {
 			if( getRound().countOfUser()  == 1 ) {

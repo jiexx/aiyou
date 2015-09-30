@@ -361,12 +361,12 @@ var Picture = (function () {
 		this.prop.push(new ImageProp(xsize, ysize, xper, yper, onClick));
 	};
 	Picture.prototype.show = function (isVisible) {
-		var prop;
+		var p;
 		for(var key in this.prop){
-			prop = this.prop[key];
-			prop.isVisible = isVisible;
-			if(prop.obj != null){
-				prop.obj.setVisible(prop.isVisible);
+			p = this.prop[key];
+			p.isVisible = isVisible;
+			if(p.obj != null){
+				p.obj.setVisible(p.isVisible);
 			}
 		}
 	};
@@ -398,7 +398,7 @@ var GuiLayer = (function () {
 	GuiLayer.prototype.setTextVisible = function (index, isVisible) {
 		var obj = this.txtObjs[index];
 		if (obj != null);
-			obj.isVisible = isVisible;
+			obj.setVisible(isVisible);
 	};
 	GuiLayer.prototype.dropText = function (index) {
 		var obj = this.txtObjs[index];
@@ -600,12 +600,21 @@ var Layout = (function () {
 	Layout.prototype.instance = function () {
 		return this;
 	};
+	Layout.prototype.exitOnClick = function (that) {
+		var _this = Mahjong.instance();
+		_this.notify(EXIT, this.userid);
+		_this.invalidate();
+	};
 	Layout.prototype.resumeOnClick = function (that) {
 		var _this = Mahjong.instance();
 		_this.gui.showImage("who", false);
 		_this.gui.showImage("win", false);
+		_this.gui.showImage("loss", false);
 		_this.gui.showImage("continue", false);
 		_this.gui.showImage("draw", false);
+
+		_this.myCards.reset(Card.EMPTY1, []);
+		_this.hisCards.reset(Card.EMPTY2, []);
 		if (_this.msg != -1)
 			_this.gui.setTextVisible(_this.msg, true);
 		_this.notify(CONTINUE, this.userid);
@@ -703,12 +712,7 @@ var Layout = (function () {
 	};
 	Layout.prototype.deal = function (cards) {
 		var _this = this;
-		this.scene.executeWhenReady(function () {
-			_this.gui.showImage("draw", false);
-			_this.gui.showImage("who", false);
-			_this.gui.showImage("win", false);
-			_this.gui.showImage("loss", false);
-		
+		this.scene.executeWhenReady(function () {		
 			_this.myCards.reset(Card.UNFOCUSED1, cards);
 			console.log(cards);
 			if (cards.length == CardGroup.MAX - 1) {

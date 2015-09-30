@@ -8,7 +8,6 @@ import com.jiexx.aiyou.message.Message;
 import com.jiexx.aiyou.message.StartAck;
 import com.jiexx.aiyou.model.Const;
 import com.jiexx.aiyou.service.GameService;
-import com.jiexx.aiyou.service.Round;
 
 public class GoingState extends State{
 
@@ -26,36 +25,36 @@ public class GoingState extends State{
 			cards = new Card();
 			cards.dieDealDraw();
 			
-			if(  getRound().getUser(Round.Hand.DEALER) != Const.INVALID_PLAYER.val() ) {
-				getRound().addUser(Round.Hand.PLAYER, msg.uid); 
+			if(  getRound().getUser(com.jiexx.aiyou.fsm.Hand.DEALER) != Const.INVALID_PLAYER.val() ) {
+				getRound().addUser(com.jiexx.aiyou.fsm.Hand.PLAYER, msg.uid); 
 				
 				StartAck ackdealer = new StartAck();
 				ackdealer.cmd = Command.START.val();
-				ackdealer.card = cards.getInitHandCards(Round.Hand.DEALER);
+				ackdealer.card = cards.getInitHandCards(com.jiexx.aiyou.fsm.Hand.DEALER);
 				ackdealer.hu = Card.hu(ackdealer.card);
 				ackdealer.id = msg.uid;
-				GameService.instance.sendMessage(getRound().endPoint(Round.Hand.DEALER), gson.toJson(ackdealer));
+				GameService.instance.sendMessage(getRound().endPoint(com.jiexx.aiyou.fsm.Hand.DEALER), gson.toJson(ackdealer));
 				
 				JoinAck ackplayer = new JoinAck();
 				ackplayer.cmd = Command.START.val();
-				ackplayer.card = cards.getInitHandCards(Round.Hand.PLAYER);
-				ackplayer.endp = getRound().endPoint(Round.Hand.PLAYER);
+				ackplayer.card = cards.getInitHandCards(com.jiexx.aiyou.fsm.Hand.PLAYER);
+				ackplayer.endp = getRound().endPoint(com.jiexx.aiyou.fsm.Hand.PLAYER);
 				ackplayer.hu = Card.hu(ackplayer.card);
 				GameService.instance.sendMessage("/"+String.valueOf(msg.uid), gson.toJson(ackplayer));
 			}
 			else {
-				getRound().addUser(Round.Hand.DEALER, msg.uid); 
+				getRound().addUser(com.jiexx.aiyou.fsm.Hand.DEALER, msg.uid); 
 				
 				StartAck ackdealer = new StartAck();
 				ackdealer.cmd = Command.START.val();
-				ackdealer.card = cards.getInitHandCards(Round.Hand.PLAYER);
+				ackdealer.card = cards.getInitHandCards(com.jiexx.aiyou.fsm.Hand.PLAYER);
 				ackdealer.hu = Card.hu(ackdealer.card);
-				GameService.instance.sendMessage(getRound().endPoint(Round.Hand.PLAYER), gson.toJson(ackdealer));
+				GameService.instance.sendMessage(getRound().endPoint(com.jiexx.aiyou.fsm.Hand.PLAYER), gson.toJson(ackdealer));
 				
 				JoinAck ackplayer = new JoinAck();
 				ackplayer.cmd = Command.START.val();
-				ackplayer.card = cards.getInitHandCards(Round.Hand.DEALER);
-				ackplayer.endp = getRound().endPoint(Round.Hand.DEALER);
+				ackplayer.card = cards.getInitHandCards(com.jiexx.aiyou.fsm.Hand.DEALER);
+				ackplayer.endp = getRound().endPoint(com.jiexx.aiyou.fsm.Hand.DEALER);
 				ackplayer.hu = Card.hu(ackplayer.card);
 				GameService.instance.sendMessage("/"+String.valueOf(msg.uid), gson.toJson(ackplayer));
 			}

@@ -5,7 +5,6 @@ import java.util.List;
 import java.util.Random;
 
 import com.jiexx.aiyou.comm.Util;
-import com.jiexx.aiyou.service.Round;
 
 public class Card {	
 	public final static char east		= 1;
@@ -55,9 +54,9 @@ public class Card {
 		int d = rand.nextInt(6);
 		int p = rand.nextInt(6);
 		if( d > p ) {
-			first = Round.Hand.DEALER;  // first draw
+			first = com.jiexx.aiyou.fsm.Hand.DEALER;  // first draw
 		}else if( d < p ){
-			first = Round.Hand.PLAYER;
+			first = com.jiexx.aiyou.fsm.Hand.PLAYER;
 		}else if ( d == p ) {
 			die();
 		}

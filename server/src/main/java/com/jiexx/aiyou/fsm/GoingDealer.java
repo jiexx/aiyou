@@ -11,7 +11,6 @@ import com.jiexx.aiyou.message.HuAck;
 import com.jiexx.aiyou.message.Message;
 import com.jiexx.aiyou.message.PongchiAck;
 import com.jiexx.aiyou.service.GameService;
-import com.jiexx.aiyou.service.Round;
 
 public class GoingDealer extends State{
 
