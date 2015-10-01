@@ -9,13 +9,16 @@ public class EndState extends State{
 	public EndState(State root) {
 		super(root);
 		// TODO Auto-generated constructor stub
+		round = (Round) getRoot();
 	}
+	
+	private Round round = null;
 
 	@Override
 	public void Enter(final Message msg) {
 		// TODO Auto-generated method stub
-		if ( msg.cmd == Command.FINAL.val() ) {
-			GameService.instance.delRound(getRound().getId());
+		if ( Command.EXIT.equal(msg.cmd) ) {
+			round.mgr.finish();
 		}
 	}
 

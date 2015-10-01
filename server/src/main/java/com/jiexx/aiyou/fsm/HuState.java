@@ -10,39 +10,27 @@ public class HuState extends TimeOutState{
 	public HuState(State root) {
 		super(root);
 		// TODO Auto-generated constructor stub
-
+		round = (Round) getRoot();
 	}
-	private void winOrLose( Round.Hand h ) {
-			GameService.instance.win(getRound().getUser(h));
-			GameService.instance.lose(getRound().getUser(h.opponent()));
-	}
+	
+	private Round round = null;
+	
 	@Override
 	public void Enter(final Message msg) {
 		super.Enter(msg);
 		// TODO Auto-generated method stub
-		if( msg.cmd == Command.WHO.val()  ) {
-			Round.Hand hand = getRound().getHand( msg.uid );
-			
-			winOrLose(hand);
-			
-			HuAck winack = new HuAck();
-			winack.cmd = Command.WHO.val();
-			winack.other = getRound().getCards(hand.opponent());
-			winack.hu = true;
-			winack.bonus = 10;
-			GameService.instance.sendMessage(getRound().endPoint(hand), gson.toJson(winack));
-			
-			HuAck lossack = new HuAck();
-			lossack.cmd = Command.WHO.val();
-			lossack.other = getRound().getCards(hand);
-			lossack.hu = false;
-			lossack.bonus = -10;
-			GameService.instance.sendMessage(getRound().endPoint(hand.opponent()), gson.toJson(lossack));
-		} 
-		else if( msg.cmd == Command.TIMEOUT.val() ) {
-			
-		}
-	}
+		if(Command.WHO.equal(msg.cmd)) {
+			round.mgr.startLoop();
+			if(round.mgr.whoIsUser()) {
+				round.mgr.punishOrReward(msg.uid);
+				
+				HuAck ha = new HuAck(Command.WHO);
+				ha.other = round.mgr.getCardsOfOther();
+				ha.bonus = round.mgr.chip;
+				round.mgr.notifyUser(gson.toJson(ha));
 
+			}
+		} 
+	}
 
 }

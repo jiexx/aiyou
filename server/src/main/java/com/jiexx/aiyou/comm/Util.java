@@ -178,5 +178,16 @@ public class Util {
 		while( arr.get(i) < value && i < arr.size() ) i++;
 		return i;
 	}
+	public class Disc {
+		public byte disc1;
+		public byte disc2;
+		public byte disc3;
+		Disc(byte d1, byte d2, byte d3){
+			disc1 = d1; disc2 = d2; disc3 = d3;
+		}
+	}
+	public static int parseDisc(int opt) {
+		return new Disc((byte)opt&0x00ff0000>>16, (byte)opt&0x0000ff00>>8, (byte)opt&0x000000ff);
+	}
 
 }
