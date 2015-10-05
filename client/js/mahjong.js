@@ -525,7 +525,7 @@ var Layout = (function () {
 		camera.layerMask = 5;
 		
 		this.init(this.scene);
-		this.initLoadGUI(this.scene);
+		//this.initLoadGUI(this.scene);
 		return this;
 	};
 	Layout.prototype.initLoadGUI = function (scene) {
@@ -711,17 +711,19 @@ var Layout = (function () {
 		});
 	};
 	Layout.prototype.deal = function (cards) {
-		var _this = this;
-		this.scene.executeWhenReady(function () {		
-			_this.myCards.reset(Card.UNFOCUSED1, cards);
-			console.log(cards);
-			if (cards.length == CardGroup.MAX - 1) {
-				_this.hisCards.reset(Card.BACK2, [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]);
-			} else if (cards.length == CardGroup.MAX - 2) {
-				_this.hisCards.reset(Card.BACK2, [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]);
-			}
-			_this.invalidate();
-		});
+		if(cards != undefined && cards != null) {
+			var _this = this;
+			this.scene.executeWhenReady(function () {		
+				_this.myCards.reset(Card.UNFOCUSED1, cards);
+				console.log(cards);
+				if (cards.length == CardGroup.MAX - 1) {
+					_this.hisCards.reset(Card.BACK2, [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]);
+				} else if (cards.length == CardGroup.MAX - 2) {
+					_this.hisCards.reset(Card.BACK2, [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]);
+				}
+				_this.invalidate();
+			});
+		}
 	};
 	Layout.prototype.invalidate = function () {
 		this.myCards.myUpdate();

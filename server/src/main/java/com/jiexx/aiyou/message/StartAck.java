@@ -3,7 +3,9 @@ package com.jiexx.aiyou.message;
 import java.util.LinkedList;
 
 public class StartAck extends Ack {
+	public String endp;
 	public LinkedList<Byte> card;
 	public boolean hu = false;
-	public long id;
+	public LinkedList<Long> id;
+	public int rid;
 }

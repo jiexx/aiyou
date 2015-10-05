@@ -20,19 +20,17 @@ public class GoingState extends State{
 			round.mgr.addUser(msg.uid);
 			round.mgr.playDice();
 			
-			OpenJoinAck oja1 = new OpenAck(Command.START_DEALER);
-			oja1.endp = round.mgr.getDealerEndpoint();
-			oja1.card = round.mgr.getDealerCards();
-			oja1.hu = round.mgr.whoIsDealer();
-			oja1.id = round.mgr.othersExceptDealer();
-			round.mgr.notifyDealer(gson.toJson(oja1));
-			
-			OpenJoinAck oja2 = new OpenAck(Command.START_PLAYER);
-			oja2.endp = round.mgr.getPlayerEndpoint();
-			oja2.card = round.mgr.getPlayerCards();
-			oja2.hu = round.mgr.whoIsPlayer();
-			oja2.id = round.mgr.othersExceptPlayer();
-			round.mgr.notifyPlayer(gson.toJson(oja2));
+			round.mgr.startLoop();
+			do {
+				StartAck sa = round.mgr.isUserDealer() ? new StartAck(Command.START_DEALER) : new StartAck(Command.START_PLAYER);
+				sa.endp = round.mgr.getUserEndpoint();
+				sa.card = round.mgr.getUserCards();
+				sa.hu = round.mgr.whoIsUser();
+				sa.id = round.mgr.getIdsOfOther();
+				sa.rid = round.mgr.getRoundId();
+				round.mgr.notifyStub(gson.toJson(sa));
+			}
+			while(round.mgr.nextUser())
 		}
 	}
 

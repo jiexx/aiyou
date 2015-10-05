@@ -4,8 +4,8 @@ var __extends = (this && this.__extends) || function (d, b) {
     __.prototype = b.prototype;
     d.prototype = new __();
 };
-var OPEN = '0x10000001', JOIN = '0x10000002', EXIT = '0x10000003', CONTINUE = '0x10000004', DISCARD = '0x20000001', DISCARD_PONG = '0x30000001', DISCARD_CHI = '0x30000002', DISCARD_DRAW = '0x30000003', WAIT = '0x40000001', START = '0x40000002', OVER = '0x40000003', WHO = '0x50000001', TIMEOUT = '0x50000002';
-var V_OPEN = 0x10000001, V_JOIN = 0x10000002, V_EXIT = 0x10000003, V_CONTINUE = 0x10000004, V_DISCARD = 0x20000001, V_DISCARD_PONG = 0x30000001, V_DISCARD_CHI = 0x30000002, V_DISCARD_DRAW = 0x30000003, V_WAIT = 0x40000001, V_START = 0x40000002, V_OVER = 0x40000003, V_WHO = 0x50000001, V_TIMEOUT = 0x50000002;
+var OPEN = '0x10000001', JOIN = '0x10000002', EXIT = '0x10000003', CONTINUE = '0x10000004', DISCARD = '0x20000001', DISCARD_PONG = '0x30000001', DISCARD_CHI = '0x30000002', DISCARD_DRAW = '0x30000003', WAIT = '0x40000001', START = '0x40000002', OVER = '0x40000003', 	START_DEALER = '0x40000004', START_PLAYER = '0x40000005', WHO = '0x50000001', TIMEOUT = '0x50000002', FINAL = '0x50000003';
+var V_OPEN = 0x10000001, V_JOIN = 0x10000002, V_EXIT = 0x10000003, V_CONTINUE = 0x10000004, V_DISCARD = 0x20000001, V_DISCARD_PONG = 0x30000001, V_DISCARD_CHI = 0x30000002, V_DISCARD_DRAW = 0x30000003, V_WAIT = 0x40000001, V_START = 0x40000002, V_OVER = 0x40000003, V_START_DEALER = 0x40000004, V_START_PLAYER = 0x40000005, V_WHO = 0x50000001, V_TIMEOUT = 0x50000002, V_FINAL = 0x50000003;
 var Message = (function () {
     function Message() {
         this.cmd = 0;
@@ -35,6 +35,7 @@ var State = (function () {
     State.prototype.Enter = function (msg) {
     };
     State.prototype.Reset = function () {
+			this.child = this.init;
     };
     State.prototype.getRoot = function () {
         var r = this;
@@ -79,263 +80,242 @@ var Ack = (function () {
     }
     return Ack;
 })();
-var Round = (function (_super) {
-    __extends(Round, _super);
-    function Round(r) {
-        _super.call(this, r);
-        this.userid = '';
-        this.roundid = '';
-        this.client = null;
-		this.onJoin = null;
-		this.onOpen = null;
-    }
-	Round.prototype.open = function (chip, onJoin) {
+var RoundManager = (function () {
+	function RoundManager(uid, round, chip, onClose){
+		this.userid = uid;
+		this.roundid = 0xffffffff;
+		this.round = round;
+		this.chip = chip;
+		this.onClose = onClose;
+		this.client = null;
+	};
+	RoundManager.prototype.wait = function (msg) {
 		this.disconnect();
 		var _this = this;
-        var socket = new SockJS('http://localhost:9090/game');
-        this.client = Stomp.over(socket);
-        this.client.connect({}, function (frame) {
-			_this.client.subscribe('/hook/' + _this.userid, function (frame) {
-                var msg = JSON.parse(frame.body);
-                _this.recv(msg);
-            });
-			var a = new Ack();
-			a.cmd = V_OPEN;
-			a.uid = parseInt(_this.userid);
-			a.toid = 0xffffffff;
-			a.opt = chip;
-			_this.send(a);
+		var socket = new SockJS('http://localhost:9090/game');
+		this.client = Stomp.over(socket);
+		this.client.connect({}, function (frame) {
+			_this.stub();
+			_this.send(msg);
 		});
-		this.onJoin = onJoin;
-	}
-    Round.prototype.join = function (toid, onOpen) {
-        var _this = this;
-        var socket = new SockJS('http://localhost:9090/game');
-        this.client = Stomp.over(socket);
-        this.client.connect({}, function (frame) {
-            console.log('Connected: ' + frame);
-			_this.client.subscribe('/hook/' + _this.userid, function (frame) {
-                var msg = JSON.parse(frame.body);
-                _this.recv(msg);
-            });
-			if( toid != undefined && toid != null ) {
-				var a = new Ack();
-				a.cmd = V_JOIN;
-				a.uid = parseInt(_this.userid);
-				a.toid = toid;
-				_this.send(a);
-			}
-        });
-		this.onOpen = onOpen;
-    };
-    Round.prototype.subscribe = function (point) {
-        var _this = this;
-        this.client.subscribe('/hook' + point, function (frame) {
-            var msg = JSON.parse(frame.body);
-            _this.recv(msg);
-        });
-    };
-    Round.prototype.disconnect = function () {
+	};
+	RoundManager.prototype.stub = function () {
+		var _this = this;
+		this.subscribe('/game/'+this.userid);
+	};
+	RoundManager.prototype.join = function () {
+		this.round.going.Reset();
+		this.dispatchMessage(V_JOIN, this.chip);
+	};
+	RoundManager.prototype.open = function () {
+		this.round.going.Reset();
+		this.dispatchMessage(V_OPEN, this.chip);
+	};
+	RoundManager.prototype.registe = function (id) {
+		this.roundid = id;
+	};
+	RoundManager.prototype.subscribe = function (point) {
+		if( point != undefined && point != null ) {
+			var _this = this;
+			this.client.subscribe('/hook' + point, function (frame) {
+					var msg = JSON.parse(frame.body);
+					_this.recv(msg);
+			});
+		}
+	};
+	RoundManager.prototype.close = function () {
+		this.disconnect();
+		this.onClose();
+	};
+	RoundManager.prototype.disconnect = function () {
 		if (this.client != null && this.client.ws.readyState == SockJS.OPEN) {
 			this.client.disconnect();
 		}
-        console.log("Disconnected");
-    };
-	
-    Round.prototype.send = function (msg) {
-        msg.toid = parseInt(this.roundid);
-        this.client.send("/go/game", {}, JSON.stringify(msg));
-    };
-    return Round;
-})(State);
+		console.log("Disconnected");
+	};
+	RoundManager.prototype.dispatchMessage = function (cmd, opt) {
+		var msg = new Ack();
+		msg.cmd = cmd;
+		msg.uid = parseInt(this.userid);
+		msg.toid = parseInt(this.roundid);
+		msg.opt = opt;
+		this.client.send("/go/game", {}, JSON.stringify(msg));
+		this.round.recv(a);
+		this.debug('RECEIVE ', msg.cmd, msg.opt);
+	};
+	RoundManager.prototype.debug = function (prefix, cmd, cardid) {
+		var str = '';
+		switch(cmd) {
+		case V_OPEN: str='OPEN';break;
+		case V_JOIN: str='JOIN';break;
+		case V_START_DEALER: str='START_DEALER';break;
+		case V_START_PLAYER: str='START_PLAYER';break;
+		case V_DISCARD: str='DISCARD';break;
+		case V_DISCARD_PONG: str='DISCARD_PONG';break;
+		case V_DISCARD_CHI: str='DISCARD_CHI';break;
+		case V_DISCARD_DRAW: str='DISCARD_DRAW';break;
+		case V_WHO: str='WHO';break;
+		case V_CONTINUE: str='CONTINUE';break;
+		case V_EXIT: str='EXIT';break;
+		}
+		console.log(prefix+' message: '+str+' opt: '+cardid);
+	};
+	RoundManager.prototype.send = function (msg) {
+		msg.toid = parseInt(this.roundid);
+		this.client.send("/go/game", {}, JSON.stringify(msg));
+		this.debug('		SEND', msg.cmd, msg.opt);
+	};
+	return RoundManager;
+})();
 //-----------------------------view---------------------------------------------
 
 //-----------------------------implement----------------------------------------
-var StartMessage = (function (_super) {
-    __extends(StartMessage, _super);
-    function StartMessage() {
-        _super.apply(this, arguments);
-        this.hu = false;
-    }
-    return StartMessage;
-})(Message);
-var OpenMessage = (function (_super) {
-    __extends(OpenMessage, _super);
-    function OpenMessage() {
-        _super.apply(this, arguments);
-    }
-    return OpenMessage;
-})(Message);
 var Wait = (function (_super) {
     __extends(Wait, _super);
     function Wait(r) {
-        _super.call(this, r);
+			_super.call(this, r);
     }
     Wait.prototype.Enter = function (msg) {
-        var round = this.getRoot();
-        var open = msg;
-		if( open.endp != undefined && open.endp != null )
-			round.subscribe(open.endp);
-		if( open.roundid != undefined && open.roundid != null )
-			round.roundid = open.roundid;
-		round.view.loadingGUI();
+			var mj = Mahjong.instance();
+			mj.initLoadGUI();
+			
+			var mgr = this.getRoot().mgr;
+			msg.cmd = parseInt(msg.cmd);
+			mgr.wait(msg);
+			//var open = msg;
+			//if( open.endp != undefined && open.endp != null )
+			//	round.subscribe(open.endp);
+			//if( open.roundid != undefined && open.roundid != null )
+			//	round.roundid = open.roundid;
+			//round.view.loadingGUI();
     };
     return Wait;
 })(State);
-var Going = (function (_super) {
-    __extends(Going, _super);
-    function Going(r) {
-        _super.call(this, r);
+var Deal = (function (_super) {
+    __extends(Deal, _super);
+    function Deal(r) {
+			_super.call(this, r);
     }
-    Going.prototype.Enter = function (msg) {
-		var round = this.getRoot();
-		if( msg.cmd == V_START ) {
-			var start = msg;
-			if( start.endp != undefined && start.endp != null )
-				round.subscribe(start.endp);
-			else if( round.onJoin != null )
-				round.onJoin(start.id);
-			if( round.onOpen != null )
-				round.onOpen(start.id);
-			round.view.layout();
-			round.view.roundDealcards(start.card);
-			round.view.whohint(start.hu);
-			round.view.invalidate();
-		}else if ( msg.cmd == V_DISCARD ) {
-			if( msg.disc != undefined && msg.disc != null ) { //self
-				round.view.heDiscard( msg.deal, msg.disc );
-				round.view.whohint(msg.hu);
-				round.view.invalidate();
+    Deal.prototype.Enter = function (msg) {
+			var mgr = this.getRoot().mgr;
+			if(msg.cmd == V_START_DEALER) {
+				mgr.registe(msg.rid);
+				mgr.subscribe(msg.endp);
+				var mj = Mahjong.instance();
+				mj.deal(msg.card);
+				if(msg.hu == true) {
+					mj.win();
+				}
 			}
-		}else if ( msg.cmd == V_DISCARD_PONG || msg.cmd == V_DISCARD_CHI ) {
-			if( msg.disc1 != undefined && msg.disc1 != null ) {//not self
-				round.view.hePongchi( [msg.disc1, msg.disc2, msg.disc3] );
-				round.view.invalidate();
-			}else if ( msg.hu != undefined && msg.hu != null ) {
-				round.view.whohint(msg.hu);
-				round.view.invalidate();
-			}
-		}else if ( msg.cmd == V_DISCARD_DRAW ) {
-			if( msg.hu != undefined && msg.hu != null ) { //self
-				round.view.whohint(msg.hu);
-				round.view.invalidate();
-			}
-		}
     };
-    return Going;
+    return Deal;
+})(State);
+var Play = (function (_super) {
+    __extends(Play, _super);
+    function Play(r) {
+			_super.call(this, r);
+    }
+    Play.prototype.Enter = function (msg) {
+			var mgr = this.getRoot().mgr;
+			if(msg.cmd == V_START_DEALER) {
+				mgr.registe(msg.rid);
+				mgr.subscribe(msg.endp);
+				var mj = Mahjong.instance();
+				mj.deal(msg.card);
+			}
+    };
+    return Play;
+})(State);
+var Going = (function (_super) {
+	__extends(Going, _super);
+	function Going(r) {
+		_super.call(this, r);
+	}
+	Going.prototype.Enter = function (msg) {
+		if(msg.cmd == V_EXIT) {
+			var mgr = this.getRoot().mgr;
+			mgr.open();
+		}
+	};
+	return Going;
 })(State);
 var Hu = (function (_super) {
-    __extends(Hu, _super);
-    function Hu(r) {
-        _super.call(this, r);
-    }
-    Hu.prototype.Enter = function (msg) {
-		var round = this.getRoot();
-		if( msg.cmd == V_WHO ) {
-			if( msg.other != undefined && msg.other != null ) { //self
-				round.view.who(msg.other, msg.hu);
-				round.view.invalidate();
-			}
-		}
-    };
-    return Hu;
+	__extends(Hu, _super);
+	function Hu(r) {
+		_super.call(this, r);
+	}
+	Hu.prototype.Enter = function (msg) {
+		
+	};
+	return Hu;
 })(State);
 var End = (function (_super) {
-    __extends(End, _super);
-    function End(r) {
-        _super.call(this, r);
-    }
-    End.prototype.Enter = function (msg) {
-		//var round = this.getRoot();
-		//round.disconnect();
-    };
-    return End;
+	__extends(End, _super);
+	function End(r) {
+		_super.call(this, r);
+	}
+	End.prototype.Enter = function (msg) {
+		var mgr = this.getRoot().mgr;
+		mgr.disconnect();
+	};
+	return End;
 })(State);
 var RoundImpl = (function (_super) {
-    __extends(RoundImpl, _super);
-    function RoundImpl(uid) {
-        _super.call(this, null);
-        this.view = null;
-        this.userid = uid;
-        var empty = new State(this);
-        var wait = new Wait(this);
-        var going = new Going(this);
-        var hu = new Hu(this);
-        var end = new End(this);
-        empty.addTransition(WAIT, wait);
-		empty.addTransition(START, going);
-        wait.addTransition(START, going);
-        wait.addTransition(EXIT, end);
-        going.addTransition(OVER, wait);
-        going.addTransition(EXIT, end);
-        going.addTransition(DISCARD, going);
-		going.addTransition(DISCARD_CHI, going);
-		going.addTransition(DISCARD_PONG, going);
-		going.addTransition(DISCARD_DRAW, going);
-        going.addTransition(WHO, hu);
-        going.addTransition(TIMEOUT, wait);
-        hu.addTransition(START, going);
-        hu.addTransition(EXIT, end);
-        hu.addTransition(TIMEOUT, wait);
-        this.setInitState(empty);
-    }
+	__extends(RoundImpl, _super);
+	function RoundImpl(uid, chip, onClose) {
+		_super.call(this, null);
+		this.mgr = new RoundManager(uid, chip, this, onClose);
+		this.going = new Going(this);
+		var empty = new State(going);
+		var wait = new Wait(going);
+		var deal = new Deal(going);
+		var play = new Play(going);
+		var hu = new Hu(going);
+		var end = new End(this);
+		
+		empty.addTransition(OPEN, wait);
+		empty.addTransition(JOIN, wait);
+		
+		wait.addTransition(START_DEALER, deal);
+		wait.addTransition(START_PLAYER, play);
+		
+		deal.addTransition(DISCARD, play);
+		deal.addTransition(WHO, hu);
+		
+		play.addTransition(DISCARD_DRAW, deal);
+		play.addTransition(DISCARD_PONG, deal);
+		play.addTransition(DISCARD_CHI, deal);
+		
+		hu.addTransition(CONTINUE, wait);
+		
+		going.addTransition(FINAL, end);
+		going.addTransition(EXIT, going);
+		this.setInitState(going);
+	};
+	RoundImpl.prototype.open = function () {
+		this.mgr.dispatchMessage(V_OPEN, this.mgr.chip);
+	};
+	RoundImpl.prototype.join = function (toid) {
+		this.going.Reset();
+		this.mgr.dispatchMessage(V_JOIN, this.mgr.chip);
+	};
 	RoundImpl.prototype.command = function (cmd, cardid) {
 		console.log("command " + cmd + " " + cardid);
 		var a = new Ack();
 		switch(cmd) {
 		case V_DISCARD:
-			a.cmd = V_DISCARD;
-			a.uid = parseInt(this.userid);
-			a.toid = parseInt(this.roundid);
-			a.opt = cardid;
-			this.send(a);
-		break;
 		case V_DISCARD_PONG:
-			a.cmd = V_DISCARD_PONG;
-			a.uid = parseInt(this.userid);
-			a.toid = parseInt(this.roundid);
-			a.opt = cardid;
-			this.send(a);
-		break;
 		case V_DISCARD_CHI:
-			a.cmd = V_DISCARD_CHI;
-			a.uid = parseInt(this.userid);
-			a.toid = parseInt(this.roundid);
-			a.opt = cardid;
-			this.send(a);
-		break;
 		case V_DISCARD_DRAW:
-			a.cmd = V_DISCARD_DRAW;
-			a.uid = parseInt(this.userid);
-			a.toid = parseInt(this.roundid);
-			a.opt = cardid;
-			this.send(a);
-		break;
 		case V_WHO:
-			a.cmd = V_WHO;
-			a.uid = parseInt(this.userid);
-			a.toid = parseInt(this.roundid);
-			a.opt = cardid;
-			this.send(a);
-		break;
 		case V_CONTINUE:
-			a.cmd = V_CONTINUE;
-			a.uid = parseInt(this.userid);
-			a.toid = parseInt(this.roundid);
-			a.opt = cardid;
-			this.send(a);
-		break;
 		case V_EXIT:
-			/*a.cmd = V_EXIT;
-			a.uid = parseInt(this.userid);
-			a.toid = parseInt(this.roundid);
-			a.opt = cardid;
-			this.send(a);*/
-			if (this.client != null) {
-				this.client.disconnect();
+			this.mgr.dispatchMessage(cmd, cardid);
+			if(cmd == V_EXIT) {
+				this.mgr.close();
 			}
 		break;
 		}
 	};
-    return RoundImpl;
-})(Round);
+	return RoundImpl;
+})(State);

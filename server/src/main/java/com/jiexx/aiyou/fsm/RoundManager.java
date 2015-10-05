@@ -29,7 +29,6 @@ public class RoundManager {
 	}
 	private Map<Integer, String> transform = new HashMap<Integer, String>();
 	private Map<Long, UserInfo> users = new HashMap<Long, UserInfo>();
-	private Map<Integer, Long> dices = new HashMap<Integer, Long>();
 	private Card cards = null;
 	private long token = 0;
 
@@ -42,6 +41,10 @@ public class RoundManager {
 		transform.put(PLAYER, "/"+id+"/player");
 	}
 	
+	public int getRoundId(){
+		return this.id;
+	}
+	
 	public void finish(){
 		GameService.instance.delRound(id);
 	}
@@ -52,6 +55,7 @@ public class RoundManager {
 			UserInfo ui = entry.getValue();
 			GameService.instance.sendMessage(transform.get(ui.state), msg);
 		}
+		System.out.println("broadcast :" +msg);
 	}
 	
 	public void addUser(long userid) {
@@ -66,7 +70,6 @@ public class RoundManager {
 	}
 	
 	public void removeUser(long userid) {
-		dices.remove(users.get(userid).state);
 		users.remove(userid);
 	}
 	
@@ -84,54 +87,26 @@ public class RoundManager {
 		users.get(id[0]).state = DEALER;
 		users.get(id[1]).state = PLAYER;
 		
-		dices.put(DEALER, id[0]);
-		dices.put(PLAYER, id[1]);
-		
 		token = id[0];
 	}
 	
 	public void notifyBack(String msg) {
+		System.out.println("notifyBack "+transform.get(user.get(token).state)+ ":" +msg);
 		GameService.instance.sendMessage(transform.get(user.get(token).state), msg);
 	}
 	/*------------------------- for going state, initialize round, only 2 player now------------------------*/
-	public void notifyDealer(String msg) {
-		GameService.instance.sendMessage(users.get(dices.get(DEALER)).stub, msg);
+	public void notifyStub(String msg) {
+		System.out.println("notifyStub "+users.get(curr).stub+ ":" +msg);
+		GameService.instance.sendMessage(users.get(curr).stub, msg);
 	}
-	
-	public String getDealerEndpoint() {
-		return transform.get(DEALER);
-	}
-	
-	public LinkedList<Byte> getDealerCards() {
-		return cards.getInitHandCards(DEALER);
-	}
-	
-	public boolean whoIsDealer() {
-		return Card.hu(cards.getInitHandCards(DEALER));
-	}
-	
-	public long othersExceptDealer() {
-		return dices.get(PLAYER);
-	}
-	
-	public void notifyPlayer(String msg) {
-		GameService.instance.sendMessage(users.get(dices.get(PLAYER)).stub, msg);
-	}
-	
-	public String getPlayerEndpoint() {
-		return transform.get(PLAYER);
-	}
-	
-	public LinkedList<Byte> getPlayerCards() {
-		return cards.getInitHandCards(PLAYER);
-	}
-	
-	public boolean whoIsPlayer() {
-		return Card.hu(cards.getInitHandCards(PLAYER));
-	}
-	
-	public long othersExceptPlayer() {
-		return dices.get(DEALER);
+	public LinkedList<Long> getIdsOfOther() {
+		LinkedList<Long> other;
+		long ptr = curr;
+		while(users.get(ptr).next != curr){
+			ptr = users.get(ptr).next;
+			other.add(ptr);
+		}
+		return other;
 	}
 	/*------------------------- for going state, initialize round end.------------------------*/
 	/*------------------------- for DISCARD message handling.------------------------*/
@@ -147,16 +122,27 @@ public class RoundManager {
 			return false;
 		}
 	}
+	public LinkedList<Byte> isUserDealer() {
+		return users.get(curr).state == DEALER;
+	}
+	public String getUserEndpoint() {
+		return transform.get(users.get(curr).state);
+	}
+	public LinkedList<Byte> getUserCards() {
+		return cards.getInitHandCards(users.get(curr).state);
+	}
 	public boolean whoIsUser() {
 		return Card.hu(cards.getHandCards(users.get(curr).state));
 	}
 	public void notifyUser() {
+		System.out.println("notifyUser "+users.get(curr).stub+ ":" +msg);
 		GameService.instance.sendMessage(transform.get(user.get(curr).state), msg);
 	}
 	public LinkedList<LinkedList<Byte>> getCardsOfOther() {
 		LinkedList<LinkedList<Byte>> other;
 		long ptr = curr;
 		while(users.get(ptr).next != curr){
+			ptr = users.get(ptr).next;
 			other.add(cards.getHandCards(users.get(ptr).state));
 		}
 		return other;

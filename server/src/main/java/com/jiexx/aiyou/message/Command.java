@@ -16,6 +16,8 @@ public enum Command {
 	WAIT(0x40000001),
 	START(0x40000002),
 	OVER(0x40000003),
+	START_DEALER(0x40000004),
+	START_PLAYER(0x40000005),
 	
 	/*-----------------from server to every --------------*/
 	WHO(0x50000001),
