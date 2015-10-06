@@ -6,8 +6,6 @@ import com.jiexx.aiyou.comm.Util;
 import com.jiexx.aiyou.message.Ack;
 import com.jiexx.aiyou.message.Command;
 import com.jiexx.aiyou.message.DiscardAck;
-import com.jiexx.aiyou.message.DrawAck;
-import com.jiexx.aiyou.message.HuAck;
 import com.jiexx.aiyou.message.Message;
 import com.jiexx.aiyou.message.PongchiAck;
 import com.jiexx.aiyou.service.GameService;

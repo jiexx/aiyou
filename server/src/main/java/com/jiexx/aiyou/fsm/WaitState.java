@@ -1,7 +1,8 @@
 package com.jiexx.aiyou.fsm;
 
 import com.jiexx.aiyou.message.Ack;
-import com.jiexx.aiyou.service.GameService;
+import com.jiexx.aiyou.message.Command;
+import com.jiexx.aiyou.message.Message;
 
 public class WaitState extends State{
 

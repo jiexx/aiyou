@@ -23,10 +23,10 @@ public class TimeOutState extends State {
 			public void run() {
 				try {
 					Thread.sleep(1800000);
-					if (getRound().getCurrState() == self) {
+//					if (getRound().getCurrState() == self) {
 						msg.cmd = Command.TIMEOUT.val();
-						getRound().receive(msg);
-					}
+//						getRound().receive(msg);
+//					}
 				} catch (InterruptedException e) {
 				}
 			}

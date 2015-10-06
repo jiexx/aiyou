@@ -11,7 +11,7 @@ public class Round extends State {
 	public Round( int Id, int openChip ) {
 		super(null);
 		
-		mgr = new RoundInfo(Id, openChip);
+		mgr = new RoundManager(Id, openChip);
 		
 		State start = new NullState(this);
 		State wait = new WaitState(this);

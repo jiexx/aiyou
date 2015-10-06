@@ -26,7 +26,7 @@ public class HuState extends TimeOutState{
 				
 				HuAck ha = new HuAck(Command.WHO);
 				ha.other = round.mgr.getCardsOfOther();
-				ha.bonus = round.mgr.chip;
+				ha.bonus = round.mgr.getChip();
 				round.mgr.notifyUser(gson.toJson(ha));
 
 			}

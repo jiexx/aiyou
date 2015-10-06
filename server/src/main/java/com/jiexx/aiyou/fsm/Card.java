@@ -48,15 +48,15 @@ public class Card {
 	public final static int MAX			= 14;
 	
 	public int pos = 0;
-	public Round.Hand first;
+	public int first;
 	public void die() {
 		Random rand =new Random();
 		int d = rand.nextInt(6);
 		int p = rand.nextInt(6);
 		if( d > p ) {
-			first = com.jiexx.aiyou.fsm.Hand.DEALER;  // first draw
+			first = 0;  // first draw
 		}else if( d < p ){
-			first = com.jiexx.aiyou.fsm.Hand.PLAYER;
+			first = 1;
 		}else if ( d == p ) {
 			die();
 		}
@@ -78,26 +78,26 @@ public class Card {
 		int i;
 		
 		for( i = 0 ; i < MAX ;  i++ ) {
-			handcards[first.val()][i] = cards[i];
+			handcards[first][i] = cards[i];
 		}
 		
-		Util.quickSort(handcards[first.val()], 0, MAX-1);
+		Util.quickSort(handcards[first], 0, MAX-1);
 		pos = i;
 		
 		for( i = 0 ; i < MAX - 1 ; i++) {
-			handcards[first.opponent().val()][i] = cards[pos+i];
+			handcards[first^0x1][i] = cards[pos+i];
 		}
 		
-		Util.quickSort(handcards[first.opponent().val()], 0, MAX-2);
+		Util.quickSort(handcards[first^0x1], 0, MAX-2);
 		
 		pos += i;
 	}
 	LinkedList<Byte> holdcards[] = null;
-	public LinkedList<Byte> getHandCards(Round.Hand hand) {
-		return holdcards[hand.val()];
+	public LinkedList<Byte> getHandCards(int hand) {
+		return holdcards[hand];
 	}
-	public LinkedList<Byte> getInitHandCards(Round.Hand hand) {
-		LinkedList<Byte> arr = holdcards[hand.val()];
+	public LinkedList<Byte> getInitHandCards(int hand) {
+		LinkedList<Byte> arr = holdcards[hand];
 		int len = MAX-1;
 		if(first == hand) {
 			len = MAX;
@@ -105,7 +105,7 @@ public class Card {
 		byte[] cards = {1,1,2,2,3,3,4,4,5,5,6,6,7,8};
 		for( int i = 0 ; i < len ;  i ++ ) {
 			//arr.add(Byte.valueOf(handcards[hand.val()][i]) );
-			arr.add(Byte.valueOf(cards[i]) );
+			arr.add(Byte.valueOf(cards[i]));
 		}
 		//System.arraycopy(handcards[hand.val()], 0, arr, 0, len);
 		return arr;

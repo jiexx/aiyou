@@ -40,31 +40,31 @@ public class GameService {
 		Round r;
 		if( msg.toid < active.size() ) {
 			if( (r = active.get((int) msg.toid)) != null ) {
-				r.receive(msg);
+				r.recv(msg);
 			}
 		}else if ( msg.cmd == Command.OPEN.val()  ) {
 			r = new Round( active.size(), msg.opt );
 			active.add(r);
-			r.receive(msg);
+			r.recv(msg);
 		}
 	}
 	public int findWaitingUser(long id) {
 		for( int i = 0 ; i < active.size() ; i ++ ) {
-			if( active.get(i).isWatingUser(id) )
+			if( active.get(i).mgr.isWatingUser(id) )
 				return i;
 		}
 		return -1;
 	}
 	public int findExistedUser(long id) {
 		for( int i = 0 ; i < active.size() ; i ++ ) {
-			if( active.get(i).isExistedUser(id) )
+			if( active.get(i).mgr.isExistedUser(id) )
 				return i;
 		}
 		return -1;
 	}
 	
 	public int getRoundChip(int index) {
-		return active.get(index).getChip()  ;
+		return active.get(index).mgr.getChip()  ;
 	}
 	
 	public void delRound(int id) {
@@ -77,10 +77,10 @@ public class GameService {
 	public void lose(long  id) {
 		
 	}
-	public void punish(long  id) {
+	public void punish(long  id, float chip) {
 		
 	}
-	public void reward(long  id) {
+	public void reward(long  id, float chip) {
 		
 	}
 	//----------------------------------------------

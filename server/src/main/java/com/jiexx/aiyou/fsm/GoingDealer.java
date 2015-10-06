@@ -1,16 +1,10 @@
 package com.jiexx.aiyou.fsm;
 
-import java.util.Arrays;
-import java.util.LinkedList;
-
 import com.jiexx.aiyou.comm.Util;
 import com.jiexx.aiyou.message.Ack;
 import com.jiexx.aiyou.message.Command;
-import com.jiexx.aiyou.message.DiscardAck;
 import com.jiexx.aiyou.message.HuAck;
 import com.jiexx.aiyou.message.Message;
-import com.jiexx.aiyou.message.PongchiAck;
-import com.jiexx.aiyou.service.GameService;
 
 public class GoingDealer extends State{
 
@@ -30,8 +24,8 @@ public class GoingDealer extends State{
 	@Override
 	public void Enter(final Message msg) {
 		// TODO Auto-generated method stub
-		if(Command.DISCARD_PONG.equal(msg.cmd) 
-			if( round.mgr.pong((byte) msg.opt) {
+		if(Command.DISCARD_PONG.equal(msg.cmd)) {
+			if(round.mgr.pong((byte) msg.opt)) {
 				round.mgr.startLoop();
 				while(round.mgr.nextUser()){
 					round.mgr.notifyUser(gson.toJson(new Ack(Command.DISCARD_PONG)));
@@ -40,7 +34,7 @@ public class GoingDealer extends State{
 		}
 		else if(Command.DISCARD_CHI.equal(msg.cmd)) {
 			Util.Disc d = Util.parseDisc(msg.opt);
-			if( round.mgr.ci(d.disc1, d.disc2, d.disc3) {
+			if(round.mgr.ci(d.disc1, d.disc2, d.disc3)){
 				round.mgr.startLoop();
 				while(round.mgr.nextUser()){
 					round.mgr.notifyUser(gson.toJson(new Ack(Command.DISCARD_CHI)));

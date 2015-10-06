@@ -8,4 +8,7 @@ public class StartAck extends Ack {
 	public boolean hu = false;
 	public LinkedList<Long> id;
 	public int rid;
+	public StartAck(Command cmd){
+		super(cmd);
+	}
 }

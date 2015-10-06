@@ -25,8 +25,8 @@ public class TokenState extends State {
 		Timer timer = new Timer(true);
 		timer.schedule(new TimerTask() { 
 			public void run() {
-				if( getRound().getCurrState() == self )
-					getRound().receive(message);
+//				if( getRound().getCurrState() == self )
+//					getRound().receive(message);
 			}
 		}, 0, 10000);
 	}

@@ -1,6 +1,8 @@
 package com.jiexx.aiyou.fsm;
 
-import com.jiexx.aiyou.message.OpenJoinAck;
+import com.jiexx.aiyou.message.Command;
+import com.jiexx.aiyou.message.Message;
+import com.jiexx.aiyou.message.StartAck;
 
 public class GoingState extends State{
 
@@ -30,7 +32,7 @@ public class GoingState extends State{
 				sa.rid = round.mgr.getRoundId();
 				round.mgr.notifyStub(gson.toJson(sa));
 			}
-			while(round.mgr.nextUser())
+			while(round.mgr.nextUser());
 		}
 	}
 
