@@ -56,8 +56,10 @@ public class Card {
 		int p = rand.nextInt(6);
 		if( d > p ) {
 			first = 0;  // first draw
+			second = 1;
 		}else if( d < p ){
 			first = 1;
+			second = 0;
 		}else if ( d == p ) {
 			die();
 		}
@@ -85,7 +87,6 @@ public class Card {
 		Util.quickSort(handcards[first], 0, MAX-1);
 		pos = i;
 		
-		second = (first == 0 ? 1 : 0);
 		for( i = 0 ; i < MAX - 1 ; i++) {
 			handcards[second][i] = cards[pos+i];
 		}

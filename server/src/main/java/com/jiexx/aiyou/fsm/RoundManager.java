@@ -32,6 +32,16 @@ public class RoundManager {
 			this.state = ep;
 			this.stub = "/game/"+userid;
 		}
+		LinkedList<Byte> getInitCards(Card cards) {
+			if(users.get(curr).state == DEALER)
+				return cards.getInitHandCards(cards.first);
+			return cards.getInitHandCards(cards.second);
+		}
+		LinkedList<Byte> getCards(Card cards) {
+			if(users.get(curr).state == DEALER)
+				return cards.getHandCards(cards.first);
+			return cards.getHandCards(cards.second);
+		}
 	}
 	private Map<Integer, String> transform = new HashMap<Integer, String>();
 	private Map<Long, UserInfo> users = new HashMap<Long, UserInfo>();
@@ -154,10 +164,10 @@ public class RoundManager {
 		return transform.get(users.get(curr).state);
 	}
 	public LinkedList<Byte> getUserCards() {
-		return cards.getInitHandCards(users.get(curr).state);
+		return users.get(curr).getInitCards();
 	}
 	public boolean whoIsUser() {
-		return Card.hu(cards.getHandCards(users.get(curr).state));
+		return Card.hu(users.get(curr).getCards());
 	}
 	public void notifyUser(String msg) {
 		System.out.println("notifyUser "+users.get(curr).stub+ ":" +msg);
@@ -168,19 +178,19 @@ public class RoundManager {
 		long ptr = curr;
 		while(users.get(ptr).next != curr){
 			ptr = users.get(ptr).next;
-			other.add(new LinkedList<Byte>(cards.getHandCards(users.get(ptr).state)));
+			other.add(new LinkedList<Byte>(users.get(ptr).getCards()));
 		}
 		return other;
 	}
 	/*------------------------- for DISCARD message handling end.------------------------*/
 	/*------------------------- for PONG/CI/DRAW message handling.------------------------*/
 	public void draw(byte card) {
-		LinkedList<Byte> handcards = cards.getHandCards(users.get(token).state);
+		LinkedList<Byte> handcards = users.get(token).getCards();
 		int pos = Util.insBytes(handcards,  card);
 		//handcards.add(pos, card);
 	}
 	public boolean pong(byte card) {
-		LinkedList<Byte> handcards = cards.getHandCards(users.get(token).state);
+		LinkedList<Byte> handcards = users.get(token).getCards();
 		int pos = Util.findBytes(handcards,  card);
 		if(pos > -1 && card == handcards.get(pos) && card == handcards.get(pos+1)) {
 			draw(card);
@@ -189,7 +199,7 @@ public class RoundManager {
 		return false;
 	}
 	public boolean ci(byte disc, byte card1, byte card2) {
-		LinkedList<Byte> handcards = cards.getHandCards(users.get(token).state);
+		LinkedList<Byte> handcards = users.get(token).getCards();
 		int pos1 = Util.findBytes(handcards,  card1);
 		int pos2 = Util.findBytes(handcards,  card2);
 		if(pos1 > -1 && pos2 > -1) {
