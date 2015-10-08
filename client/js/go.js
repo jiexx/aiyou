@@ -54,16 +54,19 @@ var State = (function () {
     State.prototype.next = function (msg) {
 		var funcNameRegex = /function (.{1,})\(/;
         var state = this.transitions['0x' + msg.cmd.toString(16)];
-		console.log('---------Command: ' + '0x' + msg.cmd.toString(16) + "   " + (funcNameRegex).exec(state.constructor.toString())[1]);
+		//console.log('---------Command: ' + '0x' + msg.cmd.toString(16) + "   " + (funcNameRegex).exec(state.constructor.toString())[1]);
         if (state != null) {
             this.Exit(msg);
-            if (this.child != null) {
-                this.child.next(msg);
-            }
+            
             state.Enter(msg);
+			
+			state.recv(msg);
+			
             this.parent.previous = this.parent.child;
             this.parent.child = state;
-        }
+        }else {
+			this.recv(msg);
+		}
     };
 	State.prototype.recv = function (msg) {
 		if( this.child != null )
@@ -81,12 +84,13 @@ var Ack = (function () {
     return Ack;
 })();
 var RoundManager = (function () {
-	function RoundManager(uid, round, chip, onClose){
+	function RoundManager(uid, round, chip, onClose, onGUI){
 		this.userid = uid;
 		this.roundid = 0xffffffff;
 		this.round = round;
 		this.chip = chip;
 		this.onClose = onClose;
+		this.onGUI = onGUI;
 		this.client = null;
 	};
 	RoundManager.prototype.wait = function (msg) {
@@ -125,7 +129,8 @@ var RoundManager = (function () {
 	};
 	RoundManager.prototype.close = function () {
 		this.disconnect();
-		this.onClose();
+		if(this.onClose != undefined && this.onClose != null)
+			this.onClose();
 	};
 	RoundManager.prototype.disconnect = function () {
 		if (this.client != null && this.client.ws.readyState == SockJS.OPEN) {
@@ -139,8 +144,9 @@ var RoundManager = (function () {
 		msg.uid = parseInt(this.userid);
 		msg.toid = parseInt(this.roundid);
 		msg.opt = opt;
-		this.client.send("/go/game", {}, JSON.stringify(msg));
-		this.round.recv(a);
+		if(this.client != null)
+			this.client.send("/go/game", {}, JSON.stringify(msg));
+		this.round.recv(msg);
 		this.debug('RECEIVE ', msg.cmd, msg.opt);
 	};
 	RoundManager.prototype.debug = function (prefix, cmd, cardid) {
@@ -177,7 +183,8 @@ var Wait = (function (_super) {
     }
     Wait.prototype.Enter = function (msg) {
 			var mj = Mahjong.instance();
-			mj.initLoadGUI();
+			mj.bind(this.getRoot());
+			//mj.initLoadGUI();
 			
 			var mgr = this.getRoot().mgr;
 			msg.cmd = parseInt(msg.cmd);
@@ -201,6 +208,9 @@ var Deal = (function (_super) {
 			if(msg.cmd == V_START_DEALER) {
 				mgr.registe(msg.rid);
 				mgr.subscribe(msg.endp);
+				if(mgr.onGUI != undefined && mgr.onGUI != null)
+					mgr.onGUI(msg.uid, mgr);
+				
 				var mj = Mahjong.instance();
 				mj.deal(msg.card);
 				if(msg.hu == true) {
@@ -220,6 +230,9 @@ var Play = (function (_super) {
 			if(msg.cmd == V_START_DEALER) {
 				mgr.registe(msg.rid);
 				mgr.subscribe(msg.endp);
+				if(mgr.onGUI != undefined && mgr.onGUI != null)
+					mgr.onGUI(msg.uid, mgr);
+					
 				var mj = Mahjong.instance();
 				mj.deal(msg.card);
 			}
@@ -262,10 +275,11 @@ var End = (function (_super) {
 })(State);
 var RoundImpl = (function (_super) {
 	__extends(RoundImpl, _super);
-	function RoundImpl(uid, chip, onClose) {
+	function RoundImpl(uid, chip, onClose, onGUI) {
 		_super.call(this, null);
-		this.mgr = new RoundManager(uid, chip, this, onClose);
+		this.mgr = new RoundManager(uid, this, chip, onClose, onGUI);
 		this.going = new Going(this);
+		var going = this.going;
 		var empty = new State(going);
 		var wait = new Wait(going);
 		var deal = new Deal(going);
@@ -288,6 +302,7 @@ var RoundImpl = (function (_super) {
 		
 		hu.addTransition(CONTINUE, wait);
 		
+		going.setInitState(empty);
 		going.addTransition(FINAL, end);
 		going.addTransition(EXIT, going);
 		this.setInitState(going);
@@ -297,7 +312,8 @@ var RoundImpl = (function (_super) {
 	};
 	RoundImpl.prototype.join = function (toid) {
 		this.going.Reset();
-		this.mgr.dispatchMessage(V_JOIN, this.mgr.chip);
+		this.mgr.registe(toid);
+		this.mgr.dispatchMessage(V_JOIN, toid);
 	};
 	RoundImpl.prototype.command = function (cmd, cardid) {
 		console.log("command " + cmd + " " + cardid);

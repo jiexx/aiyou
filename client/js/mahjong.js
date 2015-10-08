@@ -389,7 +389,7 @@ var GuiLayer = (function () {
 			onClick = null;
 		var id = this.txtObjs.length;
 		var obj = new bGUI.GUIText("" + id, 128, 32, {font : style,	text : str,	color : clr}, this.gui);
-		obj.relativePosition(new BABYLON.Vector3(xper, yper, 0));
+		obj.relativePosition(new BABYLON.Vector3(xper, yper, -1000));
 		obj.scaling(new BABYLON.Vector3(128, 32, 1));
 		obj.onClick = onClick;
 		this.txtObjs.push(obj);
@@ -506,12 +506,15 @@ var Layout = (function () {
 		this.engine = null;
 		this.scene = null;
 	}
-	Layout.prototype.create = function(canvas, go) {
+	Layout.prototype.bind = function(go) {
+		this.go = go;
+	};
+	Layout.prototype.create = function(canvas) {
 		this.myCards = null;
 		this.hisCards = null;
 		this.mats = new Array(asserts.length);
 		this.desktop = null;
-		this.go = go;
+		//this.go = null;
 		this.gui = null;
 		this.msg = -1;
 		this.dealCard = Card.INVALID;
@@ -525,7 +528,11 @@ var Layout = (function () {
 		camera.layerMask = 5;
 		
 		this.init(this.scene);
-		//this.initLoadGUI(this.scene);
+		this.initLoadGUI(this.scene);
+		var _this = this;
+		this.scene.executeWhenReady(function () {
+			_this.invalidate();
+		});
 		return this;
 	};
 	Layout.prototype.initLoadGUI = function (scene) {

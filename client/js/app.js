@@ -88,64 +88,39 @@ app.controller('gameCtrl', function ($scope, $location, $cookieStore, $http, DAT
 	var toid = $location.search().id;
 	if( DATA.userid == undefined || DATA.userid == null || toid == undefined || toid == null )
 		return;
-	var round = new RoundImpl(DATA.userid);
+	
+	var onClose = function() {
+		//round.view.clean();
+		$location.path('/').search({id:DATA.userid,lng:DATA.lng,lat:DATA.lat});
+	};
+	var onGUI = function(uid, mgr) {
+		nav.titleVisible = false;
+		$http({
+			method  : 'GET',
+			url: 'http://127.0.0.1:9090/entity/gqry.do', 
+			params: {id: uid, id2: DATA.userid}, 
+		}).success(function (resp, status, headers, config) {
+			if( resp.err == 0 && resp.gid > -1 ) {
+				var user = DATA.getUserById(DATA.userid);
+				var mj = Mahjong.instance();
+				mj.initGUI(user.thumb,resp.avatar1,user.name,resp.name1,resp.balance1,resp.balance2);
+			}else {
+				mgr.close();
+			}
+		}).error(function (resp, status, headers, config) {
+			mgr.close();
+		});
+	};
+	var round = new RoundImpl(DATA.userid, $location.search().chip, onClose, onGUI);
 	nav.navClick = function(){
 		if( round != null )
 			round.disconnect();
 		return true;
 	};
 	if( DATA.userid == toid ) {
-		round.view = View.instance();
-		round.view.attach(round);
-		round.open($location.search().chip, function(uid){
-			nav.titleVisible = false;
-			$http({
-				method  : 'GET',
-				url: 'http://127.0.0.1:9090/entity/gqry.do', 
-				params: {id: uid, id2: DATA.userid}, 
-			}).success(function (resp, status, headers, config) {
-				if( resp.err == 0 && resp.gid > -1 ) {
-					var user = DATA.getUserById(DATA.userid);
-					round.view.onExit = function(){
-						round.view.clean();
-						$location.path('/').search({id:DATA.userid,lng:DATA.lng,lat:DATA.lat});
-					};
-					round.view.layoutGUI(user.thumb,resp.avatar1,user.name,resp.name1,resp.balance1,resp.balance2);
-				}else {
-					$location.path('/').search({id:DATA.userid,lng:DATA.lng,lat:DATA.lat});
-				}
-			}).error(function (resp, status, headers, config) {
-				if( round != null )
-					round.disconnect();
-				$location.path('/').search({id:DATA.userid,lng:DATA.lng,lat:DATA.lat});
-			});
-		});
+		round.open();
 	}else {
-		round.view = View.instance();
-		round.view.attach(round);
-		round.join(toid, function(uid){
-			nav.titleVisible = false;
-			$http({
-				method  : 'GET',
-				url: 'http://127.0.0.1:9090/entity/gqry.do', 
-				params: {id: toid, id2: DATA.userid}, 
-			}).success(function (resp, status, headers, config) {
-				if( resp.err == 0 && resp.gid > -1 ) {
-					var user = DATA.getUserById(DATA.userid);
-					round.view.onExit = function(){
-						round.view.clean();
-						$location.path('/').search({id:DATA.userid,lng:DATA.lng,lat:DATA.lat});
-					};
-					round.view.layoutGUI(user.thumb,resp.avatar1,user.name,resp.name1,resp.balance1,resp.balance2);
-				}else {
-					$location.path('/').search({id:DATA.userid,lng:DATA.lng,lat:DATA.lat});
-				}
-			}).error(function (resp, status, headers, config) {
-				if( round != null )
-					round.disconnect();
-				$location.path('/').search({id:DATA.userid,lng:DATA.lng,lat:DATA.lat});
-			});
-		});
+		round.join(toid);
 	}
 });
 
@@ -327,7 +302,7 @@ app.controller('homeCtrl', function ($scope, $rootScope, $location, $cookieStore
 					};
 					$scope.mbConfirmText = '继续';
 					$scope.mbConfirm = function() {
-						$location.path('/game').search({id:userid,chip:resp.chip});
+						$location.path('/game').search({id:resp.gid,chip:resp.chip});
 					};
 				}else {
 					$scope.mbChip = '您的金币不足,可以选择好友推广挣金币<br>或者直接充值';

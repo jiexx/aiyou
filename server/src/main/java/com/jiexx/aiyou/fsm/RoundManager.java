@@ -101,16 +101,18 @@ public class RoundManager {
 	}
 	
 	public void playDice() {
+		cards.dieDealDraw();
+		
 		long[] id = new long[users.size()];
 		int i = 0;
 		Set<Entry<Long, UserInfo>> sets = users.entrySet();  
 		for (Entry<Long, UserInfo> entry : sets) {
 			id[i++] = entry.getKey();
 		}
-		users.get(id[0]).state = DEALER;
-		users.get(id[1]).state = PLAYER;
+		users.get(id[cards.first]).state = DEALER;
+		users.get(id[cards.second]).state = PLAYER;
 		
-		token = id[0];
+		token = id[cards.first];
 	}
 	
 	public void notifyBack(String msg) {

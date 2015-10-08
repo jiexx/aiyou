@@ -68,6 +68,7 @@ public class Entity extends DataService {
 			Driver d = DATA.queryDriverById( myid );
 			resp.chip =  GameService.instance.getRoundChip(roundid);
 			resp.enough = d.balance >= resp.chip;
+			resp.gid = roundid;
 		}else {
 			resp.err = Const.FAILED.val();
 		}

@@ -49,6 +49,7 @@ public class Card {
 	
 	public int pos = 0;
 	public int first;
+	public int second;
 	public void die() {
 		Random rand =new Random();
 		int d = rand.nextInt(6);
@@ -84,11 +85,12 @@ public class Card {
 		Util.quickSort(handcards[first], 0, MAX-1);
 		pos = i;
 		
+		second = (first == 0 ? 1 : 0);
 		for( i = 0 ; i < MAX - 1 ; i++) {
-			handcards[first^0x1][i] = cards[pos+i];
+			handcards[second][i] = cards[pos+i];
 		}
 		
-		Util.quickSort(handcards[first^0x1], 0, MAX-2);
+		Util.quickSort(handcards[second], 0, MAX-2);
 		
 		pos += i;
 	}

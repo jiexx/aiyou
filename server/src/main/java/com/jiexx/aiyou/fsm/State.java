@@ -58,7 +58,6 @@ public abstract class State {
 	}
 	public void next(Message msg) {
 		State state = transitions.get(msg.cmd);
-		System.out.println("Command "+Integer.toHexString(msg.cmd));
 		if( state != null ) {
 			System.out.println("Command "+state.getClass().getSimpleName());
 			Exit(msg);
