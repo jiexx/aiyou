@@ -24,18 +24,21 @@ var State = (function () {
     State.prototype.Exit = function (msg) {
         this.child = this.init;
         if (this.child != null) {
-            this.child.reset();
-            for (var key in this.transitions) {
-                var val = this.transitions[key];
-                if (val != null)
-                    val.reset();
+			this.child.Exit(msg);
+            this.child.Reset();
+            for (var key in this.child.transitions) {
+                var val = this.child.transitions[key];
+                if (val != null) {
+					val.Exit(msg);
+                    val.Reset();
+				}
             }
         }
     };
     State.prototype.Enter = function (msg) {
     };
     State.prototype.Reset = function () {
-			this.child = this.init;
+		this.child = this.init;
     };
     State.prototype.getRoot = function () {
         var r = this;
@@ -120,7 +123,7 @@ var RoundManager = (function () {
 	};
 	RoundManager.prototype.subscribe = function (point) {
 		if( point != undefined && point != null ) {
-			var _this = this;
+			var _this = this.round;
 			this.client.subscribe('/hook' + point, function (frame) {
 					var msg = JSON.parse(frame.body);
 					_this.recv(msg);
@@ -136,7 +139,7 @@ var RoundManager = (function () {
 		if (this.client != null && this.client.ws.readyState == SockJS.OPEN) {
 			this.client.disconnect();
 		}
-		console.log("Disconnected");
+		console.log("####		Disconnected");
 	};
 	RoundManager.prototype.dispatchMessage = function (cmd, opt) {
 		var msg = new Ack();
@@ -144,10 +147,9 @@ var RoundManager = (function () {
 		msg.uid = parseInt(this.userid);
 		msg.toid = parseInt(this.roundid);
 		msg.opt = opt;
-		if(this.client != null)
-			this.client.send("/go/game", {}, JSON.stringify(msg));
+		this.send(msg);
 		this.round.recv(msg);
-		this.debug('RECEIVE ', msg.cmd, msg.opt);
+		this.debug('####		RECEIVE ', msg.cmd, msg.opt);
 	};
 	RoundManager.prototype.debug = function (prefix, cmd, cardid) {
 		var str = '';
@@ -164,12 +166,13 @@ var RoundManager = (function () {
 		case V_CONTINUE: str='CONTINUE';break;
 		case V_EXIT: str='EXIT';break;
 		}
-		console.log(prefix+' message: '+str+' opt: '+cardid);
+		console.log('####		'+prefix+' message: '+str+' opt: '+cardid);
 	};
 	RoundManager.prototype.send = function (msg) {
 		msg.toid = parseInt(this.roundid);
-		this.client.send("/go/game", {}, JSON.stringify(msg));
-		this.debug('		SEND', msg.cmd, msg.opt);
+		if(this.client != null)
+			this.client.send("/go/game", {}, JSON.stringify(msg));
+		this.debug('####		SEND', msg.cmd, msg.opt);
 	};
 	return RoundManager;
 })();
@@ -182,6 +185,7 @@ var Wait = (function (_super) {
 			_super.call(this, r);
     }
     Wait.prototype.Enter = function (msg) {
+		if(msg.cmd == V_OPEN || msg.cmd == V_JOIN) {
 			var mj = Mahjong.instance();
 			mj.bind(this.getRoot());
 			//mj.initLoadGUI();
@@ -189,6 +193,9 @@ var Wait = (function (_super) {
 			var mgr = this.getRoot().mgr;
 			msg.cmd = parseInt(msg.cmd);
 			mgr.wait(msg);
+		}
+		else if(msg.cmd == V_EXIT) {
+		}
 			//var open = msg;
 			//if( open.endp != undefined && open.endp != null )
 			//	round.subscribe(open.endp);
@@ -209,7 +216,7 @@ var Deal = (function (_super) {
 				mgr.registe(msg.rid);
 				mgr.subscribe(msg.endp);
 				if(mgr.onGUI != undefined && mgr.onGUI != null)
-					mgr.onGUI(msg.uid, mgr);
+					mgr.onGUI(msg.id[0], mgr);
 				
 				var mj = Mahjong.instance();
 				mj.deal(msg.card);
@@ -227,11 +234,11 @@ var Play = (function (_super) {
     }
     Play.prototype.Enter = function (msg) {
 			var mgr = this.getRoot().mgr;
-			if(msg.cmd == V_START_DEALER) {
+			if(msg.cmd == V_START_PLAYER) {
 				mgr.registe(msg.rid);
 				mgr.subscribe(msg.endp);
 				if(mgr.onGUI != undefined && mgr.onGUI != null)
-					mgr.onGUI(msg.uid, mgr);
+					mgr.onGUI(msg.id[0], mgr);
 					
 				var mj = Mahjong.instance();
 				mj.deal(msg.card);
@@ -243,12 +250,21 @@ var Going = (function (_super) {
 	__extends(Going, _super);
 	function Going(r) {
 		_super.call(this, r);
+		this.backup = null;
 	}
 	Going.prototype.Enter = function (msg) {
 		if(msg.cmd == V_EXIT) {
 			var mgr = this.getRoot().mgr;
-			mgr.open();
+			//mgr.close();
+			this.restore();
 		}
+	};
+	Going.prototype.setBackupState = function (state) {
+		this.backup = state;
+	};
+	Going.prototype.restore = function (state) {
+		if(this.backup != null)
+			this.child = this.backup;
 	};
 	return Going;
 })(State);
@@ -269,7 +285,7 @@ var End = (function (_super) {
 	}
 	End.prototype.Enter = function (msg) {
 		var mgr = this.getRoot().mgr;
-		mgr.disconnect();
+		mgr.close();
 	};
 	return End;
 })(State);
@@ -303,6 +319,7 @@ var RoundImpl = (function (_super) {
 		hu.addTransition(CONTINUE, wait);
 		
 		going.setInitState(empty);
+		going.setBackupState(wait);
 		going.addTransition(FINAL, end);
 		going.addTransition(EXIT, going);
 		this.setInitState(going);
@@ -327,9 +344,13 @@ var RoundImpl = (function (_super) {
 		case V_CONTINUE:
 		case V_EXIT:
 			this.mgr.dispatchMessage(cmd, cardid);
-			if(cmd == V_EXIT) {
-				this.mgr.close();
-			}
+		break;
+		case V_FINAL:
+			var msg = new Ack();
+			msg.cmd = cmd;
+			this.recv(msg);
+			msg.cmd = V_EXIT;
+			this.mgr.send(msg);
 		break;
 		}
 	};

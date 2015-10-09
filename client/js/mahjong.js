@@ -494,7 +494,7 @@ var Layout = (function () {
 		'Bamboo1', 'Bamboo2', 'Bamboo3', 'Bamboo4', 'Bamboo5', 'Bamboo6', 'Bamboo7', 'Bamboo8', 'Bamboo9',
 		'Char1', 'Char2', 'Char3', 'Char4', 'Char5', 'Char6', 'Char7', 'Char8', 'Char9', ];
 	//'who',	'draw',	'continue',	'exit',	'loss',	'win'];
-	var EXIT = 0x10000003,	CONTINUE = 0x10000004,	DISCARD = 0x20000001,	DISCARD_PONG = 0x30000001,	DISCARD_CHI = 0x30000002,	DISCARD_DRAW = 0x30000003,	WHO = 0x50000001;
+	var EXIT = 0x10000003,	CONTINUE = 0x10000004,	DISCARD = 0x20000001,	DISCARD_PONG = 0x30000001,	DISCARD_CHI = 0x30000002,	DISCARD_DRAW = 0x30000003,	WHO = 0x50000001, FINAL = 0x50000003;
 	function Layout() {
 		this.myCards = null;
 		this.hisCards = null;
@@ -540,7 +540,7 @@ var Layout = (function () {
 		this.msg = this.gui.drawText("等待对手...", 0.5, 0.5);
 	};
 	Layout.prototype.initGUI = function (myAvator, hisAvator, myName, hisName, myChip, hisChip) {
-		this.scene.activeCamera.layerMask    = 1;
+		//this.scene.activeCamera.layerMask    = 1;
 		if (this.msg != -1)
 			this.gui.setTextVisible(this.msg, false);
 		this.gui.drawText(myName, 0.15, 0.8);
@@ -559,7 +559,7 @@ var Layout = (function () {
 		this.gui.addImage("win", 0.5, 0.5, 200.0, 200.0);
 		this.gui.addImage("loss", 0.5, 0.5, 200.0, 200.0);
 		this.gui.addImage("continue", 0.9, 0.1, 50.0, 50.0, this.resumeOnClick);
-		this.gui.addImage("exit", 0.8, 0.1, 50.0, 50.0);
+		this.gui.addImage("exit", 0.8, 0.1, 50.0, 50.0, this.exitOnClick);
 		this.gui.addImage("gold", 0.1, 0.9, 25.0, 25.0);
 		this.gui.addImage("gold", 0.1, 0.2, 25.0, 25.0);
 		
@@ -609,7 +609,7 @@ var Layout = (function () {
 	};
 	Layout.prototype.exitOnClick = function (that) {
 		var _this = Mahjong.instance();
-		_this.notify(EXIT, this.userid);
+		_this.notify(FINAL, this.userid);
 		_this.invalidate();
 	};
 	Layout.prototype.resumeOnClick = function (that) {

@@ -92,6 +92,7 @@ public class GameService {
 		long uid = sessionWithId.get(sessionid);
 		int roundid = findExistedUser(uid);
 		if( roundid > -1 ) {
+			System.out.println("exitSession [roundid: " + roundid + " uid:"+uid+"]");
 			Message msg = new Message();
 			msg.cmd = Command.EXIT.val();
 			msg.toid = roundid;

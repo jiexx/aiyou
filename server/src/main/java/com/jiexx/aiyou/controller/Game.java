@@ -18,7 +18,6 @@ public class Game {
     @MessageMapping(WebSocketConfig.endpoint)
     //@SendTo("/recv/userid")
     public void start(StompHeaderAccessor sha, Message message) {
-        System.out.println(message.uid);
         if( message.cmd == Command.OPEN.val() || message.cmd == Command.JOIN.val() ) {
         	GameService.instance.regSessionWithId(sha.getSessionId(), message.uid);
         }

@@ -26,7 +26,7 @@ public class Entity extends DataService {
 	@RequestMapping(value = "gqry.do", params = { "id", "id2" }, method = RequestMethod.GET)
 	@ResponseBody
 	public String gameRoundQry(@RequestParam(value = "id") long id, @RequestParam(value = "id2") long id2 ) {
-		System.out.println("gameRoundQry");
+		//System.out.println("gameRoundQry");
 		
 		int roundid = GameService.instance.findExistedUser( id );
 		Driver d1 = DATA.queryDriverById( id );

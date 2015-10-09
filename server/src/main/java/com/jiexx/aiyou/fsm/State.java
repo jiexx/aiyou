@@ -36,10 +36,14 @@ public abstract class State {
 	public void Exit(final Message msg){
 		child = init;
 		if( child != null ) {
+			child.Exit(msg);
 			child.reset();
 			for( Map.Entry<Integer, State> entry :  child.transitions.entrySet() ) {
-				if( entry.getValue() != null ) 
-					entry.getValue().reset();
+				State p = entry.getValue();
+				if( p != null ) {
+					p.Exit(msg);
+					p.reset();
+				}
 			}
 		}
 	}
@@ -59,7 +63,7 @@ public abstract class State {
 	public void next(Message msg) {
 		State state = transitions.get(msg.cmd);
 		if( state != null ) {
-			System.out.println("Command "+state.getClass().getSimpleName());
+			System.out.println("Current :"+this.getClass().getSimpleName()+" Next :"+state.getClass().getSimpleName()+" message received:"+gson.toJson(msg));
 			Exit(msg);
 
 			state.Enter(msg);
