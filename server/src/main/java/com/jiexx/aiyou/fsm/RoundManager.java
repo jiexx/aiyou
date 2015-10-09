@@ -79,6 +79,7 @@ public class RoundManager {
 	}
 	
 	public void finish(){
+		System.out.println("delRound "+id);
 		GameService.instance.delRound(id);
 	}
 	

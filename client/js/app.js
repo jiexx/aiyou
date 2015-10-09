@@ -92,6 +92,7 @@ app.controller('gameCtrl', function ($scope, $location, $cookieStore, $http, DAT
 	var onClose = function() {
 		//round.view.clean();
 		$location.path('/').search({id:DATA.userid,lng:DATA.lng,lat:DATA.lat});
+		$scope.$apply();
 	};
 	var onGUI = function(uid, mgr) {
 		nav.titleVisible = false;
