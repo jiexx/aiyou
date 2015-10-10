@@ -5,6 +5,7 @@ import com.jiexx.aiyou.message.Ack;
 import com.jiexx.aiyou.message.Command;
 import com.jiexx.aiyou.message.HuAck;
 import com.jiexx.aiyou.message.Message;
+import com.jiexx.aiyou.message.PongchiAck;
 
 public class GoingDealer extends State{
 
@@ -28,7 +29,11 @@ public class GoingDealer extends State{
 			if(round.mgr.pong((byte) msg.opt)) {
 				round.mgr.startLoop();
 				while(round.mgr.nextUser()){
-					round.mgr.notifyUser(gson.toJson(new Ack(Command.DISCARD_PONG)));
+					PongchiAck pa = new PongchiAck(Command.DISCARD_PONG);
+					pa.disc1 = (byte) msg.opt;
+					pa.disc2 = (byte) msg.opt;
+					pa.disc3 = (byte) msg.opt;
+					round.mgr.notifyUser(gson.toJson(pa));
 				}
 			}
 		}
@@ -37,7 +42,11 @@ public class GoingDealer extends State{
 			if(round.mgr.ci(d.disc1, d.disc2, d.disc3)){
 				round.mgr.startLoop();
 				while(round.mgr.nextUser()){
-					round.mgr.notifyUser(gson.toJson(new Ack(Command.DISCARD_CHI)));
+					PongchiAck pa = new PongchiAck(Command.DISCARD_PONG);
+					pa.disc1 = d.disc1;
+					pa.disc2 = d.disc2;
+					pa.disc3 = d.disc3;
+					round.mgr.notifyUser(gson.toJson(pa));
 				}
 			}
 		}

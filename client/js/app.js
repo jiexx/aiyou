@@ -80,7 +80,7 @@ app.controller('appCtrl', function ($scope, $location, $cookieStore, DATA) {
 app.controller('gameCtrl', function ($scope, $location, $cookieStore, $http, DATA) {
 	console.log(DATA.title);
 	var nav = $scope.$parent;
-	nav.titleVisible = true;
+	nav.titleVisible = false;
 	nav.title = '麻将';
 	nav.navLnk = '/';
 	nav.listStyle = false;
@@ -95,7 +95,6 @@ app.controller('gameCtrl', function ($scope, $location, $cookieStore, $http, DAT
 		$scope.$apply();
 	};
 	var onGUI = function(uid, mgr) {
-		nav.titleVisible = false;
 		$http({
 			method  : 'GET',
 			url: 'http://127.0.0.1:9090/entity/gqry.do', 
@@ -114,8 +113,7 @@ app.controller('gameCtrl', function ($scope, $location, $cookieStore, $http, DAT
 	};
 	var round = new RoundImpl(DATA.userid, $location.search().chip, onClose, onGUI);
 	nav.navClick = function(){
-		if( round != null )
-			round.disconnect();
+		round.mgr.close();
 		return true;
 	};
 	if( DATA.userid == toid ) {

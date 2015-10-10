@@ -125,8 +125,9 @@ var RoundManager = (function () {
 		if( point != undefined && point != null ) {
 			var _this = this.round;
 			this.client.subscribe('/hook' + point, function (frame) {
-					var msg = JSON.parse(frame.body);
-					_this.recv(msg);
+				var msg = JSON.parse(frame.body);
+				_this.recv(msg);
+				_this.mgr.debug('####		RECEIVE ', msg.cmd, msg.opt);
 			});
 		}
 	};
@@ -138,8 +139,8 @@ var RoundManager = (function () {
 	RoundManager.prototype.disconnect = function () {
 		if (this.client != null && this.client.ws.readyState == SockJS.OPEN) {
 			this.client.disconnect();
+			console.log("####		Disconnected");
 		}
-		console.log("####		Disconnected");
 	};
 	RoundManager.prototype.dispatchMessage = function (cmd, opt) {
 		var msg = new Ack();
@@ -149,7 +150,14 @@ var RoundManager = (function () {
 		msg.opt = opt;
 		this.send(msg);
 		this.round.recv(msg);
-		this.debug('####		RECEIVE ', msg.cmd, msg.opt);
+	};
+	RoundManager.prototype.sendMessage = function (cmd, opt) {
+		var msg = new Ack();
+		msg.cmd = cmd;
+		msg.uid = parseInt(this.userid);
+		msg.toid = parseInt(this.roundid);
+		msg.opt = opt;
+		this.send(msg);
 	};
 	RoundManager.prototype.debug = function (prefix, cmd, cardid) {
 		var str = '';
@@ -211,19 +219,19 @@ var Deal = (function (_super) {
 			_super.call(this, r);
     }
     Deal.prototype.Enter = function (msg) {
-			var mgr = this.getRoot().mgr;
-			if(msg.cmd == V_START_DEALER) {
-				mgr.registe(msg.rid);
-				mgr.subscribe(msg.endp);
-				if(mgr.onGUI != undefined && mgr.onGUI != null)
-					mgr.onGUI(msg.id[0], mgr);
-				
-				var mj = Mahjong.instance();
-				mj.deal(msg.card);
-				if(msg.hu == true) {
-					mj.win();
-				}
+		var mgr = this.getRoot().mgr;
+		var mj = Mahjong.instance();
+		if(msg.cmd == V_START_DEALER) {
+			mgr.registe(msg.rid);
+			mgr.subscribe(msg.endp);
+			if(mgr.onGUI != undefined && mgr.onGUI != null)
+				mgr.onGUI(msg.id[0], mgr);
+			
+			mj.deal(msg.card);
+			if(msg.hu == true) {
+				mj.win();
 			}
+		}
     };
     return Deal;
 })(State);
@@ -233,18 +241,48 @@ var Play = (function (_super) {
 			_super.call(this, r);
     }
     Play.prototype.Enter = function (msg) {
-			var mgr = this.getRoot().mgr;
-			if(msg.cmd == V_START_PLAYER) {
-				mgr.registe(msg.rid);
-				mgr.subscribe(msg.endp);
-				if(mgr.onGUI != undefined && mgr.onGUI != null)
-					mgr.onGUI(msg.id[0], mgr);
-					
-				var mj = Mahjong.instance();
-				mj.deal(msg.card);
-			}
     };
     return Play;
+})(State);
+var Deal2 = (function (_super) {
+    __extends(Deal2, _super);
+    function Deal2(r) {
+			_super.call(this, r);
+    }
+    Deal2.prototype.Enter = function (msg) {
+		var mgr = this.getRoot().mgr;
+		var mj = Mahjong.instance();
+		if(msg.cmd == V_DISCARD) {
+			mj.heDiscard(msg.disc, msg.deal);
+		}
+    };
+    return Deal2;
+})(State);
+var Play2 = (function (_super) {
+    __extends(Play2, _super);
+    function Play2(r) {
+			_super.call(this, r);
+    }
+    Play2.prototype.Enter = function (msg) {
+		var mgr = this.getRoot().mgr;
+		var mj = Mahjong.instance();
+		if(msg.cmd == V_DISCARD_DRAW) {
+			mj.heDraw(0);
+		}
+		else if(msg.cmd == V_DISCARD_PONG || msg.cmd == V_DISCARD_CHI) {
+			mj.hePongci(msg.disc1, msg.disc2, msg.disc3);
+		}
+		else if(msg.cmd == V_START_PLAYER) {
+			mgr.registe(msg.rid);
+			mgr.subscribe(msg.endp);
+			if(mgr.onGUI != undefined && mgr.onGUI != null)
+				mgr.onGUI(msg.id[0], mgr);
+				
+			var mj = Mahjong.instance();
+			mj.deal(msg.card);
+		}
+    };
+    return Play2;
 })(State);
 var Going = (function (_super) {
 	__extends(Going, _super);
@@ -265,6 +303,8 @@ var Going = (function (_super) {
 	Going.prototype.restore = function (state) {
 		if(this.backup != null)
 			this.child = this.backup;
+		var mj = Mahjong.instance();
+		mj.reset();
 	};
 	return Going;
 })(State);
@@ -300,6 +340,8 @@ var RoundImpl = (function (_super) {
 		var wait = new Wait(going);
 		var deal = new Deal(going);
 		var play = new Play(going);
+		var deal2 = new Deal2(going);
+		var play2 = new Play2(going);
 		var hu = new Hu(going);
 		var end = new End(this);
 		
@@ -307,14 +349,21 @@ var RoundImpl = (function (_super) {
 		empty.addTransition(JOIN, wait);
 		
 		wait.addTransition(START_DEALER, deal);
-		wait.addTransition(START_PLAYER, play);
+		wait.addTransition(START_PLAYER, play2);
 		
 		deal.addTransition(DISCARD, play);
-		deal.addTransition(WHO, hu);
 		
-		play.addTransition(DISCARD_DRAW, deal);
-		play.addTransition(DISCARD_PONG, deal);
-		play.addTransition(DISCARD_CHI, deal);
+		play.addTransition(DISCARD_DRAW, play2);
+		play.addTransition(DISCARD_PONG, play2);
+		play.addTransition(DISCARD_CHI, play2);
+		
+		play2.addTransition(DISCARD, deal2);
+		
+		deal2.addTransition(DISCARD_DRAW, deal);
+		deal2.addTransition(DISCARD_PONG, deal);
+		deal2.addTransition(DISCARD_CHI, deal);
+		
+		deal2.addTransition(WHO, hu);
 		
 		hu.addTransition(CONTINUE, wait);
 		
@@ -332,8 +381,20 @@ var RoundImpl = (function (_super) {
 		this.mgr.registe(toid);
 		this.mgr.dispatchMessage(V_JOIN, toid);
 	};
+	RoundImpl.prototype.listen = function (msg) {
+		console.log("listen ");
+		switch(msg.cmd) {
+		case V_DISCARD:
+		case V_DISCARD_PONG:
+		case V_DISCARD_CHI:
+		case V_DISCARD_DRAW:
+		case V_WHO:
+		case V_CONTINUE:
+			this.mgr.dispatchMessage(cmd, cardid);
+		break;
+		}
+	};
 	RoundImpl.prototype.command = function (cmd, cardid) {
-		console.log("command " + cmd + " " + cardid);
 		var a = new Ack();
 		switch(cmd) {
 		case V_DISCARD:
@@ -342,15 +403,14 @@ var RoundImpl = (function (_super) {
 		case V_DISCARD_DRAW:
 		case V_WHO:
 		case V_CONTINUE:
-		case V_EXIT:
 			this.mgr.dispatchMessage(cmd, cardid);
 		break;
 		case V_FINAL:
 			var msg = new Ack();
-			msg.cmd = cmd;
-			this.recv(msg);
 			msg.cmd = V_EXIT;
 			this.mgr.send(msg);
+			msg.cmd = cmd;
+			this.recv(msg);
 		break;
 		}
 	};

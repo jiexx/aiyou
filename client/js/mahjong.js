@@ -62,11 +62,12 @@ var Desktop = (function () {
 		mat.diffuseColor = new BABYLON.Color3(35 / 255.0, 116 / 255.0, 172 / 255.0);
 		this.stuff = new Stuff(scene, 'desktop', 500, this);
 		this.stuff.set(mat, 0, 0, 10, true);
-		this.prop = new PropSet(null, 1);
+		this.prop = new PropSet(mat, 1);
 		this.state = 0;
 	};
 	Desktop.prototype.init = function (x, y, z, isVisible, onClick) {
 		this.prop.init(0, x, y, z, isVisible, onClick);
+		this.stuff.set(this.prop.materials, x, y, z, true);
 	};
 	return Desktop;
 })();
@@ -521,6 +522,13 @@ var Layout = (function () {
 		this.userid = -1;
 		
 		this.engine = new BABYLON.Engine(canvas, true);
+		this.reset();
+		return this;
+	};
+	Layout.prototype.reset = function () {
+		if(this.scene != null) {
+			this.scene.dispose();
+		}
 		this.scene = new BABYLON.Scene(this.engine);
 		this.scene.clearColor = new BABYLON.Color3(35 / 255.0, 116 / 255.0, 172 / 255.0);
 		var light = new BABYLON.PointLight("Point", new BABYLON.Vector3(3 * 14, 0, -100), this.scene);
@@ -533,11 +541,12 @@ var Layout = (function () {
 		this.scene.executeWhenReady(function () {
 			_this.invalidate();
 		});
-		return this;
 	};
 	Layout.prototype.initLoadGUI = function (scene) {
 		this.gui = new GuiLayer(scene);
 		this.msg = this.gui.drawText("等待对手...", 0.5, 0.5);
+		this.gui.addImage("exit", 0.8, 0.1, 50.0, 50.0, this.exitOnClick);
+		this.gui.draw();
 	};
 	Layout.prototype.initGUI = function (myAvator, hisAvator, myName, hisName, myChip, hisChip) {
 		//this.scene.activeCamera.layerMask    = 1;
@@ -559,7 +568,6 @@ var Layout = (function () {
 		this.gui.addImage("win", 0.5, 0.5, 200.0, 200.0);
 		this.gui.addImage("loss", 0.5, 0.5, 200.0, 200.0);
 		this.gui.addImage("continue", 0.9, 0.1, 50.0, 50.0, this.resumeOnClick);
-		this.gui.addImage("exit", 0.8, 0.1, 50.0, 50.0, this.exitOnClick);
 		this.gui.addImage("gold", 0.1, 0.9, 25.0, 25.0);
 		this.gui.addImage("gold", 0.1, 0.2, 25.0, 25.0);
 		
@@ -588,13 +596,13 @@ var Layout = (function () {
 			ps1.init(Card.UNFOCUSED1, 6, -25, 0, true, _this.cardOnClick);
 			ps1.init(Card.FOCUSED1, 6, -22, 0, true, _this.cardOnClick);
 			ps1.init(Card.SHOW1, 6, -15, 0, true, null);
-			ps1.init(Card.DISCARD1, 6 * 3, -5, 10, true, null);
+			ps1.init(Card.DISCARD1, 6 * 3, -5, 0, true, null);
 			_this.myCards = new CardGroup(scene, ps1);
       
-      var ps2 = new PropSet(_this.mats, 5);
+			var ps2 = new PropSet(_this.mats, 5);
 			ps2.init(Card.EMPTY2, 0, 0, 0, false, null);
 			ps2.init(Card.BACK2, 6, 25, 0, true, null);
-			ps2.init(Card.DISCARD2, 6 * 3, 5, 10, true, _this.cardOnClick);
+			ps2.init(Card.DISCARD2, 6 * 3, 5, 0, true, _this.cardOnClick);
 			ps2.init(Card.SHOW2, 6, 15, 0, true, null);
 			_this.hisCards = new CardGroup(scene, ps2);
 		};
@@ -665,6 +673,7 @@ var Layout = (function () {
 	};
 	Layout.prototype.draw = function (data) {
 		if (this.myCards.tryDraw(data)) {
+			this.gui.showImage("draw", false);
 			this.notify(DISCARD_DRAW, 0);
 		}
 	};
