@@ -276,6 +276,7 @@ var CardGroup = (function () {
 	CardGroup.prototype.draw = function () {
 		if (this.state == DRAWTIME && this.nextState(0)) {
 			this.pick.state = Card.BACK2;
+			this.pick.data = 0;
 			return true;
 		}
 		return false;
@@ -672,7 +673,7 @@ var Layout = (function () {
 		_this.invalidate();
 	};
 	Layout.prototype.draw = function (data) {
-		if (this.myCards.tryDraw(data)) {
+		if (this.myCards.tryDraw(data)) {  // try for my
 			this.gui.showImage("draw", false);
 			this.notify(DISCARD_DRAW, 0);
 		}
@@ -687,9 +688,12 @@ var Layout = (function () {
 			_this.invalidate();
 		});
 	};
-	Layout.prototype.heDraw = function (data) { // only for his
-		this.hisCards.draw(data);
-		this.invalidate();
+	Layout.prototype.heDraw = function () { // only for his
+		var _this = this;
+		this.scene.executeWhenReady(function () {
+			_this.hisCards.draw();     //no try for his
+			_this.invalidate();
+		});
 	};
 	Layout.prototype.hePongci = function (disc1, disc2, disc3) { // only for his
 		this.hisCards.pongci(disc1, disc2, disc3);
