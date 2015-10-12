@@ -11,6 +11,7 @@ import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.stereotype.Repository;
 import org.springframework.stereotype.Service;
 
+import com.jiexx.aiyou.comm.Util;
 import com.jiexx.aiyou.controller.WebSocketConfig;
 import com.jiexx.aiyou.dao.Data;
 import com.jiexx.aiyou.fsm.Round;
@@ -30,7 +31,8 @@ public class GameService {
 	}
 	
 	public void sendMessage(String endpoint, String msg) {
-		System.out.println("sendMessage  "+WebSocketConfig.broker+endpoint+" "+msg);
+		System.out.println();
+		Util.log(".", ">>>"+WebSocketConfig.broker+endpoint+" : "+msg);
 		sendor.convertAndSend(WebSocketConfig.broker+endpoint, msg);
 	}
 

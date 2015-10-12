@@ -53,9 +53,9 @@ public class GoingDealer extends State{
 		else if(Command.DISCARD_DRAW.equal(msg.cmd)) {
 			round.mgr.draw((byte) msg.opt);
 			round.mgr.startLoop();
-			if(round.mgr.whoIsUser()) {
-				round.mgr.notifyUser(gson.toJson(new HuAck(Command.WHO)));
-			}
+			//if(round.mgr.whoIsUser()) {
+			//	round.mgr.notifyUser(gson.toJson(new HuAck(Command.WHO)));
+			//}
 			while(round.mgr.nextUser()){
 				round.mgr.notifyUser(gson.toJson(new Ack(Command.DISCARD_DRAW)));
 			}

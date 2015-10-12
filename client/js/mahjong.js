@@ -6,7 +6,10 @@
 		this.onClick = null;
 	};
 	Property.prototype.invalidate = function (stuff, data) {
-		stuff.set(this.materials[data], this.position.x, this.position.y, this.position.z, this.isVisible);
+		if(data == -1)
+			stuff.set(this.materials[data], this.position.x, this.position.y, this.position.z, false);
+		else
+			stuff.set(this.materials[data], this.position.x, this.position.y, this.position.z, this.isVisible);
 	};
 	Property.prototype.set = function (mats, x, y, z, isVisible, onClick) {
 		this.position.x = x;
@@ -39,6 +42,7 @@ var Stuff = (function () {
 	function Stuff(scene, name, size, that) {
 		this.mesh = BABYLON.Mesh.CreatePlane(name, size, scene);
 		this.mesh.layerMask = 5;
+		this.mesh.isVisible = false;
 		this.mesh.actionManager = new BABYLON.ActionManager(scene);
 		this.mesh.actionManager.registerAction(new BABYLON.ExecuteCodeAction(BABYLON.ActionManager.OnPickTrigger, function (evt) {
 				var onClick = that.prop.properties[that.state].onClick;
@@ -369,6 +373,7 @@ var Picture = (function () {
 			p.isVisible = isVisible;
 			if(p.obj != null){
 				p.obj.setVisible(p.isVisible);
+				p.obj.mask();
 			}
 		}
 	};
@@ -470,12 +475,15 @@ var GuiLayer = (function () {
 			img.onSuccess = function (t) {
 				var prop = asserts[t.name].prop;
 				for(var j = 0 ; j < prop.length ; j ++ ){
-					var obj = new bGUI.GUIPanel("img_" + t.name + j, t.texture, null, _this.gui);
-					obj.relativePosition(new BABYLON.Vector3(prop[j].perx, prop[j].pery, 0));
-					obj.scaling(new BABYLON.Vector3(prop[j].sizex, prop[j].sizey, 1.0));
-					obj.onClick = prop[j].onClick;
-					obj.setVisible(prop[j].isVisible);
-					prop[j].obj = obj;
+					if(prop[j].obj == null) {
+						var obj = new bGUI.GUIPanel("img_" + t.name + j, t.texture, null, _this.gui);
+						obj.relativePosition(new BABYLON.Vector3(prop[j].perx, prop[j].pery, 0));
+						obj.scaling(new BABYLON.Vector3(prop[j].sizex, prop[j].sizey, 1.0));
+						obj.mask();
+						obj.onClick = prop[j].onClick;
+						obj.setVisible(prop[j].isVisible);
+						prop[j].obj = obj;
+					}
 				}
 			};
 		}
@@ -496,7 +504,7 @@ var Layout = (function () {
 		'Bamboo1', 'Bamboo2', 'Bamboo3', 'Bamboo4', 'Bamboo5', 'Bamboo6', 'Bamboo7', 'Bamboo8', 'Bamboo9',
 		'Char1', 'Char2', 'Char3', 'Char4', 'Char5', 'Char6', 'Char7', 'Char8', 'Char9', ];
 	//'who',	'draw',	'continue',	'exit',	'loss',	'win'];
-	var EXIT = 0x10000003,	CONTINUE = 0x10000004,	DISCARD = 0x20000001,	DISCARD_PONG = 0x30000001,	DISCARD_CHI = 0x30000002,	DISCARD_DRAW = 0x30000003,	WHO = 0x50000001, FINAL = 0x50000003;
+	var EXIT = 0x10000003,	CONTINUE = 0x10000004,	DISCARD = 0x20000001,	DISCARD_PONG = 0x30000001,	DISCARD_CHI = 0x30000002,	DISCARD_DRAW = 0x30000003,	WHO = 0x50000001, FINAL = 0x50000003, SELFDRAWHO = 0x50000004;
 	function Layout() {
 		this.myCards = null;
 		this.hisCards = null;
@@ -533,8 +541,8 @@ var Layout = (function () {
 		this.scene = new BABYLON.Scene(this.engine);
 		this.scene.clearColor = new BABYLON.Color3(35 / 255.0, 116 / 255.0, 172 / 255.0);
 		var light = new BABYLON.PointLight("Point", new BABYLON.Vector3(3 * 14, 0, -100), this.scene);
-		var camera = new BABYLON.FreeCamera("Camera", new BABYLON.Vector3(3 * 14, 0, -70), this.scene);
-		camera.layerMask = 5;
+		this.camera = new BABYLON.FreeCamera("Camera", new BABYLON.Vector3(3 * 14, 0, -70), this.scene);
+		this.camera.layerMask = 5;
 		
 		this.init(this.scene);
 		this.initLoadGUI(this.scene);
@@ -550,7 +558,7 @@ var Layout = (function () {
 		this.gui.draw();
 	};
 	Layout.prototype.initGUI = function (myAvator, hisAvator, myName, hisName, myChip, hisChip) {
-		//this.scene.activeCamera.layerMask    = 1;
+		//this.scene.activeCamera.layerMask    = 5;
 		if (this.msg != -1)
 			this.gui.setTextVisible(this.msg, false);
 		this.gui.drawText(myName, 0.15, 0.8);
@@ -642,7 +650,10 @@ var Layout = (function () {
 		_this.gui.showImage("win", true);
 		_this.gui.showImage("continue", true);
 		_this.gui.showImage("draw", false);
-		_this.notify(WHO, 0);
+		//if (_this.myCards.tryDraw(_this.hisCards.hisDiscard().data)) { 
+		//	_this.hisCards.hisDiscardPongci();
+		//}
+		_this.notify(WHO, _this.hisCards.hisDiscard().data);
 		_this.invalidate();
 	};
 	Layout.prototype.drawOnClick = function (that) {  //bGUI, if breakpoint, BABYLON.ActionManager.OnPickUpTrigger will be failed, this function will not be called
@@ -748,6 +759,7 @@ var Layout = (function () {
 	Layout.prototype.invalidate = function () {
 		this.myCards.myUpdate();
 		this.hisCards.hisUpdate();
+		this.camera.layerMask = 5;
 		this.scene.render();
 	};
 	return Layout;

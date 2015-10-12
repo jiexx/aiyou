@@ -1,5 +1,7 @@
 package com.jiexx.aiyou.fsm;
 
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.Map;
@@ -43,6 +45,13 @@ public class RoundManager {
 			return cards.getHandCards(cards.second);
 		}
 	}
+	public class CardComparator implements Comparator<Byte> {
+		@Override
+		public int compare(Byte o1, Byte o2) {
+			// TODO Auto-generated method stub
+			return o2 - o1;
+		}
+	}
 	private Map<Integer, String> transform = new HashMap<Integer, String>();
 	private Map<Long, UserInfo> users = new HashMap<Long, UserInfo>();
 	private Card cards = null;
@@ -79,7 +88,7 @@ public class RoundManager {
 	}
 	
 	public void finish(){
-		System.out.println("delRound "+id);
+		Util.log(".", "delete Round "+id);
 		GameService.instance.delRound(id);
 	}
 	
@@ -88,8 +97,8 @@ public class RoundManager {
 		for (Entry<Long, UserInfo> entry : sets) {
 			UserInfo ui = entry.getValue();
 			GameService.instance.sendMessage(transform.get(ui.state), msg);
+			Util.log(transform.get(ui.state), " "+msg);
 		}
-		System.out.println("broadcast :" +msg);
 	}
 	
 	public void addUser(long userid) {
@@ -127,12 +136,12 @@ public class RoundManager {
 	}
 	
 	public void notifyBack(String msg) {
-		System.out.println("notifyBack "+transform.get(users.get(token).state)+ ":" +msg);
+		Util.log(transform.get(users.get(token).state), "  "+msg);
 		GameService.instance.sendMessage(transform.get(users.get(token).state), msg);
 	}
 	/*------------------------- for going state, initialize round, only 2 player now------------------------*/
 	public void notifyStub(String msg) {
-		System.out.println("notifyStub "+users.get(curr).stub+ ":" +msg);
+		Util.log(users.get(curr).stub, "  "+msg);
 		GameService.instance.sendMessage(users.get(curr).stub, msg);
 	}
 	public LinkedList<Long> getIdsOfOther() {
@@ -167,11 +176,20 @@ public class RoundManager {
 	public LinkedList<Byte> getUserCards() {
 		return users.get(curr).getInitCards(cards);
 	}
+	public long getUserId() {
+		return curr;
+	}
 	public boolean whoIsUser() {
 		return Card.hu(users.get(curr).getCards(cards));
 	}
+	public boolean whoIsUser(byte disc) {
+		LinkedList<Byte> wc = users.get(curr).getCards(cards);
+		wc.push(disc);
+		Collections.sort(wc, new CardComparator());
+		return Card.hu(wc);
+	}
 	public void notifyUser(String msg) {
-		System.out.println("notifyUser "+users.get(curr).stub+ ":" +msg);
+		Util.log(transform.get(users.get(curr).state), msg);
 		GameService.instance.sendMessage(transform.get(users.get(curr).state), msg);
 	}
 	public LinkedList<LinkedList<Byte>> getCardsOfOther() {
@@ -187,8 +205,9 @@ public class RoundManager {
 	/*------------------------- for PONG/CI/DRAW message handling.------------------------*/
 	public void draw(byte card) {
 		LinkedList<Byte> handcards = users.get(token).getCards(cards);
-		int pos = Util.insBytes(handcards,  card);
-		//handcards.add(pos, card);
+		String debug = handcards.toString();
+		Util.insert(handcards,  card);
+		Util.log(users.get(curr).stub, "draw "+card+" in: "+debug+ " to:" +handcards.toString());
 	}
 	public boolean pong(byte card) {
 		LinkedList<Byte> handcards = users.get(token).getCards(cards);

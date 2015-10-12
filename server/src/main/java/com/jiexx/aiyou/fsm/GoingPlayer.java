@@ -34,7 +34,8 @@ public class GoingPlayer extends State{
 				DiscardAck da = new DiscardAck(Command.DISCARD);
 				da.disc = (byte) msg.opt;
 				da.deal = round.mgr.deal();
-				da.hu = round.mgr.whoIsUser();
+				da.hu = round.mgr.whoIsUser(da.disc);
+				da.sd = round.mgr.whoIsUser(da.deal);
 				round.mgr.notifyUser(gson.toJson(da));
 			}
 			round.mgr.step();

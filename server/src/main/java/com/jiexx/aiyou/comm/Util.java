@@ -4,7 +4,9 @@ import java.io.BufferedInputStream;
 import java.io.IOException;
 import java.security.SecureRandom;
 import java.sql.SQLException;
+import java.text.SimpleDateFormat;
 import java.util.Arrays;
+import java.util.Date;
 import java.util.LinkedList;
 
 import javax.crypto.Cipher;
@@ -173,10 +175,10 @@ public class Util {
 			return i;
 		return -1;
 	}
-	public static int insBytes(LinkedList<Byte> arr, byte value) {
+	public static void insert(LinkedList<Byte> arr, byte value) {
 		int i = 0;
 		while( arr.get(i) < value && i < arr.size() ) i++;
-		return i;
+		arr.add(i, value);
 	}
 	public static class Disc {
 		public byte disc1;
@@ -188,6 +190,14 @@ public class Util {
 	}
 	public static Disc parseDisc(int opt) {
 		return new Disc(((byte)opt&0x00ff0000>>16), ((byte)opt&0x0000ff00>>8), ((byte)opt&0x000000ff));
+	}
+	
+	public static void log(String user, String str) {
+		StackTraceElement traceElement = ((new Exception()).getStackTrace())[1]; 
+		Date now = new Date(); 
+		SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.SSS"); 
+		System.out.println(sdf.format(now)+"   ["+user+"]   "+traceElement.getMethodName());
+		System.out.println("                                           "+str+"\n");
 	}
 
 }

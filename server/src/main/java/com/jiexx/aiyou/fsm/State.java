@@ -4,6 +4,7 @@ import java.util.LinkedHashMap;
 import java.util.Map;
 
 import com.google.gson.Gson;
+import com.jiexx.aiyou.comm.Util;
 import com.jiexx.aiyou.message.Command;
 import com.jiexx.aiyou.message.Message;
 
@@ -63,7 +64,7 @@ public abstract class State {
 	public void next(Message msg) {
 		State state = transitions.get(msg.cmd);
 		if( state != null ) {
-			System.out.println("Current :"+this.getClass().getSimpleName()+" Next :"+state.getClass().getSimpleName()+" message received:"+gson.toJson(msg));
+			Util.log(""+msg.uid, "Current :"+this.getClass().getSimpleName()+"<<< Next :"+state.getClass().getSimpleName()+" message received:"+gson.toJson(msg));
 			Exit(msg);
 
 			state.Enter(msg);

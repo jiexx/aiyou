@@ -15,6 +15,7 @@ import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.context.support.WebApplicationContextUtils;
 
 import com.jiexx.aiyou.comm.LB;
+import com.jiexx.aiyou.comm.Util;
 import com.jiexx.aiyou.model.Const;
 import com.jiexx.aiyou.model.User;
 import com.jiexx.aiyou.resp.Response;
@@ -35,14 +36,13 @@ public class Home extends DataService {
     		@RequestParam(value = "lat") float lat, 
     		@RequestParam(value = "lng") float lng)
 	{
-		System.out.println("test  "+id + " "+lat+" "+lng);
 		//System.out.println(appContext.getClassLoader().getResource("jdbc.properties"));
 		
 		UserList resp = new UserList();
 		Integer sellor = DATA.existSellor(id);
 		Integer driver = DATA.existDriver(id);
 		Integer user = DATA.existUser(id);
-		System.out.println("test  "+sellor);
+		Util.log(" "+id, " "+sellor);
 		String md5 = DigestUtils.md5DigestAsHex(String.valueOf(System.currentTimeMillis()).getBytes());
 		if( user == null ) {
 			System.out.println("test1");
@@ -64,7 +64,6 @@ public class Home extends DataService {
 		}
 		
 		LB lb = new LB(lat, lng);
-		System.out.println(" "+lb.lat_start+ " "+ lb.lat_end+ " "+ lb.lng_start+ " "+  lb.lng_end);
 		
 		List<User> s = DATA.querySellorByLoc(lb.lat_start, lb.lat_end, lb.lng_start, lb.lng_end);
 		List<User> d = DATA.queryDriverByLoc(lb.lat_start, lb.lat_end, lb.lng_start, lb.lng_end);

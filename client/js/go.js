@@ -4,8 +4,8 @@ var __extends = (this && this.__extends) || function (d, b) {
     __.prototype = b.prototype;
     d.prototype = new __();
 };
-var OPEN = '0x10000001', JOIN = '0x10000002', EXIT = '0x10000003', CONTINUE = '0x10000004', DISCARD = '0x20000001', DISCARD_PONG = '0x30000001', DISCARD_CHI = '0x30000002', DISCARD_DRAW = '0x30000003', WAIT = '0x40000001', START = '0x40000002', OVER = '0x40000003', 	START_DEALER = '0x40000004', START_PLAYER = '0x40000005', WHO = '0x50000001', TIMEOUT = '0x50000002', FINAL = '0x50000003';
-var V_OPEN = 0x10000001, V_JOIN = 0x10000002, V_EXIT = 0x10000003, V_CONTINUE = 0x10000004, V_DISCARD = 0x20000001, V_DISCARD_PONG = 0x30000001, V_DISCARD_CHI = 0x30000002, V_DISCARD_DRAW = 0x30000003, V_WAIT = 0x40000001, V_START = 0x40000002, V_OVER = 0x40000003, V_START_DEALER = 0x40000004, V_START_PLAYER = 0x40000005, V_WHO = 0x50000001, V_TIMEOUT = 0x50000002, V_FINAL = 0x50000003;
+var OPEN = '0x10000001', JOIN = '0x10000002', EXIT = '0x10000003', CONTINUE = '0x10000004', DISCARD = '0x20000001', DISCARD_PONG = '0x30000001', DISCARD_CHI = '0x30000002', DISCARD_DRAW = '0x30000003', WAIT = '0x40000001', START = '0x40000002', OVER = '0x40000003', 	START_DEALER = '0x40000004', START_PLAYER = '0x40000005', WHO = '0x50000001', TIMEOUT = '0x50000002', FINAL = '0x50000003', SELFDRAWHO = '0x50000004';
+var V_OPEN = 0x10000001, V_JOIN = 0x10000002, V_EXIT = 0x10000003, V_CONTINUE = 0x10000004, V_DISCARD = 0x20000001, V_DISCARD_PONG = 0x30000001, V_DISCARD_CHI = 0x30000002, V_DISCARD_DRAW = 0x30000003, V_WAIT = 0x40000001, V_START = 0x40000002, V_OVER = 0x40000003, V_START_DEALER = 0x40000004, V_START_PLAYER = 0x40000005, V_WHO = 0x50000001, V_TIMEOUT = 0x50000002, V_FINAL = 0x50000003, V_SELFDRAWHO = 0x50000004;
 var Message = (function () {
     function Message() {
         this.cmd = 0;
@@ -95,6 +95,7 @@ var RoundManager = (function () {
 		this.onClose = onClose;
 		this.onGUI = onGUI;
 		this.client = null;
+		this.selfDraw = false;
 	};
 	RoundManager.prototype.wait = function (msg) {
 		this.disconnect();
@@ -231,6 +232,10 @@ var Deal = (function (_super) {
 			if(msg.hu == true) {
 				mj.win();
 			}
+		}else if(msg.cmd == V_DISCARD_DRAW) {
+			if(mgr.selfDraw) {
+				mj.win();
+			}
 		}
     };
     return Deal;
@@ -254,6 +259,10 @@ var Deal2 = (function (_super) {
 		var mj = Mahjong.instance();
 		if(msg.cmd == V_DISCARD) {
 			mj.heDiscard(msg.disc, msg.deal);
+			if(msg.hu) {
+				mj.win();
+			}
+			mgr.selfDraw = msg.sd;
 		}
     };
     return Deal2;
@@ -314,7 +323,15 @@ var Hu = (function (_super) {
 		_super.call(this, r);
 	}
 	Hu.prototype.Enter = function (msg) {
-		
+		var mgr = this.getRoot().mgr;
+		var mj = Mahjong.instance();
+		if(msg.cmd == V_WHO) {
+			if(msg.hu == true) {
+				mj.showHand(msg.other);
+			}else if(msg.hu == false) {
+				mj.loss(msg.other);
+			}
+		}
 	};
 	return Hu;
 })(State);
@@ -352,17 +369,19 @@ var RoundImpl = (function (_super) {
 		wait.addTransition(START_PLAYER, play2);
 		
 		deal.addTransition(DISCARD, play);
+		deal.addTransition(WHO, hu);
 		
 		play.addTransition(DISCARD_DRAW, play2);
 		play.addTransition(DISCARD_PONG, play2);
 		play.addTransition(DISCARD_CHI, play2);
+		play.addTransition(WHO, hu);
 		
 		play2.addTransition(DISCARD, deal2);
+		play2.addTransition(WHO, hu);
 		
 		deal2.addTransition(DISCARD_DRAW, deal);
 		deal2.addTransition(DISCARD_PONG, deal);
 		deal2.addTransition(DISCARD_CHI, deal);
-		
 		deal2.addTransition(WHO, hu);
 		
 		hu.addTransition(CONTINUE, wait);
@@ -381,19 +400,6 @@ var RoundImpl = (function (_super) {
 		this.mgr.registe(toid);
 		this.mgr.dispatchMessage(V_JOIN, toid);
 	};
-	RoundImpl.prototype.listen = function (msg) {
-		console.log("listen ");
-		switch(msg.cmd) {
-		case V_DISCARD:
-		case V_DISCARD_PONG:
-		case V_DISCARD_CHI:
-		case V_DISCARD_DRAW:
-		case V_WHO:
-		case V_CONTINUE:
-			this.mgr.dispatchMessage(cmd, cardid);
-		break;
-		}
-	};
 	RoundImpl.prototype.command = function (cmd, cardid) {
 		var a = new Ack();
 		switch(cmd) {
@@ -403,6 +409,7 @@ var RoundImpl = (function (_super) {
 		case V_DISCARD_DRAW:
 		case V_WHO:
 		case V_CONTINUE:
+		case V_SELFDRAWHO:
 			this.mgr.dispatchMessage(cmd, cardid);
 		break;
 		case V_FINAL:

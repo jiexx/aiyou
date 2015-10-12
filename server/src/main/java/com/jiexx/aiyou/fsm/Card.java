@@ -6,7 +6,8 @@ import java.util.Random;
 
 import com.jiexx.aiyou.comm.Util;
 
-public class Card {	
+public class Card {
+	public final static char back		= 0;
 	public final static char east		= 1;
 	public final static char west		= 2;
 	public final static char south		= 3;
@@ -114,7 +115,7 @@ public class Card {
 		return arr;
 	}
 	
-	public byte cards[] = { 
+	public byte cards[] = { back,
 			east,west,south,north,zhong,fa,bai,
 			dot1,dot2,dot3,dot4,dot5,dot6,dot7,dot8,dot9,
 			Bamboo1,Bamboo2,Bamboo3,Bamboo4,Bamboo5,Bamboo6,Bamboo7,Bamboo8,Bamboo9,
