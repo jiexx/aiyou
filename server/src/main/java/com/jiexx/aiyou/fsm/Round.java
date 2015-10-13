@@ -32,6 +32,7 @@ public class Round extends State {
 		going.addTransition(Command.WHO, hu);
 		
 		hu.addTransition(Command.CONTINUE, wait);
+		hu.addTransition(Command.EXIT, wait);
 		
 		this.setInitState(start);
 

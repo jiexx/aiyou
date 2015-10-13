@@ -17,7 +17,7 @@ public class GoingState extends State{
 	@Override
 	public void Enter(final Message msg) {
 		// TODO Auto-generated method stub
-		if(Command.JOIN.equal(msg.cmd) || Command.CONTINUE.equal(msg.cmd)) {
+		if(Command.JOIN.equal(msg.cmd)) {
 			/*Layout create*/
 			round.mgr.addUser(msg.uid);
 			round.mgr.playDice();
@@ -30,6 +30,23 @@ public class GoingState extends State{
 				sa.hu = round.mgr.whoIsUser();
 				sa.id = round.mgr.getIdsOfOther();
 				sa.rid = round.mgr.getRoundId();
+				round.mgr.notifyStub(gson.toJson(sa));
+			}
+			while(round.mgr.nextUser());
+		}
+		else if(Command.CONTINUE.equal(msg.cmd)) {
+			/*Layout create*/
+			//round.mgr.addUser(msg.uid);
+			round.mgr.playDice();
+			
+			round.mgr.startLoop();
+			do {
+				StartAck sa = round.mgr.isUserDealer() ? new StartAck(Command.START_DEALER) : new StartAck(Command.START_PLAYER);
+				sa.endp = null;
+				sa.card = round.mgr.getUserCards();
+				sa.hu = round.mgr.whoIsUser();
+				sa.id = null;
+				sa.rid = -1;
 				round.mgr.notifyStub(gson.toJson(sa));
 			}
 			while(round.mgr.nextUser());

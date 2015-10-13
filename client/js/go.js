@@ -223,10 +223,12 @@ var Deal = (function (_super) {
 		var mgr = this.getRoot().mgr;
 		var mj = Mahjong.instance();
 		if(msg.cmd == V_START_DEALER) {
-			mgr.registe(msg.rid);
-			mgr.subscribe(msg.endp);
-			if(mgr.onGUI != undefined && mgr.onGUI != null)
-				mgr.onGUI(msg.id[0], mgr);
+			if(msg.endp != null && msg.id != null) {
+				mgr.registe(msg.rid);
+				mgr.subscribe(msg.endp);
+				if(mgr.onGUI != undefined && mgr.onGUI != null)
+					mgr.onGUI(msg.id[0], mgr);
+			}
 			
 			mj.deal(msg.card);
 			if(msg.hu == true) {
@@ -282,11 +284,12 @@ var Play2 = (function (_super) {
 			mj.hePongci(msg.disc1, msg.disc2, msg.disc3);
 		}
 		else if(msg.cmd == V_START_PLAYER) {
-			mgr.registe(msg.rid);
-			mgr.subscribe(msg.endp);
-			if(mgr.onGUI != undefined && mgr.onGUI != null)
-				mgr.onGUI(msg.id[0], mgr);
-				
+			if(msg.endp != null && msg.id != null) {
+				mgr.registe(msg.rid);
+				mgr.subscribe(msg.endp);
+				if(mgr.onGUI != undefined && mgr.onGUI != null)
+					mgr.onGUI(msg.id[0], mgr);
+			}
 			var mj = Mahjong.instance();
 			mj.deal(msg.card);
 		}
@@ -327,9 +330,9 @@ var Hu = (function (_super) {
 		var mj = Mahjong.instance();
 		if(msg.cmd == V_WHO) {
 			if(msg.hu == true) {
-				mj.showHand(msg.other);
+				mj.showHand(msg.other[0]);
 			}else if(msg.hu == false) {
-				mj.loss(msg.other);
+				mj.loss(msg.other[0]);
 			}
 		}
 	};
@@ -385,6 +388,7 @@ var RoundImpl = (function (_super) {
 		deal2.addTransition(WHO, hu);
 		
 		hu.addTransition(CONTINUE, wait);
+		hu.addTransition(WHO, hu);
 		
 		going.setInitState(empty);
 		going.setBackupState(wait);

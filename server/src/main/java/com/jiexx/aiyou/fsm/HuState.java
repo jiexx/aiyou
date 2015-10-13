@@ -21,17 +21,21 @@ public class HuState extends TimeOutState{
 		super.Enter(msg);
 		// TODO Auto-generated method stub
 		if(Command.WHO.equal(msg.cmd)) {
+			boolean selfdrawho = round.mgr.whoIsUser();
+			boolean commonwho = round.mgr.whoIsUser((byte) msg.opt);
 			round.mgr.startLoop();
-			if(round.mgr.whoIsUser() || round.mgr.whoIsUser((byte) msg.opt)) {
+			if(selfdrawho || commonwho) {
 				round.mgr.punishOrReward(msg.uid);
-				
-				while(round.mgr.nextUser()){
-					HuAck ha = new HuAck(Command.WHO);
-					ha.other = round.mgr.getCardsOfOther();
-					ha.hu = (round.mgr.getUserId() == msg.toid);
-					ha.bonus = (round.mgr.getUserId() == msg.toid ? round.mgr.getChip() : -round.mgr.getChip()) ;
-					round.mgr.notifyUser(gson.toJson(ha));
+				if(commonwho) {
+					round.mgr.draw((byte) msg.opt);
 				}
+				do{
+					HuAck ha = new HuAck(Command.WHO);
+					ha.hu = (round.mgr.getUserId() == msg.uid);
+					ha.other = round.mgr.getCardsOfOther();
+					ha.bonus = (round.mgr.getUserId() == msg.uid ? round.mgr.getChip() : -round.mgr.getChip()) ;
+					round.mgr.notifyUser(gson.toJson(ha));
+				}while(round.mgr.nextUser());
 
 			}
 		} 

@@ -30,6 +30,7 @@ public class GoingPlayer extends State{
 		// TODO Auto-generated method stub
 		if(Command.DISCARD.equal(msg.cmd)) {
 			round.mgr.startLoop();
+			round.mgr.discard((byte) msg.opt);
 			while(round.mgr.nextUser()){
 				DiscardAck da = new DiscardAck(Command.DISCARD);
 				da.disc = (byte) msg.opt;

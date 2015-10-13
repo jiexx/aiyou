@@ -159,6 +159,11 @@ var CardGroup = (function () {
 		}
 		return true;
 	};
+	CardGroup.prototype.restart = function() {
+		this.drop = null;
+		this.pick = null;
+		this.state = STARTTIME;
+	};
 	CardGroup.prototype.reset = function (state, data) {
 		var count = data.length;
 		if (this.nextState(count)) {
@@ -373,10 +378,12 @@ var Picture = (function () {
 			p.isVisible = isVisible;
 			if(p.obj != null){
 				p.obj.setVisible(p.isVisible);
-				p.obj.mask();
 			}
 		}
 	};
+	Picture.prototype.getMesh = function () {
+		return this.prop[0].obj.mesh;
+	}
 	return Picture;
 })();
 var GuiLayer = (function () {
@@ -429,7 +436,7 @@ var GuiLayer = (function () {
 
 		return id;
 	};
-	GuiLayer.prototype.addImage = function (src, xper, yper, xsize, ysize, onClick) {
+	GuiLayer.prototype.addImage = function (src, xper, yper, xsize, ysize, onClick, anim) {
 		if (onClick == undefined || onClick == null)
 			onClick = null;
 		var i;
@@ -439,15 +446,15 @@ var GuiLayer = (function () {
 		}
 		if( i < this.asserts.length ) {
 			this.asserts[i].add(xsize, ysize, xper, yper, onClick);
-			return i;
 		}else {
 			var img = new Picture(src);
 			img.add(xsize, ysize, xper, yper, onClick);
 			this.asserts.push(img);
-			return this.asserts.length - 1;
+			i = this.asserts.length - 1;
 		}
+		return i;
 	};
-	GuiLayer.prototype.showImage = function (src, isVisible) {
+	GuiLayer.prototype.showImage = function (src, isVisible, anim) {
 		var i;
 		for(i = 0 ; i < this.asserts.length ; i ++) {
 			if( this.asserts[i].src == src )
@@ -455,6 +462,15 @@ var GuiLayer = (function () {
 		}
 		if( i < this.asserts.length ) {
 			this.asserts[i].show(isVisible);
+			if(isVisible) {
+				var mesh = this.asserts[i].getMesh();
+				if(anim != null) {
+					mesh.animations.push(anim);
+				}
+				//scene.beginAnimation(mesh, 0, 30, false, 1, function(){
+					//engine.stopRenderLoop();
+				//});
+			}
 		}
 	};
 	GuiLayer.prototype.dropImage = function (index) {
@@ -551,6 +567,24 @@ var Layout = (function () {
 			_this.invalidate();
 		});
 	};
+	Layout.prototype.getAnim = function() {
+		var bounce = new BABYLON.Animation("bounce", "scaling.x", 30, BABYLON.Animation.ANIMATIONTYPE_FLOAT, BABYLON.Animation.ANIMATIONLOOPMODE_CONSTANT);
+		var keys = []; 
+		keys.push({
+			frame: 0,
+			value: 0.2//new BABYLON.Vector3(0.2, 0.2, 1.0)
+		});
+		keys.push({
+			frame: 20,
+			value: 1.2//new BABYLON.Vector3(1.2, 1.2, 1.0)
+		});
+		keys.push({
+			frame: 30,
+			value: 1.0//new BABYLON.Vector3(1.0, 1.0, 1.0)
+		});
+		bounce.setKeys(keys);
+		return bounce;
+	}
 	Layout.prototype.initLoadGUI = function (scene) {
 		this.gui = new GuiLayer(scene);
 		this.msg = this.gui.drawText("等待对手...", 0.5, 0.5);
@@ -584,6 +618,8 @@ var Layout = (function () {
 		this.gui.showImage("loss", false);
 		this.gui.showImage("continue", false);
 		this.gui.draw();
+		
+		
 	};
 	Layout.prototype.init = function (scene) {
 
@@ -650,10 +686,11 @@ var Layout = (function () {
 		_this.gui.showImage("win", true);
 		_this.gui.showImage("continue", true);
 		_this.gui.showImage("draw", false);
-		//if (_this.myCards.tryDraw(_this.hisCards.hisDiscard().data)) { 
-		//	_this.hisCards.hisDiscardPongci();
-		//}
-		_this.notify(WHO, _this.hisCards.hisDiscard().data);
+		var d = _this.hisCards.hisDiscard().data
+		if (_this.myCards.tryDraw(d)) { 
+			_this.hisCards.hisDiscardPongci();
+		}
+		_this.notify(WHO, d);
 		_this.invalidate();
 	};
 	Layout.prototype.drawOnClick = function (that) {  //bGUI, if breakpoint, BABYLON.ActionManager.OnPickUpTrigger will be failed, this function will not be called
@@ -720,7 +757,7 @@ var Layout = (function () {
 		var _this = this;
 		this.scene.executeWhenReady(function () {
 			_this.hisCards.reset(Card.SHOW1, hiscards);
-			//_this.invalidate();
+			_this.invalidate();
 		});
 	};
 	Layout.prototype.win = function () {
@@ -733,10 +770,11 @@ var Layout = (function () {
 	Layout.prototype.loss = function (hiscards) {
 		var _this = this;
 		this.scene.executeWhenReady(function () {
-			_this.gui.showImage("loss", true);
+			_this.gui.showImage("loss", true, null/*_this.getAnim()*/);
 			_this.gui.showImage("who", false);
 			_this.gui.showImage("continue", true);
 			_this.gui.showImage("draw", false);
+			_this.myCards.hisDiscardPongci();
 			_this.hisCards.reset(Card.SHOW1, hiscards);
 			_this.invalidate();
 		});
@@ -744,9 +782,12 @@ var Layout = (function () {
 	Layout.prototype.deal = function (cards) {
 		if(cards != undefined && cards != null) {
 			var _this = this;
-			this.scene.executeWhenReady(function () {		
+			_this.gui.setTextVisible(_this.msg, false);
+			_this.scene.executeWhenReady(function () {	
+				_this.myCards.restart();
 				_this.myCards.reset(Card.UNFOCUSED1, cards);
 				console.log(cards);
+				_this.hisCards.restart();
 				if (cards.length == CardGroup.MAX - 1) {
 					_this.hisCards.reset(Card.BACK2, [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]);
 				} else if (cards.length == CardGroup.MAX - 2) {

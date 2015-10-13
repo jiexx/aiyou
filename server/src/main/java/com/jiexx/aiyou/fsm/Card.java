@@ -98,6 +98,7 @@ public class Card {
 	}
 	LinkedList<Byte> holdcards[] = null;
 	public LinkedList<Byte> getHandCards(int hand) {
+		Util.log("==HOLDCARDS==", holdcards[0].toString()+holdcards[1].toString());
 		return holdcards[hand];
 	}
 	public LinkedList<Byte> getInitHandCards(int hand) {

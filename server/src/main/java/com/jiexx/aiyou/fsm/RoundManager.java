@@ -44,6 +44,11 @@ public class RoundManager {
 				return cards.getHandCards(cards.first);
 			return cards.getHandCards(cards.second);
 		}
+		LinkedList<Byte> getCards(Long ptr, Card cards) {
+			if(users.get(ptr).state == DEALER)
+				return cards.getHandCards(cards.first);
+			return cards.getHandCards(cards.second);
+		}
 	}
 	public class CardComparator implements Comparator<Byte> {
 		@Override
@@ -102,6 +107,8 @@ public class RoundManager {
 	}
 	
 	public void addUser(long userid) {
+		if(users.containsKey(userid))
+			return;
 		if(token == 0) {
 			token = userid;
 			users.put(userid, new UserInfo(userid, INVALID));
@@ -154,7 +161,7 @@ public class RoundManager {
 		return other;
 	}
 	/*------------------------- for going state, initialize round end.------------------------*/
-	/*------------------------- for DISCARD message handling.------------------------*/
+	/*------------------------- for OPEN/JOIN/DISCARD message handling.------------------------*/
 	private long curr;
 	public void startLoop() {
 		curr = token;
@@ -183,7 +190,7 @@ public class RoundManager {
 		return Card.hu(users.get(curr).getCards(cards));
 	}
 	public boolean whoIsUser(byte disc) {
-		LinkedList<Byte> wc = users.get(curr).getCards(cards);
+		LinkedList<Byte> wc =  new LinkedList<Byte>(users.get(curr).getCards(cards));
 		wc.push(disc);
 		Collections.sort(wc, new CardComparator());
 		return Card.hu(wc);
@@ -197,17 +204,23 @@ public class RoundManager {
 		long ptr = curr;
 		while(users.get(ptr).next != curr){
 			ptr = users.get(ptr).next;
-			other.add(new LinkedList<Byte>(users.get(ptr).getCards(cards)));
+			other.add(new LinkedList<Byte>(users.get(ptr).getCards(ptr, cards)));
 		}
 		return other;
 	}
-	/*------------------------- for DISCARD message handling end.------------------------*/
+	public void discard(byte card) {
+		LinkedList<Byte> handcards = users.get(curr).getCards(cards);
+		String debug = handcards.toString();
+		handcards.remove(handcards.indexOf(card));
+		Util.log(users.get(curr).stub, "discard "+card+" in: "+debug+ " to:" +users.get(curr).getCards(cards));
+	}
+	/*------------------------- for OPEN/JOIN/DISCARD message handling end.------------------------*/
 	/*------------------------- for PONG/CI/DRAW message handling.------------------------*/
 	public void draw(byte card) {
-		LinkedList<Byte> handcards = users.get(token).getCards(cards);
+		LinkedList<Byte> handcards = users.get(curr).getCards(cards);
 		String debug = handcards.toString();
-		Util.insert(handcards,  card);
-		Util.log(users.get(curr).stub, "draw "+card+" in: "+debug+ " to:" +handcards.toString());
+		handcards.add(handcards.indexOf(card), card);
+		Util.log(users.get(curr).stub, "draw "+card+" in: "+debug+ " to:" +users.get(curr).getCards(cards));
 	}
 	public boolean pong(byte card) {
 		LinkedList<Byte> handcards = users.get(token).getCards(cards);

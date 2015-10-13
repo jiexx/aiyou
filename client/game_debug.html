@@ -36,13 +36,13 @@
 		var mj = Mahjong.create(canvas, null);
 		//test 1.discard ; 2.undiscard
 		//3.draw card; 4.pong; 5.chi; 6.hu
-		//mj.initGUI(a1, a1, "name1", "name2", "2", "3");
+		mj.initGUI(a1, a1, "name1", "name2", "2", "3");
 		mj.deal(new Array(1,2,3,3,5,6,7,8,2,4,11,12,13,13));
 		mj.heDraw(0);
 		//view.who(new Array(1,2,3,3,5,6,7,8,2,4,11,12,13),false);
 		//mj.heDiscard(10,4);
 		//mj.win();
-		//mj.loss(new Array(2,2,3,3,4,4,5,5,7,7,11,11,12,12));
+		mj.loss(new Array(2,2,3,3,4,4,5,5,7,7,11,11,12,12));
 		//mj.showHand(new Array(2,2,3,3,4,4,5,5,7,7,11,11,12));
 		//view.invalidate();
 		//var round = new RoundImpl('15800000001');
