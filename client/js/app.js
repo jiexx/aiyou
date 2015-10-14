@@ -19,6 +19,11 @@ app.config(function ($routeProvider, $controllerProvider, $locationProvider, $ht
 		controller : 'homeListCtrl',
 		reloadOnSearch : false
 	});
+	$routeProvider.when('/bbs', {
+		templateUrl : "bbs.html",
+		controller : 'bbsCtrl',
+		reloadOnSearch : false
+	});
 	$routeProvider.when('/user', {
 		templateUrl : "user.html",
 		controller : 'userCtrl',
@@ -215,14 +220,14 @@ app.controller('userCtrl', function ($scope, $location, $cookieStore, $http, DAT
 		return true;
 	};
 
-	$scope.userLnk = DATA.auth('message/?id=' + $location.search().id);
+	$scope.userLnk = DATA.auth('bbs/?id=' + $location.search().id);
 	$scope.avatar = DATA.getUserById($location.search().id).thumb;
 	$scope.avatarVisible = false;
 
 	$http({
 		method : 'GET',
 		//$location.path('/myURL/').search({param: 'value'});
-		url: 'http://127.0.0.1:9090/dqry.do?id=' + $location.search().id
+		url: 'http://127.0.0.1:9090/entity/dqry.do?id=' + $location.search().id
 	}).success(function (resp, status, headers, config) {
 		//var token = data.token;
 		//$cookieStore.put('token', token);
@@ -251,6 +256,52 @@ app.controller('homeListCtrl', function ($scope, $location, $cookieStore, DATA) 
 		//alert('Congrats you scrolled to the end of the list!');
 	};
 	$scope.stars = DATA.stars;
+});
+
+app.controller('bbsCtrl', function ($scope, $location, $cookieStore, DATA) {
+	var nav = $scope.$parent;
+	nav.navLnk = '/';
+	nav.listStyle = false;
+	nav.navClick = function(){
+		return true;
+	};
+	
+	$scope.myid = DATA.userid;
+	
+	$scope.onClickCommentItem = function(topicid) {
+		$http({
+			method : 'GET',
+			//$location.path('/myURL/').search({param: 'value'});
+			url: 'http://127.0.0.1:9090/bbs/topic.do?id=' + topicid,
+		}).success(function (resp, status, headers, config) {
+			$scope.replies = resp;
+			$scope.$apply();
+		}).error(function (data, status, headers, config) {
+			$scope.status = status;
+		});
+	};
+	$scope.onClickReply = function(topicid) {
+		$http({
+			method : 'GET',
+			//$location.path('/myURL/').search({param: 'value'});
+			url: 'http://127.0.0.1:9090/bbs/reply.do?id=' + topicid,
+		}).success(function (resp, status, headers, config) {
+			$scope.replies = resp;
+			$scope.$apply();
+		}).error(function (data, status, headers, config) {
+			$scope.status = status;
+		});
+	};
+
+	$http({
+		method : 'GET',
+		//$location.path('/myURL/').search({param: 'value'});
+		url: 'http://127.0.0.1:9090/bbs/user.do?id=' + $location.search().id,
+	}).success(function (resp, status, headers, config) {
+		$scope.comments = resp;
+	}).error(function (data, status, headers, config) {
+		$scope.status = status;
+	});
 });
 
 app.controller('homeCtrl', function ($scope, $rootScope, $location, $cookieStore, $http, $compile, DATA) {

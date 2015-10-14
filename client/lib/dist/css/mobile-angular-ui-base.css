@@ -8991,3 +8991,12 @@ ui-switch {
   position:absolute;
   left: 50%;
 }
+
+.bbs {
+  margin-top: 50px;
+}
+
+.bbs-line {
+  border: 0;
+  border-bottom: 1px solid #eeeeee;
+}

@@ -1,0 +1,30 @@
+﻿<div class="scrollable-content bbs">
+  <div class="scrollable-content" ui-scroll-bottom='bottomReached()'>
+    <div class="list-group" ui-state='accordion'>
+      <div ng-repeat="topic in comments" class="panel panel-default">
+        <div class="panel-heading" ui-set="{'accordion': topic.id}" ng-click='onClickCommentItem(topic.id)'>
+          {{ topic.content }} 
+          <div class="pull-right">
+            {{ topic.user }} {{ topic.time }} 
+            <i class="fa fa-chevron-right">
+          </div>
+        </div>
+        <div class="panel-body" ui-if="accordion == {{topic.id}}">
+          <div ng-repeat="msg in replies" class="bbs-line">
+		    {{ msg.content }} 
+			<div class="pull-right">
+              {{ msg.user }} {{ msg.time }} 
+              <i class="fa fa-chevron-right">
+            </div>
+          </div>
+		  <div ng-class="{'collapse': topic.userid != myid}">
+            <input type="text" class="form-control needsclick" ng-model="replyText"/><button class="btn btn-primary" ng-click="onClickReply(topic.id)">回复</button>
+		  </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="scrollable-footer">
+    <input type="text" class="form-control needsclick" ng-model="commentText"/><button class="btn btn-primary" ng-click="onClickComment()">发表</button>
+  </div>
+</div>

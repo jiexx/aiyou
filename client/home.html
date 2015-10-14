@@ -43,7 +43,7 @@
 		return '<a href="javascript:void(0);"  ng-click="clickPlay('+id+',$event)" class="btn btn-default fa fa-gamepad text-primary "></a>';
 	};
 	LabelFmt.prototype.msg = function(isAuth, id, name, thumb, clazz) {
-		var str = ( isAuth == 0 ? '#/register': '#/message/?id='+id) ;
+		var str = ( isAuth == 0 ? '#/register': '#/bbs/?id='+id) ;
 		return '<a href="'+str+'" class="btn btn-default fa fa-comments-o text-primary "></a>';
 	};
 	LabelFmt.prototype.setting = function(isAuth, id, name, thumb, clazz) {
