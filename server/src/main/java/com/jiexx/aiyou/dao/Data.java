@@ -71,8 +71,17 @@ public interface Data {
 	@Insert("INSERT comment(toid, uid, content, dnd) VALUES(#{toid}, #{uid}, #{content}, #{dnd});")
 	public int comment(@Param("toid") long toid,  @Param("uid") long uid, @Param("content") String content, @Param("dnd") int dnd);
 	
-	@Insert("SELECT toid, uid, content, dnd) FROM comment WHERE id=#{userid};")
-	public Comment queryComment(@Param("userid") long userid);
+	@Select("SELECT toid, uid, dnd, time) FROM comment WHERE id=#{cid};")
+	public Comment queryComment(@Param("cid") long cid);
+	
+	@Select("SELECT toid, uid, dnd, time) FROM comment WHERE id=#{toid};")
+	public List<Comment> queryCommentList(@Param("toid") long toid);
+	
+	@Insert("INSERT comment(toid, uid, content, dnd) VALUES(#{topic.toid}, #{topic.uid}, #{topic.content}, #{topic.dnd});")
+	@SelectKey(before=false,keyProperty="topic.id",resultType=Long.class,statementType=StatementType.STATEMENT,statement="SELECT LAST_INSERT_ID() AS id")
+	public int replyComment(@Param("topic") Comment topic);
 
+	@Insert("INSERT reply(id, rid) VALUES(#{id}, #{rid});")
+	public int reply(@Param("id") long id,  @Param("rid") long rid);
 
 }

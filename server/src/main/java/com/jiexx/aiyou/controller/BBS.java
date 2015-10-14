@@ -36,11 +36,15 @@ public class BBS extends DataService {
 	{
 		//System.out.println(appContext.getClassLoader().getResource("jdbc.properties"));
 		
-		UserList resp = new UserList();
-
+		List<Comment> resp = new List<Comment>();
+		resp = DATA.queryCommentList(id);
+		if(i == null || j == null)
+			resp.err = Const.FAILED.val();
+		else
+			resp.err = Const.SUCCESS.val();
 			
-        return resp.toResp();
-    }
+    return resp.toResp();
+  }
 	
 	@RequestMapping(value="comment.do", params = {"toid", "uid", "str"}, method=RequestMethod.GET)
 	@ResponseBody
@@ -58,26 +62,34 @@ public class BBS extends DataService {
 		else
 			resp.err = Const.SUCCESS.val();
 			
-        return resp.toResp();
-    }
+		return resp.toResp();
+  }
 	
 	@RequestMapping(value="reply.do", params = {"id", "uid", "str"}, method=RequestMethod.GET)
 	@ResponseBody
     public String reply(
-    		@RequestParam(value = "id") long toid,
+    		@RequestParam(value = "id") long cid,
     		@RequestParam(value = "uid") long uid,
     		@RequestParam(value = "str") String str)
 	{
 		//System.out.println(appContext.getClassLoader().getResource("jdbc.properties"));
-		
-		Response resp = new Response();
-		Integer i = DATA.comment(toid, uid, str, 1);
-		if(i == null)
-			resp.err = Const.FAILED.val();
-		else
-			resp.err = Const.SUCCESS.val();
+		Comment comment = DATA.queryComment(cid);
+		if(comment != null) {
+			Response resp = new Response();
+			Comment topic = new Comment();
+			topic.toid = comment.toid;
+			topic.uid = uid;
+			topic.content = str;
+			topic.dnd = 1;
+		  Integer i = DATA.replyComment(topic);
+			Integer j = DATA.reply(comment.id, topic.id);
 			
-        return resp.toResp();
-    }
+			if(i == null || j == null)
+				resp.err = Const.FAILED.val();
+			else
+				resp.err = Const.SUCCESS.val();
+			return resp.toResp();
+		}
+	}
 	
 }
