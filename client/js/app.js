@@ -258,7 +258,7 @@ app.controller('homeListCtrl', function ($scope, $location, $cookieStore, DATA) 
 	$scope.stars = DATA.stars;
 });
 
-app.controller('bbsCtrl', function ($scope, $location, $cookieStore, DATA) {
+app.controller('bbsCtrl', function ($scope, $rootScope, $location, $cookieStore, DATA) {
 	var nav = $scope.$parent;
 	nav.navLnk = '/';
 	nav.listStyle = false;
@@ -267,6 +267,7 @@ app.controller('bbsCtrl', function ($scope, $location, $cookieStore, DATA) {
 	};
 	
 	$scope.myid = DATA.userid;
+	$scope.replyText = '';
 	
 	$scope.onClickCommentItem = function(topicid) {
 		$http({
@@ -284,12 +285,58 @@ app.controller('bbsCtrl', function ($scope, $location, $cookieStore, DATA) {
 		$http({
 			method : 'GET',
 			//$location.path('/myURL/').search({param: 'value'});
-			url: 'http://127.0.0.1:9090/bbs/reply.do?id=' + topicid,
+			url: 'http://127.0.0.1:9090/bbs/reply.do?id=' + topicid + '&uid=' + DATA.userid + '&str=' +$scope.replyText,
 		}).success(function (resp, status, headers, config) {
-			$scope.replies = resp;
+			$rootScope.Ui.turnOn('mb');
+			$scope.mbChip = '回复成功';
+			$scope.mbOptionText = '取消';
+			$scope.mbOption = function() {
+			};
+			$scope.mbConfirmText = '继续';
+			$scope.mbConfirm = function() {
+				//$location.path('/game').search({id:resp.gid,chip:resp.chip});
+			};
 			$scope.$apply();
 		}).error(function (data, status, headers, config) {
-			$scope.status = status;
+			$rootScope.Ui.turnOn('mb');
+			$scope.mbChip = '回复失败';
+			$scope.mbOptionText = '取消';
+			$scope.mbOption = function() {
+			};
+			$scope.mbConfirmText = '继续';
+			$scope.mbConfirm = function() {
+				//$location.path('/game').search({id:resp.gid,chip:resp.chip});
+			};
+			$scope.$apply();
+		});
+	};
+	$scope.onClickComment = function() {
+		$http({
+			method : 'GET',
+			//$location.path('/myURL/').search({param: 'value'});
+			url: 'http://127.0.0.1:9090/bbs/comment.do?toid=' + $location.search().id + '&uid=' + DATA.userid + '&str=' +$scope.commentText,
+		}).success(function (resp, status, headers, config) {
+			$rootScope.Ui.turnOn('mb');
+			$scope.mbChip = '发表成功';
+			$scope.mbOptionText = '取消';
+			$scope.mbOption = function() {
+			};
+			$scope.mbConfirmText = '继续';
+			$scope.mbConfirm = function() {
+				//$location.path('/game').search({id:resp.gid,chip:resp.chip});
+			};
+			$scope.$apply();
+		}).error(function (data, status, headers, config) {
+			$rootScope.Ui.turnOn('mb');
+			$scope.mbChip = '发表失败';
+			$scope.mbOptionText = '取消';
+			$scope.mbOption = function() {
+			};
+			$scope.mbConfirmText = '继续';
+			$scope.mbConfirm = function() {
+				//$location.path('/game').search({id:resp.gid,chip:resp.chip});
+			};
+			$scope.$apply();
 		});
 	};
 

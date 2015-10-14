@@ -67,4 +67,12 @@ public interface Data {
 	@Update("INSERT driver(id,name,gender,intro,car,visible,balance,avatar,img)VALUES(#{id},#{name},#{gender},#{intro},#{car},#{visible},#{balance},#{avatar},#{img});")
 	public int insertDriver(@Param("id") long userid,  @Param("name") String name, @Param("gender") int gender, @Param("intro") String intro, @Param("car") String car, @Param("visible") int visible, @Param("balance") int balance, @Param("avatar") String avatar, @Param("img") String img);
 
+	
+	@Insert("INSERT comment(toid, uid, content, dnd) VALUES(#{toid}, #{uid}, #{content}, #{dnd});")
+	public int comment(@Param("toid") long toid,  @Param("uid") long uid, @Param("content") String content, @Param("dnd") int dnd);
+	
+	@Insert("SELECT toid, uid, content, dnd) FROM comment WHERE id=#{userid};")
+	public Comment queryComment(@Param("userid") long userid);
+
+
 }
