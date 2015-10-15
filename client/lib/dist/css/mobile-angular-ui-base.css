@@ -8999,4 +8999,14 @@ ui-switch {
 .bbs-line {
   border: 0;
   border-bottom: 1px solid #eeeeee;
+  padding-bottom: 8px;
+  margin-bottom: 8px;
+}
+
+.bbs-avatar {
+  width: 16px;
+  height: 16px;
+  border-radius: 3px;
+  margin-right: 8px;
+  z-index: 3000;
 }

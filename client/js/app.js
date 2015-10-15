@@ -258,15 +258,15 @@ app.controller('homeListCtrl', function ($scope, $location, $cookieStore, DATA) 
 	$scope.stars = DATA.stars;
 });
 
-app.controller('bbsCtrl', function ($scope, $rootScope, $location, $cookieStore, DATA) {
+app.controller('bbsCtrl', function ($scope, $rootScope, $location, $cookieStore, $http, DATA) {
 	var nav = $scope.$parent;
 	nav.navLnk = '/';
 	nav.listStyle = false;
 	nav.navClick = function(){
 		return true;
 	};
-	
 	$scope.myid = DATA.userid;
+	$scope.commentVisible = (DATA.userid != $location.search().id);
 	$scope.replyText = '';
 	
 	$scope.onClickCommentItem = function(topicid) {
@@ -275,17 +275,16 @@ app.controller('bbsCtrl', function ($scope, $rootScope, $location, $cookieStore,
 			//$location.path('/myURL/').search({param: 'value'});
 			url: 'http://127.0.0.1:9090/bbs/topic.do?id=' + topicid,
 		}).success(function (resp, status, headers, config) {
-			$scope.replies = resp;
-			$scope.$apply();
+			$scope.replies = resp.star;
 		}).error(function (data, status, headers, config) {
 			$scope.status = status;
 		});
 	};
-	$scope.onClickReply = function(topicid) {
+	$scope.onClickReply = function(topicid, replyText) {
 		$http({
 			method : 'GET',
 			//$location.path('/myURL/').search({param: 'value'});
-			url: 'http://127.0.0.1:9090/bbs/reply.do?id=' + topicid + '&uid=' + DATA.userid + '&str=' +$scope.replyText,
+			url: 'http://127.0.0.1:9090/bbs/reply.do?id=' + topicid + '&uid=' + DATA.userid + '&str=' + replyText,
 		}).success(function (resp, status, headers, config) {
 			$rootScope.Ui.turnOn('mb');
 			$scope.mbChip = '回复成功';
@@ -294,9 +293,8 @@ app.controller('bbsCtrl', function ($scope, $rootScope, $location, $cookieStore,
 			};
 			$scope.mbConfirmText = '继续';
 			$scope.mbConfirm = function() {
-				//$location.path('/game').search({id:resp.gid,chip:resp.chip});
+				$location.path('/bbs').search({id:$location.search().id});
 			};
-			$scope.$apply();
 		}).error(function (data, status, headers, config) {
 			$rootScope.Ui.turnOn('mb');
 			$scope.mbChip = '回复失败';
@@ -307,7 +305,6 @@ app.controller('bbsCtrl', function ($scope, $rootScope, $location, $cookieStore,
 			$scope.mbConfirm = function() {
 				//$location.path('/game').search({id:resp.gid,chip:resp.chip});
 			};
-			$scope.$apply();
 		});
 	};
 	$scope.onClickComment = function() {
@@ -323,9 +320,8 @@ app.controller('bbsCtrl', function ($scope, $rootScope, $location, $cookieStore,
 			};
 			$scope.mbConfirmText = '继续';
 			$scope.mbConfirm = function() {
-				//$location.path('/game').search({id:resp.gid,chip:resp.chip});
+				$location.path('/bbs').search({id:$location.search().id});
 			};
-			$scope.$apply();
 		}).error(function (data, status, headers, config) {
 			$rootScope.Ui.turnOn('mb');
 			$scope.mbChip = '发表失败';
@@ -336,7 +332,6 @@ app.controller('bbsCtrl', function ($scope, $rootScope, $location, $cookieStore,
 			$scope.mbConfirm = function() {
 				//$location.path('/game').search({id:resp.gid,chip:resp.chip});
 			};
-			$scope.$apply();
 		});
 	};
 
@@ -345,7 +340,7 @@ app.controller('bbsCtrl', function ($scope, $rootScope, $location, $cookieStore,
 		//$location.path('/myURL/').search({param: 'value'});
 		url: 'http://127.0.0.1:9090/bbs/user.do?id=' + $location.search().id,
 	}).success(function (resp, status, headers, config) {
-		$scope.comments = resp;
+		$scope.comments = resp.star;
 	}).error(function (data, status, headers, config) {
 		$scope.status = status;
 	});

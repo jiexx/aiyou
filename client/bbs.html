@@ -1,33 +1,40 @@
 ﻿<div ui-content-for="modals">
   <div ng-include="'msgbox.html'"></div>
 </div>
-<div class="scrollable-content bbs">
+<div class="scrollable-content section bbs">
   <div class="scrollable-content" ui-scroll-bottom='bottomReached()'>
     <div class="list-group" ui-state='accordion'>
       <div ng-repeat="topic in comments" class="panel panel-default">
         <div class="panel-heading" ui-set="{'accordion': topic.id}" ng-click='onClickCommentItem(topic.id)'>
-          {{ topic.content }} 
+          {{ topic.content }}
           <div class="pull-right">
-            {{ topic.user }} {{ topic.time }} 
-            <i class="fa fa-chevron-right">
+            <img ng-src="{{topic.avatar}}" class="bbs-avatar"/>{{ topic.user }} {{ topic.time }}
           </div>
         </div>
-        <div class="panel-body" ui-if="accordion == {{topic.id}}">
+        <div class="panel-body" ui-if="accordion == {{topic.id}}"> 
           <div ng-repeat="msg in replies" class="bbs-line">
 		    {{ msg.content }} 
 			<div class="pull-right">
-              {{ msg.user }} {{ msg.time }} 
-              <i class="fa fa-chevron-right">
+              <img ng-src="{{msg.avatar}}" class="bbs-avatar"/>{{ msg.name }} {{ msg.time }} 
             </div>
           </div>
-		  <div ng-class="{'collapse': topic.userid != myid && topic.dnd == 1}">
-            <input type="text" class="form-control needsclick" ng-model="$parent.replyText"/><button class="btn btn-primary" ng-click="onClickReply(topic.id)">回复</button>
+		  <div ng-class="{'collapse': topic.uid == myid || topic.dnd != 1, 'row': topic.uid != myid && topic.dnd == 1}" >
+            <div class="col-sm-10">
+              <input type="text" class="form-control needsclick" ng-model="replyText"/>
+			</div>
+			<div class="col-sm-2 ">
+              <button class="btn btn-primary pull-right" ng-click="onClickReply(topic.id, replyText)">回复</button>
+			</div>
 		  </div>
         </div>
       </div>
     </div>
   </div>
-  <div class="scrollable-footer">
-    <input type="text" class="form-control needsclick" ng-model="commentText"/><button class="btn btn-primary" ng-click="onClickComment()">发表</button>
+  <div ng-class="{'collapse': !commentVisible , 'scrollable-footer row': commentVisible}">
+    <div class="col-sm-10">
+      <input type="text" class="form-control needsclick" ng-model="commentText"/>
+    </div>
+    <div class="col-sm-2"><button class="form-control btn btn-primary" ng-click="onClickComment()">发表</button>
+    </div>
   </div>
 </div>

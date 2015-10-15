@@ -6,12 +6,17 @@ import java.util.List;
 import org.apache.ibatis.annotations.Insert;
 import org.apache.ibatis.annotations.Param;
 import org.apache.ibatis.annotations.Select;
+import org.apache.ibatis.annotations.SelectKey;
 import org.apache.ibatis.annotations.Update;
+import org.apache.ibatis.mapping.StatementType;
 import org.springframework.stereotype.Repository;
 
+import com.jiexx.aiyou.model.Comment;
 import com.jiexx.aiyou.model.Driver;
 import com.jiexx.aiyou.model.Sellor;
+import com.jiexx.aiyou.model.TopicComment;
 import com.jiexx.aiyou.model.User;
+import com.jiexx.aiyou.model.UserComment;
 import com.mysql.jdbc.Blob;
 import com.mysql.jdbc.Clob;
 
@@ -71,11 +76,18 @@ public interface Data {
 	@Insert("INSERT comment(toid, uid, content, dnd) VALUES(#{toid}, #{uid}, #{content}, #{dnd});")
 	public int comment(@Param("toid") long toid,  @Param("uid") long uid, @Param("content") String content, @Param("dnd") int dnd);
 	
-	@Select("SELECT toid, uid, dnd, time) FROM comment WHERE id=#{cid};")
+	@Select("SELECT id, toid, uid, dnd, time FROM comment WHERE id=#{cid} ;")
 	public Comment queryComment(@Param("cid") long cid);
 	
-	@Select("SELECT toid, uid, dnd, time) FROM comment WHERE id=#{toid};")
-	public List<Comment> queryCommentList(@Param("toid") long toid);
+	@Select("SELECT a.id AS id, a.content AS content, a.toid AS toid, a.uid AS uid, a.dnd AS dnd, a.time AS time, b.name AS user, b.avatar AS avatar FROM "
+			+ "(SELECT id, content, toid, uid, dnd, time FROM comment  WHERE toid=#{toid} AND toid<>uid ) AS a  LEFT JOIN "
+			+ "(SELECT id, name, avatar FROM driver) AS b  ON a.uid=b.id;")
+	public List<UserComment> queryCommentList(@Param("toid") long toid);
+	
+	@Select("SELECT content, dnd, time, name, avatar FROM (SELECT id, rid FROM reply WHERE id=#{topicid} ) AS a LEFT JOIN "
+			+ "comment AS b ON a.rid=b.id LEFT JOIN "
+			+ "(SELECT id, name, avatar FROM driver) AS c ON b.uid=c.id;")
+	public List<TopicComment> queryTopicList(@Param("topicid") long topicid);
 	
 	@Insert("INSERT comment(toid, uid, content, dnd) VALUES(#{topic.toid}, #{topic.uid}, #{topic.content}, #{topic.dnd});")
 	@SelectKey(before=false,keyProperty="topic.id",resultType=Long.class,statementType=StatementType.STATEMENT,statement="SELECT LAST_INSERT_ID() AS id")
