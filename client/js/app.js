@@ -267,7 +267,6 @@ app.controller('bbsCtrl', function ($scope, $rootScope, $location, $cookieStore,
 	};
 	$scope.myid = DATA.userid;
 	$scope.commentVisible = (DATA.userid != $location.search().id);
-	$scope.replyText = '';
 	
 	$scope.onClickCommentItem = function(topicid) {
 		$http({
@@ -280,59 +279,54 @@ app.controller('bbsCtrl', function ($scope, $rootScope, $location, $cookieStore,
 			$scope.status = status;
 		});
 	};
+	var msgBox = function(str, confirm) {
+		$rootScope.Ui.turnOn('mb');
+		$scope.mbChip = str;
+		$scope.mbOptionText = '取消';
+		$scope.mbOption = function() {
+		};
+		$scope.mbConfirmText = '继续';
+		$scope.mbConfirm = confirm;
+	}
 	$scope.onClickReply = function(topicid, replyText) {
-		$http({
-			method : 'GET',
-			//$location.path('/myURL/').search({param: 'value'});
-			url: 'http://127.0.0.1:9090/bbs/reply.do?id=' + topicid + '&uid=' + DATA.userid + '&str=' + replyText,
-		}).success(function (resp, status, headers, config) {
-			$rootScope.Ui.turnOn('mb');
-			$scope.mbChip = '回复成功';
-			$scope.mbOptionText = '取消';
-			$scope.mbOption = function() {
-			};
-			$scope.mbConfirmText = '继续';
-			$scope.mbConfirm = function() {
-				$location.path('/bbs').search({id:$location.search().id});
-			};
-		}).error(function (data, status, headers, config) {
-			$rootScope.Ui.turnOn('mb');
-			$scope.mbChip = '回复失败';
-			$scope.mbOptionText = '取消';
-			$scope.mbOption = function() {
-			};
-			$scope.mbConfirmText = '继续';
-			$scope.mbConfirm = function() {
-				//$location.path('/game').search({id:resp.gid,chip:resp.chip});
-			};
-		});
+		if(replyText != null && replyText.length > 8) {
+			$http({
+				method : 'GET',
+				//$location.path('/myURL/').search({param: 'value'});
+				url: 'http://127.0.0.1:9090/bbs/reply.do?id=' + topicid + '&uid=' + DATA.userid + '&str=' + replyText,
+			}).success(function (resp, status, headers, config) {
+				msgBox('回复成功', function() {
+					var user = DATA.getUserById(DATA.userid);
+					$scope.replies.push({content:replyText,dnd:1,time:(new Date()).format('mmm dd, yyyy HH:MM:ss TT'),name:user.name,avatar:user.thumb});
+				});
+			}).error(function (data, status, headers, config) {
+				msgBox('回复失败', function() {
+				});
+			});
+		}else {
+			msgBox('回复多几个字，至少8个', function() {
+			});
+		}
 	};
-	$scope.onClickComment = function() {
-		$http({
-			method : 'GET',
-			//$location.path('/myURL/').search({param: 'value'});
-			url: 'http://127.0.0.1:9090/bbs/comment.do?toid=' + $location.search().id + '&uid=' + DATA.userid + '&str=' +$scope.commentText,
-		}).success(function (resp, status, headers, config) {
-			$rootScope.Ui.turnOn('mb');
-			$scope.mbChip = '发表成功';
-			$scope.mbOptionText = '取消';
-			$scope.mbOption = function() {
-			};
-			$scope.mbConfirmText = '继续';
-			$scope.mbConfirm = function() {
-				$location.path('/bbs').search({id:$location.search().id});
-			};
-		}).error(function (data, status, headers, config) {
-			$rootScope.Ui.turnOn('mb');
-			$scope.mbChip = '发表失败';
-			$scope.mbOptionText = '取消';
-			$scope.mbOption = function() {
-			};
-			$scope.mbConfirmText = '继续';
-			$scope.mbConfirm = function() {
-				//$location.path('/game').search({id:resp.gid,chip:resp.chip});
-			};
-		});
+	$scope.onClickComment = function(commentText) {
+		if(commentText != null && commentText.length > 8) {
+			$http({
+				method : 'GET',
+				//$location.path('/myURL/').search({param: 'value'});
+				url: 'http://127.0.0.1:9090/bbs/comment.do?toid=' + $location.search().id + '&uid=' + DATA.userid + '&str=' +commentText,//$scope.commentText,
+			}).success(function (resp, status, headers, config) {
+				msgBox('发表成功', function() {
+					var user = DATA.getUserById(DATA.userid);
+					$scope.comments.push({uid:DATA.userid,id:resp.code,content:commentText,dnd:1,time:(new Date()).format('mmm dd, yyyy HH:MM:ss TT'),user:user.name,avatar:user.thumb});
+				});
+			}).error(function (data, status, headers, config) {
+				msgBox('发表失败', function() {
+				});
+			});
+		}else {
+			msgBox('发表多几个字，至少8个', function() {
+			});
+		}
 	};
 
 	$http({

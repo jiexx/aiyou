@@ -95,5 +95,10 @@ public interface Data {
 
 	@Insert("INSERT reply(id, rid) VALUES(#{id}, #{rid});")
 	public int reply(@Param("id") long id,  @Param("rid") long rid);
+	
+	
+	@Select("SELECT content, dnd, time, name, avatar FROM (SELECT id, name, avatar FROM sellor WHERE car='manager' ) AS a LEFT JOIN "
+			+ "(SELECT id, name, avatar FROM store) AS c ON b.uid=c.id;")
+	public List<TopicComment> queryManager(@Param("topicid") long topicid);
 
 }

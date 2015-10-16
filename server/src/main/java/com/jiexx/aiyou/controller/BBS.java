@@ -66,11 +66,20 @@ public class BBS extends DataService {
 	public String comment(@RequestParam(value = "toid") long toid, @RequestParam(value = "uid") long uid,
 			@RequestParam(value = "str") String str) {
 		// System.out.println(appContext.getClassLoader().getResource("jdbc.properties"));
+		if(str.length() < 8)
+			return null;
 
 		Response resp = new Response();
-		Integer i = DATA.comment(toid, uid, str, 1);
-		if (i != null)
+		Comment topic = new Comment();
+		topic.toid = toid;
+		topic.uid = uid;
+		topic.content = str;
+		topic.dnd = 1;
+		Integer i = DATA.replyComment(topic);
+		if (i != null) {
 			resp.success();
+			resp.code = String.valueOf(topic.id);
+		}
 
 		return resp.toResp();
 	}
@@ -80,6 +89,9 @@ public class BBS extends DataService {
 	public String reply(@RequestParam(value = "id") long topicid, @RequestParam(value = "uid") long uid,
 			@RequestParam(value = "str") String str) {
 		// System.out.println(appContext.getClassLoader().getResource("jdbc.properties"));
+		if(str.length() < 8)
+			return null;
+		
 		Response resp = new Response();
 		
 		Comment comment = DATA.queryComment(topicid);
