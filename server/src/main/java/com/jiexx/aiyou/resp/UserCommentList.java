@@ -7,9 +7,18 @@ import com.jiexx.aiyou.model.UserComment;
 public class UserCommentList extends Response{
 	
 	public List<UserComment> star;
+	public List<Goods> goods;
 	
-	public UserCommentList(List<UserComment> star) {
-		this.star = star;
+	public UserCommentList() {
+		this.star = null;
+	}
+	
+	public void addList(List<UserComment> luc) {
+		star = luc;
+	}
+	
+	public void addList(List<Goods> lg) {
+		goods = lg;
 	}
 
 }

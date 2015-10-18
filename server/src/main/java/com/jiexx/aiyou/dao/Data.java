@@ -97,8 +97,8 @@ public interface Data {
 	public int reply(@Param("id") long id,  @Param("rid") long rid);
 	
 	
-	@Select("SELECT content, dnd, time, name, avatar FROM (SELECT id, name, avatar FROM sellor WHERE car='manager' ) AS a LEFT JOIN "
-			+ "(SELECT id, name, avatar FROM store) AS c ON b.uid=c.id;")
-	public List<TopicComment> queryManager(@Param("topicid") long topicid);
+	@Select("SELECT a.id AS ownerid, a.name AS ownername, avatar, b.id AS productid, b.name AS productname, price, thumb, img, html FROM (SELECT id, name, avatar FROM sellor WHERE car='manager' ) AS a LEFT JOIN "
+			+ "(SELECT id, name, ownerid FROM store) AS b ON a.id=b.ownerid;")
+	public List<Goods> queryTopGoods();
 
 }

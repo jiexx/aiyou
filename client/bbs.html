@@ -3,6 +3,20 @@
 </div>
 <div class="scrollable-content section bbs">
   <div class="scrollable-content" ui-scroll-bottom='bottomReached()'>
+    <div class="list-group" >
+      <div ng-repeat="item in goods" class="panel panel-default">
+	    <div class="panel-body" >
+		  <div class="pull-left">
+            <img ng-src="{{item.thumb}}" class="bbs-thumb"/>
+          </div>
+		  <div class="media-body">
+            <h5 class="media-heading">{{item.productname}}</h5>
+			<small>{{item.html}}</small>
+		    <small>售价:<img src="./asserts/Mahjong/gold.png" class="bbs-avatar"/>{{item.price}}金币<span class="label label-success">购买</span></small>
+          </div>
+        </div>
+      </div>
+	</div>
     <div class="list-group" ui-state='accordion'>
       <div ng-repeat="topic in comments" class="panel panel-default">
         <div class="panel-heading" ui-set="{'accordion': topic.id}" ng-click='onClickCommentItem(topic.id)'>

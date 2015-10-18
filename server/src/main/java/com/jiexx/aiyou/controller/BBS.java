@@ -40,9 +40,12 @@ public class BBS extends DataService {
 	public String user(@RequestParam(value = "id") long id) {
 		// System.out.println(appContext.getClassLoader().getResource("jdbc.properties"));
 
-		List<UserComment> star = DATA.queryCommentList(id);
-		UserCommentList resp = new UserCommentList(star);
-		if (star != null)
+		List<Goods> lg = DATA.queryGoods();
+		List<UserComment> luc = DATA.queryCommentList(id);
+		UserCommentList resp = new UserCommentList();
+		resp.addList(luc);
+		resp.addList(lg);
+		if (luc != null)
 			resp.success();
 
 		return resp.toResp();

@@ -9010,3 +9010,9 @@ ui-switch {
   margin-right: 8px;
   z-index: 3000;
 }
+
+.bbs-thumb {
+  height: 100%;
+  width: 100%;
+  border-radius: 3px;
+}
