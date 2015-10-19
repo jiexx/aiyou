@@ -195,8 +195,20 @@ app.controller('registerCtrl', function ($scope, $location, $cookieStore, $http,
 				var ctx = avatar.getContext("2d");
 				var img = new Image();
 				img.src = evt.target.result;
-				ctx.clearRect(0, 0, avatar.width, avatar.height);
-				ctx.drawImage(img, 0, 0, avatar.width, avatar.height);
+				ctx.fillStyle="#ffffff";
+				ctx.fillRect(0, 0, avatar.width, avatar.height);
+				//ctx.clearRect(0, 0, avatar.width, avatar.height);
+				if(img.width == img.height) {
+					ctx.drawImage(img, 0, 0, avatar.width, avatar.height);
+				}else if(img.width > img.height){
+					var s = parseFloat(avatar.width);
+					var h = parseFloat(img.height) * s / parseFloat(img.width);
+					ctx.drawImage(img, 0, (s-h)/2.0, s, h);
+				}else {
+					var s = parseFloat(avatar.height);
+					var w = parseFloat(img.width) * s / parseFloat(img.height);
+					ctx.drawImage(img, (s-w)/2.0, 0, w, s);
+				}
 				//ctx.font = "30px Arial";
 				//ctx.fillText("Hello",0,30);
 				fd = avatar.toDataURL("image/jpeg");
@@ -255,7 +267,64 @@ app.controller('homeListCtrl', function ($scope, $location, $cookieStore, DATA) 
 		/* global alert: false; */
 		//alert('Congrats you scrolled to the end of the list!');
 	};
+	$scope.auth = (DATA.au == 0? 0 : 1);
 	$scope.stars = DATA.stars;
+	$scope.clickPlay = function(userid, $event){
+		console.log("play click");
+		if( DATA.au == 0 ) {
+			$location.path('/register');
+			return;
+		}
+		if( userid == DATA.userid ) {
+			$rootScope.Ui.turnOn('mbi');
+			$scope.mbiChip = '2';
+			$scope.mbiConfirm = function() {
+				$http({
+					method : 'GET',
+					//$location.path('/myURL/').search({param: 'value'});
+					url: 'http://127.0.0.1:9090/entity/eqry.do?id=' + userid + '&chip=' + $scope.mbiChip,
+				}).success(function (resp, status, headers, config) {
+					if( resp.enough ) 
+						$location.path('/game').search({id:userid,chip:$scope.mbiChip});
+					else
+						$location.path('/game').search({id:userid,chip:resp.chip});
+				}).error(function (data, status, headers, config) {
+					$scope.status = status;
+				});
+			};
+		}else {
+			$http({
+				method : 'GET',
+				//$location.path('/myURL/').search({param: 'value'});
+				url: 'http://127.0.0.1:9090/entity/cqry.do?id=' + userid + '&myid=' + DATA.userid,
+			}).success(function (resp, status, headers, config) {
+				$rootScope.Ui.turnOn('mb');
+				if( resp.enough ) {
+					$scope.mbChip = '本局金币 '+resp.chip;
+					$scope.mbOptionText = '取消';
+					$scope.mbOption = function() {
+					};
+					$scope.mbConfirmText = '继续';
+					$scope.mbConfirm = function() {
+						$location.path('/game').search({id:resp.gid,chip:resp.chip});
+					};
+				}else {
+					$scope.mbChip = '您的金币不足,可以选择好友推广挣金币<br>或者直接充值';
+					$scope.mbOptionText = '充值';
+					$scope.mbOption = function() {
+						$location.path('/recharge').search({id:DATA.userid});
+					};
+					$scope.mbConfirmText = '推广';
+					$scope.mbConfirm = function() {
+						window.location.href = "aiyou://1.1.1.1/register.do?ref="+DATA.userid;
+					};
+				}
+			}).error(function (data, status, headers, config) {
+				$scope.status = status;
+			});
+			
+		}
+	}
 });
 
 app.controller('bbsCtrl', function ($scope, $rootScope, $location, $cookieStore, $http, DATA) {
@@ -335,6 +404,7 @@ app.controller('bbsCtrl', function ($scope, $rootScope, $location, $cookieStore,
 		url: 'http://127.0.0.1:9090/bbs/user.do?id=' + $location.search().id,
 	}).success(function (resp, status, headers, config) {
 		$scope.comments = resp.star;
+		$scope.goods = resp.goods;
 	}).error(function (data, status, headers, config) {
 		$scope.status = status;
 	});

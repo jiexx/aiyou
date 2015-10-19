@@ -2,6 +2,7 @@ package com.jiexx.aiyou.resp;
 
 import java.util.List;
 
+import com.jiexx.aiyou.model.Goods;
 import com.jiexx.aiyou.model.UserComment;
 
 public class UserCommentList extends Response{
@@ -13,12 +14,12 @@ public class UserCommentList extends Response{
 		this.star = null;
 	}
 	
-	public void addList(List<UserComment> luc) {
-		star = luc;
+	public void addList(List<UserComment> star) {
+		this.star = star;
 	}
 	
-	public void addList(List<Goods> lg) {
-		goods = lg;
+	public void addGoodsList(List<Goods> goods) {
+		this.goods = goods;
 	}
 
 }

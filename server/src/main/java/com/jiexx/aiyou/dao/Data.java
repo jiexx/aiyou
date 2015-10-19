@@ -13,6 +13,7 @@ import org.springframework.stereotype.Repository;
 
 import com.jiexx.aiyou.model.Comment;
 import com.jiexx.aiyou.model.Driver;
+import com.jiexx.aiyou.model.Goods;
 import com.jiexx.aiyou.model.Sellor;
 import com.jiexx.aiyou.model.TopicComment;
 import com.jiexx.aiyou.model.User;
@@ -27,17 +28,17 @@ public interface Data {
 	@Select("SELECT 8 FROM sellor WHERE id=#{userid};")
 	public Integer existSellor(@Param("userid") long userid);
 	
-	@Select("SELECT u.clazz, u.id,  2, s.img, s.avatar, u.lat AS x, u.lng AS y, s.name FROM sellor AS s  LEFT JOIN "
+	@Select("SELECT u.clazz, s.id,  2, s.img, s.avatar, u.lat AS x, u.lng AS y, s.name FROM sellor AS s  JOIN "
 			+ "(SELECT * FROM user WHERE lat > #{latstart} AND lat < #{latend} AND lng > #{lonstart} AND lng < #{lonend} ) AS u "
-			+ "ON u.id = s.id;")
+			+ "ON u.id = s.id LIMIT 100;")
 	public List<User> querySellorByLoc(@Param("latstart") float latstart, @Param("latend") float latend, @Param("lonstart") float lonstart, @Param("lonend") float lonend);
 	
 	@Select("SELECT 1 FROM driver WHERE id=#{userid};")
 	public Integer existDriver(@Param("userid") long userid);
 	
-	@Select("SELECT u.clazz, u.id, s.img, s.gender, s.avatar, u.lat AS x, u.lng AS y, s.name FROM driver AS s  LEFT JOIN "
+	@Select("SELECT u.clazz, u.id, s.img, s.gender, s.avatar, u.lat AS x, u.lng AS y, s.name FROM driver AS s  JOIN "
 			+ "(SELECT * FROM user WHERE lat > #{latstart} AND lat < #{latend} AND lng > #{lonstart} AND lng < #{lonend} ) AS u "
-			+ "ON u.id = s.id;")
+			+ "ON u.id = s.id LIMIT 100;")
 	public List<User> queryDriverByLoc(@Param("latstart") float latstart, @Param("latend") float latend, @Param("lonstart") float lonstart, @Param("lonend") float lonend);
 	
 	@Select("SELECT 1 FROM user WHERE id=#{userid};")
@@ -98,7 +99,7 @@ public interface Data {
 	
 	
 	@Select("SELECT a.id AS ownerid, a.name AS ownername, avatar, b.id AS productid, b.name AS productname, price, thumb, img, html FROM (SELECT id, name, avatar FROM sellor WHERE car='manager' ) AS a LEFT JOIN "
-			+ "(SELECT id, name, ownerid FROM store) AS b ON a.id=b.ownerid;")
+			+ "(SELECT id, name, ownerid, price, thumb, img, html  FROM store) AS b ON a.id=b.ownerid;")
 	public List<Goods> queryTopGoods();
 
 }

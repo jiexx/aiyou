@@ -18,6 +18,7 @@ import com.jiexx.aiyou.comm.LB;
 import com.jiexx.aiyou.comm.Util;
 import com.jiexx.aiyou.model.Comment;
 import com.jiexx.aiyou.model.Const;
+import com.jiexx.aiyou.model.Goods;
 import com.jiexx.aiyou.model.TopicComment;
 import com.jiexx.aiyou.model.User;
 import com.jiexx.aiyou.model.UserComment;
@@ -40,11 +41,11 @@ public class BBS extends DataService {
 	public String user(@RequestParam(value = "id") long id) {
 		// System.out.println(appContext.getClassLoader().getResource("jdbc.properties"));
 
-		List<Goods> lg = DATA.queryGoods();
+		List<Goods> lg = DATA.queryTopGoods();
 		List<UserComment> luc = DATA.queryCommentList(id);
 		UserCommentList resp = new UserCommentList();
 		resp.addList(luc);
-		resp.addList(lg);
+		resp.addGoodsList(lg);
 		if (luc != null)
 			resp.success();
 
