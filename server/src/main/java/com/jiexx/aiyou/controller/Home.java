@@ -70,7 +70,7 @@ public class Home extends DataService {
 		
 		s.addAll(d);
 		
-		resp.fixcopy(s, id, lat, lng);
+		resp.copyFromUserList(s, id, lat, lng);
 			
         return resp.toResp();
     }

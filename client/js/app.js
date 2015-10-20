@@ -67,7 +67,14 @@ app.factory('DATA', function () {
 					return this.stars[u];
 			}
 			return null;
-		}
+		},
+		self : null,
+		getSelf : function() {
+			if( self == null ) {
+				self = this.getUserById(this.userid);
+			}
+			return self;
+		},
 	}
 });
 
@@ -106,7 +113,7 @@ app.controller('gameCtrl', function ($scope, $location, $cookieStore, $http, DAT
 			params: {id: uid, id2: DATA.userid}, 
 		}).success(function (resp, status, headers, config) {
 			if( resp.err == 0 && resp.gid > -1 ) {
-				var user = DATA.getUserById(DATA.userid);
+				var user = DATA.getSelf();
 				var mj = Mahjong.instance();
 				mj.initGUI(user.thumb,resp.avatar1,user.name,resp.name1,resp.balance1,resp.balance2);
 			}else {
@@ -365,7 +372,7 @@ app.controller('bbsCtrl', function ($scope, $rootScope, $location, $cookieStore,
 				url: 'http://127.0.0.1:9090/bbs/reply.do?id=' + topicid + '&uid=' + DATA.userid + '&str=' + replyText,
 			}).success(function (resp, status, headers, config) {
 				msgBox('回复成功', function() {
-					var user = DATA.getUserById(DATA.userid);
+					var user = DATA.getSelf();
 					$scope.replies.push({content:replyText,dnd:1,time:(new Date()).format('mmm dd, yyyy HH:MM:ss TT'),name:user.name,avatar:user.thumb});
 				});
 			}).error(function (data, status, headers, config) {
@@ -385,7 +392,7 @@ app.controller('bbsCtrl', function ($scope, $rootScope, $location, $cookieStore,
 				url: 'http://127.0.0.1:9090/bbs/comment.do?toid=' + $location.search().id + '&uid=' + DATA.userid + '&str=' +commentText,//$scope.commentText,
 			}).success(function (resp, status, headers, config) {
 				msgBox('发表成功', function() {
-					var user = DATA.getUserById(DATA.userid);
+					var user = DATA.getSelf();
 					$scope.comments.push({uid:DATA.userid,id:resp.code,content:commentText,dnd:1,time:(new Date()).format('mmm dd, yyyy HH:MM:ss TT'),user:user.name,avatar:user.thumb});
 				});
 			}).error(function (data, status, headers, config) {

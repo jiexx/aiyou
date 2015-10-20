@@ -7,6 +7,7 @@ import java.sql.SQLException;
 import java.text.SimpleDateFormat;
 import java.util.Arrays;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.LinkedList;
 
 import javax.crypto.Cipher;
@@ -18,6 +19,7 @@ import javax.crypto.spec.DESKeySpec;
 import org.springframework.util.Base64Utils;
 
 import com.google.gson.Gson;
+import com.jiexx.aiyou.model.User;
 import com.jiexx.aiyou.resp.Response;
 import com.mysql.jdbc.Blob;
 
@@ -29,6 +31,68 @@ public class Util {
 	public static String toJson(Response resp) {
 		return gson.toJson(resp);
 	}
+	public static class Grid {
+		private static final float cellx = 0.001f;
+		private static final float celly = 0.001f;
+		private static final int level = 2;
+		private int[][] delta;
+		private float originX;
+		private float originY;
+		private HashMap<Long, User> cells = new HashMap<Long, User>();
+		private final int[][][] coord = {{{1,0},{0,1}}, {{0,-1},{1,0}}, {{-1,0},{0,-1}}, {{0,1},{-1,0}}};
+		public Grid() {
+			int perimeter  = 4 * ( level + 1 ) * level;
+			delta = new int[perimeter][2];
+			int pos = 0;
+			for(int i = 1 ; i <= level ; i ++) {
+				int distance = i ;
+				for(int c = 0 ; c < 4 ; c ++ ) {
+					for(int e = -distance ; e < distance ; e ++) {
+						delta[pos][0] = coord[c][0][0] * e +coord[c][0][1] * distance;
+						delta[pos][1] = coord[c][1][0] * e +coord[c][1][1] * distance;
+						pos ++;
+					}
+				}
+			}
+			System.out.println("step===>"+gson.toJson(delta));
+		}
+		public void setOrigin(User user) {
+			originX = user.x;
+			originY = user.y;
+			cells.clear();
+		}
+		public int getPosX(User user) {
+			return (int) Math.floor((user.x - originX) / cellx);
+		}
+		public int getPosY(User user) {
+			return (int) Math.floor((user.y - originY) / celly);
+		}
+		public User get(long i, long j) {
+			return cells.get(i<<32 | j);
+		}
+		public void change(User user) {
+			int x = getPosX(user);
+			int y = getPosY(user);
+			long X = x;
+			long Y = y;
+			if(get(x, y) == null) {
+				cells.put(X<<32 | Y, user);
+			}else {
+				int i = 0;
+				while(get(x+delta[i][0], y+delta[i][1]) != null && i++ < delta.length) ;
+				if(i < delta.length) {
+					X += delta[i][0];
+					Y += delta[i][1];
+					user.x = user.x + delta[i][0] * cellx;
+					user.y = user.y + delta[i][1] * celly;
+					cells.put(X<<32 | Y, user);
+				}else {
+					Util.log(" "+user.id, "Density of user is too big, grid level is not enough to change coordination");
+				}
+			}
+		}
+	}
+	public static Grid grid = new Grid();
 	public static String decrypt(String encryptedData, String key) {
 		String ret = null;
 		byte[] keyByte = getByteArray(key);

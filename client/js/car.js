@@ -27,6 +27,13 @@
 			this.scene.clearColor = new BABYLON.Color3(1, 1, 1);
 			this.car = new BABYLON.Mesh.CreateBox("car", 1, this.scene);
 			this.car.isVisible = false;
+			
+			var camera = new BABYLON.ArcRotateCamera("Camera", 0, 1.30, 30, new BABYLON.Vector3(0, 0, 0), this.scene);
+			camera.lowerBetaLimit = 0.1;
+			camera.upperBetaLimit = (Math.PI / 2) * 0.9;
+			camera.lowerRadiusLimit = 4;
+			camera.upperRadiusLimit = 8;
+			camera.attachControl(canvas, false);
 		//}
 	}
 	
@@ -112,7 +119,7 @@
 			var RotorFL				= scene.getMeshByName("RotorFL");
 			var TireFL1				= scene.getMeshByName("TireFL1");
 			var BrakeFL				= scene.getMeshByName("BrakeFL");
-			var HoodCarbon			= scene.getMeshByName("Hood Carbon");
+			var HoodCarbon			= scene.getMeshByName("HoodCarbon");
 			var LicenseF			= scene.getMeshByName("LicenseF");
 			var LicenseR			= scene.getMeshByName("LicenseR");
 			var SeatR01				= scene.getMeshByName("SeatR01");
@@ -187,12 +194,6 @@
 				scene.materials[index].backFaceCulling = true;
 			}
 			//Camera
-			var camera = new BABYLON.ArcRotateCamera("Camera", 0, 1.30, 30, new BABYLON.Vector3(0, 0, 0), scene);
-			camera.lowerBetaLimit = 0.1;
-			camera.upperBetaLimit = (Math.PI / 2) * 0.9;
-			camera.lowerRadiusLimit = 4;
-			camera.upperRadiusLimit = 8;
-			//camera.attachControl(canvas, false);
 			for( var i in newMeshes ) {
 				newMeshes[i].isVisible = false;
 			}
@@ -291,7 +292,7 @@
 		});
 		
         _this.engine.runRenderLoop(function() {
-			
+			_this.scene.render();
 			if (_this.scene.isReady()) {
 				_this.scene.render();
 				if( delta.isStill() ) {

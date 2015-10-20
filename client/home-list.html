@@ -20,7 +20,7 @@
 				  <a href="#/register" class="btn btn-default fa fa-gear text-primary" ng-class="{'collapse':item.clz[3]==0}"></a>
 			  </div>
 			  <div ng-switch-default  class=" btn-group pull-right">
-				  <a href="#/?user={{item.id}}" class="btn btn-default fa fa-eye text-primary "></a>
+				  <a href="#/user/?id={{item.id}}" class="btn btn-default fa fa-eye text-primary "></a>
 				  <a ng-href="item.clz[1]==1 ? '#/game/?id={{item.id}}': 'javascript:void(0)' "  ng-click="item.clz[1]==1 && clickPlay(item.id)" ng-class="item.clz[1]==0 ? 'collapse' : item.clz[1]==1 ? 'text-primary' : 'text-default' " class="btn btn-default fa fa-gamepad"></a>
 				  <a href="#/bbs/?id={{item.id}}" class="btn btn-default fa fa-comments-o text-primary "></a>
 				  <a href="#/setting/?id={{item.id}}" class="btn btn-default fa fa-gear text-primary" ng-class="{'collapse':item.clz[3]==0}"></a>
