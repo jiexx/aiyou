@@ -33,7 +33,7 @@
 			camera.upperBetaLimit = (Math.PI / 2) * 0.9;
 			camera.lowerRadiusLimit = 4;
 			camera.upperRadiusLimit = 8;
-			camera.attachControl(canvas, false);
+			//camera.attachControl(canvas, false);
 		//}
 	}
 	
@@ -200,104 +200,23 @@
 		});
 		return this;
 	};
-	
-	function simpleDelta(velocity, high, acceleration, loss) {
-		this.v0= -velocity-1;
-		this.v = 0;
-		this.t = 0;
-		this.a = -acceleration;
-		this.h = high;
-		this.d = loss;
-		this.delta = high;
-		this.restart = function() {
-			this.v0 = -velocity-1;
-			this.v = 0;
-			this.t = 0;
-			this.a = -acceleration;
-			this.h = high;
-			this.d = loss;
-			this.delta = high;
-		};
-		this.step = function() {
-			this.t ++;
-			if( this.delta >= 0 ) {
-				this.v = this.v0 + this.a*this.t;
-				this.delta = this.h + (this.v0+this.v)*this.t;
-				//console.log(this.v+"			"+this.delta+"			"+this.v0);
-			}else {
-				if( this.v+this.d > 0 ) 
-					this.v0 = 0;
-				else
-					this.v0 = -(this.v+this.d);
-				this.delta = 0;
-				this.t = 0;
-				this.h = 0;
-			}
-			return this.delta * 0.001;
-		};
-		this.isStill = function() {
-			return this.v0 == 0
-		};
-	}
-	function cirleDelta(radius, z0, velocity, acceleration) {
-		this.v0= velocity;
-		this.v = 0;
-		this.t = 0;
-		this.a = -acceleration;
-		this.restart = function() {
-			this.v0 = velocity;
-			this.v = 0;
-			this.t = 0;
-			this.a = -acceleration;
-		};
-		this.step = function() {
-			this.t ++;
-			this.v = this.v0 + this.a*this.t;
-			console.log(this.v);
-			return -this.v;
-		};
-		this.x = function() {
-			return radius*Math.cos(this.v);
-		};
-		this.z = function() {
-			return radius*Math.sin(this.v)+z0;
-		};
-		this.isStill = function() {
-			return this.v <= 0;
-		};
-	}
 
 	Car.prototype.render = function() {
 		var _this = this;
-		/*var timer = setInterval(function () {
-					looper();
-				}, 15000);
+		var keys = []; 
+		keys.push({frame: 0,value: -10});
+		keys.push({frame: 20,value: 10});
+		keys.push({frame: 100,value: 8});
+		var animation = new BABYLON.Animation("myAnimation", "position.x", 30, BABYLON.Animation.ANIMATIONTYPE_FLOAT, BABYLON.Animation.ANIMATIONLOOPMODE_CONSTANT);
+		animation.setKeys(keys);
 		
-		function looper() {
-			clearInterval(timer);
-			_this.engine.stopRenderLoop();
-		};*/
-		//var delta = new simpleDelta(0, 1230, 5, 10);
-		var delta = new cirleDelta(3, 0, 6.28, 0.1);
 		var car = this.car;
-		//car.rotate(BABYLON.Axis.Y, delta.step(), BABYLON.Space.LOCAL);
-		//car.translate(BABYLON.Axis.Z, delta.z(), BABYLON.Space.LOCAL);
-		_this.scene.registerBeforeRender(function(){
-			if (_this.scene.isReady()) {
-				car.rotation.y = delta.step();
-				car.position.x = delta.x();
-				car.position.z = delta.z();
-			}
-				//_this.scene.getCameraByID("Camera").alpha = -0.3+delta.step();
-		});
-		
+		car.animations.push(animation);
+		this.scene.beginAnimation(car, 0, 100, false);
         _this.engine.runRenderLoop(function() {
 			_this.scene.render();
-			if (_this.scene.isReady()) {
-				_this.scene.render();
-				if( delta.isStill() ) {
-					_this.engine.stopRenderLoop();
-				}
+			if( animation.isStopped()  ) {
+				_this.engine.stopRenderLoop();
 			}
         })
 	};
