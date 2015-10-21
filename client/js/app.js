@@ -55,6 +55,7 @@ app.factory('DATA', function () {
 		lng : 121.443794,
 		lat : 31.268964,
 		au : 1,
+		car : '',
 		auth : function (a) {
 			if (this.au == 0)
 				return 'register';
@@ -241,7 +242,22 @@ app.controller('userCtrl', function ($scope, $location, $cookieStore, $http, DAT
 
 	$scope.userLnk = DATA.auth('bbs/?id=' + $location.search().id);
 	$scope.avatar = DATA.getUserById($location.search().id).thumb;
-	$scope.avatarVisible = false;
+	$scope.car = '';
+	
+	function render() {
+		if( DATA.car != '' ) {
+			var c = Car.load(DATA.car, "bmw.babylon");
+			c.render();
+		}
+	}
+	function load(){
+		var canvas = document.getElementById("car");
+		if( canvas != null ) {
+			Car.create( canvas );
+			render();
+		}
+	}
+	addEventListener('load', load, false);
 
 	$http({
 		method : 'GET',
@@ -252,10 +268,10 @@ app.controller('userCtrl', function ($scope, $location, $cookieStore, $http, DAT
 		//$cookieStore.put('token', token);
 		//$location.path('/');
 		if( resp.err == 0 ) {
-			var c = Car.load("./asserts/car/bmw_m3_e92/", "bmw.babylon", function() {
-				$scope.avatarVisible = true;
-			});
-			c.render();
+			$scope.images = resp.img.split("|");
+			DATA.car = "./asserts/car/bmw_m3_e92/";
+			//var c = Car.load(DATA.car, "bmw.babylon");
+			//c.render();
 		}
 	}).error(function (data, status, headers, config) {
 		$scope.status = status;

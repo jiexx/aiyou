@@ -64,7 +64,7 @@ public interface Data {
 			+ "(SELECT avatar FROM driver AS d RIGHT ON ( SELECT uid, content FROM comment WHERE toid=#{userid} LIMIT 1 ) AS c WHERE c.uid = d.id );")
 	public Sellor querySellorById(@Param("userid") long userid);
 	
-	@Select("SELECT id, name, car, avatar, intro, balance, visible FROM driver WHERE id=#{userid};")
+	@Select("SELECT id, name, car, avatar, intro, balance, visible, img FROM driver WHERE id=#{userid};")
 	public Driver queryDriverById(@Param("userid") long userid);
 	
 	@Update("INSERT sellor(id,name,intro,car,balance,avatar,img)VALUES(#{id},#{name},#{intro},'TBD',#{balance},#{avatar},#{img});")

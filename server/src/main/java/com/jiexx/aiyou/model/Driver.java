@@ -9,5 +9,6 @@ public class Driver {
     public String intro;
     public int balance;
     public int visible; 
+    public String img;
 
 }

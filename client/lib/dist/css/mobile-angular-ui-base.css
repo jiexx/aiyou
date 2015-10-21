@@ -9016,3 +9016,29 @@ ui-switch {
   width: 100%;
   background: white;
 }
+
+.user-car{
+  height: 100%;
+  max-width: 100%;
+  text-align: center;
+  padding: 20px;
+}
+
+.user-img {
+  height: 100%;
+  width: 100%;
+  background: white;
+  top: 0;
+}
+
+.user-add {
+  height: 58px;
+  width: 58px;
+  vertical-align: middle;
+  text-align: center;
+  border: dotted 1px black;
+}
+
+.user-desc {
+  bottom: 0;
+}

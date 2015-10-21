@@ -10,6 +10,7 @@ public class DriverDetail extends Response{
     public String intro;
     public int balance;
     public int visible; 
+    public String img;
 	
 	public DriverDetail() {
 	}
@@ -22,5 +23,6 @@ public class DriverDetail extends Response{
 	    intro = d.intro;
 	    balance = d.balance;
 	    visible = d.visible; 
+	    img = d.img;
 	}
 }

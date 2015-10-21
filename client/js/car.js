@@ -28,7 +28,9 @@
 			this.car = new BABYLON.Mesh.CreateBox("car", 1, this.scene);
 			this.car.isVisible = false;
 			
-			var camera = new BABYLON.ArcRotateCamera("Camera", 0, 1.30, 30, new BABYLON.Vector3(0, 0, 0), this.scene);
+			var camera = new BABYLON.ArcRotateCamera("Camera", -0.8, 1.2, 6, new BABYLON.Vector3(0, 0, 0), this.scene);
+			//camera.fovMode = Camera.FOVMODE_HORIZONTAL_FIXED;
+			camera.fov = 0.9;
 			camera.lowerBetaLimit = 0.1;
 			camera.upperBetaLimit = (Math.PI / 2) * 0.9;
 			camera.lowerRadiusLimit = 4;
@@ -61,16 +63,12 @@
 
 			//Create Lights
 			var light = new BABYLON.DirectionalLight("light", new BABYLON.Vector3(-2, -2, -1), scene);
-			light.position = new BABYLON.Vector3(20.311, 35, -17.5);
+			light.position = new BABYLON.Vector3(0, -5, 0);
 			light.diffuse = new BABYLON.Color3(1, 1, 1);
 			light.specular = new BABYLON.Color3(1, 1, 1);
 			light.intensity = 0.75;
+			
 
-			var light0 = new BABYLON.DirectionalLight("light0", new BABYLON.Vector3(1, -2, 1), scene);
-			light0.position = new BABYLON.Vector3(35, 35, 0);
-			light0.diffuse = new BABYLON.Color3(1, 1, 1);
-			light0.specular = new BABYLON.Color3(1, 1, 1);
-			light0.intensity = 0.75;
 
 			var light1 = new BABYLON.DirectionalLight("light1", new BABYLON.Vector3(-1, -2, -1), scene);
 			light1.position = new BABYLON.Vector3(-20.311, 35, -17.5);
@@ -204,10 +202,11 @@
 	Car.prototype.render = function() {
 		var _this = this;
 		var keys = []; 
-		keys.push({frame: 0,value: -10});
-		keys.push({frame: 20,value: 10});
-		keys.push({frame: 100,value: 8});
-		var animation = new BABYLON.Animation("myAnimation", "position.x", 30, BABYLON.Animation.ANIMATIONTYPE_FLOAT, BABYLON.Animation.ANIMATIONLOOPMODE_CONSTANT);
+		keys.push({frame: 0,value: 150});
+		keys.push({frame: 80,value: 0});
+		keys.push({frame: 90,value: 1});
+		keys.push({frame: 100,value: 0});
+		var animation = new BABYLON.Animation("myAnimation", "position.z", 30, BABYLON.Animation.ANIMATIONTYPE_FLOAT, BABYLON.Animation.ANIMATIONLOOPMODE_CONSTANT);
 		animation.setKeys(keys);
 		
 		var car = this.car;
@@ -217,6 +216,7 @@
 			_this.scene.render();
 			if( animation.isStopped()  ) {
 				_this.engine.stopRenderLoop();
+				console.log("stop");
 			}
         })
 	};
