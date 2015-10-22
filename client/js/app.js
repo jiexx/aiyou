@@ -55,7 +55,6 @@ app.factory('DATA', function () {
 		lng : 121.443794,
 		lat : 31.268964,
 		au : 1,
-		car : '',
 		auth : function (a) {
 			if (this.au == 0)
 				return 'register';
@@ -239,43 +238,48 @@ app.controller('userCtrl', function ($scope, $location, $cookieStore, $http, DAT
 	nav.navClick = function(){
 		return true;
 	};
+	
+	var initCar = function( canvas, dir, file ) {
+		if( canvas != null ) {
+			Car.create( canvas );
+			var c = Car.load(dir, file);
+			c.render();
+		}
+	};
+	var query = function( canvas ) {
+		$http({
+			method : 'GET',
+			//$location.path('/myURL/').search({param: 'value'});
+			url: 'http://127.0.0.1:9090/entity/dqry.do?id=' + $location.search().id
+		}).success(function (resp, status, headers, config) {
+			//var token = data.token;
+			//$cookieStore.put('token', token);
+			//$location.path('/');
+			if( resp.err == 0 ) {
+				$scope.images = resp.img.split("|");
+				$scope.chip = resp.balance;
+				$scope.car = resp.car.split("|");
+				initCar( canvas, $scope.car[0], $scope.car[1] );
+			}
+		}).error(function (data, status, headers, config) {
+			$scope.status = status;
+		});
+	};
 
 	$scope.userLnk = DATA.auth('bbs/?id=' + $location.search().id);
 	$scope.avatar = DATA.getUserById($location.search().id).thumb;
-	$scope.car = '';
-	
-	function render() {
-		if( DATA.car != '' ) {
-			var c = Car.load(DATA.car, "bmw.babylon");
-			c.render();
-		}
-	}
-	function load(){
-		var canvas = document.getElementById("car");
+	$scope.car = null;
+	$scope.loadCar = function(canvas) {
 		if( canvas != null ) {
-			Car.create( canvas );
-			render();
+			if( $scope.car != null && $scope.car.length == 2 ) {
+				initCar( canvas, $scope.car[0], $scope.car[1] );
+			}else {
+				query( canvas );
+			}
 		}
-	}
-	addEventListener('load', load, false);
-
-	$http({
-		method : 'GET',
-		//$location.path('/myURL/').search({param: 'value'});
-		url: 'http://127.0.0.1:9090/entity/dqry.do?id=' + $location.search().id
-	}).success(function (resp, status, headers, config) {
-		//var token = data.token;
-		//$cookieStore.put('token', token);
-		//$location.path('/');
-		if( resp.err == 0 ) {
-			$scope.images = resp.img.split("|");
-			DATA.car = "./asserts/car/bmw_m3_e92/";
-			//var c = Car.load(DATA.car, "bmw.babylon");
-			//c.render();
-		}
-	}).error(function (data, status, headers, config) {
-		$scope.status = status;
-	});
+	};
+	
+	query();
 });
 
 app.controller('homeListCtrl', function ($scope, $location, $cookieStore, DATA) {
@@ -621,6 +625,18 @@ app.directive('carouselItem', function ($drag) {
 		}
 	};
 });
+
+app.directive('directiveCar', ['$window', '$http', 'DATA', function ($window, $http, DATA)  {
+			return {
+				restrict : 'A',
+				scope : false,
+				link: function(scope, elem) {
+					//var DATA = elem.injector().get('DATA');
+					scope.loadCar( elem[0] )
+				}
+			};
+		}
+]);
 
 app.directive('script', ['$window', '$q', '$http', 'DATA', function ($window, $q, $http, DATA) {
 			return {

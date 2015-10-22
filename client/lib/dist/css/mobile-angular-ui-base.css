@@ -8915,47 +8915,6 @@ ui-switch {
 	border-radius: 3px;
 }
 
-.game-avatar0 {
-  position:absolute;
-  left: 46%;
-  top: 35%;
-  width: 38px;
-  height: 38px;
-  opacity: 0.5;
-  -webkit-animation: fa-spin 2s infinite linear;
-  animation: fa-spin 2s infinite linear;
-}
-
-.game-avatar1 {
-  position:absolute;
-  left: 46%;
-  top: 35%;
-  width: 38px;
-  height: 38px;
-  border-radius: 50%;
-  opacity: 0.5;
-}
-
-.game-avatar2 {
-  position:absolute;
-  left: 46%;
-  top: 58%;
-  width: 38px;
-  height: 38px;
-  border-radius: 50%;
-  opacity: 0.5;
-}
-
-.driver-avatar {
-  position:absolute;
-  left: 92%;
-  top: 8%;
-  width: 58px;
-  height: 58px;
-  border-radius: 3px;
-  z-index: 3000;
-}
-
 .user-avatar {
   //background: #00c;
   height: 60px;
@@ -9017,28 +8976,77 @@ ui-switch {
   background: white;
 }
 
-.user-car{
+.driver-avatar {
+  position:absolute;
+  right: 8px;
+  top: 8px;
+  width: 58px;
+  height: 58px;
+  border-radius: 3px;
+  z-index: 3000;
+}
+
+.driver-car{
+  position:relative;
   height: 100%;
   max-width: 100%;
+  bottom: 0;
   text-align: center;
+  box-shadow: 8px 6.9417px 14.0346px 0px rgba(0,0,0,0.12), 8px 5.24407px 17.2787px 0px rgba(0,0,0,0.24);
   padding: 20px;
 }
 
-.user-img {
+.driver-chip {
+  position:absolute;
+  right: 8px;
+  top: 70px;
+  background: white;
+}
+
+.driver-canvas {
+  position: relative;
+  height: 100%;
+  width: 100%;
+  left: 0;
+}
+
+.driver-model {
+  display: block;
   height: 100%;
   width: 100%;
   background: white;
-  top: 0;
+  position: absolute;
+  right: 0px;
+}
+
+.driver-img2 {
+  position:absolute;
+  right: 0;
+}
+
+.driver-img3 {
+  position:absolute;
+  left: 50%;
+  top: 50%;
+  margin-top: -17px;
+  margin-left: -17px;
 }
 
 .user-add {
+  position:absolute;
+  right: 50%;
+  top: 10%;
   height: 58px;
   width: 58px;
   vertical-align: middle;
-  text-align: center;
-  border: dotted 1px black;
+  border: dotted 1px gray;
 }
 
 .user-desc {
-  bottom: 0;
+  position:absolute;
+  bottom: 8px;
+}
+
+.user-box {
+  box-shadow: 8px 0px 5px rgba(0,0,0,0.12)
 }

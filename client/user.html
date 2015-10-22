@@ -2,33 +2,32 @@
 	<div class="scrollable-content section">
     <ui-state id='activeTab' default='1'></ui-state>
     <ul class="nav nav-tabs">
-      <li ui-class="{'active': activeTab == 1}">
+      <li ui-class="{'user-box': activeTab == 1}">
         <a ui-set="{'activeTab': 1}" >车位</a>
       </li>
-      <li ui-class="{'active': activeTab == 2}">
+      <li ui-class="{'user-box': activeTab == 2}">
         <a ui-set="{'activeTab': 2}" >图像</a>
       </li>
     </ul>
 	
-	<div ui-if="activeTab == 1">
-	  <div class="user-car body">
-		<canvas id="car" class="user-img"></canvas>
-		<img ng-src="{{avatar}}"  class="driver-avatar"></img>
-		<a href="" class="btn">世界好大</a>
-		<a href="" class="btn pull-right">财富$100</a>
+	<div ui-if="activeTab == 1" class="driver-car">
+	  <div class="driver-canvas">
+			<canvas directive-car class="driver-model"></canvas>
+			<img ng-src="{{avatar}}" class="driver-avatar"/>
+			<small class="driver-chip"><img src="./asserts/Mahjong/gold.png" class="bbs-avatar"/>{{chip}}金币</small>
 	  </div>
     </div>
       
-    <div ui-if="activeTab == 2">
-      <div class="carousel">
-	    <div ng-repeat="item in images" class="carousel-inner" >
+    <div ui-if="activeTab == 2" class="driver-car">
+      <div class="carousel ">
+	    <div ng-repeat="item in images" class="carousel-inner driver-img2" >
 		  <div ng-if="item.img != null"  class="carousel-item">
-		    <img ng-src="{{item.img}}"  class="user-img"></img>
+		    <img ng-src="{{item.img}}"  ></img>
 		    <h3 class="user-desc">{{item.desc}}</h3>
           </div>
-		  <div ng-if="item.img == null"  class="carousel-item">
-		    <div class="user-add" ng-click="userAdd = true">
-		      <img src="./asserts/plus.png" />
+		  <div ng-if="true"  class="carousel-item">
+		    <div class="user-add" >
+		      <img class="driver-img3" src="./asserts/plus.png" />
 			</div>
 		    <input type="text" class="form-control needsclick user-desc" ng-model="imgComment"/>
           </div>
@@ -36,12 +35,13 @@
 	  </div>
     </div>
 	</div>
-	<a class="btn btn-block btn-lg btn-primary scrollable-footer fa " ng-class="{'fa-comments-o':!userAdd, 'fa-pencil-square-o':userAdd}" ng-href="userAdd ? '#' : '{{userLnk}}' "/>
+	<a ui-if="activeTab == 1" class="btn btn-block btn-lg btn-primary scrollable-footer fa fa-comments-o" ng-href="{{userLnk}}' "/>
+	<a ui-if="activeTab == 2" class="btn btn-block btn-lg btn-primary scrollable-footer fa fa-pencil-square-o" ng-href="#' "/>
 </div>
-<script type="text/javascript-user">
-(function () {
+<!--script type="text/javascript-user">
+(function () {  ng-show=''
 	var canvas = document.getElementById("car");
 	if( canvas != null )
 		Car.create( canvas );
 }).call(this);
-</script>
+</script-->

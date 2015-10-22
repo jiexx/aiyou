@@ -28,9 +28,9 @@
 			this.car = new BABYLON.Mesh.CreateBox("car", 1, this.scene);
 			this.car.isVisible = false;
 			
-			var camera = new BABYLON.ArcRotateCamera("Camera", -0.8, 1.2, 6, new BABYLON.Vector3(0, 0, 0), this.scene);
+			var camera = new BABYLON.ArcRotateCamera("Camera", -0.8, 1.2, 18, new BABYLON.Vector3(0, 0, 0), this.scene);
 			//camera.fovMode = Camera.FOVMODE_HORIZONTAL_FIXED;
-			camera.fov = 0.9;
+			camera.fov = 0.7;
 			camera.lowerBetaLimit = 0.1;
 			camera.upperBetaLimit = (Math.PI / 2) * 0.9;
 			camera.lowerRadiusLimit = 4;
@@ -165,13 +165,13 @@
 			HoodCarbon.material = chromeMaterial;
 
 			//Create Mirror Material
-			var mirrorMaterial = new BABYLON.StandardMaterial("mirrorMaterial", scene);
+			/*var mirrorMaterial = new BABYLON.StandardMaterial("mirrorMaterial", scene);
 			mirrorMaterial.reflectionTexture = new BABYLON.MirrorTexture("mirrorTexture", 512, scene, true);
 			mirrorMaterial.reflectionTexture.mirrorPlane = new BABYLON.Plane(1, 0, 0, 0);
 			mirrorMaterial.specularColor = new BABYLON.Color3(0, 0, 0);
 			mirrorMaterial.diffuseColor = new BABYLON.Color3(0, 0, 0);
 			mirrorMaterial.ambientColor = new BABYLON.Color3(0, 0, 0);
-			mirrorMaterial.reflectionTexture.level = 1; //Select the level (0.0 > 1.0) of the reflection
+			mirrorMaterial.reflectionTexture.level = 1; //Select the level (0.0 > 1.0) of the reflection*/
 
 			//Car Tint Glass Window
 			var transglassMaterial = new BABYLON.StandardMaterial("transglassMaterial", scene);
