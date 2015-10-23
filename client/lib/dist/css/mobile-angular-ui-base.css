@@ -8976,6 +8976,72 @@ ui-switch {
   background: white;
 }
 
+.bbs {
+  margin-top: 50px;
+}
+
+.scene {
+  position:absolute;
+  width: 100%;
+  max-width: 100%;
+  top: 50px;
+  bottom: 50px;
+  margin-top: 0;
+  margin-bottom: 0;
+  padding: 20px;
+  overflow: auto;
+  -webkit-overflow-scrolling: touch;
+}
+
+.scene-tabs {
+  height: 30px;
+  margin-bottom: -1px;
+}
+
+.scene-tabs  > a{
+  padding: 18px;
+}
+
+.scene-bar {
+  box-shadow: 8px -1px 5px rgba(0,0,0,0.24);
+  background: white;
+  border: 1px solid transparent;
+  border-bottom: 0px solid transparent;
+  border-radius: 4px 4px 0 0;
+  padding: 18px;
+}
+
+.scene-content{
+  position: relative;
+  height: 100%;
+  width: 100%;
+  text-align: center;
+  box-shadow: 8px 6.9417px 14.0346px 0px rgba(0,0,0,0.12), 8px 5.24407px 17.2787px 0px rgba(0,0,0,0.24);
+  padding: 20px;
+  background: white;
+  border-radius: 0 0 4px 4px;
+}
+
+.scene-canvas {
+  position: absolute;
+  height: 100%;
+  width: 100%;
+  top: 0;
+  left: 0;
+  max-width: 100%;
+  text-align: center;
+}
+
+.scene-canvas > canvas {
+  height: 100%;
+  width: 100%;
+}
+
+.scene-canvas > input {
+  height: 100%;
+  width: 100%;
+}
+
 .driver-avatar {
   position:absolute;
   right: 8px;
@@ -8986,16 +9052,6 @@ ui-switch {
   z-index: 3000;
 }
 
-.driver-car{
-  position:relative;
-  height: 100%;
-  max-width: 100%;
-  bottom: 0;
-  text-align: center;
-  box-shadow: 8px 6.9417px 14.0346px 0px rgba(0,0,0,0.12), 8px 5.24407px 17.2787px 0px rgba(0,0,0,0.24);
-  padding: 20px;
-}
-
 .driver-chip {
   position:absolute;
   right: 8px;
@@ -9003,28 +9059,13 @@ ui-switch {
   background: white;
 }
 
-.driver-canvas {
-  position: relative;
-  height: 100%;
-  width: 100%;
+.scene-content > .carousel > .carousel-inner{
+  position:absolute;
   left: 0;
 }
 
-.driver-model {
-  display: block;
-  height: 100%;
-  width: 100%;
-  background: white;
-  position: absolute;
-  right: 0px;
-}
 
-.driver-img2 {
-  position:absolute;
-  right: 0;
-}
-
-.driver-img3 {
+.img-plus {
   position:absolute;
   left: 50%;
   top: 50%;
@@ -9032,7 +9073,7 @@ ui-switch {
   margin-left: -17px;
 }
 
-.user-add {
+.box-plus {
   position:absolute;
   right: 50%;
   top: 10%;
@@ -9042,11 +9083,8 @@ ui-switch {
   border: dotted 1px gray;
 }
 
-.user-desc {
+.footer-input {
   position:absolute;
   bottom: 8px;
 }
 
-.user-box {
-  box-shadow: 8px 0px 5px rgba(0,0,0,0.12)
-}

@@ -1,43 +1,45 @@
-﻿<div class="scrollable-content bbs">
-	<div class="scrollable-content section">
-    <ui-state id='activeTab' default='1'></ui-state>
-    <ul class="nav nav-tabs">
-      <li ui-class="{'user-box': activeTab == 1}">
-        <a ui-set="{'activeTab': 1}" >车位</a>
-      </li>
-      <li ui-class="{'user-box': activeTab == 2}">
-        <a ui-set="{'activeTab': 2}" >图像</a>
-      </li>
-    </ul>
+﻿<ui-state id='activeTab' default='1'></ui-state>
+<div class="scene">
+    <div class="scene-tabs">
+      <a ui-set="{'activeTab': 1}" ui-class="{'scene-bar': activeTab == 1}"><i class="fa fa-dashboard"></i></a>
+      <a ui-set="{'activeTab': 2}" ui-class="{'scene-bar': activeTab == 2}"><i class="fa fa-photo"></i></a>
+    </div>
 	
-	<div ui-if="activeTab == 1" class="driver-car">
-	  <div class="driver-canvas">
-			<canvas directive-car class="driver-model"></canvas>
+	<div ui-if="activeTab == 1" class="scene-content">
+	  <div class="scene-canvas">
+			<canvas directive-car></canvas>
 			<img ng-src="{{avatar}}" class="driver-avatar"/>
 			<small class="driver-chip"><img src="./asserts/Mahjong/gold.png" class="bbs-avatar"/>{{chip}}金币</small>
 	  </div>
     </div>
       
-    <div ui-if="activeTab == 2" class="driver-car">
+    <div ui-if="activeTab == 2" class="scene-content">
       <div class="carousel ">
-	    <div ng-repeat="item in images" class="carousel-inner driver-img2" >
+	    <div ng-repeat="item in images" class="carousel-inner" >
 		  <div ng-if="item.img != null"  class="carousel-item">
 		    <img ng-src="{{item.img}}"  ></img>
 		    <h3 class="user-desc">{{item.desc}}</h3>
           </div>
 		  <div ng-if="true"  class="carousel-item">
-		    <div class="user-add" >
-		      <img class="driver-img3" src="./asserts/plus.png" />
-			</div>
-		    <input type="text" class="form-control needsclick user-desc" ng-model="imgComment"/>
+		    <form role="form" >
+              <div class="scene-canvas"><canvas id="imgSell" width="300px" height="300px" /></div>
+              <div class="scene-canvas"><input type="file" style="opacity: 0;" class="form-control" onchange="angular.element(this).scope().uploadImgSell(this.files)" file-model="imgSellToUpload"/></div>
+		      <div class="box-plus" >
+		        <img class="img-plus" src="./asserts/plus.png" />
+              </div>
+              <input type="text" class="form-control needsclick footer-input" ng-model="commentSell"/>
+			</form>
           </div>
 	    </div>
 	  </div>
     </div>
-	</div>
-	<a ui-if="activeTab == 1" class="btn btn-block btn-lg btn-primary scrollable-footer fa fa-comments-o" ng-href="{{userLnk}}' "/>
-	<a ui-if="activeTab == 2" class="btn btn-block btn-lg btn-primary scrollable-footer fa fa-pencil-square-o" ng-href="#' "/>
 </div>
+<a ui-if="activeTab == 1" class="btn btn-block btn-lg btn-primary scrollable-footer " ng-href="{{userLnk}} ">
+  <i  class="fa fa-comments-o"></i>
+</a>
+<a ui-if="activeTab == 2" class="btn btn-block btn-lg btn-primary scrollable-footer" ng-href="javascript:void(0);" ng-click='submitSell()'>
+  <i  class="fa fa-pencil-square-o"></i>
+</a>
 <!--script type="text/javascript-user">
 (function () {  ng-show=''
 	var canvas = document.getElementById("car");

@@ -279,6 +279,53 @@ app.controller('userCtrl', function ($scope, $location, $cookieStore, $http, DAT
 		}
 	};
 	
+	$scope.uploadImgSell = function (files) {
+		//Take the first selected file
+		if (files[0] == undefined || files[0] == null || files[0].type == undefined || files[0].type == null)
+			return;
+		$scope.nickName = name;
+		if (files[0].type.indexOf('image') > -1) {
+			var reader = new FileReader();
+			reader.onloadend = function (evt) {
+				var imgSell = document.getElementById("imgSell");
+				var ctx = imgSell.getContext("2d");
+				var img = new Image();
+				img.src = evt.target.result;
+				ctx.fillStyle="#ffffff";
+				ctx.fillRect(0, 0, imgSell.width, imgSell.height);
+				if(img.width == img.height) {
+					ctx.drawImage(img, 0, 0, imgSell.width, imgSell.height);
+				}else if(img.width > img.height){
+					var s = parseFloat(imgSell.width);
+					var h = parseFloat(img.height) * s / parseFloat(img.width);
+					ctx.drawImage(img, 0, (s-h)/2.0, s, h);
+				}else {
+					var s = parseFloat(imgSell.height);
+					var w = parseFloat(img.width) * s / parseFloat(img.height);
+					ctx.drawImage(img, (s-w)/2.0, 0, w, s);
+				}
+				//fd = imgSell.toDataURL("image/jpeg");
+				$scope.$apply();
+			}
+			reader.readAsDataURL(files[0]);
+		} else {
+			$scope.$apply();
+		}
+	};
+	$scope.submitSell = function() {
+		if (true) {
+			$http({
+				method  : 'POST',
+				url: 'http://127.0.0.1:9090/upload', 
+				data: {id: DATA.userid, n : Date.parse(new Date()), a : $scope.imgSellToUpload, desc: $scope.commentSell}, 
+			}).success(function (resp, status, headers, config) {
+				$scope.imgSellToUpload = null;
+			}).error(function (resp, status, headers, config) {
+				console.log(resp);
+			});
+		}
+	};
+	
 	query();
 });
 

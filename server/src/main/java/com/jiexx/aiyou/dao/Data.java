@@ -101,5 +101,11 @@ public interface Data {
 	@Select("SELECT a.id AS ownerid, a.name AS ownername, avatar, b.id AS productid, b.name AS productname, price, thumb, img, html FROM (SELECT id, name, avatar FROM sellor WHERE car='manager' ) AS a LEFT JOIN "
 			+ "(SELECT id, name, ownerid, price, thumb, img, html  FROM store) AS b ON a.id=b.ownerid;")
 	public List<Goods> queryTopGoods();
+	
+	@Update("SELECT img FROM driver WHERE id = #{id}")
+	public String queryImage(@Param("id") long id);
+	
+	@Update("UPDATE driver SET img = img | #{img} WHERE id = #{id}")
+	public Integer uploadImage(@Param("id") long id, @Param("img") String img );
 
 }

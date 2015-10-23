@@ -57,3 +57,5 @@ function MyCtrl($scope) {
         console.log('Hello World');
     });
 }
+
+https://spring.io/guides/gs/uploading-files/
