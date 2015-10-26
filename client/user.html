@@ -1,5 +1,5 @@
 ﻿<ui-state id='activeTab' default='1'></ui-state>
-<div class="scene">
+<div class="scene" ng-init="table={}">
     <div class="scene-tabs">
       <a ui-set="{'activeTab': 1}" ui-class="{'scene-bar': activeTab == 1}"><i class="fa fa-dashboard"></i></a>
       <a ui-set="{'activeTab': 2}" ui-class="{'scene-bar': activeTab == 2}"><i class="fa fa-photo"></i></a>
@@ -16,6 +16,7 @@
     <div ui-if="activeTab == 2" class="scene-content">
       <div class="carousel ">
 	    <div ng-repeat="item in images" class="carousel-inner" >
+		 <h3>test  uuuu {{table.imgSellToUpload.name}}ppp</h3>
 		  <div ng-if="item.img != null"  class="carousel-item">
 		    <img ng-src="{{item.img}}"  ></img>
 		    <h3 class="user-desc">{{item.desc}}</h3>
@@ -23,11 +24,11 @@
 		  <div ng-if="true"  class="carousel-item">
 		    <form role="form" >
               <div class="scene-canvas"><canvas id="imgSell" width="300px" height="300px" /></div>
-              <div class="scene-canvas"><input type="file" style="opacity: 0;" class="form-control" onchange="angular.element(this).scope().uploadImgSell(this.files)" file-model="imgSellToUpload"/></div>
+              <div class="scene-canvas"><input type="file" style="opacity: 0;" class="form-control" onchange="angular.element(this).scope().uploadImgSell(this.files)" file-model="table.imgSellToUpload"/></div>
 		      <div class="box-plus" >
 		        <img class="img-plus" src="./asserts/plus.png" />
               </div>
-              <input type="text" class="form-control needsclick footer-input" ng-model="commentSell"/>
+              <input type="text" class="form-control needsclick footer-input" ng-model="table.commentSell" />
 			</form>
           </div>
 	    </div>

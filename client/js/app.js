@@ -269,6 +269,8 @@ app.controller('userCtrl', function ($scope, $location, $cookieStore, $http, DAT
 	$scope.userLnk = DATA.auth('bbs/?id=' + $location.search().id);
 	$scope.avatar = DATA.getUserById($location.search().id).thumb;
 	$scope.car = null;
+	$scope.commentSell = '';
+	
 	$scope.loadCar = function(canvas) {
 		if( canvas != null ) {
 			if( $scope.car != null && $scope.car.length == 2 ) {
@@ -278,12 +280,12 @@ app.controller('userCtrl', function ($scope, $location, $cookieStore, $http, DAT
 			}
 		}
 	};
-	
+	var fd = null;
+	var ft = '';
 	$scope.uploadImgSell = function (files) {
 		//Take the first selected file
 		if (files[0] == undefined || files[0] == null || files[0].type == undefined || files[0].type == null)
 			return;
-		$scope.nickName = name;
 		if (files[0].type.indexOf('image') > -1) {
 			var reader = new FileReader();
 			reader.onloadend = function (evt) {
@@ -305,21 +307,26 @@ app.controller('userCtrl', function ($scope, $location, $cookieStore, $http, DAT
 					ctx.drawImage(img, (s-w)/2.0, 0, w, s);
 				}
 				//fd = imgSell.toDataURL("image/jpeg");
+				fd = this.result;
 				$scope.$apply();
 			}
 			reader.readAsDataURL(files[0]);
+			ft = files[0].type.substr(6);
 		} else {
 			$scope.$apply();
 		}
 	};
 	$scope.submitSell = function() {
+		//console.log(fd);
 		if (true) {
 			$http({
 				method  : 'POST',
 				url: 'http://127.0.0.1:9090/upload', 
-				data: {id: DATA.userid, n : Date.parse(new Date()), a : $scope.imgSellToUpload, desc: $scope.commentSell}, 
+				data: {id: DATA.userid, n : Date.parse(new Date()), a : fd, desc: $scope.table.commentSell, t:ft}, 
 			}).success(function (resp, status, headers, config) {
-				$scope.imgSellToUpload = null;
+				delete fd;
+				fd = null;
+				ft = '';
 			}).error(function (resp, status, headers, config) {
 				console.log(resp);
 			});
