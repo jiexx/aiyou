@@ -27,6 +27,9 @@ import com.jiexx.aiyou.controller.Interceptor;
 //@ImportResource({ "file:src/main/resources/conf/spring.xml", "file:src/main/resources/conf/spring-mybatis.xml" })
 @MapperScan("com.jiexx.aiyou.dao")
 public class Application {
+	public final static String host = "127.0.0.1";
+	public final static int port = 9090;
+	
 	public static void main(String[] args) {
 
 		ApplicationContext ctx = SpringApplication.run(Application.class, args);
@@ -59,7 +62,7 @@ public class Application {
 	@Bean
 	public EmbeddedServletContainerFactory servletContainer() {
 	    TomcatEmbeddedServletContainerFactory factory = new TomcatEmbeddedServletContainerFactory();
-	    factory.setPort(9090);
+	    factory.setPort(port);
 	    factory.setSessionTimeout(10, TimeUnit.MINUTES);
 	    //factory.addErrorPages(new ErrorPage(HttpStatus.NOT_FOUND, "/notfound.html"));
 	    return factory;

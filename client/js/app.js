@@ -29,6 +29,11 @@ app.config(function ($routeProvider, $controllerProvider, $locationProvider, $ht
 		controller : 'userCtrl',
 		reloadOnSearch : false
 	});
+	$routeProvider.when('/setting', {
+		templateUrl : "setting.html",
+		controller : 'settingCtrl',
+		reloadOnSearch : false
+	});
 	$routeProvider.when('/shop', {
 		templateUrl : "shop.html",
 		reloadOnSearch : false
@@ -279,6 +284,58 @@ app.controller('userCtrl', function ($scope, $location, $cookieStore, $http, DAT
 				query( canvas );
 			}
 		}
+	};	
+	query();
+});
+
+app.controller('settingCtrl', function ($scope, $location, $cookieStore, $http, DATA) {
+	var nav = $scope.$parent;
+	nav.navLnk = '/';
+	nav.listStyle = false;
+	nav.navClick = function(){
+		return true;
+	};
+	
+	var initCar = function( canvas, dir, file ) {
+		if( canvas != null ) {
+			Car.create( canvas );
+			var c = Car.load(dir, file);
+			c.render();
+		}
+	};
+	var query = function( canvas ) {
+		$http({
+			method : 'GET',
+			//$location.path('/myURL/').search({param: 'value'});
+			url: 'http://127.0.0.1:9090/entity/dqry.do?id=' + $location.search().id
+		}).success(function (resp, status, headers, config) {
+			//var token = data.token;
+			//$cookieStore.put('token', token);
+			//$location.path('/');
+			if( resp.err == 0 ) {
+				$scope.images = resp.img.split("|");
+				$scope.chip = resp.balance;
+				$scope.car = resp.car.split("|");
+				initCar( canvas, $scope.car[0], $scope.car[1] );
+			}
+		}).error(function (data, status, headers, config) {
+			$scope.status = status;
+		});
+	};
+
+	$scope.userLnk = DATA.auth('bbs/?id=' + $location.search().id);
+	$scope.avatar = DATA.getUserById($location.search().id).thumb;
+	$scope.car = null;
+	$scope.commentSell = '';
+	
+	$scope.loadCar = function(canvas) {
+		if( canvas != null ) {
+			if( $scope.car != null && $scope.car.length == 2 ) {
+				initCar( canvas, $scope.car[0], $scope.car[1] );
+			}else {
+				query( canvas );
+			}
+		}
 	};
 	var fd = null;
 	var ft = '';
@@ -330,6 +387,42 @@ app.controller('userCtrl', function ($scope, $location, $cookieStore, $http, DAT
 			}).error(function (resp, status, headers, config) {
 				console.log(resp);
 			});
+		}
+	};
+	$scope.delSell = function(index) {
+		$scope.images.splice(index, 1);
+		$http({
+			method  : 'GET',
+			url: 'http://127.0.0.1:9090/del', 
+			data: {id: DATA.userid, n : index}, 
+		}).success(function (resp, status, headers, config) {
+
+		}).error(function (resp, status, headers, config) {
+			console.log(resp);
+		});
+	};
+	$scope.uploadImgAvatar = function() {
+		if (files[0] == undefined || files[0] == null || files[0].type == undefined || files[0].type == null)
+			return;
+		if (files[0].type.indexOf('image') > -1) {
+			var reader = new FileReader();
+			reader.onloadend = function (evt) {
+				var imgAvatar = document.getElementById("imgAvatar");
+				imgAvatar.src = this.result;
+				$scope.$apply();
+				$http({
+					method  : 'POST',
+					url: 'http://127.0.0.1:9090/entity/avatar.do', 
+					data: {id: DATA.userid, a : this.result}, 
+				}).success(function (resp, status, headers, config) {
+				
+				}).error(function (resp, status, headers, config) {
+					console.log(resp);
+				});
+			}
+			reader.readAsDataURL(files[0]);
+		} else {
+			$scope.$apply();
 		}
 	};
 	

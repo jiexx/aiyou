@@ -8,37 +8,32 @@
 	<div ui-if="activeTab == 1" class="scene-content">
 	  <div class="scene-canvas">
 			<canvas directive-car></canvas>
-			<img ng-src="{{avatar}}" class="driver-avatar"/>
+			<img id="imgAvatar" ng-src="{{avatar}}" class="driver-avatar"/>
+			<input type="file" style="opacity: 0;" class="driver-avatar" onchange="angular.element(this).scope().uploadImgAvatar(this.files)" />
 			<small class="driver-chip"><img src="./asserts/Mahjong/gold.png" class="bbs-avatar"/>{{chip}}金币</small>
 	  </div>
     </div>
       
     <div ui-if="activeTab == 2" class="scene-content">
-      <div class="carousel ">
-	    <div ng-repeat="item in images" class="carousel-inner" >
-		  <div ng-if="item.img != null"  class="carousel-item">
-		    <img ng-src="{{item.img}}"  ></img>
+	    <div ng-repeat="item in images" >
+		  <div ng-if="item.img != null" >
+		    <img class="img-del" src="./asserts/del.png" />
+		    <img ng-src="{{item.img}}" ng-click='delSell($index)' ></img>
 		    <h3 class="user-desc">{{item.desc}}</h3>
           </div>
-		  <!--div ng-if="item.img == null"  class="carousel-item">
+		  <div ng-if="item.img == null"  >
 		    <form role="form" >
-              <div class="scene-canvas"><canvas id="imgSell" width="300px" height="300px" /></div>
+              <div class="scene-canvas"><canvas id="imgSell" width="30px" height="30px" /></div>
               <div class="scene-canvas"><input type="file" style="opacity: 0;" class="form-control" onchange="angular.element(this).scope().uploadImgSell(this.files)" file-model="table.imgSellToUpload"/></div>
-		      <div class="box-plus" >
-		        <img class="img-plus" src="./asserts/plus.png" />
-              </div>
+		      <img class="img-plus" src="./asserts/plus.png" />
               <input type="text" class="form-control needsclick footer-input" ng-model="table.commentSell" />
 			</form>
-          </div-->
+          </div>
 	    </div>
-	  </div>
     </div>
 </div>
-<a ui-if="activeTab == 1" class="btn btn-block btn-lg btn-primary scrollable-footer " ng-href="{{userLnk}} ">
-  <i  class="fa fa-comments-o"></i>
-</a>
-<a ui-if="activeTab == 2" class="btn btn-block btn-lg btn-primary scrollable-footer" ng-href="javascript:void(0);" ng-click='submitSell()'>
-  <i  class="fa fa-pencil-square-o"></i>
+<a class="btn btn-block btn-lg btn-primary scrollable-footer" ng-href="javascript:void(0);" ng-click='submitSell()'>
+  <i class="fa fa-pencil-square-o"></i>
 </a>
 <!--script type="text/javascript-user">
 (function () {  ng-show=''

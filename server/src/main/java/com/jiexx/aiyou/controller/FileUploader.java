@@ -12,6 +12,8 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.ResponseBody;
 
+import com.jiexx.aiyou.Application;
+import com.jiexx.aiyou.model.Driver;
 import com.jiexx.aiyou.resp.Response;
 import com.jiexx.aiyou.service.DataService;
 
@@ -32,7 +34,7 @@ public class FileUploader extends DataService {
 		public String t;
 	}
 
-	public static boolean GenerateImage(String imgStr, String imgFilePath) {
+	public boolean GenerateImage(String imgStr, String imgFilePath) {
 		if (imgStr == null)
 			return false;
 		try {
@@ -46,17 +48,32 @@ public class FileUploader extends DataService {
 			return false;
 		}
 	}
+	public String httpHeader() {
+		return "http://"+Application.host+":"+Application.port+"/";
+	}
 
 	@RequestMapping(value = "upload", method = RequestMethod.POST)
 	public @ResponseBody String handleFileUpload(@RequestBody FileUpload fu) {
 		Response resp = new Response();
-
+		
+		int no = 0;
 		if (fu.a != null) {
-			if(GenerateImage(fu.a, fu.n+"."+fu.t)) {
-				String imgs = DATA.queryImage(fu.id);
-				if (imgs != null && imgs.split("|").length < 5) {
-					if (DATA.uploadImage(fu.id, fu.n) != null) {
-						resp.success();
+			Driver imgs = DATA.queryDriverById(fu.id);
+			if(imgs != null) {
+				if(imgs.img != null) {
+					no = imgs.img.split("|").length;
+					if(no < 5) {
+						if(GenerateImage(fu.a, String.valueOf(no)+"."+fu.t)) {
+							if (DATA.uploadImage(fu.id, httpHeader()+String.valueOf(no)+"."+fu.t) != null) {
+								resp.success();
+							}
+						}
+					}
+				}else {
+					if(GenerateImage(fu.a, "0."+fu.t)) {
+						if (DATA.uploadImage(fu.id, httpHeader()+String.valueOf(no)+"."+fu.t) != null) {
+							resp.success();
+						}
 					}
 				}
 			}
