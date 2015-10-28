@@ -6,7 +6,6 @@ public class User {
     public String clazz;
     public long id = 0;
     public int gender;
-    public String img;
     public String avatar;
     public float x;
     public float y;

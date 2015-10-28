@@ -16,7 +16,6 @@ public class UserList extends Response{
 	    public String clz;
 	    public long id = 0;
 	    public int gender;
-	    public String img;
 	    public float x;
 	    public float y;
 	    public String name;
@@ -69,7 +68,6 @@ public class UserList extends Response{
 			}
 			star[i].id = users.get(i).id;
 			star[i].gender = users.get(i).gender;
-			star[i].img = users.get(i).img;
 			star[i].thumb = users.get(i).avatar;
 			star[i].name = users.get(i).name;
 			star[i].x = users.get(i).x;

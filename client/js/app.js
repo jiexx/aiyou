@@ -307,13 +307,14 @@ app.controller('settingCtrl', function ($scope, $location, $cookieStore, $http, 
 		$http({
 			method : 'GET',
 			//$location.path('/myURL/').search({param: 'value'});
-			url: 'http://127.0.0.1:9090/entity/dqry.do?id=' + $location.search().id
+			url: 'http://127.0.0.1:9090/image/qry.do?uid=' + $location.search().id
 		}).success(function (resp, status, headers, config) {
-			//var token = data.token;
-			//$cookieStore.put('token', token);
-			//$location.path('/');
 			if( resp.err == 0 ) {
-				$scope.images = resp.img.split("|");
+				$scope.images = resp.imgs;
+				$scope.images.push({id:0,uid:0,img:'',intro:'',time:''});
+				/*while ( resp.imgs.length ) {
+					$scope.images.push( resp.imgs.splice(0, 2) );
+				}*/
 				$scope.chip = resp.balance;
 				$scope.car = resp.car.split("|");
 				initCar( canvas, $scope.car[0], $scope.car[1] );
@@ -347,22 +348,7 @@ app.controller('settingCtrl', function ($scope, $location, $cookieStore, $http, 
 			var reader = new FileReader();
 			reader.onloadend = function (evt) {
 				var imgSell = document.getElementById("imgSell");
-				var ctx = imgSell.getContext("2d");
-				var img = new Image();
-				img.src = evt.target.result;
-				ctx.fillStyle="#ffffff";
-				ctx.fillRect(0, 0, imgSell.width, imgSell.height);
-				if(img.width == img.height) {
-					ctx.drawImage(img, 0, 0, imgSell.width, imgSell.height);
-				}else if(img.width > img.height){
-					var s = parseFloat(imgSell.width);
-					var h = parseFloat(img.height) * s / parseFloat(img.width);
-					ctx.drawImage(img, 0, (s-h)/2.0, s, h);
-				}else {
-					var s = parseFloat(imgSell.height);
-					var w = parseFloat(img.width) * s / parseFloat(img.height);
-					ctx.drawImage(img, (s-w)/2.0, 0, w, s);
-				}
+				imgSell.src = this.result;
 				//fd = imgSell.toDataURL("image/jpeg");
 				fd = this.result;
 				$scope.$apply();
@@ -378,25 +364,21 @@ app.controller('settingCtrl', function ($scope, $location, $cookieStore, $http, 
 		if (true) {
 			$http({
 				method  : 'POST',
-				url: 'http://127.0.0.1:9090/upload', 
+				url: 'http://127.0.0.1:9090/image/upload', 
 				data: {id: DATA.userid, n : Date.parse(new Date()), a : fd, desc: $scope.table.commentSell, t:ft}, 
 			}).success(function (resp, status, headers, config) {
-				delete fd;
-				fd = null;
-				ft = '';
+				$scope.images.unshift({id:DATA.userid,uid:parseInt(resp.code),img:fd,intro:ft,time:''});
 			}).error(function (resp, status, headers, config) {
 				console.log(resp);
 			});
 		}
 	};
-	$scope.delSell = function(index) {
-		$scope.images.splice(index, 1);
+	$scope.delSell = function(index, item) {
 		$http({
 			method  : 'GET',
-			url: 'http://127.0.0.1:9090/del', 
-			data: {id: DATA.userid, n : index}, 
+			url: 'http://127.0.0.1:9090/image/del.do?id=' + item.id , 
 		}).success(function (resp, status, headers, config) {
-
+			$scope.images.splice(index, 1);
 		}).error(function (resp, status, headers, config) {
 			console.log(resp);
 		});

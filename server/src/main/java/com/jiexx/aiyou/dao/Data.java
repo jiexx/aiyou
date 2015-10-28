@@ -2,7 +2,7 @@ package com.jiexx.aiyou.dao;
 
 import java.util.List;
 
-
+import org.apache.ibatis.annotations.Delete;
 import org.apache.ibatis.annotations.Insert;
 import org.apache.ibatis.annotations.Param;
 import org.apache.ibatis.annotations.Select;
@@ -13,6 +13,7 @@ import org.apache.ibatis.mapping.StatementType;
 import com.jiexx.aiyou.model.Comment;
 import com.jiexx.aiyou.model.Driver;
 import com.jiexx.aiyou.model.Goods;
+import com.jiexx.aiyou.model.Image;
 import com.jiexx.aiyou.model.Sellor;
 import com.jiexx.aiyou.model.TopicComment;
 import com.jiexx.aiyou.model.User;
@@ -27,7 +28,7 @@ public interface Data {
 	@Select("SELECT 8 FROM sellor WHERE id=#{userid};")
 	public Integer existSellor(@Param("userid") long userid);
 	
-	@Select("SELECT u.clazz, s.id,  2, s.img, s.avatar, u.lat AS x, u.lng AS y, s.name FROM sellor AS s  JOIN "
+	@Select("SELECT u.clazz, s.id,  2,  s.avatar, u.lat AS x, u.lng AS y, s.name FROM sellor AS s  JOIN "
 			+ "(SELECT * FROM user WHERE lat > #{latstart} AND lat < #{latend} AND lng > #{lonstart} AND lng < #{lonend} ) AS u "
 			+ "ON u.id = s.id LIMIT 100;")
 	public List<User> querySellorByLoc(@Param("latstart") float latstart, @Param("latend") float latend, @Param("lonstart") float lonstart, @Param("lonend") float lonend);
@@ -35,7 +36,7 @@ public interface Data {
 	@Select("SELECT 1 FROM driver WHERE id=#{userid};")
 	public Integer existDriver(@Param("userid") long userid);
 	
-	@Select("SELECT u.clazz, u.id, s.img, s.gender, s.avatar, u.lat AS x, u.lng AS y, s.name FROM driver AS s  JOIN "
+	@Select("SELECT u.clazz, u.id, s.gender, s.avatar, u.lat AS x, u.lng AS y, s.name FROM driver AS s  JOIN "
 			+ "(SELECT * FROM user WHERE lat > #{latstart} AND lat < #{latend} AND lng > #{lonstart} AND lng < #{lonend} ) AS u "
 			+ "ON u.id = s.id LIMIT 100;")
 	public List<User> queryDriverByLoc(@Param("latstart") float latstart, @Param("latend") float latend, @Param("lonstart") float lonstart, @Param("lonend") float lonend);
@@ -58,12 +59,12 @@ public interface Data {
 	
 	
 
-	@Select(" SELECT s.id AS id, s.name AS name, s.img AS img, s.intro AS intro, s.call AS call, d.avatar AS uavatar, c.content AS ucomment FROM"
+	@Select(" SELECT s.id AS id, s.name AS name, s.intro AS intro, s.call AS call, d.avatar AS uavatar, c.content AS ucomment FROM"
 			+ "(SELECT id, name, img, intro, call FROM sellor WHERE id=#{userid} ) AS s  LEFT JOIN "
 			+ "(SELECT avatar FROM driver AS d RIGHT ON ( SELECT uid, content FROM comment WHERE toid=#{userid} LIMIT 1 ) AS c WHERE c.uid = d.id );")
 	public Sellor querySellorById(@Param("userid") long userid);
 	
-	@Select("SELECT id, name, car, avatar, intro, balance, visible, img FROM driver WHERE id=#{userid};")
+	@Select("SELECT id, name, car, avatar, intro, balance, visible FROM driver WHERE id=#{userid};")
 	public Driver queryDriverById(@Param("userid") long userid);
 	
 	@Update("INSERT sellor(id,name,intro,car,balance,avatar,img)VALUES(#{id},#{name},#{intro},'TBD',#{balance},#{avatar},#{img});")
@@ -101,7 +102,14 @@ public interface Data {
 			+ "(SELECT id, name, ownerid, price, thumb, img, html  FROM store) AS b ON a.id=b.ownerid;")
 	public List<Goods> queryTopGoods();
 	
-	@Update("UPDATE driver SET img = img | #{img} WHERE id = #{id}")
-	public Integer uploadImage(@Param("id") long id, @Param("img") String img );
+	@Select("SELECT * FROM images  WHERE uid = #{uid}; ")
+	public List<Image> queryImage(@Param("uid") long uid );
+	
+	@Update("INSERT images ( uid, img, intro ) VALUES( #{img.uid}, #{img.img} , #{img.intro} );")
+	@SelectKey(before=false,keyProperty="img.id",resultType=Long.class,statementType=StatementType.STATEMENT,statement="SELECT LAST_INSERT_ID() AS id")
+	public Integer uploadImage(@Param("img") Image img );
+	
+	@Delete("DELETE FROM images WHERE id = #{id} ;")
+	public Integer delImage(@Param("id") long id );
 
 }

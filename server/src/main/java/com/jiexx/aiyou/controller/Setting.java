@@ -3,6 +3,7 @@ package com.jiexx.aiyou.controller;
 import java.io.BufferedOutputStream;
 import java.io.File;
 import java.io.FileOutputStream;
+import java.util.List;
 
 import javax.xml.bind.DatatypeConverter;
 
@@ -10,16 +11,19 @@ import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 
 import com.jiexx.aiyou.Application;
 import com.jiexx.aiyou.model.Driver;
+import com.jiexx.aiyou.model.Image;
+import com.jiexx.aiyou.resp.ImageList;
 import com.jiexx.aiyou.resp.Response;
 import com.jiexx.aiyou.service.DataService;
 
 @Controller
-@RequestMapping("/")
-public class FileUploader extends DataService {
+@RequestMapping("/image")
+public class Setting extends DataService {
 
 	@RequestMapping(value = "upload", method = RequestMethod.GET)
 	public @ResponseBody String provideUploadInfo() {
@@ -29,7 +33,7 @@ public class FileUploader extends DataService {
 	public static class FileUpload {
 		public long id;
 		public String n;
-		public String a;
+		public String a;  //img data
 		public String desc;
 		public String t;
 	}
@@ -48,37 +52,55 @@ public class FileUploader extends DataService {
 			return false;
 		}
 	}
-	public String httpHeader() {
-		return "http://"+Application.host+":"+Application.port+"/";
+	public String httpHeader(int index, String type) {
+		return "http://"+Application.host+":"+Application.port+"/"+index+"."+type;
+	}
+	
+	public String header(int index, String type) {
+		return "src/main/resources/public/"+index+"."+type;
 	}
 
 	@RequestMapping(value = "upload", method = RequestMethod.POST)
 	public @ResponseBody String handleFileUpload(@RequestBody FileUpload fu) {
 		Response resp = new Response();
 		
-		int no = 0;
 		if (fu.a != null) {
-			Driver imgs = DATA.queryDriverById(fu.id);
-			if(imgs != null) {
-				if(imgs.img != null) {
-					no = imgs.img.split("|").length;
-					if(no < 5) {
-						if(GenerateImage(fu.a, String.valueOf(no)+"."+fu.t)) {
-							if (DATA.uploadImage(fu.id, httpHeader()+String.valueOf(no)+"."+fu.t) != null) {
-								resp.success();
-							}
-						}
-					}
-				}else {
-					if(GenerateImage(fu.a, "0."+fu.t)) {
-						if (DATA.uploadImage(fu.id, httpHeader()+String.valueOf(no)+"."+fu.t) != null) {
-							resp.success();
-						}
+			List<Image> imgs = DATA.queryImage(fu.id);
+			
+			Image img = new Image();
+			img.id = fu.id;
+			img.img = httpHeader(imgs.size(), fu.t);
+			img.intro = fu.desc;
+			if(imgs.size() < 3) {
+				if(GenerateImage(fu.a, header(imgs.size(), fu.t) )) {
+					if (DATA.uploadImage(img) != null) {
+						resp.code = ""+img.id;
+						resp.success();
 					}
 				}
 			}
 		}
 		return resp.toJson();
+	}
+	
+	@RequestMapping(value = "del", method = RequestMethod.GET)
+	public @ResponseBody String remove(@RequestParam(value = "id") long id) {
+		Response resp = new Response();
+		if(DATA.delImage(id) != 0) {
+			resp.success();
+		}
+		return resp.toJson();
+	}
+	
+	@RequestMapping(value = "qry", method = RequestMethod.GET)
+	public @ResponseBody String query(@RequestParam(value = "uid") long uid) {
+		Driver d = DATA.queryDriverById(uid);
+		if(d != null) {
+			ImageList resp = new ImageList( DATA.queryImage(uid), d.car, d.balance );
+			resp.success();
+			return resp.toJson();
+		};
+		return (new Response()).toJson();
 	}
 
 }
