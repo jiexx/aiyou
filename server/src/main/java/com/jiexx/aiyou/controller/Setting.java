@@ -68,7 +68,7 @@ public class Setting extends DataService {
 			List<Image> imgs = DATA.queryImage(fu.id);
 			
 			Image img = new Image();
-			img.id = fu.id;
+			img.uid = fu.id;
 			img.img = httpHeader(imgs.size(), fu.t);
 			img.intro = fu.desc;
 			if(imgs.size() < 3) {

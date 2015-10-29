@@ -1,0 +1,151 @@
+<!DOCTYPE html><html lang="en"><head><title>payouts/servlet/CreateBatchPayoutServlet</title></head><meta http-equiv="Content-Type" content="text/html; charset=utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0, minimum-scale=1.0, maximum-scale=1.0"><meta name="groc-relative-root" content="../../"><meta name="groc-document-path" content="payouts/servlet/CreateBatchPayoutServlet"><meta name="groc-project-path" content="payouts/servlet/CreateBatchPayoutServlet.java"><link rel="stylesheet" type="text/css" media="all" href="../../assets/style.css"><script type="text/javascript" src="../../assets/behavior.js"></script><body><div id="meta"><div class="file-path">payouts/servlet/CreateBatchPayoutServlet.java</div></div><div id="document"><div class="segment"><div class="comments "><div class="wrapper"><h1 id="create-batch-payout">Create Batch Payout</h1>
+<p>The asynchronous payout mode (sync_mode=false, which is the default) enables a maximum of 500 individual payouts to be specified in one API call. 
+Exceeding 500 payouts in one call returns an HTTP response message with status code 400 (Bad Request).</p></div></div></div><div class="segment"><div class="comments "><div class="wrapper"><p>API used: POST /v1/payments/payouts</p></div></div><div class="code"><div class="wrapper"><span class="hljs-keyword">package</span> com.paypal.api.payouts.servlet;
+
+<span class="hljs-keyword">import</span> java.io.IOException;
+<span class="hljs-keyword">import</span> java.io.InputStream;
+<span class="hljs-keyword">import</span> java.util.ArrayList;
+<span class="hljs-keyword">import</span> java.util.HashMap;
+<span class="hljs-keyword">import</span> java.util.List;
+<span class="hljs-keyword">import</span> java.util.Random;
+
+<span class="hljs-keyword">import</span> javax.servlet.ServletConfig;
+<span class="hljs-keyword">import</span> javax.servlet.ServletException;
+<span class="hljs-keyword">import</span> javax.servlet.http.HttpServlet;
+<span class="hljs-keyword">import</span> javax.servlet.http.HttpServletRequest;
+<span class="hljs-keyword">import</span> javax.servlet.http.HttpServletResponse;
+
+<span class="hljs-keyword">import</span> org.apache.log4j.Logger;
+
+<span class="hljs-keyword">import</span> com.paypal.api.payments.Currency;
+<span class="hljs-keyword">import</span> com.paypal.api.payments.Payout;
+<span class="hljs-keyword">import</span> com.paypal.api.payments.PayoutBatch;
+<span class="hljs-keyword">import</span> com.paypal.api.payments.PayoutItem;
+<span class="hljs-keyword">import</span> com.paypal.api.payments.PayoutSenderBatchHeader;
+<span class="hljs-keyword">import</span> com.paypal.api.payments.util.GenerateAccessToken;
+<span class="hljs-keyword">import</span> com.paypal.api.payments.util.ResultPrinter;
+<span class="hljs-keyword">import</span> com.paypal.base.rest.APIContext;
+<span class="hljs-keyword">import</span> com.paypal.base.rest.PayPalRESTException;
+<span class="hljs-keyword">import</span> com.paypal.base.rest.PayPalResource;
+
+<span class="hljs-keyword">public</span> <span class="hljs-class"><span class="hljs-keyword">class</span> <span class="hljs-title">CreateBatchPayoutServlet</span> <span class="hljs-keyword">extends</span> <span class="hljs-title">HttpServlet</span> </span>{
+
+	<span class="hljs-keyword">private</span> <span class="hljs-keyword">static</span> <span class="hljs-keyword">final</span> <span class="hljs-keyword">long</span> serialVersionUID = <span class="hljs-number">1L</span>;
+
+	<span class="hljs-keyword">private</span> <span class="hljs-keyword">static</span> <span class="hljs-keyword">final</span> Logger LOGGER = Logger
+			.getLogger(CreateBatchPayoutServlet.class);
+
+	<span class="hljs-function"><span class="hljs-keyword">public</span> <span class="hljs-keyword">void</span> <span class="hljs-title">init</span><span class="hljs-params">(ServletConfig servletConfig)</span> <span class="hljs-keyword">throws</span> ServletException </span>{</div></div></div><div class="segment"><div class="comments "><div class="wrapper"><h2 id="load-configuration">Load Configuration</h2>
+<p>Load SDK configuration for
+the resource. This intialization code can be
+done as Init Servlet.</p></div></div><div class="code"><div class="wrapper">		InputStream is = CreateBatchPayoutServlet.class
+				.getResourceAsStream(<span class="hljs-string">"/sdk_config.properties"</span>);
+		<span class="hljs-keyword">try</span> {
+			PayPalResource.initConfig(is);
+		} <span class="hljs-keyword">catch</span> (PayPalRESTException e) {
+			LOGGER.fatal(e.getMessage());
+		}
+
+	}
+
+	<span class="hljs-annotation">@Override</span>
+	<span class="hljs-function"><span class="hljs-keyword">protected</span> <span class="hljs-keyword">void</span> <span class="hljs-title">doGet</span><span class="hljs-params">(HttpServletRequest req, HttpServletResponse resp)</span>
+			<span class="hljs-keyword">throws</span> ServletException, IOException </span>{
+		doPost(req, resp);
+	}</div></div></div><div class="segment"><div class="comments "><div class="wrapper"><h2 id="create">Create</h2>
+<p>Sample showing how to create a Single Payout with Synchronous Mode.</p></div></div><div class="code"><div class="wrapper">	<span class="hljs-annotation">@Override</span>
+	<span class="hljs-function"><span class="hljs-keyword">protected</span> <span class="hljs-keyword">void</span> <span class="hljs-title">doPost</span><span class="hljs-params">(HttpServletRequest req, HttpServletResponse resp)</span>
+			<span class="hljs-keyword">throws</span> ServletException, IOException </span>{
+		createBatchPayout(req, resp);
+		req.getRequestDispatcher(<span class="hljs-string">"response.jsp"</span>).forward(req, resp);
+	}
+
+	<span class="hljs-annotation">@SuppressWarnings</span>(<span class="hljs-string">"unchecked"</span>)
+	<span class="hljs-function"><span class="hljs-keyword">public</span> PayoutBatch <span class="hljs-title">createBatchPayout</span><span class="hljs-params">(HttpServletRequest req,
+			HttpServletResponse resp)</span> </span>{</div></div></div><div class="segment"><div class="comments "><div class="wrapper"><h3 id="payout">Payout</h3>
+<p>A resource representing a payout
+This is how our body should look like:
+{ &quot;sender_batch_header&quot;: { &quot;sender_batch_id&quot;: &quot;random_uniq_id&quot;,
+&quot;email_subject&quot;: &quot;You have a payment&quot; }, &quot;items&quot;: [ {
+&quot;recipient_type&quot;: &quot;EMAIL&quot;, &quot;amount&quot;: { &quot;value&quot;: 0.99, &quot;currency&quot;:
+&quot;USD&quot; }, &quot;receiver&quot;: &quot;shirt-supplier-one@mail.com&quot;, &quot;note&quot;:
+&quot;Thank you.&quot;, &quot;sender_item_id&quot;: &quot;item_1&quot; }, { &quot;recipient_type&quot;:
+&quot;EMAIL&quot;, &quot;amount&quot;: { &quot;value&quot;: 0.90, &quot;currency&quot;: &quot;USD&quot; }, &quot;receiver&quot;:
+&quot;shirt-supplier-two@mail.com&quot;, &quot;note&quot;: &quot;Thank you.&quot;,
+&quot;sender_item_id&quot;: &quot;item_2&quot; }, { &quot;recipient_type&quot;: &quot;EMAIL&quot;, &quot;amount&quot;:
+{ &quot;value&quot;: 2.00, &quot;currency&quot;: &quot;USD&quot; }, &quot;receiver&quot;:
+&quot;shirt-supplier-three@mail.com&quot;, &quot;note&quot;: &quot;Thank you.&quot;,
+&quot;sender_item_id&quot;: &quot;item_3&quot; } ] }</p></div></div><div class="code"><div class="wrapper">		Payout payout = <span class="hljs-keyword">new</span> Payout();
+
+		PayoutSenderBatchHeader senderBatchHeader = <span class="hljs-keyword">new</span> PayoutSenderBatchHeader();</div></div></div><div class="segment"><div class="comments "><div class="wrapper"><h3 id="note">NOTE:</h3>
+<p>You can prevent duplicate batches from being processed. If you
+specify a <code>sender_batch_id</code> that was used in the last 30 days, the
+batch will not be processed. For items, you can specify a
+<code>sender_item_id</code>. If the value for the <code>sender_item_id</code> is a
+duplicate of a payout item that was processed in the last 30 days,
+the item will not be processed.</p>
+<h4 id="batch-header-instance">Batch Header Instance</h4></div></div><div class="code"><div class="wrapper">		Random random = <span class="hljs-keyword">new</span> Random();
+		senderBatchHeader.setSenderBatchId(
+				<span class="hljs-keyword">new</span> Double(random.nextDouble()).toString()).setEmailSubject(
+				<span class="hljs-string">"You have a Payment!"</span>);</div></div></div><div class="segment"><div class="comments "><div class="wrapper"><h3 id="currency">Currency</h3></div></div></div><div class="segment"><div class="code"><div class="wrapper">		Currency amount1 = <span class="hljs-keyword">new</span> Currency();
+		amount1.setValue(<span class="hljs-string">"1.00"</span>).setCurrency(<span class="hljs-string">"USD"</span>);</div></div></div><div class="segment"><div class="comments "><div class="wrapper"><h3 id="currency">Currency</h3></div></div></div><div class="segment"><div class="code"><div class="wrapper">		Currency amount2 = <span class="hljs-keyword">new</span> Currency();
+		amount2.setValue(<span class="hljs-string">"2.00"</span>).setCurrency(<span class="hljs-string">"USD"</span>);</div></div></div><div class="segment"><div class="comments "><div class="wrapper"><h3 id="currency">Currency</h3></div></div></div><div class="segment"><div class="code"><div class="wrapper">		Currency amount3 = <span class="hljs-keyword">new</span> Currency();
+		amount3.setValue(<span class="hljs-string">"4.00"</span>).setCurrency(<span class="hljs-string">"USD"</span>);</div></div></div><div class="segment"><div class="comments "><div class="wrapper"><h4 id="sender-item-1">Sender Item 1</h4>
+<p>Please note that if you are using single payout with sync mode, you
+can only pass one Item in the request</p></div></div><div class="code"><div class="wrapper">		PayoutItem senderItem1 = <span class="hljs-keyword">new</span> PayoutItem();
+		senderItem1.setRecipientType(<span class="hljs-string">"Email"</span>)
+				.setNote(<span class="hljs-string">"Thanks for your patronage"</span>)
+				.setReceiver(<span class="hljs-string">"shirt-supplier-one@gmail.com"</span>)
+				.setSenderItemId(<span class="hljs-string">"201404324234"</span>).setAmount(amount1);</div></div></div><div class="segment"><div class="comments "><div class="wrapper"><h4 id="sender-item-1">Sender Item 1</h4>
+<p>Please note that if you are using single payout with sync mode, you
+can only pass one Item in the request</p></div></div><div class="code"><div class="wrapper">		PayoutItem senderItem2 = <span class="hljs-keyword">new</span> PayoutItem();
+		senderItem2.setRecipientType(<span class="hljs-string">"Email"</span>)
+				.setNote(<span class="hljs-string">"Thanks for your patronage"</span>)
+				.setReceiver(<span class="hljs-string">"shirt-supplier-two@gmail.com"</span>)
+				.setSenderItemId(<span class="hljs-string">"201404324235"</span>).setAmount(amount2);</div></div></div><div class="segment"><div class="comments "><div class="wrapper"><h4 id="sender-item-1">Sender Item 1</h4>
+<p>Please note that if you are using single payout with sync mode, you
+can only pass one Item in the request</p></div></div><div class="code"><div class="wrapper">		PayoutItem senderItem3 = <span class="hljs-keyword">new</span> PayoutItem();
+		senderItem3.setRecipientType(<span class="hljs-string">"Email"</span>)
+				.setNote(<span class="hljs-string">"Thanks for your patronage"</span>)
+				.setReceiver(<span class="hljs-string">"shirt-supplier-three@gmail.com"</span>)
+				.setSenderItemId(<span class="hljs-string">"201404324236"</span>).setAmount(amount3);
+
+		List&lt;PayoutItem&gt; items = <span class="hljs-keyword">new</span> ArrayList&lt;PayoutItem&gt;();
+		items.add(senderItem1);
+		items.add(senderItem2);
+		items.add(senderItem3);
+
+		payout.setSenderBatchHeader(senderBatchHeader).setItems(items);
+
+		PayoutBatch batch = <span class="hljs-keyword">null</span>;
+
+		<span class="hljs-keyword">try</span> {</div></div></div><div class="segment"><div class="comments "><div class="wrapper"><h3 id="accesstoken">AccessToken</h3>
+<p>Retrieve the access token from
+OAuthTokenCredential by passing in
+ClientID and ClientSecret
+It is not mandatory to generate Access Token on a per call basis.
+Typically the access token can be generated once and
+reused within the expiry window</p></div></div><div class="code"><div class="wrapper">			String accessToken = GenerateAccessToken.getAccessToken();</div></div></div><div class="segment"><div class="comments "><div class="wrapper"><h3 id="api-context">Api Context</h3>
+<p>Pass in a <code>ApiContext</code> object to authenticate
+the call and to send a unique request id
+(that ensures idempotency). The SDK generates
+a request id if you do not pass one explicitly.</p></div></div><div class="code"><div class="wrapper">			APIContext apiContext = <span class="hljs-keyword">new</span> APIContext(accessToken);</div></div></div><div class="segment"><div class="comments "><div class="wrapper"><p>Use this variant if you want to pass in a request id
+that is meaningful in your application, ideally
+a order id.
+String requestId = Long.toString(System.nanoTime(); APIContext
+apiContext = new APIContext(accessToken, requestId ));</p></div></div></div><div class="segment"><div class="comments "><div class="wrapper"><h3 id="create-batch-payout">Create Batch Payout</h3></div></div></div><div class="segment"><div class="code"><div class="wrapper">			batch = payout.create(apiContext, <span class="hljs-keyword">new</span> HashMap&lt;String, String&gt;());
+
+			LOGGER.info(<span class="hljs-string">"Payout Batch With ID: "</span>
+					+ batch.getBatchHeader().getPayoutBatchId());
+			ResultPrinter.addResult(req, resp, <span class="hljs-string">"Payout Batch Create"</span>,
+					Payout.getLastRequest(), Payout.getLastResponse(), <span class="hljs-keyword">null</span>);
+
+		} <span class="hljs-keyword">catch</span> (PayPalRESTException e) {
+			ResultPrinter.addResult(req, resp, <span class="hljs-string">"Payout Batch Create"</span>,
+					Payout.getLastRequest(), <span class="hljs-keyword">null</span>, e.getMessage());
+		}
+
+		<span class="hljs-keyword">return</span> batch;
+	}
+
+}</div></div></div></div></body></html>

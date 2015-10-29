@@ -1,0 +1,103 @@
+<!DOCTYPE html><html lang="en"><head><title>payouts/servlet/CancelPayoutItemServlet</title></head><meta http-equiv="Content-Type" content="text/html; charset=utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0, minimum-scale=1.0, maximum-scale=1.0"><meta name="groc-relative-root" content="../../"><meta name="groc-document-path" content="payouts/servlet/CancelPayoutItemServlet"><meta name="groc-project-path" content="payouts/servlet/CancelPayoutItemServlet.java"><link rel="stylesheet" type="text/css" media="all" href="../../assets/style.css"><script type="text/javascript" src="../../assets/behavior.js"></script><body><div id="meta"><div class="file-path">payouts/servlet/CancelPayoutItemServlet.java</div></div><div id="document"><div class="segment"><div class="comments "><div class="wrapper"><h1 id="cancel-unclaimed-payout">Cancel Unclaimed Payout</h1>
+<p>Use this call to cancel an existing, unclaimed transaction. If an unclaimed item is not claimed within 30 days, the funds will be automatically returned to the sender. 
+This call can be used to cancel the unclaimed item prior to the automatic 30-day return.
+API used: POST /v1/payments/payouts-item/<Payout-Item-Id>/cancel</p></div></div><div class="code"><div class="wrapper"><span class="hljs-keyword">package</span> com.paypal.api.payouts.servlet;
+
+<span class="hljs-keyword">import</span> java.io.IOException;
+<span class="hljs-keyword">import</span> java.io.InputStream;
+
+<span class="hljs-keyword">import</span> javax.servlet.ServletConfig;
+<span class="hljs-keyword">import</span> javax.servlet.ServletException;
+<span class="hljs-keyword">import</span> javax.servlet.http.HttpServlet;
+<span class="hljs-keyword">import</span> javax.servlet.http.HttpServletRequest;
+<span class="hljs-keyword">import</span> javax.servlet.http.HttpServletResponse;
+
+<span class="hljs-keyword">import</span> org.apache.log4j.Logger;
+
+<span class="hljs-keyword">import</span> com.paypal.api.payments.PayoutBatch;
+<span class="hljs-keyword">import</span> com.paypal.api.payments.PayoutItem;
+<span class="hljs-keyword">import</span> com.paypal.api.payments.PayoutItemDetails;
+<span class="hljs-keyword">import</span> com.paypal.api.payments.util.GenerateAccessToken;
+<span class="hljs-keyword">import</span> com.paypal.api.payments.util.ResultPrinter;
+<span class="hljs-keyword">import</span> com.paypal.base.rest.APIContext;
+<span class="hljs-keyword">import</span> com.paypal.base.rest.PayPalRESTException;
+<span class="hljs-keyword">import</span> com.paypal.base.rest.PayPalResource;
+
+<span class="hljs-keyword">public</span> <span class="hljs-class"><span class="hljs-keyword">class</span> <span class="hljs-title">CancelPayoutItemServlet</span> <span class="hljs-keyword">extends</span> <span class="hljs-title">HttpServlet</span> </span>{
+
+	<span class="hljs-keyword">private</span> <span class="hljs-keyword">static</span> <span class="hljs-keyword">final</span> <span class="hljs-keyword">long</span> serialVersionUID = <span class="hljs-number">1L</span>;
+
+	<span class="hljs-keyword">private</span> <span class="hljs-keyword">static</span> <span class="hljs-keyword">final</span> Logger LOGGER = Logger
+			.getLogger(CancelPayoutItemServlet.class);
+
+	<span class="hljs-function"><span class="hljs-keyword">public</span> <span class="hljs-keyword">void</span> <span class="hljs-title">init</span><span class="hljs-params">(ServletConfig servletConfig)</span> <span class="hljs-keyword">throws</span> ServletException </span>{</div></div></div><div class="segment"><div class="comments "><div class="wrapper"><h2 id="load-configuration">Load Configuration</h2>
+<p>Load SDK configuration for
+the resource. This intialization code can be
+done as Init Servlet.</p></div></div><div class="code"><div class="wrapper">		InputStream is = CancelPayoutItemServlet.class
+				.getResourceAsStream(<span class="hljs-string">"/sdk_config.properties"</span>);
+		<span class="hljs-keyword">try</span> {
+			PayPalResource.initConfig(is);
+		} <span class="hljs-keyword">catch</span> (PayPalRESTException e) {
+			LOGGER.fatal(e.getMessage());
+		}
+
+	}
+
+	<span class="hljs-annotation">@Override</span>
+	<span class="hljs-function"><span class="hljs-keyword">protected</span> <span class="hljs-keyword">void</span> <span class="hljs-title">doGet</span><span class="hljs-params">(HttpServletRequest req, HttpServletResponse resp)</span>
+			<span class="hljs-keyword">throws</span> ServletException, IOException </span>{
+		doPost(req, resp);
+	}</div></div></div><div class="segment"><div class="comments "><div class="wrapper"><h2 id="get-payout-item-status">Get Payout Item Status</h2>
+<p>Sample showing how to get a Payout Item Status</p></div></div><div class="code"><div class="wrapper">	<span class="hljs-annotation">@Override</span>
+	<span class="hljs-function"><span class="hljs-keyword">protected</span> <span class="hljs-keyword">void</span> <span class="hljs-title">doPost</span><span class="hljs-params">(HttpServletRequest req, HttpServletResponse resp)</span>
+			<span class="hljs-keyword">throws</span> ServletException, IOException </span>{
+		cancelPayoutItem(req, resp);
+		req.getRequestDispatcher(<span class="hljs-string">"response.jsp"</span>).forward(req, resp);
+	}
+
+	<span class="hljs-function"><span class="hljs-keyword">public</span> PayoutItemDetails <span class="hljs-title">cancelPayoutItem</span><span class="hljs-params">(HttpServletRequest req,
+			HttpServletResponse resp)</span> </span>{</div></div></div><div class="segment"><div class="comments "><div class="wrapper"><h3 id="get-a-payout-batch">Get a Payout Batch</h3>
+<p>We are re-using the CreateSinglePayoutServlet to get a batch payout
+for us. This will make sure the samples will work all the time.</p></div></div><div class="code"><div class="wrapper">		CreateSinglePayoutServlet servlet = <span class="hljs-keyword">new</span> CreateSinglePayoutServlet();
+		PayoutBatch batch = servlet.createSynchronousSinglePayout(req, resp);</div></div></div><div class="segment"><div class="comments "><div class="wrapper"><h3 id="retrieve-payoutitem-id">Retrieve PayoutItem ID</h3>
+<p>In the samples, we are extractingt he payoutItemId of a payout we
+just created.
+In reality, you might be using the payoutItemId stored in your
+database, or passed manually.</p></div></div><div class="code"><div class="wrapper">		PayoutItemDetails itemDetails = batch.getItems().get(<span class="hljs-number">0</span>);
+		String payoutItemId = itemDetails.getPayoutItemId();</div></div></div><div class="segment"><div class="comments "><div class="wrapper"><p>Initiate the response object</p></div></div><div class="code"><div class="wrapper">		PayoutItemDetails response = <span class="hljs-keyword">null</span>;
+		<span class="hljs-keyword">try</span> {</div></div></div><div class="segment"><div class="comments "><div class="wrapper"><h3 id="accesstoken">AccessToken</h3>
+<p>Retrieve the access token from
+OAuthTokenCredential by passing in
+ClientID and ClientSecret
+It is not mandatory to generate Access Token on a per call basis.
+Typically the access token can be generated once and
+reused within the expiry window</p></div></div><div class="code"><div class="wrapper">			String accessToken = GenerateAccessToken.getAccessToken();</div></div></div><div class="segment"><div class="comments "><div class="wrapper"><h3 id="api-context">Api Context</h3>
+<p>Pass in a <code>ApiContext</code> object to authenticate
+the call and to send a unique request id
+(that ensures idempotency). The SDK generates
+a request id if you do not pass one explicitly.</p></div></div><div class="code"><div class="wrapper">			APIContext apiContext = <span class="hljs-keyword">new</span> APIContext(accessToken);</div></div></div><div class="segment"><div class="comments "><div class="wrapper"><p>Use this variant if you want to pass in a request id
+that is meaningful in your application, ideally
+a order id.
+String requestId = Long.toString(System.nanoTime(); APIContext
+apiContext = new APIContext(accessToken, requestId ));</p></div></div></div><div class="segment"><div class="comments "><div class="wrapper"><h3 id="cancel-payout-item-if-it-is-unclaimed">Cancel Payout Item if it is unclaimed</h3></div></div></div><div class="segment"><div class="code"><div class="wrapper">			<span class="hljs-keyword">if</span> (itemDetails.getTransactionStatus().equalsIgnoreCase(<span class="hljs-string">"UNCLAIMED"</span>)) {
+				response = PayoutItem.cancel(apiContext, payoutItemId);
+
+				LOGGER.info(<span class="hljs-string">"Payout Item With ID: "</span>
+						+ response.getPayoutItemId());
+				ResultPrinter.addResult(req, resp, <span class="hljs-string">"Cancelled Unclaimed Payout Item"</span>,
+						PayoutItem.getLastRequest(),
+						PayoutItem.getLastResponse(), <span class="hljs-keyword">null</span>);
+			} <span class="hljs-keyword">else</span> {
+				LOGGER.info(<span class="hljs-string">"Payout Item needs to be Unclaimed"</span>);
+				ResultPrinter.addResult(req, resp, <span class="hljs-string">"Cancelled Unclaimed Payout Item"</span>,
+						<span class="hljs-keyword">null</span>,
+						<span class="hljs-keyword">null</span>,  <span class="hljs-string">"Payout Item needs to be Unclaimed"</span>);
+			}
+		} <span class="hljs-keyword">catch</span> (PayPalRESTException e) {
+			ResultPrinter.addResult(req, resp, <span class="hljs-string">"Cancelled Unclaimed Payout Item"</span>,
+					PayoutItem.getLastRequest(), <span class="hljs-keyword">null</span>, e.getMessage());
+		}
+
+		<span class="hljs-keyword">return</span> response;
+	}
+}</div></div></div></div></body></html>

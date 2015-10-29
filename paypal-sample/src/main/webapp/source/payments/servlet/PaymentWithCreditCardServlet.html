@@ -1,0 +1,149 @@
+<!DOCTYPE html><html lang="en"><head><title>payments/servlet/PaymentWithCreditCardServlet</title></head><meta http-equiv="Content-Type" content="text/html; charset=utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0, minimum-scale=1.0, maximum-scale=1.0"><meta name="groc-relative-root" content="../../"><meta name="groc-document-path" content="payments/servlet/PaymentWithCreditCardServlet"><meta name="groc-project-path" content="payments/servlet/PaymentWithCreditCardServlet.java"><link rel="stylesheet" type="text/css" media="all" href="../../assets/style.css"><script type="text/javascript" src="../../assets/behavior.js"></script><body><div id="meta"><div class="file-path">payments/servlet/PaymentWithCreditCardServlet.java</div></div><div id="document"><div class="segment"><div class="comments "><div class="wrapper"><h1 id="createpayment-using-credit-card-sample">CreatePayment using credit card Sample</h1>
+<p>This sample code demonstrate how you can process
+a payment with a credit card.
+API used: /v1/payments/payment</p></div></div><div class="code"><div class="wrapper"><span class="hljs-keyword">package</span> com.paypal.api.payments.servlet;
+
+<span class="hljs-keyword">import</span> java.io.IOException;
+<span class="hljs-keyword">import</span> java.io.InputStream;
+<span class="hljs-keyword">import</span> java.util.ArrayList;
+<span class="hljs-keyword">import</span> java.util.List;
+
+<span class="hljs-keyword">import</span> javax.servlet.ServletConfig;
+<span class="hljs-keyword">import</span> javax.servlet.ServletException;
+<span class="hljs-keyword">import</span> javax.servlet.http.HttpServlet;
+<span class="hljs-keyword">import</span> javax.servlet.http.HttpServletRequest;
+<span class="hljs-keyword">import</span> javax.servlet.http.HttpServletResponse;
+
+<span class="hljs-keyword">import</span> org.apache.log4j.Logger;
+
+<span class="hljs-keyword">import</span> com.paypal.api.payments.Address;
+<span class="hljs-keyword">import</span> com.paypal.api.payments.Amount;
+<span class="hljs-keyword">import</span> com.paypal.api.payments.CreditCard;
+<span class="hljs-keyword">import</span> com.paypal.api.payments.Details;
+<span class="hljs-keyword">import</span> com.paypal.api.payments.FundingInstrument;
+<span class="hljs-keyword">import</span> com.paypal.api.payments.Payer;
+<span class="hljs-keyword">import</span> com.paypal.api.payments.Payment;
+<span class="hljs-keyword">import</span> com.paypal.api.payments.Transaction;
+<span class="hljs-keyword">import</span> com.paypal.api.payments.util.GenerateAccessToken;
+<span class="hljs-keyword">import</span> com.paypal.api.payments.util.ResultPrinter;
+<span class="hljs-keyword">import</span> com.paypal.base.rest.APIContext;
+<span class="hljs-keyword">import</span> com.paypal.base.rest.PayPalRESTException;
+<span class="hljs-keyword">import</span> com.paypal.base.rest.PayPalResource;</div></div></div><div class="segment"><div class="comments doc-section"><div class="wrapper"><p><span class='doc-section-header'> author lvairamani</span></p></div></div><div class="code"><div class="wrapper"><span class="hljs-keyword">public</span> <span class="hljs-class"><span class="hljs-keyword">class</span> <span class="hljs-title">PaymentWithCreditCardServlet</span> <span class="hljs-keyword">extends</span> <span class="hljs-title">HttpServlet</span> </span>{
+
+	<span class="hljs-keyword">private</span> <span class="hljs-keyword">static</span> <span class="hljs-keyword">final</span> <span class="hljs-keyword">long</span> serialVersionUID = <span class="hljs-number">1L</span>;
+	<span class="hljs-keyword">private</span> <span class="hljs-keyword">static</span> <span class="hljs-keyword">final</span> Logger LOGGER = Logger
+			.getLogger(PaymentWithCreditCardServlet.class);
+
+	<span class="hljs-function"><span class="hljs-keyword">public</span> <span class="hljs-keyword">void</span> <span class="hljs-title">init</span><span class="hljs-params">(ServletConfig servletConfig)</span> <span class="hljs-keyword">throws</span> ServletException </span>{</div></div></div><div class="segment"><div class="comments "><div class="wrapper"><h2 id="load-configuration">Load Configuration</h2>
+<p>Load SDK configuration for
+the resource. This intialization code can be
+done as Init Servlet.</p></div></div><div class="code"><div class="wrapper">		InputStream is = PaymentWithCreditCardServlet.class
+				.getResourceAsStream(<span class="hljs-string">"/sdk_config.properties"</span>);
+		<span class="hljs-keyword">try</span> {
+			PayPalResource.initConfig(is);
+		} <span class="hljs-keyword">catch</span> (PayPalRESTException e) {
+			LOGGER.fatal(e.getMessage());
+		}
+
+	}
+
+	<span class="hljs-annotation">@Override</span>
+	<span class="hljs-function"><span class="hljs-keyword">protected</span> <span class="hljs-keyword">void</span> <span class="hljs-title">doGet</span><span class="hljs-params">(HttpServletRequest req, HttpServletResponse resp)</span>
+			<span class="hljs-keyword">throws</span> ServletException, IOException </span>{
+		doPost(req, resp);
+	}</div></div></div><div class="segment"><div class="comments "><div class="wrapper"><h2 id="create">Create</h2>
+<p>Sample showing to create a Payment using
+CreditCard as a FundingInstrument</p></div></div><div class="code"><div class="wrapper">	<span class="hljs-annotation">@Override</span>
+	<span class="hljs-function"><span class="hljs-keyword">protected</span> <span class="hljs-keyword">void</span> <span class="hljs-title">doPost</span><span class="hljs-params">(HttpServletRequest req, HttpServletResponse resp)</span>
+			<span class="hljs-keyword">throws</span> ServletException, IOException </span>{
+		createPayment(req, resp);
+		req.getRequestDispatcher(<span class="hljs-string">"response.jsp"</span>).forward(req, resp);
+	}
+
+	<span class="hljs-function"><span class="hljs-keyword">public</span> Payment <span class="hljs-title">createPayment</span><span class="hljs-params">(HttpServletRequest req,
+			HttpServletResponse resp)</span> </span>{</div></div></div><div class="segment"><div class="comments "><div class="wrapper"><h3 id="address">Address</h3>
+<p>Base Address object used as shipping or billing
+address in a payment. [Optional]</p></div></div><div class="code"><div class="wrapper">		Address billingAddress = <span class="hljs-keyword">new</span> Address();
+		billingAddress.setCity(<span class="hljs-string">"Johnstown"</span>);
+		billingAddress.setCountryCode(<span class="hljs-string">"US"</span>);
+		billingAddress.setLine1(<span class="hljs-string">"52 N Main ST"</span>);
+		billingAddress.setPostalCode(<span class="hljs-string">"43210"</span>);
+		billingAddress.setState(<span class="hljs-string">"OH"</span>);</div></div></div><div class="segment"><div class="comments "><div class="wrapper"><h3 id="creditcard">CreditCard</h3>
+<p>A resource representing a credit card that can be
+used to fund a payment.</p></div></div><div class="code"><div class="wrapper">		CreditCard creditCard = <span class="hljs-keyword">new</span> CreditCard();
+		creditCard.setBillingAddress(billingAddress);
+		creditCard.setCvv2(<span class="hljs-number">111</span>);
+		creditCard.setExpireMonth(<span class="hljs-number">11</span>);
+		creditCard.setExpireYear(<span class="hljs-number">2018</span>);
+		creditCard.setFirstName(<span class="hljs-string">"Joe"</span>);
+		creditCard.setLastName(<span class="hljs-string">"Shopper"</span>);
+		creditCard.setNumber(<span class="hljs-string">"5500005555555559"</span>);
+		creditCard.setType(<span class="hljs-string">"mastercard"</span>);</div></div></div><div class="segment"><div class="comments "><div class="wrapper"><h3 id="details">Details</h3>
+<p>Let&#39;s you specify details of a payment amount.</p></div></div><div class="code"><div class="wrapper">		Details details = <span class="hljs-keyword">new</span> Details();
+		details.setShipping(<span class="hljs-string">"1"</span>);
+		details.setSubtotal(<span class="hljs-string">"5"</span>);
+		details.setTax(<span class="hljs-string">"1"</span>);</div></div></div><div class="segment"><div class="comments "><div class="wrapper"><h3 id="amount">Amount</h3>
+<p>Let&#39;s you specify a payment amount.</p></div></div><div class="code"><div class="wrapper">		Amount amount = <span class="hljs-keyword">new</span> Amount();
+		amount.setCurrency(<span class="hljs-string">"USD"</span>);</div></div></div><div class="segment"><div class="comments "><div class="wrapper"><p>Total must be equal to sum of shipping, tax and subtotal.</p></div></div><div class="code"><div class="wrapper">		amount.setTotal(<span class="hljs-string">"7"</span>);
+		amount.setDetails(details);</div></div></div><div class="segment"><div class="comments "><div class="wrapper"><h3 id="transaction">Transaction</h3>
+<p>A transaction defines the contract of a
+payment - what is the payment for and who
+is fulfilling it. Transaction is created with
+a <code>Payee</code> and <code>Amount</code> types</p></div></div><div class="code"><div class="wrapper">		Transaction transaction = <span class="hljs-keyword">new</span> Transaction();
+		transaction.setAmount(amount);
+		transaction
+				.setDescription(<span class="hljs-string">"This is the payment transaction description."</span>);</div></div></div><div class="segment"><div class="comments "><div class="wrapper"><p>The Payment creation API requires a list of
+Transaction; add the created <code>Transaction</code>
+to a List</p></div></div><div class="code"><div class="wrapper">		List&lt;Transaction&gt; transactions = <span class="hljs-keyword">new</span> ArrayList&lt;Transaction&gt;();
+		transactions.add(transaction);</div></div></div><div class="segment"><div class="comments "><div class="wrapper"><h3 id="fundinginstrument">FundingInstrument</h3>
+<p>A resource representing a Payeer&#39;s funding instrument.
+Use a Payer ID (A unique identifier of the payer generated
+and provided by the facilitator. This is required when
+creating or using a tokenized funding instrument)
+and the <code>CreditCardDetails</code></p></div></div><div class="code"><div class="wrapper">		FundingInstrument fundingInstrument = <span class="hljs-keyword">new</span> FundingInstrument();
+		fundingInstrument.setCreditCard(creditCard);</div></div></div><div class="segment"><div class="comments "><div class="wrapper"><p>The Payment creation API requires a list of
+FundingInstrument; add the created <code>FundingInstrument</code>
+to a List</p></div></div><div class="code"><div class="wrapper">		List&lt;FundingInstrument&gt; fundingInstrumentList = <span class="hljs-keyword">new</span> ArrayList&lt;FundingInstrument&gt;();
+		fundingInstrumentList.add(fundingInstrument);</div></div></div><div class="segment"><div class="comments "><div class="wrapper"><h3 id="payer">Payer</h3>
+<p>A resource representing a Payer that funds a payment
+Use the List of <code>FundingInstrument</code> and the Payment Method
+as &#39;credit_card&#39;</p></div></div><div class="code"><div class="wrapper">		Payer payer = <span class="hljs-keyword">new</span> Payer();
+		payer.setFundingInstruments(fundingInstrumentList);
+		payer.setPaymentMethod(<span class="hljs-string">"credit_card"</span>);</div></div></div><div class="segment"><div class="comments "><div class="wrapper"><h3 id="payment">Payment</h3>
+<p>A Payment Resource; create one using
+the above types and intent as &#39;sale&#39;</p></div></div><div class="code"><div class="wrapper">		Payment payment = <span class="hljs-keyword">new</span> Payment();
+		payment.setIntent(<span class="hljs-string">"sale"</span>);
+		payment.setPayer(payer);
+		payment.setTransactions(transactions);
+		Payment createdPayment = <span class="hljs-keyword">null</span>;
+		<span class="hljs-keyword">try</span> {</div></div></div><div class="segment"><div class="comments "><div class="wrapper"><h3 id="accesstoken">AccessToken</h3>
+<p>Retrieve the access token from
+OAuthTokenCredential by passing in
+ClientID and ClientSecret
+It is not mandatory to generate Access Token on a per call basis.
+Typically the access token can be generated once and
+reused within the expiry window</p></div></div><div class="code"><div class="wrapper">			String accessToken = GenerateAccessToken.getAccessToken();</div></div></div><div class="segment"><div class="comments "><div class="wrapper"><h3 id="api-context">Api Context</h3>
+<p>Pass in a <code>ApiContext</code> object to authenticate
+the call and to send a unique request id
+(that ensures idempotency). The SDK generates
+a request id if you do not pass one explicitly.</p></div></div><div class="code"><div class="wrapper">			APIContext apiContext = <span class="hljs-keyword">new</span> APIContext(accessToken);</div></div></div><div class="segment"><div class="comments "><div class="wrapper"><p>Use this variant if you want to pass in a request id
+that is meaningful in your application, ideally
+a order id.
+String requestId = Long.toString(System.nanoTime(); APIContext
+apiContext = new APIContext(accessToken, requestId ));</p></div></div></div><div class="segment"><div class="comments "><div class="wrapper"><p>Create a payment by posting to the APIService
+using a valid AccessToken
+The return object contains the status;</p></div></div><div class="code"><div class="wrapper">			createdPayment = payment.create(apiContext);
+
+			LOGGER.info(<span class="hljs-string">"Created payment with id = "</span> + createdPayment.getId()
+					+ <span class="hljs-string">" and status = "</span> + createdPayment.getState());
+			ResultPrinter.addResult(req, resp, <span class="hljs-string">"Payment with Credit Card"</span>,
+					Payment.getLastRequest(), Payment.getLastResponse(), <span class="hljs-keyword">null</span>);
+		} <span class="hljs-keyword">catch</span> (PayPalRESTException e) {
+			ResultPrinter.addResult(req, resp, <span class="hljs-string">"Payment with Credit Card"</span>,
+					Payment.getLastRequest(), <span class="hljs-keyword">null</span>, e.getMessage());
+		}
+		<span class="hljs-keyword">return</span> createdPayment;
+		
+	}
+
+}</div></div></div></div></body></html>

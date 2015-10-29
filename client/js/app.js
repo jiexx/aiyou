@@ -338,7 +338,6 @@ app.controller('settingCtrl', function ($scope, $location, $cookieStore, $http, 
 			}
 		}
 	};
-	var fd = null;
 	var ft = '';
 	$scope.uploadImgSell = function (files) {
 		//Take the first selected file
@@ -347,10 +346,8 @@ app.controller('settingCtrl', function ($scope, $location, $cookieStore, $http, 
 		if (files[0].type.indexOf('image') > -1) {
 			var reader = new FileReader();
 			reader.onloadend = function (evt) {
-				var imgSell = document.getElementById("imgSell");
-				imgSell.src = this.result;
+				$scope.sell = this.result;
 				//fd = imgSell.toDataURL("image/jpeg");
-				fd = this.result;
 				$scope.$apply();
 			}
 			reader.readAsDataURL(files[0]);
@@ -360,14 +357,15 @@ app.controller('settingCtrl', function ($scope, $location, $cookieStore, $http, 
 		}
 	};
 	$scope.submitSell = function() {
-		//console.log(fd);
 		if (true) {
 			$http({
 				method  : 'POST',
 				url: 'http://127.0.0.1:9090/image/upload', 
-				data: {id: DATA.userid, n : Date.parse(new Date()), a : fd, desc: $scope.table.commentSell, t:ft}, 
+				data: {id: DATA.userid, n : Date.parse(new Date()), a : $scope.sell, desc: $scope.table.commentSell, t:ft}, 
 			}).success(function (resp, status, headers, config) {
-				$scope.images.unshift({id:DATA.userid,uid:parseInt(resp.code),img:fd,intro:ft,time:''});
+				$scope.images.unshift({id:parseInt(resp.code),uid:DATA.userid,img:$scope.sell,intro:$scope.table.commentSell,time:''});
+				$scope.sell = '';
+				$scope.table.commentSell = '';
 			}).error(function (resp, status, headers, config) {
 				console.log(resp);
 			});
@@ -389,8 +387,7 @@ app.controller('settingCtrl', function ($scope, $location, $cookieStore, $http, 
 		if (files[0].type.indexOf('image') > -1) {
 			var reader = new FileReader();
 			reader.onloadend = function (evt) {
-				var imgAvatar = document.getElementById("imgAvatar");
-				imgAvatar.src = this.result;
+				$scope.avatar = this.result;
 				$scope.$apply();
 				$http({
 					method  : 'POST',
