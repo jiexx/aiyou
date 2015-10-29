@@ -1,5 +1,6 @@
 1. eclipse install 
 http://www.eclipse.org/downloads/download.php?file=/technology/epp/downloads/release/mars/R/eclipse-jee-mars-R-win32.zip
+http://www.eclipse.org/downloads/download.php?file=/technology/epp/downloads/release/mars/1/eclipse-jee-mars-1-win32-x86_64.zip
 2. maven install
 help->install new software->add
 http://download.eclipse.org/technology/m2e/releases
@@ -49,6 +50,10 @@ http://tomcat.apache.org/maven-plugin-2.2/run-mojo-features.html
 ......
 5. run as -> run configuration -> (Goals) tomcat7:run
 run as -> maven build ( download )
+
+
+mvn -X spring-boot:run -Drun.jvmArguments="-Xss8m"
+(run configuration:  spring-boot:run)
 
 http://dev.mysql.com/downloads/workbench/
 
