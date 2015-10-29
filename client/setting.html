@@ -19,15 +19,15 @@
 		  <div ng-if="item.uid != 0" class="scene-content ">
 		    <img class="img-del" src="./asserts/del.png" ng-click='delSell($index, item)' ></img>
 		    <img ng-src="{{item.img}}" ></img>
-		    <h3 class="user-desc">{{item.desc}}</h3>
+		    <h3>{{item.intro}}</h3>
           </div>
 		  
 		  <div ng-if="item.uid == 0" class="scene-content">
-		    <div>
-			  <img id="imgSell" class="scene-plus"></img>
+		    <div class="container-plus">
 			  <div class="box-plus">
 		        <img class="img-plus" src="./asserts/plus.png" />
               </div>
+			  <img id="imgSell" ng-show="sell!==''" ng-src="{{sell}}" ></img>
 			</div>
               <div class="scrollable-footer modal-body">
                 <div class="col-sm-10">
@@ -37,7 +37,7 @@
                   <button class="btn btn-primary pull-right" ng-click="submitSell()">新增</button>
                 </div>
               </div>
-            <div class="scene-canvas"><input type="file" style="opacity: 0;" class="form-control" onchange="angular.element(this).scope().uploadImgSell(this.files)" file-model="table.imgSellToUpload"/></div>
+            <div class="scene-canvas"><input type="file" style="opacity: 0;" class="form-control" onchange="angular.element(this).scope().uploadImgSell(this.files);" file-model="table.imgSellToUpload"/></div>
           </div>
 		  
 		  <div class="input-transparent">  </div>
