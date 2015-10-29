@@ -1,0 +1,19 @@
+{
+  "intent":"order",
+  "redirect_urls":{
+    "return_url":"http://<return URL here>",
+    "cancel_url":"http://<cancel URL here>"
+  },
+  "payer":{
+    "payment_method":"paypal"
+  },
+  "transactions":[
+    {
+      "amount":{
+        "total":"7.47",
+        "currency":"USD"
+      },
+      "description":"This is the transaction description."
+    }
+  ]
+}

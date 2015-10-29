@@ -1,0 +1,86 @@
+<!DOCTYPE html><html lang="en"><head><title>payments/servlet/ReauthorizationServlet</title></head><meta http-equiv="Content-Type" content="text/html; charset=utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0, minimum-scale=1.0, maximum-scale=1.0"><meta name="groc-relative-root" content="../../"><meta name="groc-document-path" content="payments/servlet/ReauthorizationServlet"><meta name="groc-project-path" content="payments/servlet/ReauthorizationServlet.java"><link rel="stylesheet" type="text/css" media="all" href="../../assets/style.css"><script type="text/javascript" src="../../assets/behavior.js"></script><body><div id="meta"><div class="file-path">payments/servlet/ReauthorizationServlet.java</div></div><div id="document"><div class="segment"><div class="code"><div class="wrapper"><span class="hljs-keyword">package</span> com.paypal.api.payments.servlet;
+
+<span class="hljs-keyword">import</span> java.io.IOException;
+<span class="hljs-keyword">import</span> java.io.InputStream;
+
+<span class="hljs-keyword">import</span> javax.servlet.ServletConfig;
+<span class="hljs-keyword">import</span> javax.servlet.ServletException;
+<span class="hljs-keyword">import</span> javax.servlet.http.HttpServlet;
+<span class="hljs-keyword">import</span> javax.servlet.http.HttpServletRequest;
+<span class="hljs-keyword">import</span> javax.servlet.http.HttpServletResponse;
+
+<span class="hljs-keyword">import</span> org.apache.log4j.Logger;
+
+<span class="hljs-keyword">import</span> com.paypal.api.payments.Amount;
+<span class="hljs-keyword">import</span> com.paypal.api.payments.Authorization;
+<span class="hljs-keyword">import</span> com.paypal.api.payments.util.GenerateAccessToken;
+<span class="hljs-keyword">import</span> com.paypal.api.payments.util.ResultPrinter;
+<span class="hljs-keyword">import</span> com.paypal.base.rest.APIContext;
+<span class="hljs-keyword">import</span> com.paypal.base.rest.PayPalRESTException;
+<span class="hljs-keyword">import</span> com.paypal.base.rest.PayPalResource;
+
+<span class="hljs-keyword">public</span> <span class="hljs-class"><span class="hljs-keyword">class</span> <span class="hljs-title">ReauthorizationServlet</span> <span class="hljs-keyword">extends</span> <span class="hljs-title">HttpServlet</span> </span>{
+	<span class="hljs-keyword">private</span> <span class="hljs-keyword">static</span> <span class="hljs-keyword">final</span> <span class="hljs-keyword">long</span> serialVersionUID = <span class="hljs-number">1L</span>;
+
+	<span class="hljs-keyword">private</span> <span class="hljs-keyword">static</span> <span class="hljs-keyword">final</span> Logger LOGGER = Logger
+			.getLogger(ReauthorizationServlet.class);
+
+	<span class="hljs-function"><span class="hljs-keyword">public</span> <span class="hljs-keyword">void</span> <span class="hljs-title">init</span><span class="hljs-params">(ServletConfig servletConfig)</span> <span class="hljs-keyword">throws</span> ServletException </span>{</div></div></div><div class="segment"><div class="comments "><div class="wrapper"><h2 id="load-configuration">Load Configuration</h2>
+<p>Load SDK configuration for
+the resource. This intialization code can be
+done as Init Servlet.</p></div></div><div class="code"><div class="wrapper">		InputStream is = ReauthorizationServlet.class
+				.getResourceAsStream(<span class="hljs-string">"/sdk_config.properties"</span>);
+		<span class="hljs-keyword">try</span> {
+			PayPalResource.initConfig(is);
+		} <span class="hljs-keyword">catch</span> (PayPalRESTException e) {
+			LOGGER.fatal(e.getMessage());
+		}
+	}
+
+	<span class="hljs-annotation">@Override</span>
+	<span class="hljs-function"><span class="hljs-keyword">protected</span> <span class="hljs-keyword">void</span> <span class="hljs-title">doGet</span><span class="hljs-params">(HttpServletRequest req, HttpServletResponse resp)</span>
+			<span class="hljs-keyword">throws</span> ServletException, IOException </span>{
+		doPost(req, resp);
+	}</div></div></div><div class="segment"><div class="comments "><div class="wrapper"><h2 id="reauthorization">Reauthorization</h2>
+<p>Sample showing how to do a reauthorization</p></div></div><div class="code"><div class="wrapper">	<span class="hljs-annotation">@Override</span>
+	<span class="hljs-function"><span class="hljs-keyword">protected</span> <span class="hljs-keyword">void</span> <span class="hljs-title">doPost</span><span class="hljs-params">(HttpServletRequest req, HttpServletResponse resp)</span>
+			<span class="hljs-keyword">throws</span> ServletException, IOException </span>{</div></div></div><div class="segment"><div class="comments "><div class="wrapper"><h3 id="accesstoken">AccessToken</h3>
+<p>Retrieve the access token from
+OAuthTokenCredential by passing in
+ClientID and ClientSecret</p></div></div><div class="code"><div class="wrapper">		APIContext apiContext = <span class="hljs-keyword">null</span>;
+		String accessToken = <span class="hljs-keyword">null</span>;
+		<span class="hljs-keyword">try</span> {
+			accessToken = GenerateAccessToken.getAccessToken();</div></div></div><div class="segment"><div class="comments "><div class="wrapper"><h3 id="api-context">Api Context</h3>
+<p>Pass in a <code>ApiContext</code> object to authenticate
+the call and to send a unique request id
+(that ensures idempotency). The SDK generates
+a request id if you do not pass one explicitly.</p></div></div><div class="code"><div class="wrapper">			apiContext = <span class="hljs-keyword">new</span> APIContext(accessToken);</div></div></div><div class="segment"><div class="comments "><div class="wrapper"><p>Use this variant if you want to pass in a request id
+that is meaningful in your application, ideally
+a order id.
+String requestId = Long.toString(System.nanoTime(); APIContext
+apiContext = new APIContext(accessToken, requestId ));</p></div></div></div><div class="segment"><div class="comments "><div class="wrapper"><h3 id="reauthorization">Reauthorization</h3>
+<p>Retrieve a authorization id from authorization object
+by making a <code>Payment Using PayPal</code> with intent
+as <code>authorize</code>. You can reauthorize a payment only once 4 to 29
+days after 3-day honor period for the original authorization
+expires.</p></div></div><div class="code"><div class="wrapper">			Authorization authorization = Authorization.get(apiContext,
+					<span class="hljs-string">"7GH53639GA425732B"</span>);</div></div></div><div class="segment"><div class="comments "><div class="wrapper"><h3 id="amount">Amount</h3>
+<p>Let&#39;s you specify a capture amount.</p></div></div><div class="code"><div class="wrapper">			Amount amount = <span class="hljs-keyword">new</span> Amount();
+			amount.setCurrency(<span class="hljs-string">"USD"</span>);
+			amount.setTotal(<span class="hljs-string">"4.54"</span>);
+
+			authorization.setAmount(amount);</div></div></div><div class="segment"><div class="comments "><div class="wrapper"><p>Reauthorize by POSTing to
+URI v1/payments/authorization/{authorization_id}/reauthorize</p></div></div><div class="code"><div class="wrapper">			Authorization reauthorization = authorization
+					.reauthorize(apiContext);
+
+			LOGGER.info(<span class="hljs-string">"Reauthorization id = "</span> + reauthorization.getId()
+					+ <span class="hljs-string">" and status = "</span> + reauthorization.getState());
+			ResultPrinter.addResult(req, resp, <span class="hljs-string">"Reauthorized a Payment"</span>, Authorization.getLastRequest(), Authorization.getLastResponse(), <span class="hljs-keyword">null</span>);
+		} <span class="hljs-keyword">catch</span> (PayPalRESTException e) {
+			ResultPrinter.addResult(req, resp, <span class="hljs-string">"Reauthorized a Payment"</span>, Authorization.getLastRequest(), <span class="hljs-keyword">null</span>, e.getMessage());
+		}
+		
+		req.getRequestDispatcher(<span class="hljs-string">"response.jsp"</span>).forward(req, resp);
+	}
+
+}</div></div></div></div></body></html>
