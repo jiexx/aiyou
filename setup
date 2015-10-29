@@ -66,6 +66,7 @@ function MyCtrl($scope) {
 https://spring.io/guides/gs/uploading-files/
 
 https://developer.paypal.com/docs/classic/express-checkout/ht_ec-singleItemPayment-curl-etc/
+https://developer.paypal.com/docs/classic/express-checkout/integration-guide/ECOnMobileDevices/
 https://github.com/paypal/PayPal-Java-SDK
 https://github.com/paypal/PayPal-Java-SDK/tree/master/rest-api-sample  configuration:
 * Simply run `mvn install` to build war file.
