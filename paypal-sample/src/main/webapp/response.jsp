@@ -14,9 +14,9 @@
 <link rel="icon" href="images/favicon.ico">
 
 <link rel="stylesheet"
-	href="https://maxcdn.bootstrapcdn.com/bootstrap/3.2.0/css/bootstrap.min.css">
+	href="./source/assets/bootstrap.css">
 <link
-	href="//maxcdn.bootstrapcdn.com/font-awesome/4.2.0/css/font-awesome.min.css"
+	href="./source/assets/font-awesome.css"
 	rel="stylesheet">
 <style>
 body {
@@ -137,11 +137,11 @@ pre .id {
     <![endif]-->
 
 <script
-	src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.1/jquery.min.js"></script>
+	src="./source/assets/jquery-1.11.3.js"></script>
 <script
-	src="https://maxcdn.bootstrapcdn.com/bootstrap/3.2.0/js/bootstrap.min.js"></script>
+	src="./source/assets/bootstrap.js"></script>
 <script
-	src="//cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/3.2.0/js/scrollspy.min.js"></script>
+	src="./source/assets/scrollspy.js"></script>
 <script>
 	$(document)
 			.ready(
@@ -206,6 +206,7 @@ pre .id {
 				.getAttribute("messages");
 		List<String> errors = (List<String>) request.getAttribute("errors");
 	%>
+	request<%= request.toString()%>;
 	<div class="row header">
 		<div class="col-md-5 pull-left">
 			<br /> <a href="index.html"><h1 class="home">&#10094;&#10094;
