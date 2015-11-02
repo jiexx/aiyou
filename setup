@@ -48,7 +48,7 @@ http://tomcat.apache.org/maven-plugin-2.2/run-mojo-features.html
 	</dependencies>
 </plugin>
 ......
-5. run as -> run configuration -> (Goals) tomcat7:run
+5. run as -> run configuration -> (Goals) tomcat7:run  ==> mvn spring-boot:run
 run as -> maven build ( download )
 
 

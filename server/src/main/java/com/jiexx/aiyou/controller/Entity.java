@@ -50,6 +50,7 @@ public class Entity extends DataService {
 		if( d != null  ) {
 			resp.err = Const.SUCCESS.val();
 			resp.copy(d);
+			resp.copy(DATA.queryImage(id));
 		}else {
 			resp.err = Const.FAILED.val();
 		}

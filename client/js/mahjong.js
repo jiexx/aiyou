@@ -600,8 +600,10 @@ var Layout = (function () {
 		this.gui.drawText(myChip, 0.15, 0.9);
 		this.gui.drawText(hisChip, 0.15, 0.2);
 
-		this.gui.draw64Image(myAvator, 0.1, 0.8, 25.0, 25.0);
-		this.gui.draw64Image(hisAvator, 0.1, 0.1, 25.0, 25.0);
+		if(myAvator)
+			this.gui.draw64Image(myAvator, 0.1, 0.8, 25.0, 25.0);
+		if(hisAvator)
+			this.gui.draw64Image(hisAvator, 0.1, 0.1, 25.0, 25.0);
 		
 		this.gui.addImage("draw", 0.7, 0.5, 50.0, 50.0, this.drawOnClick);
 		this.gui.addImage("who", 0.8, 0.5, 50.0, 50.0, this.whoOnClick);
