@@ -9,7 +9,7 @@ var app = angular.module('aiyou', [
 app.config(function ($routeProvider, $controllerProvider, $locationProvider, $httpProvider) {
 	app.registerCtrl = $controllerProvider.register;
 	//$locationProvider.html5Mode(true);
-	$routeProvider.when('/', {
+	$routeProvider.when('/home', {
 		templateUrl : "home.html",
 		controller : 'homeCtrl',
 		reloadOnSearch : false
@@ -34,7 +34,7 @@ app.config(function ($routeProvider, $controllerProvider, $locationProvider, $ht
 		controller : 'settingCtrl',
 		reloadOnSearch : false
 	});
-	$routeProvider.when('/recharge', {
+	$routeProvider.when('/', {
 		templateUrl : "recharge.html",
 		controller : 'rechargeCtrl',
 		reloadOnSearch : false
@@ -665,6 +665,30 @@ app.controller('rechargeCtrl', function ($scope, $location, $cookieStore, $http,
 	nav.listStyle = false;
 	nav.navClick = function(){
 		return true;
+	};
+	$scope.cardNumber = function(number) {
+	  $scope.number.replace(/[^\d|^\s]$/,'');
+	  if( number.length == 4 || number.length == 9 || number.length == 14 ) {
+	    $scope.number = number  + ' ';
+	  }
+	  if( number.length > 19 ) {
+	    $scope.number = number.substr(0, 19);
+	  }
+	};
+	$scope.cardDate = function(validDate) {
+	  $scope.validDate.replace(/[^\d|^\s]$/,'');
+	  if( validDate.length == 2 ) {
+	    $scope.validDate = validDate  + '/';
+	  }
+	  if( validDate.length > 5 ) {
+	    $scope.validDate = validDate.substr(0, 5);
+	  }
+	};
+	$scope.cardCVV2 = function(ccv2) {
+	  $scope.ccv2.replace(/[^\d|^\s]$/,'');
+	  if( ccv2.length > 3 ) {
+	    $scope.ccv2 = ccv2.substr(0, 3);
+	  }
 	};
 	
 	$scope.mbpayConfirm = function( canvas ) {

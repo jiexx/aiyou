@@ -1,42 +1,42 @@
 <div class="scrollable-content section bbs">
-  <div class="scrollable-content" ui-scroll-bottom='bottomReached()' ng-init="card={}" ui-state='accordion'>
+  <div class="scrollable-content" ui-scroll-bottom='bottomReached()' ui-state='accordion'>
       <div class="modal-body" >
-	    <div class="form-group radio">
-          <label class="checkbox-inline">
-            <input type="radio" name="price" ng-model="card.price.m10"> 20元(20金币)
-          </label>
-          <label class="checkbox-inline">
-            <input type="radio" name="price" ng-model="card.price.m50"> 50元(55金币)
-          </label>
-          <label class="checkbox-inline">
-            <input type="radio" name="price" ng-model="card.price.m100"> 100元(110金币)
-          </label>
+		<ui-state id='activeTab' default='1'></ui-state>
+		<div class="btn-group justified nav-tabs form-control">
+          <a ui-set="{'activeTab': 1}" 
+            ui-class="{'active': activeTab == 1}" class="btn btn-default">20元(20金币)</a>
+
+          <a ui-set="{'activeTab': 2}" 
+            ui-class="{'active': activeTab == 2}" class="btn btn-default">50元(55金币)</a>
+
+          <a ui-set="{'activeTab': 3}" 
+            ui-class="{'active': activeTab == 3}" class="btn btn-default">100元(110金币)</a>
         </div>
-		<div class="form-group">
-          <label class="radio-inline">
-            <input type="radio" name="cardType" ng-model="card.type.visa"> Visa信用卡 <img src="./asserts/visa.png"/>
-          </label>
-          <label class="radio-inline">
-            <input type="radio" name="cardType" ng-model="card.type.master"> MasterCard信用卡<img src="./asserts/MasterCard.png"/>
-          </label>
-          <label class="radio-inline">
-            <input type="radio" name="cardType" ng-model="card.type.union"> 银联信用卡 <img src="./asserts/UnionPay.png"/>
-          </label>
+		<br>
+		<div class="section">
+         <img width="32px" height="20px" src="./asserts/visa.png"/><img width="32px" height="20px" src="./asserts/MasterCard.png"/><img width="32px" height="20px" src="./asserts/UnionPay.png"/> 信用卡(Visa, MasterCard, 银联)
         </div>
-		<div class="form-group"> 
-		  <div><input type="text" class="form-control needsclick" ng-model="card.number" ui-set="{'accordion': 1}" >信用卡卡号</div>
-		  <div><img src="./asserts/CardNumber.png" ui-if="accordion == 1"></div>
+		<br>
+		<div class="section"> 
+		  <div class="col-sm-8 section-wide">
+		    <input type="text" class="form-control needsclick" ng-model="number" ui-set="{'accordion': 1}" placeholder="0000 0000 0000 0000" ng-change="cardNumber(number)">
+		  </div>
+		  <div class="col-sm-4"><img width="64px" height="40px" src="./asserts/CardNumber.png" ui-if="accordion == 1"></div>
 		</div>
-		<div class="form-group"> 
-		  <div><input type="text" class="form-control" datepicker-popup="MM/yyyy" ng-model="card.validDate" is-open="opened" datepicker-options="{minMode: 'month'}" datepicker-mode="'month'" ui-set="{'accordion': 2}">有效期</input></div>
-		  <div><img src="./asserts/validDate.png" ui-if="accordion == 2"></img></div>
+		<div class="section"> 
+		  <div class="col-sm-8 section-wide"><input type="text" class="form-control needsclick" ng-model="validDate" ui-set="{'accordion': 2}" placeholder="YY/MM" ng-change="cardDate(validDate)"></div>
+		  <div class="col-sm-4"><img width="64px" height="40px" src="./asserts/validDate.png" ui-if="accordion == 2"/></div>
 		</div>
-		<div class="form-group" >
-		  <div><input type="text" class="form-control needsclick" ui-set="{'accordion': 3}"  ng-model="card.ccv2" >卡背面三位数字</input></div>
-		  <div ui-if="accordion == 3"><img src="./asserts/ccv2.png" ></img></div>
+		<div class="section" >
+		  <div class="col-sm-8 section-wide"><input type="text" class="form-control needsclick" ui-set="{'accordion': 3}"  ng-model="ccv2" placeholder="000" ng-change="cardCVV2(ccv2)"></div>
+		  <div class="col-sm-4"><img width="64px" height="40px" src="./asserts/ccv2.png" ui-if="accordion == 3"></img></div>
 		</div>
       </div>
-	  <button class="btn btn-primary btn-block" ng-click="mbpayConfirm()">确认</button>
+	  <div class="section">
+	    <div class="section">
+	      <button class="btn btn-primary btn-block " ng-click="mbpayConfirm()">确认</button>
+		</div>
+      </div>
 	  <br><br>
   </div>
 </div>
