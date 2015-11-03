@@ -2,7 +2,9 @@ package com.jiexx.aiyou.comm;
 
 import java.io.BufferedInputStream;
 import java.io.IOException;
+import java.security.GeneralSecurityException;
 import java.security.SecureRandom;
+import java.security.spec.KeySpec;
 import java.sql.SQLException;
 import java.text.SimpleDateFormat;
 import java.util.Arrays;
@@ -15,6 +17,9 @@ import javax.crypto.KeyGenerator;
 import javax.crypto.SecretKey;
 import javax.crypto.SecretKeyFactory;
 import javax.crypto.spec.DESKeySpec;
+import javax.crypto.spec.IvParameterSpec;
+import javax.crypto.spec.PBEKeySpec;
+import javax.crypto.spec.SecretKeySpec;
 
 import org.springframework.util.Base64Utils;
 
@@ -30,6 +35,9 @@ public class Util {
 	}
 	public static String toJson(Response resp) {
 		return gson.toJson(resp);
+	}
+	public static <T> T fromJson(String json, Class<T> clazz) {
+		return gson.fromJson(json, clazz);
 	}
 	public static class Grid {
 		private static final float cellx = 0.001f;
@@ -262,6 +270,26 @@ public class Util {
 		SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.SSS"); 
 		System.out.println(sdf.format(now)+"   ["+user+"]   "+traceElement.getMethodName());
 		System.out.println("                                           "+str+"\n");
+	}
+	
+	public static SecretKey generateKeyFromPassword(String password, byte[] saltBytes) throws GeneralSecurityException {
+
+	    KeySpec keySpec = new PBEKeySpec(password.toCharArray(), saltBytes, 100, 128);
+	    SecretKeyFactory keyFactory = SecretKeyFactory.getInstance("PBKDF2WithHmacSHA1");
+	    SecretKey secretKey = keyFactory.generateSecret(keySpec);
+
+	    return new SecretKeySpec(secretKey.getEncoded(), "AES");
+	}
+	
+	public static String decrypt(String encryptedData, SecretKeySpec sKey, IvParameterSpec ivParameterSpec) throws Exception { 
+
+	    Cipher c = Cipher.getInstance("AES/CBC/PKCS5Padding");
+	    c.init(Cipher.DECRYPT_MODE, sKey, ivParameterSpec);
+	    byte[] decordedValue = Base64Utils.decodeFromString(encryptedData);
+	    byte[] decValue = c.doFinal(decordedValue);
+	    String decryptedValue = new String(decValue);
+
+	    return decryptedValue;
 	}
 
 }

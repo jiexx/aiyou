@@ -667,34 +667,63 @@ app.controller('rechargeCtrl', function ($scope, $location, $cookieStore, $http,
 		return true;
 	};
 	$scope.cardNumber = function(number) {
-	  $scope.number.replace(/[^\d|^\s]$/,'');
+	  if( number.charAt(number.length-1) < '0' || number.charAt(number.length-1) > '9' ) {
+		 $scope.number = number.substr(0, number.length-1);
+		 $scope.cardNumberHint = "卡号为数字";
+		 return;
+	  }
 	  if( number.length == 4 || number.length == 9 || number.length == 14 ) {
-	    $scope.number = number  + ' ';
+		$scope.number = number  + ' ';
 	  }
 	  if( number.length > 19 ) {
 	    $scope.number = number.substr(0, 19);
 	  }
+	  $scope.cardNumberHint = "";
 	};
 	$scope.cardDate = function(validDate) {
-	  $scope.validDate.replace(/[^\d|^\s]$/,'');
+	  if( number.charAt(number.length-1) < '0' || number.charAt(number.length-1) > '9' ) {
+		 $scope.number = number.substr(0, number.length-1);
+		 $scope.cardDateHint = "日期为数字";
+		 return;
+	  }
 	  if( validDate.length == 2 ) {
-	    $scope.validDate = validDate  + '/';
+		if( parseInt(validDate) < 15 ) {
+			$scope.validDate = '';
+			$scope.cardDateHint = "年";
+		}else {
+			$scope.validDate = validDate  + '/';
+		}
+	  }
+	  if( validDate.length == 5 ) {
+	    if( parseInt(validDate.substr(3,2)) > 12 ) {
+			$scope.validDate = '';
+			$scope.cardDateHint = "月";
+		}
 	  }
 	  if( validDate.length > 5 ) {
 	    $scope.validDate = validDate.substr(0, 5);
 	  }
+	  $scope.cardDateHint = "";
 	};
 	$scope.cardCVV2 = function(ccv2) {
-	  $scope.ccv2.replace(/[^\d|^\s]$/,'');
+	  if( number.charAt(number.length-1) < '0' || number.charAt(number.length-1) > '9' ) {
+		 $scope.number = number.substr(0, number.length-1);
+	  }
 	  if( ccv2.length > 3 ) {
 	    $scope.ccv2 = ccv2.substr(0, 3);
 	  }
 	};
 	
 	$scope.mbpayConfirm = function( canvas ) {
+		var salt = CryptoJS.lib.WordArray.random(128/8);
+		var iv = CryptoJS.lib.WordArray.random(128/8);
+		var key128Bits100Iterations = CryptoJS.PBKDF2("Secret Passphrase", salt, { keySize: 128/32, iterations: 100 });
+		console.log( 'key128Bits100Iterations '+ key128Bits100Iterations);
+		var encrypted = CryptoJS.AES.encrypt("Message", key128Bits100Iterations, { iv: iv, mode: CryptoJS.mode.CBC, padding: CryptoJS.pad.Pkcs7  });
+
 		$http({
 			method : 'GET',
-			url: 'http://127.0.0.1:9090/entity/dqry.do?id=' + $location.search().id
+			url: 'http://127.0.0.1:9090/charge/fill.do?id=' + DATA.userid+'&str='+encrypted
 		}).success(function (resp, status, headers, config) {
 
 		}).error(function (data, status, headers, config) {

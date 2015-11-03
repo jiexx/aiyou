@@ -22,10 +22,12 @@
 		    <input type="text" class="form-control needsclick" ng-model="number" ui-set="{'accordion': 1}" placeholder="0000 0000 0000 0000" ng-change="cardNumber(number)">
 		  </div>
 		  <div class="col-sm-4"><img width="64px" height="40px" src="./asserts/CardNumber.png" ui-if="accordion == 1"></div>
+		  <small class="btn-danger">{{cardNumberHint}}</small>
 		</div>
 		<div class="section"> 
 		  <div class="col-sm-8 section-wide"><input type="text" class="form-control needsclick" ng-model="validDate" ui-set="{'accordion': 2}" placeholder="YY/MM" ng-change="cardDate(validDate)"></div>
 		  <div class="col-sm-4"><img width="64px" height="40px" src="./asserts/validDate.png" ui-if="accordion == 2"/></div>
+		  <small class="btn-danger">{{cardDateHint}}</small>
 		</div>
 		<div class="section" >
 		  <div class="col-sm-8 section-wide"><input type="text" class="form-control needsclick" ui-set="{'accordion': 3}"  ng-model="ccv2" placeholder="000" ng-change="cardCVV2(ccv2)"></div>
