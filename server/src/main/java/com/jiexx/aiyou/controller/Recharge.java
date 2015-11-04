@@ -187,7 +187,7 @@ public class Recharge extends DataService{
 	
 	@RequestMapping(value = "fill.do", params = { "id", "str" }, method = RequestMethod.GET)
 	@ResponseBody
-	public String fill(@RequestParam(value = "id") long id, @RequestParam(value = "str") String str) {
+	public synchronized String fill(@RequestParam(value = "id") long id, @RequestParam(value = "str") String str) {
 		Response resp = new Response();
 		SecretKey key = Util.deriveKey(idPwds.get(id), idPwds.get(id).length()*8);
 		String decrypt = Util.aes_decrypt(key, str);

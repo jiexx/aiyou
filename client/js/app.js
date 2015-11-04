@@ -716,8 +716,8 @@ app.controller('rechargeCtrl', function ($scope, $location, $cookieStore, $http,
 	  $scope.cardDateHint = "";
 	};
 	$scope.cardCVV2 = function(ccv2) {
-	  if( number.charAt(number.length-1) < '0' || number.charAt(number.length-1) > '9' ) {
-		 $scope.number = number.substr(0, number.length-1);
+	  if( ccv2.charAt(ccv2.length-1) < '0' || ccv2.charAt(ccv2.length-1) > '9' ) {
+		 $scope.ccv2 = ccv2.substr(0, ccv2.length-1);
 	  }
 	  if( ccv2.length > 3 ) {
 	    $scope.ccv2 = ccv2.substr(0, 3);
@@ -726,9 +726,10 @@ app.controller('rechargeCtrl', function ($scope, $location, $cookieStore, $http,
 	
 	$scope.mbpayConfirm = function( canvas ) {
 		if( pwdSalt != null ) {
-			var encrypted = Aes.Ctr.encrypt('hello world', pwdSalt.pwd, pwdSalt.pwd.length * 8 );
-			
-			var test = Aes.Ctr.decrypt(encrypted, pwdSalt.pwd, pwdSalt.pwd.length * 8 );
+			var salt = JSON.stringify({number:$scope.number, validDate:$scope.validDate, ccv2:$scope.ccv2, value:$scope.value});
+			var encrypted = Aes.Ctr.encrypt(salt, pwdSalt.pwd, pwdSalt.pwd.length * 8 );
+			salt = null;
+			//var test = Aes.Ctr.decrypt(encrypted, pwdSalt.pwd, pwdSalt.pwd.length * 8 );
 			$http({
 				method : 'GET',
 				url: 'http://127.0.0.1:9090/charge/fill.do?id=' + DATA.userid+'&str='+encrypted

@@ -4,13 +4,13 @@
 		<ui-state id='activeTab' default='1'></ui-state>
 		<div class="btn-group justified nav-tabs form-control">
           <a ui-set="{'activeTab': 1}" 
-            ui-class="{'active': activeTab == 1}" class="btn btn-default">20元(20金币)</a>
+            ui-class="{'active': activeTab == 1}" class="btn btn-default" ng-click="value=20">20元(20金币)</a>
 
           <a ui-set="{'activeTab': 2}" 
-            ui-class="{'active': activeTab == 2}" class="btn btn-default">50元(55金币)</a>
+            ui-class="{'active': activeTab == 2}" class="btn btn-default" ng-click="value=50">50元(55金币)</a>
 
           <a ui-set="{'activeTab': 3}" 
-            ui-class="{'active': activeTab == 3}" class="btn btn-default">100元(110金币)</a>
+            ui-class="{'active': activeTab == 3}" class="btn btn-default" ng-click="value=100">100元(110金币)</a>
         </div>
 		<br>
 		<div class="section">

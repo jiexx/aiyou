@@ -17,6 +17,7 @@ import java.security.spec.KeySpec;
 import java.sql.SQLException;
 import java.text.SimpleDateFormat;
 import java.util.Arrays;
+import java.util.Base64;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.LinkedList;
@@ -324,56 +325,80 @@ public class Util {
     private static final CharsetEncoder ASCII_ENCODER = StandardCharsets.UTF_8.newEncoder().onMalformedInput(CodingErrorAction.REPORT).onUnmappableCharacter(CodingErrorAction.REPORT);;
 
     public static SecretKey deriveKey(String password, int nBits)  {
+    	ByteBuffer buf = null;
+    	byte[] pwBytes = null;
+    	SecretKey derivationKey = null;
+    	byte[] partialKey = null;
+    	byte[] key = null;
+    	SecretKey derivatedKey = null;
+    	Cipher aesECB = null;
         try {
-            ByteBuffer buf = ASCII_ENCODER.encode(CharBuffer.wrap(password));
+            buf = ASCII_ENCODER.encode(CharBuffer.wrap(password));
             int nBytes = nBits / Byte.SIZE; // bits / Byte.SIZE;
-            Cipher aesECB = Cipher.getInstance("AES/ECB/NoPadding");
+            aesECB = Cipher.getInstance("AES/ECB/NoPadding");
             int n = aesECB.getBlockSize();
-            byte[] pwBytes = new byte[nBytes];
+            pwBytes = new byte[nBytes];
             // so we only use those characters that fit in nBytes! oops!
             buf.get(pwBytes, 0, buf.remaining());
-            SecretKey derivationKey = new SecretKeySpec(pwBytes, "AES");
+            derivationKey = new SecretKeySpec(pwBytes, "AES");
             aesECB.init(Cipher.ENCRYPT_MODE, derivationKey);
             // and although the derivationKey is nBytes in size, we only encrypt 16 (the block size)
-            byte[] partialKey = aesECB.doFinal(pwBytes, 0, n);
-            byte[] key = new byte[nBytes];
+            partialKey = aesECB.doFinal(pwBytes, 0, n);
+            key = new byte[nBytes];
             System.arraycopy(partialKey, 0, key, 0, n);
             // but now we have too few so we *copy* key bytes
             // so only the increased number of rounds is configured using nBits
             System.arraycopy(partialKey, 0, key, n, nBytes - n);
-            SecretKey derivatedKey = new SecretKeySpec(key, "AES");
+            derivatedKey = new SecretKeySpec(key, "AES");
             return derivatedKey;
         } catch (Exception e ) {
             throw new IllegalStateException("Key derivation should always finish", e);
+        } finally {
+        	buf = null;
+        	pwBytes = null;
+        	derivationKey = null;
+        	partialKey = null;
+        	key = null;
+        	aesECB = null;
         }
     }
 
     public static String aes_decrypt(SecretKey aesKey, String encodedCiphertext) {
+    	byte[] ciphertext = null;
+    	Cipher aesCTR = null;
+    	byte[] counter = null;
+    	byte[] plaintext = null;
         try {
             // that's no base 64, that's base 64 over the UTF-8 encoding of the code points
-            byte[] ciphertext = jsBase64Decode(encodedCiphertext);
-            Cipher aesCTR = Cipher.getInstance("AES/CTR/NoPadding");
+            ciphertext = jsBase64Decode(encodedCiphertext);
+            aesCTR = Cipher.getInstance("AES/CTR/NoPadding");
             int n = aesCTR.getBlockSize();
-            byte[] counter = new byte[n];
+            counter = new byte[n];
             int nonceSize = n / 2;
             System.arraycopy(ciphertext, 0, counter, 0, nonceSize);
             IvParameterSpec iv = new IvParameterSpec(counter);
             aesCTR.init(Cipher.DECRYPT_MODE, aesKey, iv);
-            byte[] plaintext = aesCTR.doFinal(ciphertext, nonceSize, ciphertext.length - nonceSize);
+            plaintext = aesCTR.doFinal(ciphertext, nonceSize, ciphertext.length - nonceSize);
             return new String(plaintext, StandardCharsets.UTF_8);
         } catch (Exception e) {
             throw new IllegalStateException(e);
+        } finally {
+        	ciphertext = null;
+        	aesCTR = null;
+        	counter = null;
+        	plaintext = null;
         }
     }
 
     private static byte[] jsBase64Decode(String encodedCiphertext) {
-        byte[] utf8CT = base64ToBytes(encodedCiphertext);
+        return base64ToBytes(encodedCiphertext);
+        /*byte[] utf8CT = Base64.getDecoder().decode(encodedCiphertext);
         String cts = new String(utf8CT, StandardCharsets.UTF_8);
         byte[] ciphertext = new byte[cts.length()];
         for (int i = 0; i < cts.length(); i++) {
             ciphertext[i] = (byte) (cts.charAt(i) & 0xFF);
         }
-        return ciphertext;
+        return ciphertext;*/
     }
 
 }
