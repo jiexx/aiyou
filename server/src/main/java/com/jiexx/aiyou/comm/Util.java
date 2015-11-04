@@ -2,7 +2,16 @@ package com.jiexx.aiyou.comm;
 
 import java.io.BufferedInputStream;
 import java.io.IOException;
+import java.nio.ByteBuffer;
+import java.nio.CharBuffer;
+import java.nio.charset.CharacterCodingException;
+import java.nio.charset.CharsetEncoder;
+import java.nio.charset.CodingErrorAction;
+import java.nio.charset.StandardCharsets;
 import java.security.GeneralSecurityException;
+import java.security.InvalidAlgorithmParameterException;
+import java.security.InvalidKeyException;
+import java.security.NoSuchAlgorithmException;
 import java.security.SecureRandom;
 import java.security.spec.KeySpec;
 import java.sql.SQLException;
@@ -12,14 +21,18 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.LinkedList;
 
+import javax.crypto.BadPaddingException;
 import javax.crypto.Cipher;
+import javax.crypto.IllegalBlockSizeException;
 import javax.crypto.KeyGenerator;
+import javax.crypto.NoSuchPaddingException;
 import javax.crypto.SecretKey;
 import javax.crypto.SecretKeyFactory;
 import javax.crypto.spec.DESKeySpec;
 import javax.crypto.spec.IvParameterSpec;
 import javax.crypto.spec.PBEKeySpec;
 import javax.crypto.spec.SecretKeySpec;
+import javax.xml.bind.DatatypeConverter;
 
 import org.springframework.util.Base64Utils;
 
@@ -203,8 +216,9 @@ public class Util {
 
 	public static String blobToBase64(Blob b) {
 		try {
-			return Base64Utils.encodeToString(b.getBytes(1, (int) b.length()));
-		} catch (SQLException e) {
+			return  DatatypeConverter.printBase64Binary(b.getBytes(1, (int) b.length()));
+			//return Base64Utils.encodeToString(b.getBytes(1, (int) b.length()));
+		} catch (Exception e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
@@ -212,7 +226,8 @@ public class Util {
 	}
 
 	public static byte[] base64ToBytes(String b64) {
-		return Base64Utils.decodeFromString(b64);
+		return DatatypeConverter.parseBase64Binary(b64);
+		//return Base64Utils.decodeFromString(b64);
 	}
 
 	public static void quickSort(byte[] list, int low, int high) {
@@ -281,15 +296,84 @@ public class Util {
 	    return new SecretKeySpec(secretKey.getEncoded(), "AES");
 	}
 	
-	public static String decrypt(String encryptedData, SecretKeySpec sKey, IvParameterSpec ivParameterSpec) throws Exception { 
+	private static String aes_encrypt(String data, String key) throws NoSuchAlgorithmException, NoSuchPaddingException, InvalidKeyException, IllegalBlockSizeException, BadPaddingException{
+	    SecretKeySpec skeySpec = new SecretKeySpec(key.getBytes(), "AES");
+	    Cipher cipher = Cipher.getInstance("AES/CTR/NoPadding");
 
-	    Cipher c = Cipher.getInstance("AES/CBC/PKCS5Padding");
-	    c.init(Cipher.DECRYPT_MODE, sKey, ivParameterSpec);
-	    byte[] decordedValue = Base64Utils.decodeFromString(encryptedData);
-	    byte[] decValue = c.doFinal(decordedValue);
-	    String decryptedValue = new String(decValue);
+	    cipher.init(Cipher.ENCRYPT_MODE, skeySpec);
 
-	    return decryptedValue;
+	    return  Base64Utils.encodeToString(cipher.doFinal(data.getBytes()));
 	}
+	//By default Java supports only 128-bit encryption, So cryptKey cannot exceed 16 characters.
+	public static String aes_decrypt(String data, String key) throws IllegalBlockSizeException, BadPaddingException, InvalidKeyException, NoSuchAlgorithmException, NoSuchPaddingException, InvalidAlgorithmParameterException {
+	    byte[] hex = base64ToBytes(data);
+	    byte[] nounce = {0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0};
+	    System.arraycopy(hex, 0, nounce, 0, 8);
+		SecretKeySpec skeySpec = new SecretKeySpec(key.getBytes(), "AES");
+	    Cipher cipher = Cipher.getInstance("AES/CTR/NoPadding");
+	    IvParameterSpec iv = new IvParameterSpec(nounce);
+
+	    cipher.init(Cipher.DECRYPT_MODE, skeySpec, iv);
+
+	    byte[] original = cipher.doFinal(hex);
+	    return new String(original).trim();
+	}
+	
+
+    // that should not be a singleton lazybones, it may contain state
+    private static final CharsetEncoder ASCII_ENCODER = StandardCharsets.UTF_8.newEncoder().onMalformedInput(CodingErrorAction.REPORT).onUnmappableCharacter(CodingErrorAction.REPORT);;
+
+    public static SecretKey deriveKey(String password, int nBits)  {
+        try {
+            ByteBuffer buf = ASCII_ENCODER.encode(CharBuffer.wrap(password));
+            int nBytes = nBits / Byte.SIZE; // bits / Byte.SIZE;
+            Cipher aesECB = Cipher.getInstance("AES/ECB/NoPadding");
+            int n = aesECB.getBlockSize();
+            byte[] pwBytes = new byte[nBytes];
+            // so we only use those characters that fit in nBytes! oops!
+            buf.get(pwBytes, 0, buf.remaining());
+            SecretKey derivationKey = new SecretKeySpec(pwBytes, "AES");
+            aesECB.init(Cipher.ENCRYPT_MODE, derivationKey);
+            // and although the derivationKey is nBytes in size, we only encrypt 16 (the block size)
+            byte[] partialKey = aesECB.doFinal(pwBytes, 0, n);
+            byte[] key = new byte[nBytes];
+            System.arraycopy(partialKey, 0, key, 0, n);
+            // but now we have too few so we *copy* key bytes
+            // so only the increased number of rounds is configured using nBits
+            System.arraycopy(partialKey, 0, key, n, nBytes - n);
+            SecretKey derivatedKey = new SecretKeySpec(key, "AES");
+            return derivatedKey;
+        } catch (Exception e ) {
+            throw new IllegalStateException("Key derivation should always finish", e);
+        }
+    }
+
+    public static String aes_decrypt(SecretKey aesKey, String encodedCiphertext) {
+        try {
+            // that's no base 64, that's base 64 over the UTF-8 encoding of the code points
+            byte[] ciphertext = jsBase64Decode(encodedCiphertext);
+            Cipher aesCTR = Cipher.getInstance("AES/CTR/NoPadding");
+            int n = aesCTR.getBlockSize();
+            byte[] counter = new byte[n];
+            int nonceSize = n / 2;
+            System.arraycopy(ciphertext, 0, counter, 0, nonceSize);
+            IvParameterSpec iv = new IvParameterSpec(counter);
+            aesCTR.init(Cipher.DECRYPT_MODE, aesKey, iv);
+            byte[] plaintext = aesCTR.doFinal(ciphertext, nonceSize, ciphertext.length - nonceSize);
+            return new String(plaintext, StandardCharsets.UTF_8);
+        } catch (Exception e) {
+            throw new IllegalStateException(e);
+        }
+    }
+
+    private static byte[] jsBase64Decode(String encodedCiphertext) {
+        byte[] utf8CT = base64ToBytes(encodedCiphertext);
+        String cts = new String(utf8CT, StandardCharsets.UTF_8);
+        byte[] ciphertext = new byte[cts.length()];
+        for (int i = 0; i < cts.length(); i++) {
+            ciphertext[i] = (byte) (cts.charAt(i) & 0xFF);
+        }
+        return ciphertext;
+    }
 
 }

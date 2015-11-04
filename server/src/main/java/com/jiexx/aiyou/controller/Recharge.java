@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 
+import javax.crypto.SecretKey;
 import javax.crypto.spec.IvParameterSpec;
 import javax.crypto.spec.SecretKeySpec;
 import javax.servlet.http.HttpServletRequest;
@@ -28,13 +29,9 @@ import com.paypal.api.payments.FundingInstrument;
 import com.paypal.api.payments.Payer;
 import com.paypal.api.payments.Payment;
 import com.paypal.api.payments.Transaction;
-import com.paypal.base.ConfigManager;
-import com.paypal.base.Constants;
 import com.paypal.base.rest.APIContext;
 import com.paypal.base.rest.OAuthTokenCredential;
 import com.paypal.base.rest.PayPalRESTException;
-
-import junit.textui.ResultPrinter;
 
 @Controller
 @RequestMapping("/charge")
@@ -166,36 +163,24 @@ public class Recharge extends DataService{
 		return createdPayment;
 		
 	}
-	private class SaltPwd {
-		String salt;
-		String pwd;
-		SaltPwd(String salt, String pwd) {
-			this.salt = salt;
-			this.pwd = pwd;
-		}
-	}
 	private class Credit {
 		String number;
 		String validDate;
 		String ccv2;
 		int value;
 	}
-	private HashMap<Long, SaltPwd> idSaltPwds = new HashMap<Long, SaltPwd>();
-	private final static String iv = DigestUtils.md5DigestAsHex(String.valueOf("roger").getBytes());
-	private final static byte[] biv = Util.getByteArray(iv);
+	private HashMap<Long, String> idPwds = new HashMap<Long, String>();
 	
 	@RequestMapping(value = "key.do", params = { "id" }, method = RequestMethod.GET)
 	@ResponseBody
 	public String key(@RequestParam(value = "id") long id) {
 		AES aes = new AES();
-		aes.pwd = DigestUtils.md5DigestAsHex(String.valueOf(System.currentTimeMillis()).getBytes());
-		aes.salt = DigestUtils.md5DigestAsHex(String.valueOf("jiexx"+System.currentTimeMillis()).getBytes());
-		aes.iv = iv;
+		aes.pwd = DigestUtils.md5DigestAsHex(String.valueOf("jiexx"+System.currentTimeMillis()).getBytes()).substring(8, 24);
 		
-		if(idSaltPwds.containsKey(id)) {
-			idSaltPwds.remove(id);
+		if(idPwds.containsKey(id)) {
+			idPwds.remove(id);
 		}
-		idSaltPwds.put(id, new SaltPwd(aes.pwd, aes.pwd));
+		idPwds.put(id, aes.pwd);
 		
 		return aes.toResp();
 	}
@@ -204,17 +189,10 @@ public class Recharge extends DataService{
 	@ResponseBody
 	public String fill(@RequestParam(value = "id") long id, @RequestParam(value = "str") String str) {
 		Response resp = new Response();
-		IvParameterSpec ivParameterSpec = new IvParameterSpec(biv);
-		try {
-			SecretKeySpec sKey = (SecretKeySpec) Util.generateKeyFromPassword(idSaltPwds.get(id).pwd, Util.getByteArray(idSaltPwds.get(id).salt));
-			String decrypt = Util.decrypt(str, sKey, ivParameterSpec);
-			Credit credit = Util.fromJson(decrypt, Credit.class);
-			Payment pay = createPayment(credit);
-			return resp.toResp();
-		} catch (Exception e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		} 
+		SecretKey key = Util.deriveKey(idPwds.get(id), idPwds.get(id).length()*8);
+		String decrypt = Util.aes_decrypt(key, str);
+		Credit credit = Util.fromJson(decrypt, Credit.class);
+		Payment pay = createPayment(credit);
 		return resp.toResp();
 	}
 

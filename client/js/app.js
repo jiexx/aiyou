@@ -666,6 +666,16 @@ app.controller('rechargeCtrl', function ($scope, $location, $cookieStore, $http,
 	nav.navClick = function(){
 		return true;
 	};
+	DATA.userid = 15800000000;
+	var pwdSalt = null;
+	$http({
+		method : 'GET',
+		url: 'http://127.0.0.1:9090/charge/key.do?id=' + DATA.userid
+	}).success(function (resp, status, headers, config) {
+		pwdSalt = resp;
+	}).error(function (data, status, headers, config) {
+		$scope.status = status;
+	});
 	$scope.cardNumber = function(number) {
 	  if( number.charAt(number.length-1) < '0' || number.charAt(number.length-1) > '9' ) {
 		 $scope.number = number.substr(0, number.length-1);
@@ -715,20 +725,19 @@ app.controller('rechargeCtrl', function ($scope, $location, $cookieStore, $http,
 	};
 	
 	$scope.mbpayConfirm = function( canvas ) {
-		var salt = CryptoJS.lib.WordArray.random(128/8);
-		var iv = CryptoJS.lib.WordArray.random(128/8);
-		var key128Bits100Iterations = CryptoJS.PBKDF2("Secret Passphrase", salt, { keySize: 128/32, iterations: 100 });
-		console.log( 'key128Bits100Iterations '+ key128Bits100Iterations);
-		var encrypted = CryptoJS.AES.encrypt("Message", key128Bits100Iterations, { iv: iv, mode: CryptoJS.mode.CBC, padding: CryptoJS.pad.Pkcs7  });
+		if( pwdSalt != null ) {
+			var encrypted = Aes.Ctr.encrypt('hello world', pwdSalt.pwd, pwdSalt.pwd.length * 8 );
+			
+			var test = Aes.Ctr.decrypt(encrypted, pwdSalt.pwd, pwdSalt.pwd.length * 8 );
+			$http({
+				method : 'GET',
+				url: 'http://127.0.0.1:9090/charge/fill.do?id=' + DATA.userid+'&str='+encrypted
+			}).success(function (resp, status, headers, config) {
 
-		$http({
-			method : 'GET',
-			url: 'http://127.0.0.1:9090/charge/fill.do?id=' + DATA.userid+'&str='+encrypted
-		}).success(function (resp, status, headers, config) {
-
-		}).error(function (data, status, headers, config) {
-			$scope.status = status;
-		});
+			}).error(function (data, status, headers, config) {
+				$scope.status = status;
+			});
+		}
 	};
 });
 
