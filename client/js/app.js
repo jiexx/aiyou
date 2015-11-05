@@ -679,6 +679,8 @@ app.controller('rechargeCtrl', function ($scope, $rootScope, $location, $cookieS
 			$scope.number = ci.number;
 			$scope.hasCard = 1;
 		}else {
+			$rootScope.Ui.get('button1') = 1;
+			$rootScope.Ui.get('button4') = 1;
 			$scope.hasCard = 2;
 		}
 	}).error(function (data, status, headers, config) {
