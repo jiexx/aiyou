@@ -9,11 +9,9 @@ public class BiLinkedHashMap<K,V> {
 		public V value;
 		private Value next;
 		private Value prev;
-		Value(K key, V value, Value next, Value prev) {
+		Value(K key, V value) {
 			this.key = key;
 			this.value = value;
-			this.next = next;
-			this.prev = prev;
 			this.time = System.currentTimeMillis();
 		}
 	};
@@ -26,10 +24,14 @@ public class BiLinkedHashMap<K,V> {
 	
 	public void put(K key, V value) {
 		if( head == null ) {
-			head = new Value(key, value, head, head);
+			head = new Value(key, value);
+			head.prev = head;
+			head.next = head;
 			lhm.put(key, head);
 		}else {
-			Value last = new Value(key, value, head, head.prev);
+			Value last = new Value(key, value);
+			last.next = head;
+			last.prev = head.prev;
 			if( lhm.put(key, head) != null ) {
 				head.prev.next = last;
 				head.prev = last;

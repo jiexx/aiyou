@@ -675,12 +675,15 @@ app.controller('rechargeCtrl', function ($scope, $rootScope, $location, $cookieS
 	}).success(function (resp, status, headers, config) {
 		ci = resp;
 		if( ci.number != null ) {
-			$rootScope.Ui.get('button'+uc.type) = 1;
+			var b = $rootScope.Ui.get('button'+uc.type);
+			b = 1;
 			$scope.number = ci.number;
 			$scope.hasCard = 1;
 		}else {
-			$rootScope.Ui.get('button1') = 1;
-			$rootScope.Ui.get('button4') = 1;
+			var b1 = $rootScope.Ui.get('button1');
+			b1 = 1;
+			b1 = $rootScope.Ui.get('button4');
+			b1 = 1;
 			$scope.hasCard = 2;
 		}
 	}).error(function (data, status, headers, config) {
