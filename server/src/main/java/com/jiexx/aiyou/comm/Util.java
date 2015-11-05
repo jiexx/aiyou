@@ -14,10 +14,7 @@ import java.security.InvalidKeyException;
 import java.security.NoSuchAlgorithmException;
 import java.security.SecureRandom;
 import java.security.spec.KeySpec;
-import java.sql.SQLException;
 import java.text.SimpleDateFormat;
-import java.util.Arrays;
-import java.util.Base64;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.LinkedList;
@@ -39,6 +36,7 @@ import org.springframework.util.Base64Utils;
 
 import com.google.gson.Gson;
 import com.jiexx.aiyou.model.User;
+import com.jiexx.aiyou.model.UserCredit;
 import com.jiexx.aiyou.resp.Response;
 import com.mysql.jdbc.Blob;
 
@@ -49,6 +47,9 @@ public class Util {
 	}
 	public static String toJson(Response resp) {
 		return gson.toJson(resp);
+	}
+	public static String toJson(UserCredit clazz) {
+		return gson.toJson(clazz);
 	}
 	public static <T> T fromJson(String json, Class<T> clazz) {
 		return gson.fromJson(json, clazz);
@@ -324,7 +325,7 @@ public class Util {
     // that should not be a singleton lazybones, it may contain state
     private static final CharsetEncoder ASCII_ENCODER = StandardCharsets.UTF_8.newEncoder().onMalformedInput(CodingErrorAction.REPORT).onUnmappableCharacter(CodingErrorAction.REPORT);;
 
-    public static SecretKey deriveKey(String password, int nBits)  {
+    public static SecretKey deriveKey(String password, int nBits) throws CharacterCodingException, NoSuchAlgorithmException, NoSuchPaddingException, InvalidKeyException, IllegalBlockSizeException, BadPaddingException  {
     	ByteBuffer buf = null;
     	byte[] pwBytes = null;
     	SecretKey derivationKey = null;
@@ -351,8 +352,6 @@ public class Util {
             System.arraycopy(partialKey, 0, key, n, nBytes - n);
             derivatedKey = new SecretKeySpec(key, "AES");
             return derivatedKey;
-        } catch (Exception e ) {
-            throw new IllegalStateException("Key derivation should always finish", e);
         } finally {
         	buf = null;
         	pwBytes = null;
@@ -363,7 +362,7 @@ public class Util {
         }
     }
 
-    public static String aes_decrypt(SecretKey aesKey, String encodedCiphertext) {
+    public static String aes_decrypt(SecretKey aesKey, String encodedCiphertext) throws NoSuchAlgorithmException, NoSuchPaddingException, InvalidKeyException, InvalidAlgorithmParameterException, IllegalBlockSizeException, BadPaddingException {
     	byte[] ciphertext = null;
     	Cipher aesCTR = null;
     	byte[] counter = null;
@@ -380,8 +379,6 @@ public class Util {
             aesCTR.init(Cipher.DECRYPT_MODE, aesKey, iv);
             plaintext = aesCTR.doFinal(ciphertext, nonceSize, ciphertext.length - nonceSize);
             return new String(plaintext, StandardCharsets.UTF_8);
-        } catch (Exception e) {
-            throw new IllegalStateException(e);
         } finally {
         	ciphertext = null;
         	aesCTR = null;

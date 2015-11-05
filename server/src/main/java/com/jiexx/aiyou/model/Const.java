@@ -10,6 +10,7 @@ public enum Const {
 	FAILED(0x00000001),
 	
 	INVALID(0x0000000f),
+	TIMEOUT(0x0000001f)
 	;
 	
 	private final int value;

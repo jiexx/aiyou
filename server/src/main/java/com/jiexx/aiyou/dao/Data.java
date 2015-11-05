@@ -18,6 +18,7 @@ import com.jiexx.aiyou.model.Sellor;
 import com.jiexx.aiyou.model.TopicComment;
 import com.jiexx.aiyou.model.User;
 import com.jiexx.aiyou.model.UserComment;
+import com.jiexx.aiyou.model.UserCredit;
 import com.mysql.jdbc.Blob;
 import com.mysql.jdbc.Clob;
 
@@ -111,5 +112,12 @@ public interface Data {
 	
 	@Delete("DELETE FROM images WHERE id = #{id} ;")
 	public Integer delImage(@Param("id") long id );
+	
+	@Select("SELECT * FROM credit  WHERE id = #{uid}; ")
+	public UserCredit queryCreditCard(@Param("uid") long uid );
+	
+	@Update("INSERT credit ( id, num, name, exp, ccv, type ) VALUES( #{cc.id}, #{cc.num} , #{cc.name}, #{cc.exp}, #{cc.ccv}, #{cc.type});")
+	public Integer insertCreditCard(@Param("cc") UserCredit cc );
+	
 
 }

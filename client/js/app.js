@@ -658,7 +658,7 @@ app.controller('homeCtrl', function ($scope, $rootScope, $location, $cookieStore
 	});
 });
 
-app.controller('rechargeCtrl', function ($scope, $location, $cookieStore, $http, DATA) {
+app.controller('rechargeCtrl', function ($scope, $rootScope, $location, $cookieStore, $http, DATA) {
 	var nav = $scope.$parent;
 	nav.title = '充值';
 	nav.navLnk = '/';
@@ -667,72 +667,93 @@ app.controller('rechargeCtrl', function ($scope, $location, $cookieStore, $http,
 		return true;
 	};
 	DATA.userid = 15800000000;
-	var pwdSalt = null;
+	var ci = null;
+	$scope.hasCard = 0;
 	$http({
 		method : 'GET',
 		url: 'http://127.0.0.1:9090/charge/key.do?id=' + DATA.userid
 	}).success(function (resp, status, headers, config) {
-		pwdSalt = resp;
+		ci = resp;
+		if( ci.number != null ) {
+			$rootScope.Ui.get('button'+uc.type) = 1;
+			$scope.number = ci.number;
+			$scope.hasCard = 1;
+		}else {
+			$scope.hasCard = 2;
+		}
 	}).error(function (data, status, headers, config) {
 		$scope.status = status;
 	});
 	$scope.cardNumber = function(number) {
-	  if( number.charAt(number.length-1) < '0' || number.charAt(number.length-1) > '9' ) {
-		 $scope.number = number.substr(0, number.length-1);
-		 $scope.cardNumberHint = "卡号为数字";
-		 return;
-	  }
-	  if( number.length == 4 || number.length == 9 || number.length == 14 ) {
-		$scope.number = number  + ' ';
-	  }
-	  if( number.length > 19 ) {
-	    $scope.number = number.substr(0, 19);
-	  }
-	  $scope.cardNumberHint = "";
+		if( number.charAt(number.length-1) < '0' || number.charAt(number.length-1) > '9' ) {
+			if( (number.length == 4 || number.length == 9 || number.length == 14) && number.charAt(number.length-1) == ' ' ) {
+				return;
+			}
+			$scope.number = number.substr(0, number.length-1);
+			$scope.cardNumberHint = "卡号为数字";
+			return;
+		}
+		if( number.length == 4 || number.length == 9 || number.length == 14 ) {
+			$scope.number = number  + ' ';
+		}
+		if( number.length > 19 ) {
+			$scope.number = number.substr(0, 19);
+		}
+		$scope.cardNumberHint = "";
 	};
-	$scope.cardDate = function(validDate) {
-	  if( number.charAt(number.length-1) < '0' || number.charAt(number.length-1) > '9' ) {
-		 $scope.number = number.substr(0, number.length-1);
-		 $scope.cardDateHint = "日期为数字";
-		 return;
-	  }
-	  if( validDate.length == 2 ) {
-		if( parseInt(validDate) < 15 ) {
-			$scope.validDate = '';
-			$scope.cardDateHint = "年";
-		}else {
-			$scope.validDate = validDate  + '/';
+	$scope.cardDate = function(expire) {	
+		if( expire.charAt(expire.length-1) < '0' || expire.charAt(expire.length-1) > '9' ) {
+			if( expire.length == 3 && expire.charAt(3) == '/' ) {
+				return;
+			}
+			$scope.expire = expire.substr(0, expire.length-1);
+			$scope.cardDateHint = "日期为数字";
+			return;
 		}
-	  }
-	  if( validDate.length == 5 ) {
-	    if( parseInt(validDate.substr(3,2)) > 12 ) {
-			$scope.validDate = '';
-			$scope.cardDateHint = "月";
+		if( expire.length == 2 ) {
+			if( parseInt(expire) < 15 ) {
+				$scope.expire = '';
+				$scope.cardDateHint = "年份";
+				return;
+			}else {
+				$scope.expire = expire  + '/';
+			}
 		}
-	  }
-	  if( validDate.length > 5 ) {
-	    $scope.validDate = validDate.substr(0, 5);
-	  }
-	  $scope.cardDateHint = "";
+		if( expire.length == 5 ) {
+			if( parseInt(expire.substr(3,2)) > 12 ) {
+				$scope.expire = expire.substr(0,3);
+				$scope.cardDateHint = "月份";
+				return;
+			}
+		}
+		if( expire.length > 5 ) {
+			$scope.expire = expire.substr(0, 5);
+		}
+		$scope.cardDateHint = "";
 	};
 	$scope.cardCVV2 = function(ccv2) {
-	  if( ccv2.charAt(ccv2.length-1) < '0' || ccv2.charAt(ccv2.length-1) > '9' ) {
-		 $scope.ccv2 = ccv2.substr(0, ccv2.length-1);
-	  }
-	  if( ccv2.length > 3 ) {
-	    $scope.ccv2 = ccv2.substr(0, 3);
-	  }
+		if( ccv2.charAt(ccv2.length-1) < '0' || ccv2.charAt(ccv2.length-1) > '9' ) {
+			$scope.ccv2 = ccv2.substr(0, ccv2.length-1);
+			$scope.cardCCV2Hint = "背面3位数字";
+		}
+		if( ccv2.length > 3 ) {
+			$scope.ccv2 = ccv2.substr(0, 3);
+		}
 	};
 	
 	$scope.mbpayConfirm = function( canvas ) {
-		if( pwdSalt != null ) {
-			var salt = JSON.stringify({number:$scope.number, validDate:$scope.validDate, ccv2:$scope.ccv2, value:$scope.value});
-			var encrypted = Aes.Ctr.encrypt(salt, pwdSalt.pwd, pwdSalt.pwd.length * 8 );
+		if( ci != null ) {
+			var salt = {number:$scope.number, expire:$scope.expire, ccv2:$scope.ccv2, value:$scope.value};
+			salt.number.replace(' ', '');
+			salt.expire.replace('/', '');
+			var str = JSON.stringify(salt);
+			var encrypted = Aes.Ctr.encrypt(str, ci.pwd, ci.pwd.length * 8 );
+			str = null;
 			salt = null;
-			//var test = Aes.Ctr.decrypt(encrypted, pwdSalt.pwd, pwdSalt.pwd.length * 8 );
+			//var test = Aes.Ctr.decrypt(encrypted, ci.pwd, ci.pwd.length * 8 );
 			$http({
 				method : 'GET',
-				url: 'http://127.0.0.1:9090/charge/fill.do?id=' + DATA.userid+'&str='+encrypted
+				url: 'http://127.0.0.1:9090/charge/fill.do?id=' + DATA.userid+'&str='+encodeURIComponent(encrypted)
 			}).success(function (resp, status, headers, config) {
 
 			}).error(function (data, status, headers, config) {

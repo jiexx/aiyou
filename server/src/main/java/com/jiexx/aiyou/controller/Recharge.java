@@ -17,8 +17,10 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 
+import com.jiexx.aiyou.comm.BiLinkedHashMap;
 import com.jiexx.aiyou.comm.Util;
-import com.jiexx.aiyou.resp.AES;
+import com.jiexx.aiyou.model.UserCredit;
+import com.jiexx.aiyou.resp.CreditInfo;
 import com.jiexx.aiyou.resp.Response;
 import com.jiexx.aiyou.service.DataService;
 import com.paypal.api.payments.Address;
@@ -43,18 +45,11 @@ public class Recharge extends DataService{
 		// ###Address 
 		// Base Address object used as shipping or billing
 		// address in a payment. [Optional]
-		Address billingAddress = new Address();
-		billingAddress.setCity("Johnstown");
-		billingAddress.setCountryCode("US");
-		billingAddress.setLine1("52 N Main ST");
-		billingAddress.setPostalCode("43210");
-		billingAddress.setState("OH");
 
 		// ###CreditCard
 		// A resource representing a credit card that can be
 		// used to fund a payment.
 		CreditCard creditCard = new CreditCard();
-		creditCard.setBillingAddress(billingAddress);
 		creditCard.setCvv2(111);
 		creditCard.setExpireMonth(11);
 		creditCard.setExpireYear(2018);
@@ -85,8 +80,7 @@ public class Recharge extends DataService{
 		// a `Payee` and `Amount` types
 		Transaction transaction = new Transaction();
 		transaction.setAmount(amount);
-		transaction
-				.setDescription("This is the payment transaction description.");
+		transaction.setDescription("This is the payment transaction description.");
 
 		// The Payment creation API requires a list of
 		// Transaction; add the created `Transaction`
@@ -163,36 +157,54 @@ public class Recharge extends DataService{
 		return createdPayment;
 		
 	}
-	private class Credit {
+	class Credit {
 		String number;
-		String validDate;
-		String ccv2;
-		int value;
+		String expire;
+		int ccv2;
+		String name;
+		int type;
 	}
-	private HashMap<Long, String> idPwds = new HashMap<Long, String>();
+	private BiLinkedHashMap<Long, CreditInfo> lci = new BiLinkedHashMap<Long, CreditInfo>();
 	
 	@RequestMapping(value = "key.do", params = { "id" }, method = RequestMethod.GET)
 	@ResponseBody
-	public String key(@RequestParam(value = "id") long id) {
-		AES aes = new AES();
-		aes.pwd = DigestUtils.md5DigestAsHex(String.valueOf("jiexx"+System.currentTimeMillis()).getBytes()).substring(8, 24);
+	public synchronized String key(@RequestParam(value = "id") long id) {
+		UserCredit uc = DATA.queryCreditCard(id);
+		CreditInfo ci = new CreditInfo(uc);
+		ci.pwd = DigestUtils.md5DigestAsHex(String.valueOf("jiexx"+System.currentTimeMillis()).getBytes()).substring(8, 24);
 		
-		if(idPwds.containsKey(id)) {
-			idPwds.remove(id);
+		if(lci.containsKey(id)) {
+			lci.remove(id);
 		}
-		idPwds.put(id, aes.pwd);
+		lci.put(id, ci);
 		
-		return aes.toResp();
+		return ci.toResp();
 	}
 	
 	@RequestMapping(value = "fill.do", params = { "id", "str" }, method = RequestMethod.GET)
 	@ResponseBody
 	public synchronized String fill(@RequestParam(value = "id") long id, @RequestParam(value = "str") String str) {
 		Response resp = new Response();
-		SecretKey key = Util.deriveKey(idPwds.get(id), idPwds.get(id).length()*8);
-		String decrypt = Util.aes_decrypt(key, str);
-		Credit credit = Util.fromJson(decrypt, Credit.class);
-		Payment pay = createPayment(credit);
+		lci.refresh(180000);
+		if( lci.get(id) != null ) {
+			CreditInfo ci = lci.get(id).value;
+			try {
+				SecretKey key = Util.deriveKey(ci.pwd, ci.pwd.length()*8);
+				String decrypt = Util.aes_decrypt(key, str);
+				Credit credit = Util.fromJson(decrypt, Credit.class);
+				if( ci.number == null ) {
+					DATA.insertCreditCard(new UserCredit(id, credit.number, credit.name, credit.expire, credit.ccv2, credit.type));
+				}
+				Payment pay = createPayment(credit);
+				resp.success();
+			} catch (Exception e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+		}else {
+			resp.timeout();
+		}
+		
 		return resp.toResp();
 	}
 

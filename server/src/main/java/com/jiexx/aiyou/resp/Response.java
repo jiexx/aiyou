@@ -12,6 +12,10 @@ public class Response {
     	err = Const.SUCCESS.val();
     }
     
+    public void timeout() {
+    	err = Const.TIMEOUT.val();
+    }
+    
     public String toResp() {
     	return Util.toJson(this);
     }
