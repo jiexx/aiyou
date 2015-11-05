@@ -43,7 +43,11 @@ public class BiLinkedHashMap<K,V> {
 		if( head != null ) {
 			Value curr = lhm.get(key);
 			if( curr == head ) {
-				head = head.next;
+				if( head == head.next ){
+					head = null;
+				}else {
+					head = head.next;
+				}
 			}
 			curr.prev.next = curr.next;
 			curr.next.prev = curr.prev;

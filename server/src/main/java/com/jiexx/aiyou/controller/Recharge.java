@@ -163,6 +163,7 @@ public class Recharge extends DataService{
 		int ccv2;
 		String name;
 		int type;
+		int value;
 	}
 	private BiLinkedHashMap<Long, CreditInfo> lci = new BiLinkedHashMap<Long, CreditInfo>();
 	

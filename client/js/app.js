@@ -675,15 +675,12 @@ app.controller('rechargeCtrl', function ($scope, $rootScope, $location, $cookieS
 	}).success(function (resp, status, headers, config) {
 		ci = resp;
 		if( ci.number != null ) {
-			var b = $rootScope.Ui.get('button'+uc.type);
-			b = 1;
+			$rootScope.Ui.setOne('button'+uc.type, 1);
 			$scope.number = ci.number;
 			$scope.hasCard = 1;
 		}else {
-			var b1 = $rootScope.Ui.get('button1');
-			b1 = 1;
-			b1 = $rootScope.Ui.get('button4');
-			b1 = 1;
+			$rootScope.Ui.turnOn('button1');
+			$rootScope.Ui.turnOn('button4');
 			$scope.hasCard = 2;
 		}
 	}).error(function (data, status, headers, config) {
@@ -748,7 +745,12 @@ app.controller('rechargeCtrl', function ($scope, $rootScope, $location, $cookieS
 	
 	$scope.mbpayConfirm = function( canvas ) {
 		if( ci != null ) {
-			var salt = {number:$scope.number, expire:$scope.expire, ccv2:$scope.ccv2, value:$scope.value};
+			var t = null;
+			if( $scope.hasCard == 1 ) {
+				t = $rootScope.Ui.values().button1 ? 1 : $rootScope.Ui.values().button2 ? 2 : 3;
+			}
+			var v = $rootScope.Ui.values().button4 ? 20 : $rootScope.Ui.values().button5 ? 50 : 100;
+			var salt = {number:$scope.number, expire:$scope.expire, ccv2:$scope.ccv2, value:v, name:$scope.name, type:t};
 			salt.number.replace(' ', '');
 			salt.expire.replace('/', '');
 			var str = JSON.stringify(salt);
