@@ -7,10 +7,14 @@
 	<version>1.2.10</version>
 	<packaging>war</packaging>
 	<dependencies>
+		<!-- dependency> <groupId>com.paypal.sdk</groupId> <artifactId>rest-api-sdk</artifactId> 
+			<version>LATEST</version> </dependency -->
 		<dependency>
-			<groupId>com.paypal.sdk</groupId>
-			<artifactId>rest-api-sdk</artifactId>
-			<version>LATEST</version>
+			<groupId>sdk</groupId>
+			<artifactId>sdk</artifactId>
+			<version>1.0</version>
+			<scope>system</scope>
+			<systemPath>${project.basedir}/../rest-api-sdk/target/rest-api-sdk-1.2.10.jar</systemPath>
 		</dependency>
 		<dependency>
 			<groupId>javax.servlet</groupId>
@@ -18,20 +22,21 @@
 			<version>2.5</version>
 		</dependency>
 		<dependency>
-			<groupId>log4j</groupId>
-			<artifactId>log4j</artifactId>
-			<version>LATEST</version>
+			<groupId>org.slf4j</groupId>
+			<artifactId>slf4j-log4j12</artifactId>
+			<version>1.7.2</version>
 		</dependency>
+		<!--dependency> <groupId>log4j</groupId> <artifactId>log4j</artifactId> 
+			<version>LATEST</version> </dependency -->
 		<!-- had to add these as they became optional on rest-api -->
+		<!--dependency> <groupId>org.apache.logging.log4j</groupId> <artifactId>log4j-api</artifactId> 
+			<version>LATEST</version> </dependency> <dependency> <groupId>org.apache.logging.log4j</groupId> 
+			<artifactId>log4j-core</artifactId> <scope>system</scope> <systemPath>${project.basedir}/../rest-api-sdk/target/log4j/log4j-core-2.4.1.jar</systemPath> 
+			</dependency -->
 		<dependency>
-			<groupId>org.apache.logging.log4j</groupId>
-			<artifactId>log4j-api</artifactId>
-			<version>LATEST</version>
-		</dependency>
-		<dependency>
-			<groupId>org.apache.logging.log4j</groupId>
-			<artifactId>log4j-core</artifactId>
-			<version>LATEST</version>
+			<groupId>com.google.code.gson</groupId>
+			<artifactId>gson</artifactId>
+			<version>2.3.1</version>
 		</dependency>
 	</dependencies>
 	<build>
@@ -58,17 +63,17 @@
 				</configuration>
 			</plugin>
 			<plugin>
-			    <groupId>org.apache.maven.plugins</groupId>
-			    <artifactId>maven-jar-plugin</artifactId>
-			    <version>2.6</version>
-			    <configuration>
-			        <archive>                   
-			            <manifest>
-			                <addDefaultImplementationEntries>true</addDefaultImplementationEntries>
-			                <addDefaultSpecificationEntries>true</addDefaultSpecificationEntries>
-			            </manifest>
-			        </archive>
-			    </configuration>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-jar-plugin</artifactId>
+				<version>2.6</version>
+				<configuration>
+					<archive>
+						<manifest>
+							<addDefaultImplementationEntries>true</addDefaultImplementationEntries>
+							<addDefaultSpecificationEntries>true</addDefaultSpecificationEntries>
+						</manifest>
+					</archive>
+				</configuration>
 			</plugin>
 			<plugin>
 				<groupId>org.codehaus.mojo</groupId>
@@ -76,10 +81,10 @@
 				<version>1.0-alpha-3</version>
 				<executions>
 					<execution>
-					<id>generate-verion-class</id>
-					<goals>
-						<goal>filter-sources</goal>
-					</goals>
+						<id>generate-verion-class</id>
+						<goals>
+							<goal>filter-sources</goal>
+						</goals>
 					</execution>
 				</executions>
 			</plugin>

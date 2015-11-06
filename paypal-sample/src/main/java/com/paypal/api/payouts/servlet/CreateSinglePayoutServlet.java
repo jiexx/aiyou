@@ -98,9 +98,9 @@ public class CreateSinglePayoutServlet extends HttpServlet {
 		// Please note that if you are using single payout with sync mode, you
 		// can only pass one Item in the request
 		PayoutItem senderItem = new PayoutItem();
-		senderItem.setRecipientType("Email")
+		senderItem.setRecipientType("PHONE")
 				.setNote("Thanks for your patronage")
-				.setReceiver("shirt-supplier-one@gmail.com")
+				.setReceiver("jiexx@outlook.com"/*"shirt-supplier-one@gmail.com"*/)
 				.setSenderItemId("201404324234").setAmount(amount);
 
 		List<PayoutItem> items = new ArrayList<PayoutItem>();

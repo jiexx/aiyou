@@ -140,6 +140,13 @@ public class Recharge extends DataService{
 			// Typically the access token can be generated once and
 			// reused within the expiry window
 			if( oatc == null ) {
+				/*Properties props = new Properties(); for jar
+				props.load(getClass().getResourceAsStream("/log4j.properties"));
+				PropertyConfigurator.configure(props);
+				
+				Properties props = new Properties(); 
+				props.load(new FileInputStream("log4j.properties"));
+				PropertyConfigurator.configure(props);*/
 				Resource resource = new ClassPathResource("conf/sdk_config.properties");
 				InputStream resourceInputStream = resource.getInputStream();
 				oatc = PayPalResource.initConfig(resourceInputStream);
