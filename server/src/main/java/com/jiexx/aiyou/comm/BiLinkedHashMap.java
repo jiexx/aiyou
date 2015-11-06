@@ -71,6 +71,8 @@ public class BiLinkedHashMap<K,V> {
 	}
 	
 	public void refresh(int interval) {
+		if( head == null )
+			return;
 		long time = System.currentTimeMillis();
 		Value curr = head;
 		while( curr.next != head ) {

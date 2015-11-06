@@ -52,11 +52,11 @@ DROP TABLE IF EXISTS `credit`;
 /*!40101 SET character_set_client = utf8 */;
 CREATE TABLE `credit` (
   `id` bigint(20) NOT NULL,
-  `num` varchar(32) DEFAULT NULL,
-  `name` varchar(32) DEFAULT NULL,
-  `exp` int(11) DEFAULT NULL,
-  `ccv` int(11) DEFAULT NULL,
-  `type` int(11) DEFAULT NULL,
+  `num` bigint(20) NOT NULL,
+  `name` varchar(32) NOT NULL,
+  `exp` int(11) NOT NULL,
+  `ccv` int(11) NOT NULL,
+  `type` int(11) NOT NULL,
   PRIMARY KEY (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
@@ -67,6 +67,7 @@ CREATE TABLE `credit` (
 
 LOCK TABLES `credit` WRITE;
 /*!40000 ALTER TABLE `credit` DISABLE KEYS */;
+INSERT INTO `credit` VALUES (15800000000,1111111111111111,'111',2211,111,1);
 /*!40000 ALTER TABLE `credit` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -290,4 +291,4 @@ UNLOCK TABLES;
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2015-11-05 19:07:37
+-- Dump completed on 2015-11-06 18:09:25

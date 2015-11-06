@@ -1,5 +1,8 @@
 package com.jiexx.aiyou.controller;
 
+import java.io.IOException;
+import java.io.InputStream;
+import java.security.KeyPair;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -10,6 +13,8 @@ import javax.crypto.spec.SecretKeySpec;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import org.springframework.core.io.ClassPathResource;
+import org.springframework.core.io.Resource;
 import org.springframework.stereotype.Controller;
 import org.springframework.util.DigestUtils;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -31,15 +36,17 @@ import com.paypal.api.payments.FundingInstrument;
 import com.paypal.api.payments.Payer;
 import com.paypal.api.payments.Payment;
 import com.paypal.api.payments.Transaction;
+import com.paypal.base.ConfigManager;
+import com.paypal.base.Constants;
 import com.paypal.base.rest.APIContext;
 import com.paypal.base.rest.OAuthTokenCredential;
 import com.paypal.base.rest.PayPalRESTException;
+import com.paypal.base.rest.PayPalResource;
+import com.paypal.base.util.ResourceLoader;
 
 @Controller
 @RequestMapping("/charge")
 public class Recharge extends DataService{
-	private final static String clientID = "AYMgKNfS7LqMp-2nlu8FywhPuRH0csW-jLHYAkY4kQkLFOoC8MTNwP0HD-P_7y8wS8n9MO9_R87PKTZx";
-	private final static String clientSecret = "EH2NN3tQ9nxFK3XaVj3rvR_39m46m6SkfvXOtcAej6EgvRa87D9NQ6Ib-4EW4xWP_WGG0Lf89Xm-6g1b";
 
 	public Payment createPayment(Credit credit) {
 		// ###Address 
@@ -127,8 +134,14 @@ public class Recharge extends DataService{
 			// It is not mandatory to generate Access Token on a per call basis.
 			// Typically the access token can be generated once and
 			// reused within the expiry window
-
-			String accessToken = new OAuthTokenCredential(clientID, clientSecret).getAccessToken();
+			if( oatc == null ) {
+				Resource resource = new ClassPathResource("conf/sdk_config.properties");
+				InputStream resourceInputStream = resource.getInputStream();
+				oatc = PayPalResource.initConfig(resourceInputStream);
+			}
+			
+			
+			String accessToken = oatc.getAccessToken();
 
 			// ### Api Context
 			// Pass in a `ApiContext` object to authenticate
@@ -153,6 +166,8 @@ public class Recharge extends DataService{
 			Util.log("", "Payment with Credit Card Response :"+Payment.getLastResponse());
 		} catch (PayPalRESTException e) {
 			Util.log("", "Error Payment with Credit Card Request :"+Payment.getLastRequest());
+		} catch ( IOException e1 ) {
+			e1.printStackTrace();
 		}
 		return createdPayment;
 		
@@ -165,19 +180,39 @@ public class Recharge extends DataService{
 		int type;
 		int value;
 	}
-	private BiLinkedHashMap<Long, CreditInfo> lci = new BiLinkedHashMap<Long, CreditInfo>();
+	class Tran {
+		boolean hasRecord;
+		KeyPair kp;
+		UserCredit uc;
+		Tran(UserCredit uc, KeyPair kp) {
+			this.hasRecord = uc == null ? false : true;
+			this.kp = kp;
+			this.uc = uc;
+		}
+	}
+	private OAuthTokenCredential oatc = null;
+	private BiLinkedHashMap<Long, Tran> lci = new BiLinkedHashMap<Long, Tran>();
 	
 	@RequestMapping(value = "key.do", params = { "id" }, method = RequestMethod.GET)
 	@ResponseBody
 	public synchronized String key(@RequestParam(value = "id") long id) {
 		UserCredit uc = DATA.queryCreditCard(id);
 		CreditInfo ci = new CreditInfo(uc);
-		ci.pwd = DigestUtils.md5DigestAsHex(String.valueOf("jiexx"+System.currentTimeMillis()).getBytes()).substring(8, 24);
-		
-		if(lci.containsKey(id)) {
-			lci.remove(id);
+		try {
+			KeyPair kp = Util.rsa_key_pairs();
+			
+			ci.pwd = Util.rsa_key_pub(kp);
+			
+			if(lci.containsKey(id)) {
+				lci.remove(id);
+			}
+			lci.put(id, new Tran(uc, kp));
+			
+			ci.success();
+		} catch (Exception e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
 		}
-		lci.put(id, ci);
 		
 		return ci.toResp();
 	}
@@ -188,19 +223,28 @@ public class Recharge extends DataService{
 		Response resp = new Response();
 		lci.refresh(180000);
 		if( lci.get(id) != null ) {
-			CreditInfo ci = lci.get(id).value;
-			try {
-				SecretKey key = Util.deriveKey(ci.pwd, ci.pwd.length()*8);
-				String decrypt = Util.aes_decrypt(key, str);
-				Credit credit = Util.fromJson(decrypt, Credit.class);
-				if( ci.number == null ) {
-					DATA.insertCreditCard(new UserCredit(id, credit.number, credit.name, credit.expire, credit.ccv2, credit.type));
+			Tran tran = lci.get(id).value;
+			if( tran != null ) {
+				try {
+					String decrypt = Util.rsa_decrypt(str, tran.kp);
+					Credit credit = Util.fromJson(decrypt, Credit.class);
+					if( !tran.hasRecord ) {
+						DATA.insertCreditCard(new UserCredit(id, credit.number, credit.name, credit.expire, credit.ccv2, credit.type));
+					}else {
+						credit.number = tran.uc.num;
+						credit.type = tran.uc.type;
+						credit.name = tran.uc.name;
+						credit.expire = tran.uc.exp;
+						credit.ccv2 = tran.uc.ccv;
+					}
+					Payment pay = createPayment(credit);
+					if( pay.getState().equals("approved") )
+						resp.success();
+				} catch (Exception e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+					resp.code = e.getCause().getMessage();
 				}
-				Payment pay = createPayment(credit);
-				resp.success();
-			} catch (Exception e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
 			}
 		}else {
 			resp.timeout();

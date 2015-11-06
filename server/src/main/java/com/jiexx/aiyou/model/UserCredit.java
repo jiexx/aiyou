@@ -8,6 +8,10 @@ public class UserCredit {
 	public int ccv;
 	public int type;
 	
+	public UserCredit() {
+		
+	}
+	
 	public UserCredit(long id, String num, String name, String exp, int ccv, int type ) {
 		this.id = id;
 		this.num = num;

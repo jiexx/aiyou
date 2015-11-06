@@ -4,8 +4,6 @@ import com.jiexx.aiyou.model.UserCredit;
 
 public class CreditInfo extends Response{
     public String pwd;
-    public String salt;
-    public String iv;
     public int type;
     public String number = null;
     

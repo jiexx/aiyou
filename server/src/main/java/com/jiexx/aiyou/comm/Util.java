@@ -2,6 +2,7 @@ package com.jiexx.aiyou.comm;
 
 import java.io.BufferedInputStream;
 import java.io.IOException;
+import java.math.BigInteger;
 import java.nio.ByteBuffer;
 import java.nio.CharBuffer;
 import java.nio.charset.CharacterCodingException;
@@ -11,9 +12,14 @@ import java.nio.charset.StandardCharsets;
 import java.security.GeneralSecurityException;
 import java.security.InvalidAlgorithmParameterException;
 import java.security.InvalidKeyException;
+import java.security.KeyFactory;
+import java.security.KeyPair;
+import java.security.KeyPairGenerator;
 import java.security.NoSuchAlgorithmException;
 import java.security.SecureRandom;
+import java.security.spec.InvalidKeySpecException;
 import java.security.spec.KeySpec;
+import java.security.spec.RSAPublicKeySpec;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.HashMap;
@@ -396,6 +402,46 @@ public class Util {
             ciphertext[i] = (byte) (cts.charAt(i) & 0xFF);
         }
         return ciphertext;*/
+    }
+    
+    private static KeyPairGenerator kpg = null;
+    private static KeyFactory kf = null;
+    private static Cipher cipher = null;
+    
+    public static KeyPair rsa_key_pairs() throws NoSuchAlgorithmException {
+    	if( kpg == null )
+    		kpg = KeyPairGenerator.getInstance("RSA");
+        kpg.initialize(2048);
+        return kpg.genKeyPair();
+    }
+    
+    public static String rsa_key_pub(KeyPair kp) throws InvalidKeySpecException, NoSuchAlgorithmException {
+    	if( kf == null )
+    		kf = KeyFactory.getInstance("RSA");
+    	RSAPublicKeySpec pub = null;
+    	try {
+    		pub = new RSAPublicKeySpec(BigInteger.ZERO, BigInteger.ZERO);
+	    	pub = kf.getKeySpec(kp.getPublic(), RSAPublicKeySpec.class);
+	    	return pub.getModulus().toString(16);
+    	}finally {
+    		pub = null;
+    	}
+    }
+    
+    public static String rsa_decrypt(String encodedCiphertext, KeyPair kp) throws InvalidKeySpecException, NoSuchAlgorithmException, NoSuchPaddingException, InvalidKeyException, IllegalBlockSizeException, BadPaddingException {
+    	if( cipher == null )
+    		cipher = Cipher.getInstance("RSA/ECB/PKCS1Padding");
+    	cipher.init(Cipher.DECRYPT_MODE, kp.getPrivate());
+    	byte[] ciphertext = null;
+    	byte[] plaintext = null;
+    	try {
+	    	ciphertext = getByteArray(encodedCiphertext);
+	    	plaintext = cipher.doFinal(ciphertext);
+	    	return new String(plaintext, StandardCharsets.UTF_8);
+    	}finally {
+    		ciphertext = null;
+    		plaintext = null;
+    	}
     }
 
 }

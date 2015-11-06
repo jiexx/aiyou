@@ -1,21 +1,21 @@
 <div class="scrollable-content section bbs">
   <div class="scrollable-content" ui-scroll-bottom='bottomReached()' ui-state='accordion'>
+      <div class="section" >
+		<h6 class="section">
+			<small><i class="fa fa-lock">以下信息将被加密传输</i></small><br>
+			<small class="btn-danger" >{{errHint}}</small><small class="btn-primary" >{{sucHint}}</small>
+		</h6>
+	  </div>
       <div class="modal-body" ng-if="hasCard==1">
-        <ui-state id='button1' default='0'></ui-state>
-        <ui-state id='button2' default='0'></ui-state>
-        <ui-state id='button3' default='0'></ui-state>
-        <ui-state id='button4' default='0'></ui-state>
-        <ui-state id='button5' default='0'></ui-state>
-        <ui-state id='button6' default='0'></ui-state>
         <div class="section">  
           <div class="btn-group">
-            <a href class="btn btn-default" ui-if='button1'><img width="32px" height="20px" src="./asserts/visa.png"/></a>
-            <a href class="btn btn-default" ui-if='button2'><img width="32px" height="20px" src="./asserts/MasterCard.png"/></a>
-            <a href class="btn btn-default" ui-if='button3'><img width="32px" height="20px" src="./asserts/UnionPay.png"/></a>
+            <a href class="btn btn-default" ui-state="button1" ng-if='$parent.cardType'><img width="32px" height="20px" src="./asserts/visa.png"/></a>
+            <a href class="btn btn-default" ui-state="button2" ng-if='$parent.cardType'><img width="32px" height="20px" src="./asserts/MasterCard.png"/></a>
+            <a href class="btn btn-default" ui-state="button3" ng-if='$parent.cardType'><img width="32px" height="20px" src="./asserts/UnionPay.png"/></a>
 			卡号:{{number}}
           </div>
 		  <div class="btn-group">
-            <a href class="btn btn-default" ui-state="button4" ui-turn-on='button4' ui-class="{'active': button4}" ui-exclusion-group='myButtons1' >20元/20金币</a>
+            <a href class="btn btn-default" ui-state="button4" ui-turn-on='button4' ui-class="{'active': button4=1}" ui-exclusion-group='myButtons1' >20元/20金币</a>
             <a href class="btn btn-default" ui-state="button5" ui-turn-on='button5' ui-class="{'active': button5}" ui-exclusion-group='myButtons1' >50元/55金币</a>
             <a href class="btn btn-default" ui-state="button6" ui-turn-on='button6' ui-class="{'active': button6}" ui-exclusion-group='myButtons1' >100元/110金币</a>
           </div>
@@ -27,38 +27,38 @@
       <div class="modal-body" ng-if="hasCard==2">
 		<div class="section" >
           <div class="btn-group">
-            <a href class="btn btn-default" ui-state="button1" ui-turn-on='button1' ui-class="{'active': button1}" ui-exclusion-group='myButtons' ><img width="32px" height="20px" src="./asserts/visa.png"/></a>
+            <a href class="btn btn-default" ui-state="button1" ui-turn-on='button1' ui-class="{'active': button1=1}" ui-exclusion-group='myButtons' ><img width="32px" height="20px" src="./asserts/visa.png"/></a>
             <a href class="btn btn-default" ui-state="button2" ui-turn-on='button2' ui-class="{'active': button2}" ui-exclusion-group='myButtons' ><img width="32px" height="20px" src="./asserts/MasterCard.png"/></a>
             <a href class="btn btn-default" ui-state="button3" ui-turn-on='button3' ui-class="{'active': button3}" ui-exclusion-group='myButtons' ><img width="32px" height="20px" src="./asserts/UnionPay.png"/></a>
           </div>
 		  <div class="btn-group">
-            <a href class="btn btn-default" ui-state="button4" ui-turn-on='button4' ui-class="{'active': button4}" ui-exclusion-group='myButtons1' >20元/20金币</a>
+            <a href class="btn btn-default" ui-state="button4" ui-turn-on='button4' ui-class="{'active': button4=1}" ui-exclusion-group='myButtons1' >20元/20金币</a>
             <a href class="btn btn-default" ui-state="button5" ui-turn-on='button5' ui-class="{'active': button5}" ui-exclusion-group='myButtons1' >50元/55金币</a>
             <a href class="btn btn-default" ui-state="button6" ui-turn-on='button6' ui-class="{'active': button6}" ui-exclusion-group='myButtons1' >100元/110金币</a>
           </div>
 		</div>
 		<div class="section"> 
 		  <div class="col-sm-8 section-wide">
-		    <input type="text" class="form-control needsclick" ng-model="name" ui-set="{'accordion': 0}" placeholder="姓名" ng-change="cardName(name)">
+		    <input type="text" class="form-control needsclick" ng-model="$parent.name" ui-set="{'accordion': 0}" placeholder="姓名" ng-change="cardName($parent.name)">
 		  </div>
 		  <div class="col-sm-4"><img width="64px" height="40px" src="./asserts/name.png" ui-if="accordion == 0"></div>
 		</div>
 		<div class="section"> 
 		  <div class="col-sm-8 section-wide">
-		    <input type="text" class="form-control needsclick" ng-model="number" ui-set="{'accordion': 1}" placeholder="0000 0000 0000 0000" ng-change="cardNumber(number)">
+		    <input type="text" class="form-control needsclick" ng-model="$parent.number" ui-set="{'accordion': 1}" placeholder="0000 0000 0000 0000" ng-change="cardNumber($parent.number)">
 		  </div>
 		  <div class="col-sm-4"><img width="64px" height="40px" src="./asserts/CardNumber.png" ui-if="accordion == 1"></div>
-		  <small class="btn-danger" ui-if="accordion == 1">{{cardNumberHint}}</small>
+		  <small class="btn-danger" ui-if="accordion == 1">{{$parent.cardNumberHint}}</small>
 		</div>
 		<div class="section"> 
-		  <div class="col-sm-8 section-wide"><input type="text" class="form-control needsclick" ng-model="expire" ui-set="{'accordion': 2}" placeholder="YY/MM" ng-change="cardDate(expire)"></div>
+		  <div class="col-sm-8 section-wide"><input type="text" class="form-control needsclick" ng-model="$parent.expire" ui-set="{'accordion': 2}" placeholder="YY/MM" ng-change="cardDate($parent.expire)"></div>
 		  <div class="col-sm-4"><img width="64px" height="40px" src="./asserts/validDate.png" ui-if="accordion == 2"/></div>
-		  <small class="btn-danger" ui-if="accordion == 2">{{cardDateHint}}</small>
+		  <small class="btn-danger" ui-if="accordion == 2">{{$parent.cardDateHint}}</small>
 		</div>
 		<div class="section" >
-		  <div class="col-sm-8 section-wide"><input type="text" class="form-control needsclick" ui-set="{'accordion': 3}"  ng-model="ccv2" placeholder="000" ng-change="cardCVV2(ccv2)"></div>
+		  <div class="col-sm-8 section-wide"><input type="text" class="form-control needsclick" ui-set="{'accordion': 3}"  ng-model="$parent.ccv2" placeholder="000" ng-change="cardCVV2($parent.ccv2)"></div>
 		  <div class="col-sm-4"><img width="64px" height="40px" src="./asserts/ccv2.png" ui-if="accordion == 3"></img></div>
-		  <small class="btn-danger" ui-if="accordion == 3">{{cardCCV2Hint}}</small>
+		  <small class="btn-danger" ui-if="accordion == 3">{{$parent.cardCCV2Hint}}</small>
 		</div>
 		<div class="section">
             <button class="btn btn-primary btn-block " ng-click="mbpayConfirm()">确认</button>

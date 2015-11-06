@@ -469,6 +469,7 @@ app.controller('homeListCtrl', function ($scope, $rootScope, $location, $cookieS
 					$scope.mbChip = '您的金币不足,可以选择好友推广挣金币<br>或者直接充值';
 					$scope.mbOptionText = '充值';
 					$scope.mbOption = function() {
+						//var n = encodeURIComponent(JSON.stringify({id:resp.gid,chip:resp.chip}));
 						$location.path('/recharge').search({id:DATA.userid});
 					};
 					$scope.mbConfirmText = '推广';
@@ -669,24 +670,26 @@ app.controller('rechargeCtrl', function ($scope, $rootScope, $location, $cookieS
 	DATA.userid = 15800000000;
 	var ci = null;
 	$scope.hasCard = 0;
-	$http({
-		method : 'GET',
-		url: 'http://127.0.0.1:9090/charge/key.do?id=' + DATA.userid
-	}).success(function (resp, status, headers, config) {
-		ci = resp;
-		if( ci.number != null ) {
-			$rootScope.Ui.setOne('button'+uc.type, 1);
-			$scope.number = ci.number;
-			$scope.hasCard = 1;
-		}else {
-			$rootScope.Ui.turnOn('button1');
-			$rootScope.Ui.turnOn('button4');
-			$scope.hasCard = 2;
-		}
-	}).error(function (data, status, headers, config) {
-		$scope.status = status;
-	});
+	var initialize = function() {
+		$http({
+			method : 'GET',
+			url: 'http://127.0.0.1:9090/charge/key.do?id=' + DATA.userid
+		}).success(function (resp, status, headers, config) {
+			ci = resp;
+			if( ci.number != null ) {
+				$scope.cardType = ci.type;
+				$scope.number = ci.number;
+				$scope.hasCard = 1;
+			}else {
+				$scope.hasCard = 2;
+			}
+		}).error(function (data, status, headers, config) {
+			$scope.status = status;
+		});
+	};
+	initialize();
 	$scope.cardNumber = function(number) {
+		$scope.errHint = '';
 		if( number.charAt(number.length-1) < '0' || number.charAt(number.length-1) > '9' ) {
 			if( (number.length == 4 || number.length == 9 || number.length == 14) && number.charAt(number.length-1) == ' ' ) {
 				return;
@@ -703,19 +706,20 @@ app.controller('rechargeCtrl', function ($scope, $rootScope, $location, $cookieS
 		}
 		$scope.cardNumberHint = "";
 	};
-	$scope.cardDate = function(expire) {	
+	$scope.cardDate = function(expire) {
+		$scope.errHint = '';
 		if( expire.charAt(expire.length-1) < '0' || expire.charAt(expire.length-1) > '9' ) {
 			if( expire.length == 3 && expire.charAt(3) == '/' ) {
 				return;
 			}
 			$scope.expire = expire.substr(0, expire.length-1);
-			$scope.cardDateHint = "日期为数字";
+			$scope.cardDateHint = "有效期为数字";
 			return;
 		}
 		if( expire.length == 2 ) {
 			if( parseInt(expire) < 15 ) {
 				$scope.expire = '';
-				$scope.cardDateHint = "年份";
+				$scope.cardDateHint = "有效年份";
 				return;
 			}else {
 				$scope.expire = expire  + '/';
@@ -734,6 +738,7 @@ app.controller('rechargeCtrl', function ($scope, $rootScope, $location, $cookieS
 		$scope.cardDateHint = "";
 	};
 	$scope.cardCVV2 = function(ccv2) {
+		$scope.errHint = '';
 		if( ccv2.charAt(ccv2.length-1) < '0' || ccv2.charAt(ccv2.length-1) > '9' ) {
 			$scope.ccv2 = ccv2.substr(0, ccv2.length-1);
 			$scope.cardCCV2Hint = "背面3位数字";
@@ -745,25 +750,51 @@ app.controller('rechargeCtrl', function ($scope, $rootScope, $location, $cookieS
 	
 	$scope.mbpayConfirm = function( canvas ) {
 		if( ci != null ) {
-			var t = null;
-			if( $scope.hasCard == 1 ) {
-				t = $rootScope.Ui.values().button1 ? 1 : $rootScope.Ui.values().button2 ? 2 : 3;
-			}
-			var v = $rootScope.Ui.values().button4 ? 20 : $rootScope.Ui.values().button5 ? 50 : 100;
+			$rootScope.loading = true;
+			var t = $rootScope.Ui.get('button1') ? 1 : $rootScope.Ui.get('button2') ? 2 : 3;
+			var v = $rootScope.Ui.get('button4') ? 20 : $rootScope.Ui.get('button5') ? 50 : 100;
 			var salt = {number:$scope.number, expire:$scope.expire, ccv2:$scope.ccv2, value:v, name:$scope.name, type:t};
-			salt.number.replace(' ', '');
-			salt.expire.replace('/', '');
+			if( salt.number != null ) 
+				salt.number = salt.number.replace(/ /g, '');
+			if( salt.expire != null )
+				salt.expire = salt.expire.replace(/\//g, '');
 			var str = JSON.stringify(salt);
-			var encrypted = Aes.Ctr.encrypt(str, ci.pwd, ci.pwd.length * 8 );
+			RSA.setPublic(ci.pwd, '10001');
+			var encrypted = RSA.encrypt(str);
 			str = null;
 			salt = null;
 			//var test = Aes.Ctr.decrypt(encrypted, ci.pwd, ci.pwd.length * 8 );
 			$http({
 				method : 'GET',
-				url: 'http://127.0.0.1:9090/charge/fill.do?id=' + DATA.userid+'&str='+encodeURIComponent(encrypted)
+				url: 'http://127.0.0.1:9090/charge/fill.do?id=' + DATA.userid+'&str='+encrypted//encodeURIComponent(encrypted)
 			}).success(function (resp, status, headers, config) {
-
-			}).error(function (data, status, headers, config) {
+				$rootScope.loading = false;
+				if( resp.err == 0 ) {
+					$scope.sucHint = "充值成功，请返回";
+				}else if( resp.err == 0x0000001f ) {
+					$scope.errHint = '会话超时';
+					initialize();
+				}else if( resp.code != null ){
+					var col = resp.code.replace(/Column '(\w+)' cannot be null/,"$1");
+					if( col == 'num' ) {
+						$rootScope.Ui.setOne('accordion', 1); $scope.cardNumberHint = "卡号为空"; 
+					}if( col == 'exp' ) {
+						$rootScope.Ui.setOne('accordion', 2); $scope.cardDateHint = "日期为空"; 
+					}if( col == 'ccv' ) {
+						$rootScope.Ui.setOne('accordion', 3); $scope.ccv2 = "背面3位数字为空";
+					}if( col == 'type' ){
+						$scope.errHint = "选择信用卡类型";
+					}col = resp.code.replace(/Data truncated for column '(\w+)' at row 1/, "$1");
+					if( col == 'num' ){
+						$rootScope.Ui.setOne('accordion', 1); $scope.cardNumberHint = "卡号无效";
+					}if( col == 'exp' ) {
+						$rootScope.Ui.setOne('accordion', 2); $scope.cardDateHint = "日期无效";
+					}if( col == 'ccv' ) {
+						$rootScope.Ui.setOne('accordion', 3); $scope.ccv2 = "背面3位数字无效";
+					}
+				}
+			}).error(function (resp, status, headers, config) {
+				
 				$scope.status = status;
 			});
 		}

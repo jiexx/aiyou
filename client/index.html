@@ -24,7 +24,7 @@
 	<script src="lib/bGUI-1.1.0.min.js"></script>
 	<script src="./lib/sockjs-0.3.js"></script>
 	<script src="./lib/stomp.js"></script>
-	<script src="./lib/aes.js"></script>
+	<script src="./lib/rsa.js"></script>
 	<script src="js/mahjong.js"></script>
 	<script src="js/go.js"></script>
 	<script src="js/car.js"></script>
@@ -58,6 +58,9 @@
     </div-->
  
     <div class="app-body">
+		<div ng-show="loading" class="app-content-loading">
+          <i class="fa fa-spin fa-sun-o loading-spinner"></i>
+        </div>
         <div class="app-content">
           <ng-view></ng-view>
         </div>
