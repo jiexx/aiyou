@@ -411,7 +411,7 @@ public class Util {
     public static KeyPair rsa_key_pairs() throws NoSuchAlgorithmException {
     	if( kpg == null )
     		kpg = KeyPairGenerator.getInstance("RSA");
-        kpg.initialize(2048);
+        kpg.initialize(1024);
         return kpg.genKeyPair();
     }
     

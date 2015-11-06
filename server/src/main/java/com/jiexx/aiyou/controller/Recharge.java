@@ -57,13 +57,18 @@ public class Recharge extends DataService{
 		// A resource representing a credit card that can be
 		// used to fund a payment.
 		CreditCard creditCard = new CreditCard();
-		creditCard.setCvv2(111);
-		creditCard.setExpireMonth(11);
-		creditCard.setExpireYear(2018);
-		creditCard.setFirstName("Joe");
-		creditCard.setLastName("Shopper");
-		creditCard.setNumber("5500005555555559");
-		creditCard.setType("mastercard");
+		creditCard.setCvv2(credit.ccv2);
+		creditCard.setExpireMonth(Integer.parseInt(credit.expire.substring(2, 4)));
+		creditCard.setExpireYear(2000+Integer.parseInt(credit.expire.substring(0, 2)));
+		creditCard.setFirstName(credit.name.substring(0,0));
+		creditCard.setLastName(credit.name.substring(1));
+		creditCard.setNumber(credit.number);
+		if( credit.type == 1 ) 
+			creditCard.setType("visa") ;
+		if( credit.type == 2 )
+			creditCard.setType("mastercard");
+		if( credit.type == 3 ) 
+			creditCard.setType("unionpay");
 
 		// ###Details
 		// Let's you specify details of a payment amount.
@@ -196,18 +201,21 @@ public class Recharge extends DataService{
 	@RequestMapping(value = "key.do", params = { "id" }, method = RequestMethod.GET)
 	@ResponseBody
 	public synchronized String key(@RequestParam(value = "id") long id) {
+		long start = System.currentTimeMillis();
 		UserCredit uc = DATA.queryCreditCard(id);
+		//System.out.println("eclipse: "+ (System.currentTimeMillis()-start));
 		CreditInfo ci = new CreditInfo(uc);
 		try {
 			KeyPair kp = Util.rsa_key_pairs();
-			
+			//System.out.println("eclipse: "+ (System.currentTimeMillis()-start));
 			ci.pwd = Util.rsa_key_pub(kp);
+			
 			
 			if(lci.containsKey(id)) {
 				lci.remove(id);
 			}
 			lci.put(id, new Tran(uc, kp));
-			
+			//System.out.println("eclipse: "+ (System.currentTimeMillis()-start));
 			ci.success();
 		} catch (Exception e) {
 			// TODO Auto-generated catch block
@@ -238,7 +246,7 @@ public class Recharge extends DataService{
 						credit.ccv2 = tran.uc.ccv;
 					}
 					Payment pay = createPayment(credit);
-					if( pay.getState().equals("approved") )
+					if( pay != null && pay.getState().equals("approved") )
 						resp.success();
 				} catch (Exception e) {
 					// TODO Auto-generated catch block
