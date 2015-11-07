@@ -14,10 +14,22 @@
 		<version>1.2.5.RELEASE</version>
 	</parent>
 	<dependencies>
-		<dependency>
+		<!--  dependency>
 			<groupId>com.paypal.sdk</groupId>
 			<artifactId>rest-api-sdk</artifactId>
 			<version>LATEST</version>
+		</dependency>
+		<dependency>
+			<groupId>org.slf4j</groupId>
+			<artifactId>slf4j-log4j12</artifactId>
+			<version>1.7.2</version>
+		</dependency-->
+		<dependency>
+			<groupId>sdk</groupId>
+			<artifactId>sdk</artifactId>
+			<version>1.0</version>
+			<scope>system</scope>
+			<systemPath>${project.basedir}/lib/rest-api-sdk-1.2.10.jar</systemPath>
 		</dependency>
         <dependency>
             <groupId>org.springframework.boot</groupId>

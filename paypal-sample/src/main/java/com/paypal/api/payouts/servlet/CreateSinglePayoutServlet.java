@@ -26,6 +26,7 @@ import com.paypal.api.payments.Payout;
 import com.paypal.api.payments.PayoutBatch;
 import com.paypal.api.payments.PayoutItem;
 import com.paypal.api.payments.PayoutSenderBatchHeader;
+import com.paypal.api.payments.pay.WebHelper;
 import com.paypal.api.payments.util.GenerateAccessToken;
 import com.paypal.api.payments.util.ResultPrinter;
 import com.paypal.base.rest.APIContext;
@@ -136,6 +137,8 @@ public class CreateSinglePayoutServlet extends HttpServlet {
 
 			// ###Create Payout Synchronous
 			batch = payout.createSynchronous(apiContext);
+			
+			//
 
 			LOGGER.info("Payout Batch With ID: "
 					+ batch.getBatchHeader().getPayoutBatchId());
@@ -143,6 +146,8 @@ public class CreateSinglePayoutServlet extends HttpServlet {
 					"Created Single Synchronous Payout",
 					Payout.getLastRequest(), Payout.getLastResponse(), null);
 		} catch (PayPalRESTException e) {
+			WebHelper.formErrorMessage(req, e);
+			WebHelper.parseJsonErrorMessage(e.getMessage());
 			ResultPrinter.addResult(req, resp,
 					"Created Single Synchronous Payout",
 					Payout.getLastRequest(), null, e.getMessage());

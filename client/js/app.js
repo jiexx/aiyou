@@ -775,23 +775,7 @@ app.controller('rechargeCtrl', function ($scope, $rootScope, $location, $cookieS
 					$scope.errHint = '会话超时';
 					initialize();
 				}else if( resp.code != null ){
-					var col = resp.code.replace(/Column '(\w+)' cannot be null/,"$1");
-					if( col == 'num' ) {
-						$rootScope.Ui.setOne('accordion', 1); $scope.cardNumberHint = "卡号为空"; 
-					}if( col == 'exp' ) {
-						$rootScope.Ui.setOne('accordion', 2); $scope.cardDateHint = "日期为空"; 
-					}if( col == 'ccv' ) {
-						$rootScope.Ui.setOne('accordion', 3); $scope.ccv2 = "背面3位数字为空";
-					}if( col == 'type' ){
-						$scope.errHint = "选择信用卡类型";
-					}col = resp.code.replace(/Data truncated for column '(\w+)' at row 1/, "$1");
-					if( col == 'num' ){
-						$rootScope.Ui.setOne('accordion', 1); $scope.cardNumberHint = "卡号无效";
-					}if( col == 'exp' ) {
-						$rootScope.Ui.setOne('accordion', 2); $scope.cardDateHint = "日期无效";
-					}if( col == 'ccv' ) {
-						$rootScope.Ui.setOne('accordion', 3); $scope.ccv2 = "背面3位数字无效";
-					}
+					$scope.errHint = '您提交的信用卡错误信息:'+resp.code;
 				}
 			}).error(function (resp, status, headers, config) {
 				

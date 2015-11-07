@@ -2,17 +2,25 @@ package com.jiexx.aiyou.controller;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.security.InvalidKeyException;
 import java.security.KeyPair;
+import java.security.NoSuchAlgorithmException;
+import java.security.spec.InvalidKeySpecException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Properties;
 
+import javax.crypto.BadPaddingException;
+import javax.crypto.IllegalBlockSizeException;
+import javax.crypto.NoSuchPaddingException;
 import javax.crypto.SecretKey;
 import javax.crypto.spec.IvParameterSpec;
 import javax.crypto.spec.SecretKeySpec;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import org.apache.log4j.PropertyConfigurator;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.core.io.Resource;
 import org.springframework.stereotype.Controller;
@@ -25,6 +33,8 @@ import org.springframework.web.bind.annotation.ResponseBody;
 import com.jiexx.aiyou.comm.BiLinkedHashMap;
 import com.jiexx.aiyou.comm.Util;
 import com.jiexx.aiyou.model.UserCredit;
+import com.jiexx.aiyou.pay.ValidationError;
+import com.jiexx.aiyou.pay.WebHelper;
 import com.jiexx.aiyou.resp.CreditInfo;
 import com.jiexx.aiyou.resp.Response;
 import com.jiexx.aiyou.service.DataService;
@@ -48,7 +58,7 @@ import com.paypal.base.util.ResourceLoader;
 @RequestMapping("/charge")
 public class Recharge extends DataService{
 
-	public Payment createPayment(Credit credit) {
+	public Payment createPayment(Credit credit) throws PayPalRESTException {
 		// ###Address 
 		// Base Address object used as shipping or billing
 		// address in a payment. [Optional]
@@ -60,7 +70,7 @@ public class Recharge extends DataService{
 		creditCard.setCvv2(credit.ccv2);
 		creditCard.setExpireMonth(Integer.parseInt(credit.expire.substring(2, 4)));
 		creditCard.setExpireYear(2000+Integer.parseInt(credit.expire.substring(0, 2)));
-		creditCard.setFirstName(credit.name.substring(0,0));
+		creditCard.setFirstName(credit.name.substring(0,1));
 		creditCard.setLastName(credit.name.substring(1));
 		creditCard.setNumber(credit.number);
 		if( credit.type == 1 ) 
@@ -140,14 +150,15 @@ public class Recharge extends DataService{
 			// Typically the access token can be generated once and
 			// reused within the expiry window
 			if( oatc == null ) {
-				/*Properties props = new Properties(); for jar
-				props.load(getClass().getResourceAsStream("/log4j.properties"));
+				Properties props = new Properties();
+				Resource resource = new ClassPathResource("conf/log4j.properties");
+				props.load(resource.getInputStream());
 				PropertyConfigurator.configure(props);
 				
-				Properties props = new Properties(); 
+				/*Properties props = new Properties(); 
 				props.load(new FileInputStream("log4j.properties"));
 				PropertyConfigurator.configure(props);*/
-				Resource resource = new ClassPathResource("conf/sdk_config.properties");
+				resource = new ClassPathResource("conf/sdk_config.properties");
 				InputStream resourceInputStream = resource.getInputStream();
 				oatc = PayPalResource.initConfig(resourceInputStream);
 			}
@@ -176,8 +187,6 @@ public class Recharge extends DataService{
 			
 			Util.log("", "Payment with Credit Card Request :"+Payment.getLastRequest());
 			Util.log("", "Payment with Credit Card Response :"+Payment.getLastResponse());
-		} catch (PayPalRESTException e) {
-			Util.log("", "Error Payment with Credit Card Request :"+Payment.getLastRequest());
 		} catch ( IOException e1 ) {
 			e1.printStackTrace();
 		}
@@ -242,6 +251,7 @@ public class Recharge extends DataService{
 			if( tran != null ) {
 				try {
 					String decrypt = Util.rsa_decrypt(str, tran.kp);
+					
 					Credit credit = Util.fromJson(decrypt, Credit.class);
 					if( !tran.hasRecord ) {
 						DATA.insertCreditCard(new UserCredit(id, credit.number, credit.name, credit.expire, credit.ccv2, credit.type));
@@ -252,13 +262,31 @@ public class Recharge extends DataService{
 						credit.expire = tran.uc.exp;
 						credit.ccv2 = tran.uc.ccv;
 					}
-					Payment pay = createPayment(credit);
+					Payment	pay = createPayment(credit);
 					if( pay != null && pay.getState().equals("approved") )
 						resp.success();
-				} catch (Exception e) {
+				} catch (InvalidKeyException e) {
 					// TODO Auto-generated catch block
 					e.printStackTrace();
-					resp.code = e.getCause().getMessage();
+				} catch (InvalidKeySpecException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				} catch (NoSuchAlgorithmException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				} catch (NoSuchPaddingException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				} catch (IllegalBlockSizeException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				} catch (BadPaddingException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				} catch (PayPalRESTException e) {
+					// TODO Auto-generated catch block
+					ValidationError ve = WebHelper.parseJsonErrorMessage(e.getMessage());
+					resp.code = ve.getValidationErrorList().toString();
 				}
 			}
 		}else {
