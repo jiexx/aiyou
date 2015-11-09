@@ -88,7 +88,7 @@ public class Recharge extends DataService{
 		PayoutItem senderItem = new PayoutItem();
 		senderItem.setRecipientType("EMAIL")
 				.setNote("Thanks for your patronage")
-				.setReceiver("jluo@qinmaohao.com"/*"shirt-supplier-one@gmail.com"*/)
+				.setReceiver(email/*"shirt-supplier-one@gmail.com"*/)
 				.setSenderItemId("aiyou").setAmount(amount);
 
 		List<PayoutItem> items = new ArrayList<PayoutItem>();
