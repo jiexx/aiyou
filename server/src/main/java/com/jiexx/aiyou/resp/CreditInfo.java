@@ -6,6 +6,7 @@ public class CreditInfo extends Response{
     public String pwd;
     public int type;
     public String number = null;
+    public String email = null;
     
     public CreditInfo(UserCredit uc) {
     	if( uc != null ) {

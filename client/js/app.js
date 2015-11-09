@@ -34,9 +34,14 @@ app.config(function ($routeProvider, $controllerProvider, $locationProvider, $ht
 		controller : 'settingCtrl',
 		reloadOnSearch : false
 	});
-	$routeProvider.when('/', {
+	$routeProvider.when('/recharge', {
 		templateUrl : "recharge.html",
 		controller : 'rechargeCtrl',
+		reloadOnSearch : false
+	});
+	$routeProvider.when('/', {
+		templateUrl : "refund.html",
+		controller : 'refundCtrl',
 		reloadOnSearch : false
 	});
 	$routeProvider.when('/shop', {
@@ -667,7 +672,7 @@ app.controller('rechargeCtrl', function ($scope, $rootScope, $location, $cookieS
 	nav.navClick = function(){
 		return true;
 	};
-	DATA.userid = 15800000000;
+	
 	var ci = null;
 	$scope.hasCard = 0;
 	var initialize = function() {
@@ -781,6 +786,60 @@ app.controller('rechargeCtrl', function ($scope, $rootScope, $location, $cookieS
 				
 				$scope.status = status;
 			});
+		}
+	};
+});
+
+app.controller('refundCtrl', function ($scope, $rootScope, $location, $cookieStore, $http, DATA) {
+	var nav = $scope.$parent;
+	nav.title = '退款';
+	nav.navLnk = '/';
+	nav.listStyle = false;
+	nav.navClick = function(){
+		return true;
+	};
+	DATA.userid = 15800000000;
+	var ci = null;
+	$scope.hasEmail = 0;
+	
+	$http({
+		method : 'GET',
+		url: 'http://127.0.0.1:9090/charge/email.do?id=' + DATA.userid
+	}).success(function (resp, status, headers, config) {
+		ci = resp;
+		if( ci.err == 0 ) {
+			if( ci.email != null ) {
+				$scope.hasEmail = 1;
+				$scope.email = ci.email;
+			}else {
+				$scope.hasEmail = 0;
+			}
+		}else {
+			$scope.hasEmail = 2;
+		}
+	}).error(function (data, status, headers, config) {
+		$scope.status = status;
+	});
+	$scope.refundConfirm = function( canvas ) {
+		if( ci != null ) {
+			$rootScope.loading = true;
+			if( $scope.email.search(/^\s*[0-9a-z][_.0-9a-z-]{0,31}@([0-9a-z][0-9a-z-]{0,30}[0-9a-z]\.){1,4}[a-z]{2,4}\s*$/) > -1 ) {
+				$http({
+					method : 'GET',
+					url: 'http://127.0.0.1:9090/charge/refund.do?id=' + DATA.userid+'&email='+$scope.email.replace(/\s*([^\s]*)\s*/, "$1")
+				}).success(function (resp, status, headers, config) {
+					$rootScope.loading = false;
+					if( resp.err == 0 ) {
+						$scope.sucHint = "退款成功，请返回";
+					}else if( resp.code != null ){
+						$scope.errHint = '您的退款错误信息:'+resp.code;
+					}
+				}).error(function (resp, status, headers, config) {
+					$scope.status = status;
+				});
+			}else {
+				$scope.errHint = '电子邮件地址格式不正确'
+			}
 		}
 	};
 });

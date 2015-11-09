@@ -11,16 +11,16 @@
       <div class="modal-body" ng-if="hasCard==1">
         <div class="section">  
 		  <div class="btn-group">
-            <a href class="btn btn-default" ui-state="button4" ui-turn-on='button4' ui-class="{'active': button4}" ui-exclusion-group='myButtons1' >20元/20金币</a>
+            <a href class="btn btn-default" ui-state="button4" ui-default="true" ui-turn-on='button4' ui-class="{'active': button4}" ui-exclusion-group='myButtons1' >20元/20金币</a>
             <a href class="btn btn-default" ui-state="button5" ui-turn-on='button5' ui-class="{'active': button5}" ui-exclusion-group='myButtons1' >50元/55金币</a>
             <a href class="btn btn-default" ui-state="button6" ui-turn-on='button6' ui-class="{'active': button6}" ui-exclusion-group='myButtons1' >100元/110金币</a>
           </div>
         </div>
 		<div class="section ">  
 		  <div class="btn-group">
-            <a href class="btn btn-default" ui-state="button1" ng-if='cardType==1'><img width="32px" height="20px" src="./asserts/visa.png"/></a>
-            <a href class="btn btn-default" ui-state="button2" ng-if='cardType==2'><img width="32px" height="20px" src="./asserts/MasterCard.png"/></a>
-            <a href class="btn btn-default" ui-state="button3" ng-if='cardType==3'><img width="32px" height="20px" src="./asserts/UnionPay.png"/></a>
+            <a href class="btn btn-default" ui-state="button1" ui-default="true" ng-if='cardType==1'><img width="32px" height="20px" src="./asserts/visa.png"/></a>
+            <a href class="btn btn-default" ui-state="button2" ui-default="true" ng-if='cardType==2'><img width="32px" height="20px" src="./asserts/MasterCard.png"/></a>
+            <a href class="btn btn-default" ui-state="button3" ui-default="true" ng-if='cardType==3'><img width="32px" height="20px" src="./asserts/UnionPay.png"/></a>
           </div>
 		  <h5 class="btn-group ">卡号:{{number}}</h5>
 		</div>
@@ -31,12 +31,12 @@
       <div class="modal-body" ng-if="hasCard==2">
 		<div class="section" >
           <div class="btn-group">
-            <a href class="btn btn-default" ui-state="button1" ui-turn-on='button1' ui-class="{'active': button1=1}" ui-exclusion-group='myButtons' ><img width="32px" height="20px" src="./asserts/visa.png"/></a>
+            <a href class="btn btn-default" ui-state="button1" ui-default="true" ui-turn-on='button1' ui-class="{'active': button1}" ui-exclusion-group='myButtons' ><img width="32px" height="20px" src="./asserts/visa.png"/></a>
             <a href class="btn btn-default" ui-state="button2" ui-turn-on='button2' ui-class="{'active': button2}" ui-exclusion-group='myButtons' ><img width="32px" height="20px" src="./asserts/MasterCard.png"/></a>
             <a href class="btn btn-default" ui-state="button3" ui-turn-on='button3' ui-class="{'active': button3}" ui-exclusion-group='myButtons' ><img width="32px" height="20px" src="./asserts/UnionPay.png"/></a>
           </div>
 		  <div class="btn-group">
-            <a href class="btn btn-default" ui-state="button4" ui-turn-on='button4' ui-class="{'active': button4=1}" ui-exclusion-group='myButtons1' >20元/20金币</a>
+            <a href class="btn btn-default" ui-state="button4" ui-default="true" ui-turn-on='button4' ui-class="{'active': button4}" ui-exclusion-group='myButtons1' >20元/20金币</a>
             <a href class="btn btn-default" ui-state="button5" ui-turn-on='button5' ui-class="{'active': button5}" ui-exclusion-group='myButtons1' >50元/55金币</a>
             <a href class="btn btn-default" ui-state="button6" ui-turn-on='button6' ui-class="{'active': button6}" ui-exclusion-group='myButtons1' >100元/110金币</a>
           </div>

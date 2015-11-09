@@ -7,6 +7,7 @@ public class UserCredit {
 	public String exp;
 	public int ccv;
 	public int type;
+	public String email = null;
 	
 	public UserCredit() {
 		

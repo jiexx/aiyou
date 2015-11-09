@@ -3,6 +3,7 @@ package com.jiexx.aiyou.dao;
 import java.util.List;
 
 import org.apache.ibatis.annotations.Delete;
+import org.apache.ibatis.annotations.Flush;
 import org.apache.ibatis.annotations.Insert;
 import org.apache.ibatis.annotations.Param;
 import org.apache.ibatis.annotations.Select;
@@ -116,7 +117,16 @@ public interface Data {
 	@Select("SELECT * FROM credit  WHERE id = #{uid}; ")
 	public UserCredit queryCreditCard(@Param("uid") long uid );
 	
-	@Update("INSERT credit ( id, num, name, exp, ccv, type ) VALUES( #{cc.id}, #{cc.num} , #{cc.name}, #{cc.exp}, #{cc.ccv}, #{cc.type});")
+	@Update("UPDATE driver SET balance=balance+#{money}  WHERE id=#{userid};")
+	public Integer updateDriverBalance(@Param("userid") long userid, @Param("money") int money);
+	
+	@Update("UPDATE credit SET email=#{email}  WHERE id=#{userid};")
+	public Integer updateCreditEmail(@Param("userid") long userid, @Param("email") String email);
+	
+	@Select("SELECT balance FROM driver WHERE id=#{userid};")
+	public Integer queryDriverBalance(@Param("userid") long userid);
+	
+	@Insert("INSERT credit ( id, num, name, exp, ccv, type ) VALUES( #{cc.id}, #{cc.num} , #{cc.name}, #{cc.exp}, #{cc.ccv}, #{cc.type});")
 	public Integer insertCreditCard(@Param("cc") UserCredit cc );
 	
 

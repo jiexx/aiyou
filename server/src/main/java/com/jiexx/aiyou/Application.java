@@ -41,7 +41,7 @@ public class Application {
 	public DataSource getDataSource() {
 		BasicDataSource dataSource = new BasicDataSource();
 		dataSource.setDriverClassName("com.mysql.jdbc.Driver");
-		dataSource.setUrl("jdbc:mysql://localhost:3306/aiyou");
+		dataSource.setUrl("jdbc:mysql://localhost:3306/aiyou?useAffectedRows=true");
 		dataSource.setUsername("root");
 		dataSource.setPassword("1234");
 		return dataSource;
