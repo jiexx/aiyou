@@ -73,3 +73,8 @@ https://github.com/paypal/PayPal-Java-SDK/tree/master/rest-api-sample  configura
 * Run `mvn jetty:run` to run the war file using maven jetty.
 * Access `http://localhost:<jetty-port>/rest-api-sample/` in your browser to play with the test pages, `<jetty-port>` is configurable in pom.xml.
 http://www.javascriptobfuscator.com/Javascript-Obfuscator.aspx ---> confuse code
+
+android for annotations (based on spring android) :::
+https://github.com/excilys/androidannotations/wiki/Download
+http://repo.spring.io/release/org/springframework/android/spring-android/1.0.1.RELEASE/
+http://m2eclipse-android-integration.googlecode.com/svn/trunk/com.byluroid.eclipse.maven.android.update
