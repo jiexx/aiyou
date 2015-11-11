@@ -9,11 +9,12 @@ import android.app.Activity;
 public class LoadingActivity extends Activity {
 
 	
-	
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_loading);
+		
+		UpgradeService_.intent(getApplication()).start();
 	}
 	
 	@AfterViews

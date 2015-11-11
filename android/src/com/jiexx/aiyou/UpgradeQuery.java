@@ -9,5 +9,5 @@ import org.springframework.http.converter.json.GsonHttpMessageConverter;
 public interface UpgradeQuery  {
 
 	 @Get("/query?type={type}&version={version}")
-	 UpgradeInfo getUpgradeInfo(String type, String version);
+	 Upgrade getUpgradeInfo(String type, String version);
 }

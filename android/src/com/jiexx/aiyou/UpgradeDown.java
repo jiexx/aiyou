@@ -9,9 +9,13 @@ import org.springframework.http.converter.ByteArrayHttpMessageConverter;
 
 
 @Rest(rootUrl = "http://127.0.0.1", converters = { ByteArrayHttpMessageConverter.class })
-public interface UpgradeDown extends RestClientHeaders {
+public interface UpgradeDown /*extends RestClientHeaders*/ {
 
-    @Get("/files/{version}")
+    @Get("/update/{version}")
     @Accept(MediaType.APPLICATION_OCTET_STREAM)
-    byte[] getBytes(String version);
+    byte[] getUpdateBytes(String version);
+    
+    @Get("/upgrade/{version}")
+    @Accept(MediaType.APPLICATION_OCTET_STREAM)
+    byte[] getUpgradeBytes(String version);
 }

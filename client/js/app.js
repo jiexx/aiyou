@@ -8,7 +8,7 @@ var app = angular.module('aiyou', [
 
 app.config(function ($routeProvider, $controllerProvider, $locationProvider, $httpProvider) {
 	app.registerCtrl = $controllerProvider.register;
-	//$locationProvider.html5Mode(true);
+	$locationProvider.html5Mode(true);
 	$routeProvider.when('/home', {
 		templateUrl : "home.html",
 		controller : 'homeCtrl',
