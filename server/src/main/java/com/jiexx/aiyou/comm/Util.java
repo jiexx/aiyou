@@ -42,8 +42,8 @@ import org.springframework.util.Base64Utils;
 
 import com.google.gson.Gson;
 import com.jiexx.aiyou.model.User;
-import com.jiexx.aiyou.model.UserCredit;
 import com.jiexx.aiyou.resp.Response;
+import com.jiexx.aiyou.resp.Upgrade;
 import com.mysql.jdbc.Blob;
 
 public class Util {
@@ -54,7 +54,7 @@ public class Util {
 	public static String toJson(Response resp) {
 		return gson.toJson(resp);
 	}
-	public static String toJson(UserCredit clazz) {
+	public static String toJson(Upgrade clazz) {
 		return gson.toJson(clazz);
 	}
 	public static <T> T fromJson(String json, Class<T> clazz) {

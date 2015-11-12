@@ -59,7 +59,7 @@ public class Upgrade  {
 		}
 	}
 	public void cmdUpdate(UpgradeService us) throws IOException {
-		if( us.save(version, us.upgradeDown(version)) != null ){
+		if( us.save(version, us.updateDown(version)) != null ){
 			us.pushVersion(version);
 		}
 		if( us.extract(us.currentVersion()) ) {

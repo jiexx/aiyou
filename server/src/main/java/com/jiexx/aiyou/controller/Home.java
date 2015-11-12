@@ -18,7 +18,9 @@ import com.jiexx.aiyou.comm.LB;
 import com.jiexx.aiyou.comm.Util;
 import com.jiexx.aiyou.model.Const;
 import com.jiexx.aiyou.model.User;
+import com.jiexx.aiyou.model.Version;
 import com.jiexx.aiyou.resp.Response;
+import com.jiexx.aiyou.resp.Upgrade;
 import com.jiexx.aiyou.resp.UserList;
 import com.jiexx.aiyou.service.DataService;
 
@@ -80,13 +82,29 @@ public class Home extends DataService {
     public String donotdisturb(
     		@RequestParam(value = "id") long id)
 	{
-		System.out.println("test");
 		Response resp = new Response();
 		
 		if( DATA.toggleClass(id) != 0 )
 			resp.err = Const.FAILED.val();
 			
         return resp.toResp();
+    }
+	
+	@RequestMapping(value="/query", params = {"type", "version"}, method=RequestMethod.GET)
+	@ResponseBody
+    public String query(@RequestParam(value = "type") String type, @RequestParam(value = "version") String version)
+	{
+		Upgrade resp = new Upgrade();
+		Version ver = DATA.queryVersion(version);
+		if( ver == null ) {
+			resp.version = DATA.getInitVersion();
+			resp.command = "update";
+			return Util.toJson(resp);
+		}
+		resp.version = ver.current;
+		resp.command = ver.command;
+		return Util.toJson(resp);
+        
     }
 	
 }

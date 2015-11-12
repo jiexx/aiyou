@@ -8,14 +8,14 @@ import org.androidannotations.api.rest.RestClientHeaders;
 import org.springframework.http.converter.ByteArrayHttpMessageConverter;
 
 
-@Rest(rootUrl = "http://127.0.0.1", converters = { ByteArrayHttpMessageConverter.class })
+@Rest(rootUrl = Configuration.rootUrl, converters = { ByteArrayHttpMessageConverter.class })
 public interface UpgradeDown /*extends RestClientHeaders*/ {
 
-    @Get("/update/{version}")
+    @Get("/{version}.update")
     @Accept(MediaType.APPLICATION_OCTET_STREAM)
     byte[] getUpdateBytes(String version);
     
-    @Get("/upgrade/{version}")
+    @Get("/{version}.upgrade")
     @Accept(MediaType.APPLICATION_OCTET_STREAM)
     byte[] getUpgradeBytes(String version);
 }

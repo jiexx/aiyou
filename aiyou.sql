@@ -116,7 +116,7 @@ CREATE TABLE `images` (
   `intro` text,
   `time` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
   PRIMARY KEY (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=23 DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -282,6 +282,29 @@ LOCK TABLES `user` WRITE;
 INSERT INTO `user` VALUES (15812345678,'0110',31.272,121.434,''),(15822345678,'2010',31.2666,121.416,''),(15800000001,'1110',31.289,121.449,'51362c26bd98905c64de5dc6b876d22c'),(15800000000,'1110',31.289,121.429,'b6d1a168172697237f40df713ff4628d'),(15800000002,'2110',31.289,121.449,'c06b6b831426cbca2e4e59f1050d1397');
 /*!40000 ALTER TABLE `user` ENABLE KEYS */;
 UNLOCK TABLES;
+
+--
+-- Table structure for table `version`
+--
+
+DROP TABLE IF EXISTS `version`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `version` (
+  `current` varchar(32) DEFAULT NULL,
+  `command` varchar(16) DEFAULT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Dumping data for table `version`
+--
+
+LOCK TABLES `version` WRITE;
+/*!40000 ALTER TABLE `version` DISABLE KEYS */;
+INSERT INTO `version` VALUES ('1.0.0',NULL),(NULL,'start'),('1.0.0','init');
+/*!40000 ALTER TABLE `version` ENABLE KEYS */;
+UNLOCK TABLES;
 /*!40103 SET TIME_ZONE=@OLD_TIME_ZONE */;
 
 /*!40101 SET SQL_MODE=@OLD_SQL_MODE */;
@@ -292,4 +315,4 @@ UNLOCK TABLES;
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2015-11-09 18:16:39
+-- Dump completed on 2015-11-12 19:24:49

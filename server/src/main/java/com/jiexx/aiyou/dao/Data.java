@@ -20,6 +20,7 @@ import com.jiexx.aiyou.model.TopicComment;
 import com.jiexx.aiyou.model.User;
 import com.jiexx.aiyou.model.UserComment;
 import com.jiexx.aiyou.model.UserCredit;
+import com.jiexx.aiyou.model.Version;
 import com.mysql.jdbc.Blob;
 import com.mysql.jdbc.Clob;
 
@@ -57,6 +58,12 @@ public interface Data {
 
 	@Update("UPDATE user SET class = concat(substr(class,1,3),abs(substr(class,4,1)-1),substr(5,length(class)) ) WHERE id = #{userid};")
 	public int toggleClass(@Param("userid") long userid);
+	
+	@Select("SELECT * FROM version WHERE current = #{curr};")
+	public Version queryVersion(@Param("curr") String curr);
+	
+	@Select("SELECT current FROM version WHERE command = 'init';")
+	public String getInitVersion();
 	
 	
 	
