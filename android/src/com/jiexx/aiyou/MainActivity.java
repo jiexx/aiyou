@@ -27,6 +27,8 @@ public class MainActivity extends Activity {
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_main);
+		
+		code = UpgradeService.localCode;
 
 		wv = (WebView) findViewById(R.id.webview);
 		wv.getSettings().setJavaScriptEnabled(true);
@@ -50,11 +52,11 @@ public class MainActivity extends Activity {
 			@Override
 			public WebResourceResponse shouldInterceptRequest(WebView view,	String url) {
 				if (url.endsWith("js")) {
-					return new WebResourceResponse("text/javascript", "utf-8", new StringBufferInputStream(code.get(url)));
+					return new WebResourceResponse("text/javascript", "utf-8", new StringBufferInputStream(code.get("."+url.substring(url.lastIndexOf('/')))));
 				} else if (url.endsWith("html")) {
-					return new WebResourceResponse("text/html", "utf-8", new StringBufferInputStream(code.get(url)));
+					return new WebResourceResponse("text/html", "utf-8", new StringBufferInputStream(code.get("."+url.substring(url.lastIndexOf('/')))));
 				}else if(url.endsWith("css")) {
-					return new WebResourceResponse("text/css", "utf-8", new StringBufferInputStream(code.get(url)));
+					return new WebResourceResponse("text/css", "utf-8", new StringBufferInputStream(code.get("."+url.substring(url.lastIndexOf('/')))));
 				}
 				return null;
 			}
