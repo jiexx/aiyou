@@ -78,3 +78,9 @@ android for annotations (based on spring android) :::
 https://github.com/excilys/androidannotations/wiki/Download
 http://repo.spring.io/release/org/springframework/android/spring-android/1.0.1.RELEASE/
 http://m2eclipse-android-integration.googlecode.com/svn/trunk/com.byluroid.eclipse.maven.android.update
+
+
+https://bitbucket.org/matulic/ziputils/src/6803ced268c1?at=default
+
+client>
+java -jar ..\zip.jar 1.zip . 4279383126

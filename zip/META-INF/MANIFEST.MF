@@ -1,0 +1,4 @@
+Manifest-Version: 1.0
+Class-Path: zip/lib/ziputils-1.2.jar
+Main-Class: zip.Main
+

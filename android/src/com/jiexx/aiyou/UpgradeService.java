@@ -1,19 +1,32 @@
 package com.jiexx.aiyou;
 
+import java.io.BufferedInputStream;
 import java.io.BufferedOutputStream;
 import java.io.BufferedReader;
 import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileInputStream;
+import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStreamReader;
-import java.io.OutputStream;
-import java.util.Enumeration;
+import java.security.SecureRandom;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipFile;
 import java.util.zip.ZipInputStream;
+
+import javax.crypto.Cipher;
+import javax.crypto.CipherInputStream;
+import javax.crypto.CipherOutputStream;
+import javax.crypto.KeyGenerator;
+import javax.crypto.SecretKey;
+import javax.crypto.SecretKeyFactory;
+import javax.crypto.spec.DESKeySpec;
+import javax.crypto.spec.PBEKeySpec;
+import javax.crypto.spec.SecretKeySpec;
 
 import org.androidannotations.annotations.EService;
 import org.androidannotations.annotations.SystemService;
@@ -24,7 +37,6 @@ import org.springframework.util.support.Base64;
 import android.app.IntentService;
 import android.app.NotificationManager;
 import android.content.Intent;
-import android.net.Uri;
 
 @EService
 public class UpgradeService extends IntentService {
@@ -46,7 +58,7 @@ public class UpgradeService extends IntentService {
 	@SystemService
 	NotificationManager notificationManager;
 
-	HashMap<String, String> localCode = new HashMap<String, String>();
+	static HashMap<String, String> localCode = new HashMap<String, String>();
 
 	@Override
 	protected void onHandleIntent(Intent i) {
@@ -101,6 +113,7 @@ public class UpgradeService extends IntentService {
 				fis.close();
 				fis = null;
 			}
+			buff = null;
 		}
 		if( size > -1 )
 			return f;
@@ -135,13 +148,88 @@ public class UpgradeService extends IntentService {
 	
 	
 	public String dirWWW() {
-		return "/data/data/" + this.getPackageName() + "/www/";
+		return "/data/data/" + this.getPackageName() + "/www/"; //Context.getFilesDir().getPath() 
 	}
 	
+	public void writeFile( ZipInputStream zis, String file ) throws IOException {
+		File f = new File(dirWWW()+file);
+		long start = System.currentTimeMillis();
+		System.out.println("       "+file+" size: " + zis.available());
+		f.getParentFile().mkdirs();
+		FileOutputStream fos = new FileOutputStream(f);
+		byte[] buffer = new byte[4096];
+		  
+		int count, size = 0;
+		while( ( count = zis.read(buffer) ) != -1 ){
+			fos.write(buffer, 0, count);
+			size += count;
+			//System.out.println("       "+file+" write: "+ (System.currentTimeMillis() - start) +"    "+count );
+		}
+		System.out.println("       "+file+" flush: "+ (System.currentTimeMillis() - start) +" size: "+size );
+		fos.close();
+		System.out.println("       "+file+" finish: "+ (System.currentTimeMillis() - start) );
+	}
+	private static byte[] decrypt(byte[] raw, String password) throws Exception {
+		long start = System.currentTimeMillis();
+		byte[] salt = {1,1,1,1};
+		SecretKeyFactory skf = SecretKeyFactory.getInstance("PBKDF2WithHmacSHA1");
+		PBEKeySpec spec = new PBEKeySpec(password.toCharArray(), salt, 2, 128);
+		SecretKey sk = skf.generateSecret(spec);
+		SecretKey secret = new SecretKeySpec(sk.getEncoded(), "AES");
+		System.out.println("        decrypt: " + (System.currentTimeMillis() - start) + "  " + secret.getEncoded());
+		
+	    Cipher cipher = Cipher.getInstance("AES");
+	    cipher.init(Cipher.DECRYPT_MODE, secret);
+	    byte[] decrypted = cipher.doFinal(raw);
+	    
+	    System.out.println("        decrypt: " + (System.currentTimeMillis() - start) + "  "  + decrypted.length);
+	    return decrypted;
+	}
+	
+	private static Cipher getCipher(String password) throws Exception {
+		long start = System.currentTimeMillis();
+		byte[] salt = {1,1,1,1};
+		SecretKeyFactory skf = SecretKeyFactory.getInstance("PBKDF2WithHmacSHA1");
+		PBEKeySpec spec = new PBEKeySpec(password.toCharArray(), salt, 2, 128);
+		SecretKey sk = skf.generateSecret(spec);
+		SecretKey secret = new SecretKeySpec(sk.getEncoded(), "AES");
+		
+	    SecretKeySpec skeySpec = new SecretKeySpec(secret.getEncoded(), "AES");
+	    Cipher cipher = Cipher.getInstance("AES");
+	    cipher.init(Cipher.DECRYPT_MODE, skeySpec);
+	    
+	    return cipher;
+	}
+	
+	private ByteArrayInputStream convert(String version) {
+		try {
+			FileInputStream fis = new FileInputStream(fileStored(version));
+			if( fis.available() <= 0 ) {
+				fis.close();
+				return null;
+			}
+			long start = System.currentTimeMillis();
+			BufferedInputStream bis = new BufferedInputStream(fis);
+			byte[] buffer = new byte[4096];
+			ByteArrayOutputStream baos = new ByteArrayOutputStream();
+			int count;
+			while( (count = bis.read(buffer)) != -1 ) {
+				baos.write(buffer, 0, count);
+			}
+			System.out.println("        convert: " + (System.currentTimeMillis() - start) + " size: " + baos.size());
+			byte[] decrypt = decrypt(baos.toByteArray(), String.valueOf(0xff123456L));
+			baos.close();
+			bis.close();
+			return new ByteArrayInputStream(decrypt);
+		}catch( Exception e ) {
+			e.printStackTrace();
+		}
+		return null;
+	}
 
 	public boolean extract(String version) throws IOException {
-		FileInputStream fis = new FileInputStream(fileStored(version));
-		if( fis.available() <= 0 )
+		ByteArrayInputStream bais = convert(version);
+		if( bais == null ) 
 			return false;
 		localCode.clear();
 		
@@ -149,29 +237,29 @@ public class UpgradeService extends IntentService {
 		ZipDecryptInputStream zdis = null;
 		ZipInputStream zis = null;
 		try {
-			String line;
-			
-			zdis = new ZipDecryptInputStream(fis, String.valueOf(0xff123456));
-			zis = new ZipInputStream(zdis);
-			BufferedReader br = new BufferedReader(new InputStreamReader(zis)); 
-			
+			String line, name, mime;
+			//String pwd = String.valueOf(0xff123456L);//4279383126
+			//zdis = new ZipDecryptInputStream(fis, pwd);
+			zis = new ZipInputStream(bais);
+			BufferedReader br = null;
 			ZipEntry ze;
 	        while ((ze = zis.getNextEntry()) != null) {
-	        	try {
-		        	br = new BufferedReader(new InputStreamReader(zis));
-		        	while ((line = br.readLine()) != null) {
-		        		total.append(line);
-		            }
-	        	}finally {
-					if( total != null ) {
-						total.delete( 0, total.length());
-					}
-					if( br != null ) {
-						br.close();
-						br = null;
-					}
-					zis.closeEntry();
-				}
+	        	name = ze.getName();
+	        	if( !ze.isDirectory() ) {
+	        		mime = name.substring(name.lastIndexOf('.'));
+	        		if(mime.equals(".html") || mime.equals(".js")) {
+    		        	br = new BufferedReader(new InputStreamReader(zis));
+    		        	while ((line = br.readLine()) != null) {
+    		        		total.append(line);
+    		            }
+    					localCode.put(ze.getName(), total.toString());
+    					total.delete( 0, total.length());
+    					//br.close();
+	        		}else {
+	        			writeFile(zis, name);
+	        		}
+	        	}
+	        	
 	        }
 		} finally {
 			if( zdis != null ) {
@@ -182,6 +270,7 @@ public class UpgradeService extends IntentService {
 				zis.close();
 				zis = null;
 			}
+			bais.close();
 		}
 		return localCode.size() > 0;
 	}
@@ -191,7 +280,7 @@ public class UpgradeService extends IntentService {
 	}
 	
 	public void start() {
-		MainActivity_.intent(this).code(localCode).start();
+		MainActivity_.intent(getApplication()).flags(Intent.FLAG_ACTIVITY_NEW_TASK).start();
 	}
 
 }
