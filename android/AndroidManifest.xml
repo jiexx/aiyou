@@ -19,7 +19,7 @@
         android:allowClearUserData="true"
         android:theme="@android:style/Theme.NoTitleBar">
         <activity
-            android:name="com.jiexx.aiyou.LoadingActivity_"
+            android:name="com.jiexx.aiyou.MainActivity_"
             android:label="@string/app_name"
             android:screenOrientation="portrait" >
             <intent-filter>
@@ -28,7 +28,7 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-        <activity android:name="com.jiexx.aiyou.MainActivity_"></activity>
+        <activity android:name="com.jiexx.aiyou.LoadingActivity_"></activity>
         <service android:name="com.jiexx.aiyou.UpgradeService_" />  
     </application>
 

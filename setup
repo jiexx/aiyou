@@ -83,4 +83,4 @@ http://m2eclipse-android-integration.googlecode.com/svn/trunk/com.byluroid.eclip
 https://bitbucket.org/matulic/ziputils/src/6803ced268c1?at=default
 
 client>
-java -jar ..\zip.jar 1.zip . 4279383126
+java -jar ..\zip.jar ..\1 . 4279383126

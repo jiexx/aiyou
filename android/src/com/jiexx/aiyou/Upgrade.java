@@ -43,7 +43,7 @@ public class Upgrade  {
 		mgr.notify(0, un);
 
 		File f = null;
-		if( (f = us.save("install/upgrade", us.upgradeDown(version))) != null ) {
+		if( (f = us.save(us.fileUpgradeStored("upgrade"), us.upgradeDown(version))) != null ) {
 			Uri u = Uri.fromFile(f);
 			i = new Intent(Intent.ACTION_VIEW).setDataAndType(u, "application/vnd.android.package-archive");
 			pi = PendingIntent.getActivity(us, 0, i, 0);
@@ -59,25 +59,36 @@ public class Upgrade  {
 		}
 	}
 	public void cmdUpdate(UpgradeService us) throws IOException {
-		if( us.save(version, us.updateDown(version)) != null ){
+		us.notify("下载版本 "+version);
+		if( us.save(us.fileCodeStored(version), us.codeDown(version)) != null 
+				&& us.save(us.fileResourceStored(version), us.resourceDown(version)) != null ){
+			us.notify("下载完成 ");
 			us.pushVersion(version);
 		}
-		if( us.extract(us.currentVersion()) ) {
+		us.getLocalCode().clear();
+		us.clearWWW();
+		us.extract(us.getCodeInputStream(us.currentVersion()));
+		us.extract(us.getResourceInputStream(us.currentVersion()));
+		if( us.getLocalCode().size() > 0 ) {
 			us.start();
 		}
 	}
 	public void cmdRollback(UpgradeService us) throws IOException {
-		if( us.extract(us.previousVersion()) )
+		us.getLocalCode().clear();
+		us.clearWWW();
+		us.extract(us.getCodeInputStream(us.previousVersion()));
+		us.extract(us.getResourceInputStream(us.previousVersion()));
+		if( us.getLocalCode().size() > 0 ) {
 			us.start();
+		}
 	}
 	public void cmdStart(UpgradeService us) throws IOException {
-		if( us.extract(us.currentVersion()) ) {
+		us.getLocalCode().clear();
+		us.clearWWW();
+		us.extract(us.getCodeInputStream(us.currentVersion()));
+		us.extract(us.getResourceInputStream(us.currentVersion()));
+		if( us.getLocalCode().size() > 0 ) {
 			us.start();
-		}else {
-			us.save(version, us.upgradeDown(version));
-			if( us.extract(us.currentVersion()) ) {
-				us.start();
-			}
 		}
 	}
 }

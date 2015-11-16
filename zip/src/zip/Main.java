@@ -32,12 +32,17 @@ public class Main {
 		//ZipOutputStream out = new ZipOutputStream(new FileOutputStream(zipFileName));
 		// create the standard zip output stream, initialize it with our
 		// encrypting stream
-		ZipOutputStream zos = new ZipOutputStream(/*zeos*/new FileOutputStream(zipFileName));
-		BufferedOutputStream bo = new BufferedOutputStream(zos);
+		ZipOutputStream src = new ZipOutputStream(/*zeos*/new FileOutputStream(zipFileName+".src.zip"));
+		ZipOutputStream res = new ZipOutputStream(/*zeos*/new FileOutputStream(zipFileName+".res.zip"));
+		BufferedOutputStream bo = new BufferedOutputStream(src);
+		BufferedOutputStream bos = new BufferedOutputStream(res);
 		//BufferedOutputStream bo = new BufferedOutputStream(out);
-		zip(zos, inputFile, inputFile.getName(), bo);
+		zip1(src, inputFile, inputFile.getName(), bo);
+		zip2(res, inputFile, inputFile.getName(), bos);
 		bo.close();
-		zos.close(); 
+		src.close();
+		bos.close();
+		res.close();
 		//out.close(); 
 		System.out.println("done");
 	}
@@ -60,7 +65,46 @@ public class Main {
 	    byte[] encrypted = cipher.doFinal(raw);
 	    return encrypted;
 	}
-	static void zip(ZipOutputStream out, File f, String base, BufferedOutputStream bo) throws Exception { // 方法重载
+	static void zip1(ZipOutputStream out, File f, String base, BufferedOutputStream bo) throws Exception { // 方法重载
+		if (f.isDirectory()) {
+			File[] fl = f.listFiles();
+			if (fl.length == 0) {
+				out.putNextEntry(new ZipEntry(base + "/")); 
+				System.out.println(base + "/");
+			}
+			System.out.println("      zip dir: "+f.getName());
+			
+			for (int i = 0; i < fl.length; i++) {
+				zip1(out, fl[i], base + "/" + fl[i].getName(), bo); 
+			}
+			
+			k++;
+		} else if( f.getName().lastIndexOf('.') > -1 ) {
+			
+			if(f.getName().substring(f.getName().lastIndexOf('.')).equals(".js") || f.getName().substring(f.getName().lastIndexOf('.')).equals(".html") ) {
+				out.putNextEntry(new ZipEntry(base)); 
+				FileInputStream in = new FileInputStream(f);
+				BufferedInputStream bi = new BufferedInputStream(in);
+				int b, count = 0, k = 0;
+				byte[] buff = new byte[1024];
+				while ((b = bi.read(buff, 0, 1024)) != -1) {
+					bo.write(buff, 0, b);
+					count ++;
+				}
+				
+				System.out.println("            js/html file name:" + f.getName() + " base:" + base +" size:" + count + "    " +(new String(buff).substring(0,32)));
+				bo.flush();
+				bi.close();
+				in.close();
+			} else {
+				System.out.println("   EXCLUDE 3:" + f.getName());
+			}
+		} else {
+			System.out.println("   EXCLUDE 4:" + f.getName());
+		}
+	}
+
+	static void zip2(ZipOutputStream out, File f, String base, BufferedOutputStream bo) throws Exception { // 方法重载
 		if (f.isDirectory()) {
 			File[] fl = f.listFiles();
 			if (fl.length == 0) {
@@ -68,29 +112,39 @@ public class Main {
 				System.out.println(base + "/");
 			}
 			for (int i = 0; i < fl.length; i++) {
-				zip(out, fl[i], base + "/" + fl[i].getName(), bo); 
+				zip2(out, fl[i], base + "/" + fl[i].getName(), bo); 
 			}
-			System.out.println("zip "+f.getName());
+			System.out.println("      zip dir: "+f.getName());
 			k++;
-		} else {
-			out.putNextEntry(new ZipEntry(base)); 
-			System.out.println(base);
-			FileInputStream in = new FileInputStream(f);
-			BufferedInputStream bi = new BufferedInputStream(in);
-			int b;
-			while ((b = bi.read()) != -1) {
-				bo.write(b); 
+		} else if( f.getName().lastIndexOf('.') > -1 ) {
+			
+			if( !f.getName().substring(f.getName().lastIndexOf('.')).equals(".js") && !f.getName().substring(f.getName().lastIndexOf('.')).equals(".html") ) {
+				out.putNextEntry(new ZipEntry(base)); 
+				FileInputStream in = new FileInputStream(f);
+				BufferedInputStream bi = new BufferedInputStream(in);
+				int b, count = 0;
+				byte[] buff = new byte[1024];
+				while ((b = bi.read(buff, 0, 1024)) != -1) {
+					bo.write(buff, 0, b); 
+					count ++;
+				}
+				System.out.println("            other file name:" + f.getName() + " base:" + base + " size:" + count);
+				bo.flush();
+				bi.close();
+				in.close();
+			} else {
+				System.out.println("   EXCLUDE 1 :" + f.getName());
 			}
-			bi.close();
-			in.close(); 
+		} else {
+			System.out.println("   EXCLUDE 2:" + f.getName());
 		}
 	}
 
 	public static void main(String[] args) throws Exception {
-		File src = new File(args[1]);
-		File tmp = new File(args[0]+".tmp");
+		File src = new File(args[1]); //source files
+		File tmp = new File(args[0]+".encrypt");
 		zip(args[0], src, args[2]);
-		File f = new File(args[0]);
+		File f = new File(args[0]+".src.zip");  //target file
 		System.out.println("          file: "+f.getName());
 		if( f.exists() ) {
 			BufferedInputStream bis = new BufferedInputStream(new FileInputStream(f));

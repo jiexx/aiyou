@@ -10,8 +10,10 @@ import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.security.SecureRandom;
+import java.text.DecimalFormat;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.zip.ZipEntry;
@@ -58,7 +60,7 @@ public class UpgradeService extends IntentService {
 	@SystemService
 	NotificationManager notificationManager;
 
-	static HashMap<String, String> localCode = new HashMap<String, String>();
+	static HashMap<String, InputStream> localCode = new HashMap<String, InputStream>();
 
 	@Override
 	protected void onHandleIntent(Intent i) {
@@ -72,30 +74,34 @@ public class UpgradeService extends IntentService {
 		}
 	}
 	
-	public byte[] updateDown(String version) {
-		return ud.getUpdateBytes(version);
+	public byte[] codeDown(String version) {
+		return ud.getCodeBytes(version);
+	}
+	
+	public byte[] resourceDown(String version) {
+		return ud.getResourceBytes(version);
 	}
 	
 	public byte[] upgradeDown(String version) {
 		return ud.getUpgradeBytes(version);
 	}
 
-	public File save(String version, byte[] buff) throws IOException {
+	public File save(String path, byte[] buff) throws IOException {
+		TOTAL_SIZE += buff.length;
 		int size = 0;
 		File f = null;
 		FileOutputStream fos = null;
 		BufferedOutputStream bos = null;
 		FileInputStream fis = null;
-		String path = fileStored(version);
 		try {
-			f = new File(path.substring(0, path.lastIndexOf('/')));
+			f = new File(path);
 			if( !f.exists() ) {
-				f.mkdirs();
+				f.getParentFile().mkdirs();
 			}
 			fos = new FileOutputStream(path);
 			bos = new BufferedOutputStream(fos);
 			bos.write(buff);
-			f = new File(path);
+			fos.flush();
             if( f.exists() ) {
 				fis = new FileInputStream(f);
 				size= fis.available();
@@ -121,17 +127,20 @@ public class UpgradeService extends IntentService {
 	}
 	
 	public void pushVersion(String version) {
-		File f = new File(fileStored(previousVersion()));
-		if( f.exists() ) {
-			f.delete();
+		File code = new File(fileCodeStored(previousVersion()));
+		File res = new File(fileResourceStored(previousVersion()));
+		if( code.exists() || res.exists() ) {
+			code.delete();
+			res.delete();
 			up.previous().put(currentVersion());
 		}
 		up.version().put(version);
 	}
 	
 	public String currentVersion() {
-		File www = new File(fileStored(up.version().get()));
-		if(www.exists()){  
+		File code = new File(fileCodeStored(up.version().get()));
+		File res = new File(fileResourceStored(up.version().get()));
+		if( code.exists() && res.exists() ){  
 			return up.version().get();
         }
 		up.version().put("null");
@@ -139,16 +148,47 @@ public class UpgradeService extends IntentService {
 	}
 	
 	public String previousVersion() {
+		File code = new File(fileCodeStored(up.previous().get()));
+		File res = new File(fileResourceStored(up.previous().get()));
+		if( code.exists() && res.exists() ){  
+			return up.version().get();
+        }
+		up.previous().put("null");
 		return up.previous().get();
 	}
-
-	public String fileStored(String version) {
+	
+	public String fileUpgradeStored(String version) {
 		return "/data/data/" + this.getPackageName() + "/upgrade/" + version + ".pkg";
+	}
+
+	public String fileCodeStored(String version) {
+		return "/data/data/" + this.getPackageName() + "/upgrade/" + version + ".code";
+	}
+	
+	public String fileResourceStored(String version) {
+		return "/data/data/" + this.getPackageName() + "/upgrade/" + version + ".resource";
 	}
 	
 	
 	public String dirWWW() {
 		return "/data/data/" + this.getPackageName() + "/www/"; //Context.getFilesDir().getPath() 
+	}
+	
+	private void deleteFile(File file){
+	     if(file.isDirectory()){
+	          File[] files = file.listFiles();
+	          for(int i=0; i<files.length; i++){
+	               deleteFile(files[i]);
+	          }
+	     }
+	     file.delete();
+	}
+	
+	public void clearWWW() {
+		File f = new File(dirWWW());
+		if( f.exists() ) {
+			deleteFile(f);
+		}
 	}
 	
 	public void writeFile( ZipInputStream zis, String file ) throws IOException {
@@ -165,6 +205,7 @@ public class UpgradeService extends IntentService {
 			size += count;
 			//System.out.println("       "+file+" write: "+ (System.currentTimeMillis() - start) +"    "+count );
 		}
+		fos.flush();
 		System.out.println("       "+file+" flush: "+ (System.currentTimeMillis() - start) +" size: "+size );
 		fos.close();
 		System.out.println("       "+file+" finish: "+ (System.currentTimeMillis() - start) );
@@ -201,9 +242,9 @@ public class UpgradeService extends IntentService {
 	    return cipher;
 	}
 	
-	private ByteArrayInputStream convert(String version) {
+	public ByteArrayInputStream getCodeInputStream(String version) {
 		try {
-			FileInputStream fis = new FileInputStream(fileStored(version));
+			FileInputStream fis = new FileInputStream(fileCodeStored(version));
 			if( fis.available() <= 0 ) {
 				fis.close();
 				return null;
@@ -218,6 +259,7 @@ public class UpgradeService extends IntentService {
 			}
 			System.out.println("        convert: " + (System.currentTimeMillis() - start) + " size: " + baos.size());
 			byte[] decrypt = decrypt(baos.toByteArray(), String.valueOf(0xff123456L));
+			baos.flush();
 			baos.close();
 			bis.close();
 			return new ByteArrayInputStream(decrypt);
@@ -226,40 +268,56 @@ public class UpgradeService extends IntentService {
 		}
 		return null;
 	}
+	
+	public InputStream getResourceInputStream(String version) {
+		try {
+			FileInputStream fis = new FileInputStream(fileResourceStored(version));
+			return new BufferedInputStream(fis);
+		}catch( Exception e ) {
+			e.printStackTrace();
+		}
+		return null;
+	}
 
-	public boolean extract(String version) throws IOException {
-		ByteArrayInputStream bais = convert(version);
-		if( bais == null ) 
-			return false;
-		localCode.clear();
+	public void extract(InputStream is) throws IOException {
+		if( is == null ) 
+			return;
 		
-		StringBuilder total = new StringBuilder();
+		ByteArrayOutputStream total = null;
 		ZipDecryptInputStream zdis = null;
 		ZipInputStream zis = null;
 		try {
-			String line, name, mime;
+			String name, mime;
 			//String pwd = String.valueOf(0xff123456L);//4279383126
 			//zdis = new ZipDecryptInputStream(fis, pwd);
-			zis = new ZipInputStream(bais);
-			BufferedReader br = null;
+			zis = new ZipInputStream(is);
+			BufferedInputStream bis = null;
+			byte[] buffer = new byte[4096];
+			int count;
 			ZipEntry ze;
 	        while ((ze = zis.getNextEntry()) != null) {
-	        	name = ze.getName();
+	        	name = ze.getName().substring(2);
 	        	if( !ze.isDirectory() ) {
 	        		mime = name.substring(name.lastIndexOf('.'));
 	        		if(mime.equals(".html") || mime.equals(".js")) {
-    		        	br = new BufferedReader(new InputStreamReader(zis));
-    		        	while ((line = br.readLine()) != null) {
-    		        		total.append(line);
+    		        	bis = new BufferedInputStream(zis);
+    		        	total = new ByteArrayOutputStream();
+    		        	while ((count = bis.read(buffer, 0, 4096)) != -1) {
+    		        		total.write(buffer, 0, count);
     		            }
-    					localCode.put(ze.getName(), total.toString());
-    					total.delete( 0, total.length());
+    		        	total.flush();
+    		        	HANDLED_SIZE += total.size();
+    		        	System.out.println("        localCode: " + name + " size: " + total.size());
+    					localCode.put(name, new ByteArrayInputStream(total.toByteArray()));
+    					total.close();
     					//br.close();
 	        		}else {
 	        			writeFile(zis, name);
+	        			HANDLED_SIZE += zis.available();
 	        		}
+	        		
 	        	}
-	        	
+	        	notifyProgress();
 	        }
 		} finally {
 			if( zdis != null ) {
@@ -270,17 +328,33 @@ public class UpgradeService extends IntentService {
 				zis.close();
 				zis = null;
 			}
-			bais.close();
+			is.close();
 		}
-		return localCode.size() > 0;
+		notify("启动");
 	}
 	
-	public HashMap<String, String> getLocalCode() {
+	public HashMap<String, InputStream> getLocalCode() {
 		return localCode;
 	}
 	
 	public void start() {
 		MainActivity_.intent(getApplication()).flags(Intent.FLAG_ACTIVITY_NEW_TASK).start();
 	}
+	
+	public void notify(String info) {
+		Intent intent = new Intent();  
+        intent.setAction("com.jiexx.aiyou.PROGRESS");  
+        intent.putExtra("info", info);  
+        sendBroadcast(intent);
+	}
+	
+	public void notifyProgress() {
+		float per = (float)HANDLED_SIZE/(float)TOTAL_SIZE;
+		notify( "解压中 " + new DecimalFormat("##%").format(per) );
+	}
+	
+	private int TOTAL_SIZE = 0;
+	private int HANDLED_SIZE = 0;
+	
 
 }
