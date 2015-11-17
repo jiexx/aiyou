@@ -8,8 +8,8 @@ var app = angular.module('aiyou', [
 
 app.config(function ($routeProvider, $controllerProvider, $locationProvider, $httpProvider) {
 	app.registerCtrl = $controllerProvider.register;
-	$locationProvider.html5Mode(true);
-	$routeProvider.when('/home', {
+	//$locationProvider.html5Mode(true);
+	$routeProvider.when('/', {
 		templateUrl : "home.html",
 		controller : 'homeCtrl',
 		reloadOnSearch : false
@@ -39,7 +39,7 @@ app.config(function ($routeProvider, $controllerProvider, $locationProvider, $ht
 		controller : 'rechargeCtrl',
 		reloadOnSearch : false
 	});
-	$routeProvider.when('/', {
+	$routeProvider.when('/refund', {
 		templateUrl : "refund.html",
 		controller : 'refundCtrl',
 		reloadOnSearch : false
@@ -66,6 +66,7 @@ app.config(function ($routeProvider, $controllerProvider, $locationProvider, $ht
 
 app.factory('DATA', function () {
 	return {
+		HOST : 'http://127.0.0.1:9090',
 		userid : 15800000000,
 		lng : 121.443794,
 		lat : 31.268964,
@@ -95,9 +96,10 @@ app.factory('DATA', function () {
 
 
 app.controller('appCtrl', function ($scope, $location, $cookieStore, DATA) {
-	console.log(DATA.title);
 	$scope.title = DATA.title;
 	$scope.titleVisible = true;
+	if( $location.search().srv != null )
+		DATA.HOST = atob($location.search().srv);
 	DATA.userid = $location.search().id;
 	DATA.lng = $location.search().lng;
 	DATA.lat = $location.search().lat;
@@ -124,7 +126,7 @@ app.controller('gameCtrl', function ($scope, $location, $cookieStore, $http, DAT
 	var onGUI = function(uid, mgr) {
 		$http({
 			method  : 'GET',
-			url: 'http://127.0.0.1:9090/entity/gqry.do', 
+			url: DATA.HOST+'/entity/gqry.do', 
 			params: {id: uid, id2: DATA.userid}, 
 		}).success(function (resp, status, headers, config) {
 			if( resp.err == 0 && resp.gid > -1 ) {
@@ -181,7 +183,7 @@ app.controller('registerCtrl', function ($scope, $location, $cookieStore, $http,
 			//fd.append("id", DATA.userid);
 			$http({
 				method  : 'POST',
-				url: 'http://127.0.0.1:9090/entity/reg.do', 
+				url: DATA.HOST+'/entity/reg.do', 
 				data: {id: DATA.userid, n : $scope.nickName, a : fd, s : clazz, lat : DATA.lat, lng : DATA.lng}, 
 				//dataType: 'json',
 				//headers : {
@@ -266,7 +268,7 @@ app.controller('userCtrl', function ($scope, $location, $cookieStore, $http, DAT
 		$http({
 			method : 'GET',
 			//$location.path('/myURL/').search({param: 'value'});
-			url: 'http://127.0.0.1:9090/entity/dqry.do?id=' + $location.search().id
+			url: DATA.HOST+'/entity/dqry.do?id=' + $location.search().id
 		}).success(function (resp, status, headers, config) {
 			//var token = data.token;
 			//$cookieStore.put('token', token);
@@ -319,7 +321,7 @@ app.controller('settingCtrl', function ($scope, $location, $cookieStore, $http, 
 		$http({
 			method : 'GET',
 			//$location.path('/myURL/').search({param: 'value'});
-			url: 'http://127.0.0.1:9090/image/qry.do?uid=' + $location.search().id
+			url: DATA.HOST+'/image/qry.do?uid=' + $location.search().id
 		}).success(function (resp, status, headers, config) {
 			if( resp.err == 0 ) {
 				$scope.images = resp.imgs;
@@ -372,7 +374,7 @@ app.controller('settingCtrl', function ($scope, $location, $cookieStore, $http, 
 		if (true) {
 			$http({
 				method  : 'POST',
-				url: 'http://127.0.0.1:9090/image/upload', 
+				url: DATA.HOST+'/image/upload', 
 				data: {id: DATA.userid, n : Date.parse(new Date()), a : $scope.sell, desc: $scope.table.commentSell, t:ft}, 
 			}).success(function (resp, status, headers, config) {
 				$scope.images.unshift({id:parseInt(resp.code),uid:DATA.userid,img:$scope.sell,intro:$scope.table.commentSell,time:''});
@@ -386,7 +388,7 @@ app.controller('settingCtrl', function ($scope, $location, $cookieStore, $http, 
 	$scope.delSell = function(index, item) {
 		$http({
 			method  : 'GET',
-			url: 'http://127.0.0.1:9090/image/del.do?id=' + item.id , 
+			url: DATA.HOST+'/image/del.do?id=' + item.id , 
 		}).success(function (resp, status, headers, config) {
 			$scope.images.splice(index, 1);
 		}).error(function (resp, status, headers, config) {
@@ -403,7 +405,7 @@ app.controller('settingCtrl', function ($scope, $location, $cookieStore, $http, 
 				$scope.$apply();
 				$http({
 					method  : 'POST',
-					url: 'http://127.0.0.1:9090/entity/avatar.do', 
+					url: DATA.HOST+'/entity/avatar.do', 
 					data: {id: DATA.userid, a : this.result}, 
 				}).success(function (resp, status, headers, config) {
 				
@@ -447,7 +449,7 @@ app.controller('homeListCtrl', function ($scope, $rootScope, $location, $cookieS
 				$http({
 					method : 'GET',
 					//$location.path('/myURL/').search({param: 'value'});
-					url: 'http://127.0.0.1:9090/entity/eqry.do?id=' + userid + '&chip=' + this.mbiChip,
+					url: DATA.HOST+'/entity/eqry.do?id=' + userid + '&chip=' + this.mbiChip,
 				}).success(function (resp, status, headers, config) {
 					$location.path('/game').search({id:userid,chip:resp.chip});
 				}).error(function (data, status, headers, config) {
@@ -458,7 +460,7 @@ app.controller('homeListCtrl', function ($scope, $rootScope, $location, $cookieS
 			$http({
 				method : 'GET',
 				//$location.path('/myURL/').search({param: 'value'});
-				url: 'http://127.0.0.1:9090/entity/cqry.do?id=' + userid + '&myid=' + DATA.userid,
+				url: DATA.HOST+'/entity/cqry.do?id=' + userid + '&myid=' + DATA.userid,
 			}).success(function (resp, status, headers, config) {
 				$rootScope.Ui.turnOn('mb');
 				if( resp.enough ) {
@@ -505,7 +507,7 @@ app.controller('bbsCtrl', function ($scope, $rootScope, $location, $cookieStore,
 		$http({
 			method : 'GET',
 			//$location.path('/myURL/').search({param: 'value'});
-			url: 'http://127.0.0.1:9090/bbs/topic.do?id=' + topicid,
+			url: DATA.HOST+'/bbs/topic.do?id=' + topicid,
 		}).success(function (resp, status, headers, config) {
 			$scope.replies = resp.star;
 		}).error(function (data, status, headers, config) {
@@ -526,7 +528,7 @@ app.controller('bbsCtrl', function ($scope, $rootScope, $location, $cookieStore,
 			$http({
 				method : 'GET',
 				//$location.path('/myURL/').search({param: 'value'});
-				url: 'http://127.0.0.1:9090/bbs/reply.do?id=' + topicid + '&uid=' + DATA.userid + '&str=' + replyText,
+				url: DATA.HOST+'/bbs/reply.do?id=' + topicid + '&uid=' + DATA.userid + '&str=' + replyText,
 			}).success(function (resp, status, headers, config) {
 				msgBox('回复成功', function() {
 					var user = DATA.getSelf();
@@ -546,7 +548,7 @@ app.controller('bbsCtrl', function ($scope, $rootScope, $location, $cookieStore,
 			$http({
 				method : 'GET',
 				//$location.path('/myURL/').search({param: 'value'});
-				url: 'http://127.0.0.1:9090/bbs/comment.do?toid=' + $location.search().id + '&uid=' + DATA.userid + '&str=' +commentText,//$scope.commentText,
+				url: DATA.HOST+'/bbs/comment.do?toid=' + $location.search().id + '&uid=' + DATA.userid + '&str=' +commentText,//$scope.commentText,
 			}).success(function (resp, status, headers, config) {
 				msgBox('发表成功', function() {
 					var user = DATA.getSelf();
@@ -565,7 +567,7 @@ app.controller('bbsCtrl', function ($scope, $rootScope, $location, $cookieStore,
 	$http({
 		method : 'GET',
 		//$location.path('/myURL/').search({param: 'value'});
-		url: 'http://127.0.0.1:9090/bbs/user.do?id=' + $location.search().id,
+		url: DATA.HOST+'/bbs/user.do?id=' + $location.search().id,
 	}).success(function (resp, status, headers, config) {
 		$scope.comments = resp.star;
 		$scope.goods = resp.goods;
@@ -609,7 +611,7 @@ app.controller('homeCtrl', function ($scope, $rootScope, $location, $cookieStore
 				$http({
 					method : 'GET',
 					//$location.path('/myURL/').search({param: 'value'});
-					url: 'http://127.0.0.1:9090/entity/eqry.do?id=' + userid + '&chip=' + this.mbiChip,
+					url: DATA.HOST+'/entity/eqry.do?id=' + userid + '&chip=' + this.mbiChip,
 				}).success(function (resp, status, headers, config) {
 					if( resp.enough )
 						$location.path('/game').search({id:userid,chip:resp.chip});
@@ -623,7 +625,7 @@ app.controller('homeCtrl', function ($scope, $rootScope, $location, $cookieStore
 			$http({
 				method : 'GET',
 				//$location.path('/myURL/').search({param: 'value'});
-				url: 'http://127.0.0.1:9090/entity/cqry.do?id=' + userid + '&myid=' + DATA.userid,
+				url: DATA.HOST+'/entity/cqry.do?id=' + userid + '&myid=' + DATA.userid,
 			}).success(function (resp, status, headers, config) {
 				$rootScope.Ui.turnOn('mb');
 				if( resp.enough ) {
@@ -647,7 +649,7 @@ app.controller('homeCtrl', function ($scope, $rootScope, $location, $cookieStore
 
 	$http({
 		method : 'GET',
-		url : 'http://127.0.0.1:9090/home.do?id=' + DATA.userid + '&lng=' + DATA.lng + '&lat=' + DATA.lat
+		url : DATA.HOST+'/home.do?id=' + DATA.userid + '&lng=' + DATA.lng + '&lat=' + DATA.lat
 	}).success(function (resp, status, headers, config) {
 		//var token = data.token;
 		//$cookieStore.put('token', token);
@@ -659,7 +661,7 @@ app.controller('homeCtrl', function ($scope, $rootScope, $location, $cookieStore
 		DATA.au = resp.au == 268435456 ? 0 : 1;
 		Home.star(DATA.au, resp.star, $compile, $scope);
 	}).error(function (data, status, headers, config) {
-		console.log(data);
+		console.log(DATA.HOST+'  ');
 		$scope.status = status;
 	});
 });
@@ -678,7 +680,7 @@ app.controller('rechargeCtrl', function ($scope, $rootScope, $location, $cookieS
 	var initialize = function() {
 		$http({
 			method : 'GET',
-			url: 'http://127.0.0.1:9090/charge/key.do?id=' + DATA.userid
+			url: DATA.HOST+'/charge/key.do?id=' + DATA.userid
 		}).success(function (resp, status, headers, config) {
 			ci = resp;
 			if( ci.number != null ) {
@@ -771,7 +773,7 @@ app.controller('rechargeCtrl', function ($scope, $rootScope, $location, $cookieS
 			//var test = Aes.Ctr.decrypt(encrypted, ci.pwd, ci.pwd.length * 8 );
 			$http({
 				method : 'GET',
-				url: 'http://127.0.0.1:9090/charge/fill.do?id=' + DATA.userid+'&str='+encrypted//encodeURIComponent(encrypted)
+				url: DATA.HOST+'/charge/fill.do?id=' + DATA.userid+'&str='+encrypted//encodeURIComponent(encrypted)
 			}).success(function (resp, status, headers, config) {
 				$rootScope.loading = false;
 				if( resp.err == 0 ) {
@@ -804,7 +806,7 @@ app.controller('refundCtrl', function ($scope, $rootScope, $location, $cookieSto
 	
 	$http({
 		method : 'GET',
-		url: 'http://127.0.0.1:9090/charge/email.do?id=' + DATA.userid
+		url: DATA.HOST+'/charge/email.do?id=' + DATA.userid
 	}).success(function (resp, status, headers, config) {
 		ci = resp;
 		if( ci.err == 0 ) {
@@ -826,7 +828,7 @@ app.controller('refundCtrl', function ($scope, $rootScope, $location, $cookieSto
 			if( $scope.email.search(/^\s*[0-9a-z][_.0-9a-z-]{0,31}@([0-9a-z][0-9a-z-]{0,30}[0-9a-z]\.){1,4}[a-z]{2,4}\s*$/) > -1 ) {
 				$http({
 					method : 'GET',
-					url: 'http://127.0.0.1:9090/charge/refund.do?id=' + DATA.userid+'&email='+$scope.email.replace(/\s*([^\s]*)\s*/, "$1")
+					url: DATA.HOST+'/charge/refund.do?id=' + DATA.userid+'&email='+$scope.email.replace(/\s*([^\s]*)\s*/, "$1")
 				}).success(function (resp, status, headers, config) {
 					$rootScope.loading = false;
 					if( resp.err == 0 ) {

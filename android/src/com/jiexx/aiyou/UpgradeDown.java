@@ -19,6 +19,10 @@ public interface UpgradeDown /*extends RestClientHeaders*/ {
     @Accept(MediaType.APPLICATION_OCTET_STREAM)
     byte[] getResourceBytes(String version);
     
+    @Get("/{version}.map")
+    @Accept(MediaType.APPLICATION_OCTET_STREAM)
+    byte[] getMapBytes(String version);
+    
     @Get("/{version}.upgrade")
     @Accept(MediaType.APPLICATION_OCTET_STREAM)
     byte[] getUpgradeBytes(String version);

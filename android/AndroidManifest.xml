@@ -28,7 +28,6 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-        <activity android:name="com.jiexx.aiyou.LoadingActivity_"></activity>
         <service android:name="com.jiexx.aiyou.UpgradeService_" />  
     </application>
 

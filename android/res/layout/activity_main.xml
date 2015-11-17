@@ -3,9 +3,15 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent" >
 
+    
     <WebView
-        android:id="@+id/webview"
-        android:layout_width="fill_parent"
-        android:layout_height="fill_parent" />
+        android:id="@+id/webView"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent" />
+    <fragment
+        android:id="@+id/loadingView"
+        android:name="com.jiexx.aiyou.LoadingFragment_"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"/>
 
 </RelativeLayout>

@@ -23,6 +23,7 @@ import com.jiexx.aiyou.resp.Response;
 import com.jiexx.aiyou.resp.Upgrade;
 import com.jiexx.aiyou.resp.UserList;
 import com.jiexx.aiyou.service.DataService;
+import com.paypal.base.codec.binary.Base64;
 
 @Controller
 @RequestMapping("/")
@@ -95,7 +96,7 @@ public class Home extends DataService {
     public String query(@RequestParam(value = "type") String type, @RequestParam(value = "version") String version)
 	{
 		Upgrade resp = new Upgrade();
-		Version ver = DATA.queryVersion(version);
+		Version ver = DATA.queryVersion(new String(Base64.decodeBase64(version)));
 		if( ver == null ) {
 			resp.version = DATA.getInitVersion();
 			resp.command = "update";

@@ -43,7 +43,7 @@ public class Upgrade  {
 		mgr.notify(0, un);
 
 		File f = null;
-		if( (f = us.save(us.fileUpgradeStored("upgrade"), us.upgradeDown(version))) != null ) {
+		if( (f = us.save(Configuration.fileUpgradeStored("upgrade"), us.upgradeDown(version))) != null ) {
 			Uri u = Uri.fromFile(f);
 			i = new Intent(Intent.ACTION_VIEW).setDataAndType(u, "application/vnd.android.package-archive");
 			pi = PendingIntent.getActivity(us, 0, i, 0);
@@ -60,10 +60,25 @@ public class Upgrade  {
 	}
 	public void cmdUpdate(UpgradeService us) throws IOException {
 		us.notify("下载版本 "+version);
-		if( us.save(us.fileCodeStored(version), us.codeDown(version)) != null 
-				&& us.save(us.fileResourceStored(version), us.resourceDown(version)) != null ){
-			us.notify("下载完成 ");
-			us.pushVersion(version);
+		byte[] b = us.codeDown(version);
+		if( b != null ) {
+			us.notify("代码更新 "+version);
+			if( us.save(Configuration.fileCodeStored(version), b) != null ) {
+				b = us.resourceDown(version);
+				if( b != null ) {
+					us.notify("资源更新 "+version);
+					if( us.save(Configuration.fileResourceStored(version), b) != null ) {
+						b = us.mapDown(version);
+						if( b != null ) {
+							us.notify("地图更新 "+version);
+							if( us.save(Configuration.fileMapStored(version), b) != null ) {
+								us.notify("......");
+								us.pushVersion(version);
+							}
+						}
+					}
+				}
+			}
 		}
 		us.getLocalCode().clear();
 		us.clearWWW();

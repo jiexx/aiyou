@@ -2,25 +2,25 @@ package com.jiexx.aiyou;
 
 import org.androidannotations.annotations.AfterViews;
 import org.androidannotations.annotations.EActivity;
+import org.androidannotations.annotations.EFragment;
 import org.androidannotations.annotations.Receiver;
+import org.androidannotations.annotations.ViewById;
 
 import android.os.Bundle;
+import android.view.LayoutInflater;
+import android.view.View;
+import android.view.ViewGroup;
 import android.widget.TextView;
 import android.app.Activity;
+import android.app.Fragment;
 
-@EActivity
-public class LoadingActivity extends Activity {
+@EFragment(R.layout.fragment_loading)
+public class LoadingFragment extends Fragment {
 
-	TextView lodingInfo;
 	
-	@Override
-	protected void onCreate(Bundle savedInstanceState) {
-		super.onCreate(savedInstanceState);
-		setContentView(R.layout.activity_loading);
-		lodingInfo = (TextView) findViewById(R.id.lodingInfo);
-
-		UpgradeService_.intent(getApplication()).start();
-	}
+	@ViewById(R.id.lodingInfo)
+    TextView lodingInfo;
+	
 
 	@AfterViews
 	void afterViews() {
