@@ -98,11 +98,9 @@ public class Home extends DataService {
 		Upgrade resp = new Upgrade();
 		Version ver = DATA.queryVersion(new String(Base64.decodeBase64(version)));
 		if( ver == null ) {
-			resp.version = DATA.getInitVersion();
-			resp.command = "update";
 			return Util.toJson(resp);
 		}
-		resp.version = ver.current;
+		resp.version = ver.next;
 		resp.command = ver.command;
 		return Util.toJson(resp);
         

@@ -82,8 +82,9 @@ public class Upgrade  {
 		}
 		us.getLocalCode().clear();
 		us.clearWWW();
-		us.extract(us.getCodeInputStream(us.currentVersion()));
-		us.extract(us.getResourceInputStream(us.currentVersion()));
+		us.extract(us.getCodeInputStream(us.currentVersion()), Configuration.dirWWW());
+		us.extract(us.getInputStream( Configuration.fileResourceStored(us.currentVersion()) ), Configuration.dirWWW() );
+		us.extract(us.getInputStream( Configuration.fileMapStored(us.currentVersion()) ), Configuration.dir3rd());
 		if( us.getLocalCode().size() > 0 ) {
 			us.start();
 		}
@@ -91,17 +92,15 @@ public class Upgrade  {
 	public void cmdRollback(UpgradeService us) throws IOException {
 		us.getLocalCode().clear();
 		us.clearWWW();
-		us.extract(us.getCodeInputStream(us.previousVersion()));
-		us.extract(us.getResourceInputStream(us.previousVersion()));
+		us.extract(us.getCodeInputStream(us.previousVersion()), Configuration.dirWWW());
+		us.extract(us.getInputStream(  Configuration.fileResourceStored(us.currentVersion()) ), Configuration.dirWWW());
 		if( us.getLocalCode().size() > 0 ) {
 			us.start();
 		}
 	}
 	public void cmdStart(UpgradeService us) throws IOException {
 		us.getLocalCode().clear();
-		us.clearWWW();
-		us.extract(us.getCodeInputStream(us.currentVersion()));
-		us.extract(us.getResourceInputStream(us.currentVersion()));
+		us.extract(us.getCodeInputStream(us.currentVersion()), Configuration.dirWWW());
 		if( us.getLocalCode().size() > 0 ) {
 			us.start();
 		}

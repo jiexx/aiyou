@@ -107,7 +107,6 @@ app.controller('appCtrl', function ($scope, $location, $cookieStore, DATA) {
 });
 
 app.controller('gameCtrl', function ($scope, $location, $cookieStore, $http, DATA) {
-	console.log(DATA.title);
 	var nav = $scope.$parent;
 	nav.titleVisible = false;
 	nav.title = '麻将';
@@ -428,6 +427,7 @@ app.controller('homeListCtrl', function ($scope, $rootScope, $location, $cookieS
 	nav.navLnk = '/';
 	nav.listStyle = false;
 	nav.navClick = function(){
+		$rootScope.loading = true;
 		return true;
 	};
 
@@ -578,6 +578,7 @@ app.controller('bbsCtrl', function ($scope, $rootScope, $location, $cookieStore,
 
 app.controller('homeCtrl', function ($scope, $rootScope, $location, $cookieStore, $http, $compile, DATA) {
 	$scope.$parent.titleVisible = true;
+	$rootScope.loading = false;
 
 	var nav = $scope.$parent;
 	nav.title = '哎呦';

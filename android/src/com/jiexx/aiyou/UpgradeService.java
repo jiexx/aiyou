@@ -165,7 +165,7 @@ public class UpgradeService extends IntentService {
 	}
 	
 	public void writeFile( ZipInputStream zis, String file ) throws IOException {
-		File f = new File(Configuration.dirWWW()+file);
+		File f = new File(file);
 		long start = System.currentTimeMillis();
 		System.out.println("       "+file+" size: " + zis.available());
 		f.getParentFile().mkdirs();
@@ -244,9 +244,9 @@ public class UpgradeService extends IntentService {
 		return null;
 	}
 	
-	public InputStream getResourceInputStream(String version) {
+	public InputStream getInputStream(String fileStored) {
 		try {
-			FileInputStream fis = new FileInputStream(Configuration.fileResourceStored(version));
+			FileInputStream fis = new FileInputStream(fileStored);
 			TOTAL_SIZE += fis.available();
 			return new BufferedInputStream(fis);
 		}catch( Exception e ) {
@@ -255,7 +255,7 @@ public class UpgradeService extends IntentService {
 		return null;
 	}
 
-	public void extract(InputStream is) throws IOException {
+	public void extract(InputStream is, String dir) throws IOException {
 		if( is == null ) 
 			return;
 		
@@ -288,7 +288,7 @@ public class UpgradeService extends IntentService {
     					total.close();
     					//br.close();
 	        		}else {
-	        			writeFile(zis, name);
+	        			writeFile(zis, dir+name);
 	        		}
 	        		
 	        	}
@@ -305,7 +305,6 @@ public class UpgradeService extends IntentService {
 			}
 			is.close();
 		}
-		notify("启动");
 	}
 	
 	public HashMap<String, InputStream> getLocalCode() {
@@ -317,7 +316,7 @@ public class UpgradeService extends IntentService {
 		Intent intent = new Intent();  
         intent.setAction("com.jiexx.aiyou.START");
         sendBroadcast(intent);
-		
+        notify("启动");
 	}
 	
 	public void notify(String info) {

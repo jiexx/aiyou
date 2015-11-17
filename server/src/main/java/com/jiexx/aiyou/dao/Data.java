@@ -62,9 +62,6 @@ public interface Data {
 	@Select("SELECT * FROM version WHERE current = #{curr};")
 	public Version queryVersion(@Param("curr") String curr);
 	
-	@Select("SELECT current FROM version WHERE command = 'init';")
-	public String getInitVersion();
-	
 	
 	
 

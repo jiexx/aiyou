@@ -1,9 +1,6 @@
 package com.jiexx.aiyou;
 
 import java.io.BufferedReader;
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
@@ -11,10 +8,9 @@ import java.io.StringBufferInputStream;
 import java.util.HashMap;
 
 import org.androidannotations.annotations.EActivity;
+import org.androidannotations.annotations.EFragment;
 import org.androidannotations.annotations.Extra;
-import org.androidannotations.annotations.FragmentById;
-import org.androidannotations.annotations.Receiver;
-import org.springframework.util.support.Base64;
+import org.androidannotations.annotations.ViewById;
 
 import android.os.Bundle;
 import android.util.Log;
@@ -23,46 +19,30 @@ import android.webkit.WebChromeClient;
 import android.webkit.WebResourceResponse;
 import android.webkit.WebView;
 import android.webkit.WebViewClient;
-import android.app.Activity;
-import android.app.FragmentManager;
-import android.app.FragmentTransaction;
+import android.app.Fragment;
 import android.graphics.Bitmap;
 
-@EActivity
-public class MainActivity extends Activity {
+@EFragment(R.layout.activity_main)
+public class MainFragment extends Fragment {
 
-	@Extra("package")
 	HashMap<String, InputStream> code;
-
+	
+	@ViewById(R.id.webView)
 	WebView wv;
-	
-	//LoadingFragment lf;
-	
-	@FragmentById(R.id.loadingView)
-	LoadingFragment lf;
 
 	@Override
-	protected void onCreate(Bundle savedInstanceState) {
+	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
-		setContentView(R.layout.activity_main);
-		
-		UpgradeService_.intent(this).start();
-		
-		/*lf = new LoadingFragment_().builder().build();
-        FragmentManager fm = getFragmentManager();
-        FragmentTransaction ft = fm.beginTransaction();
-        ft.replace(R.id.loadingView, lf);
-        ft.commit();*/
+		//setContentView(R.layout.activity_main);
 		
 		code = UpgradeService.localCode;
 
-		wv = (WebView) findViewById(R.id.webView);
 		wv.getSettings().setJavaScriptEnabled(true);
 		wv.getSettings().setDomStorageEnabled(true);
 		wv.getSettings().setAllowFileAccessFromFileURLs(true);
 		wv.getSettings().setJavaScriptCanOpenWindowsAutomatically(true);
 		wv.getSettings().setDefaultTextEncodingName("utf-8");
-		
+		wv.loadUrl(wwwHome());
 		//String html = readAssetFile("client/index.html");
 		//wv.loadDataWithBaseURL("file:///android_asset/client/", html, "text/html", "utf-8", null);
 		
@@ -76,24 +56,11 @@ public class MainActivity extends Activity {
 			
 		});
 
-		wv.setWebViewClient(new WebViewClient() {
-			/*@Override
+		/*wv.setWebViewClient(new WebViewClient() {
+			@Override
 			public boolean shouldOverrideUrlLoading(WebView view, String url) {
-				view.loadUrl(url);
 				return true;
 			}
-			
-			@Override  
-		    public void onLoadResource(WebView view, String url) {  
-		        Log.e("cache", "onLoadResource-url="+url);  
-				if( url.indexOf("3rd-lib") > -1 ) {
-					File f = new File(url);
-					if( !f.exists() ) {
-						url = "file:///android_asset/client/asserts/bg-white.png";
-					}
-				}
-				super.onLoadResource(view, url);  
-		    }  */
 
 			@Override
 			public void onPageStarted(WebView view, String url, Bitmap favicon) {
@@ -101,41 +68,38 @@ public class MainActivity extends Activity {
 			@Override
 			public void onPageFinished(WebView view, String url) {
 				// view.loadUrl("javascript:window.HTMLOUT.processHTML('<html>'+document.getElementsByTagName('html')[0].innerHTML+'</html>');");
-				getFragmentManager().beginTransaction().hide(lf).commit();
 			}
 
 			@Override
 			public WebResourceResponse shouldInterceptRequest(WebView view,	String url) {
-				Log.e("cache", "shouldInterceptRequest-url="+url);
-				int i = 0;
 				if (url.endsWith("js")) {
 					InputStream js = code.get(url.substring(url.lastIndexOf("/www/")+5));
-					return new WebResourceResponse("text/javascript", "utf-8", js);
-				} else if ( ( i = url.indexOf("html") ) > -1) {
-					InputStream html = code.get(url.substring(url.lastIndexOf("/www/")+5, i+4));
-					return new WebResourceResponse("text/html", "utf-8", html);
-				}else if( ( i = url.indexOf("3rd-lib") ) > -1 ) {
-					File f = new File(url.substring(7).toLowerCase());
 					try {
-						if( !f.exists() ) {
-							return new WebResourceResponse("", "", new FileInputStream(Configuration.dirWWW()+"asserts/bg-white.png"));
-						} else {
-							return new WebResourceResponse("", "", new FileInputStream(f) );
-						}
-					} catch (FileNotFoundException e) {
+						System.out.println("           "+url+ "   " +js.available());
+					} catch (IOException e) {
 						// TODO Auto-generated catch block
 						e.printStackTrace();
 					}
+					return new WebResourceResponse("text/javascript", "utf-8", js);
+				} else if (url.endsWith("html")) {
+					InputStream html = code.get(url.substring(url.lastIndexOf("/www/")+5));
+					try {
+						System.out.println("           "+url+ "   " +html.available());
+					} catch (IOException e) {
+						// TODO Auto-generated catch block
+						e.printStackTrace();
+					}
+					return new WebResourceResponse("text/html", "utf-8", html);
 				}
 				return super.shouldInterceptRequest(view, url);
 			}
-		});
+		});*/
 	}
 
-	private String readAssetFile(String fileName) {
+	/*private String readAssetFile(String fileName) {
 	    StringBuilder buffer = new StringBuilder();
 	    try {
-		    InputStream fileInputStream = getAssets().open(fileName);
+		    InputStream fileInputStream = getActivity().getAssets().open(fileName);
 		    BufferedReader bufferReader = new BufferedReader(new InputStreamReader(fileInputStream, "UTF-8"));
 		    String str;
 	
@@ -148,16 +112,10 @@ public class MainActivity extends Activity {
 	    }
 
 	    return buffer.toString();
-	}
-	
-	@Receiver(actions = "com.jiexx.aiyou.START")
-	protected void onProgress() {
-		wv.loadUrl(wwwHome());
-	}
+	}*/
 	
 	public String wwwHome() {
-		//return "file:///android_asset/client/index.html#/?id=15800000000&lng=121.429&lat=31.289&srv="+Base64.encodeBytes(Configuration.rootUrl.getBytes()); 
-		return  "file://"+Configuration.dirWWW()+"index.html#/?id=15800000000&lng=121.429&lat=31.289&srv="+Base64.encodeBytes(Configuration.rootUrl.getBytes());
+		return "file:///android_asset/client/index.html";//"file:///data/data/" + this.getPackageName() + "/www/index.html";
 	}
 
 }
