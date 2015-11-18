@@ -94,3 +94,4 @@ https://download.01.org/crosswalk/releases/crosswalk/android/stable/15.44.384.13
 Multiple dex files define Landroid/support/v4/accessibilityservice/AccessibilityServiceInfoCompat$AccessibilityServiceInfoVersionImpl;
 I found the answer
 I remove cordova-2.1.0.jar in build path.
+http://stackoverflow.com/questions/24601087/crosswalk-call-js-function-from-java-on-android

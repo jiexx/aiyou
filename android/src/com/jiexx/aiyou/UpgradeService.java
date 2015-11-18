@@ -283,7 +283,7 @@ public class UpgradeService extends IntentService {
     		            }
     		        	total.flush();
     		        	HANDLED_SIZE += total.size();
-    		        	//System.out.println("        localCode: " + name + " size: " + total.size());
+    		        	System.out.println("        localCode: " + name + " size: " + total.size());
     					localCode.put(name, new ByteArrayInputStream(total.toByteArray()));
     					total.close();
     					//br.close();
