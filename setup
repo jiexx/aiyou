@@ -87,3 +87,10 @@ java -jar ..\zip.jar ..\1 . 4279383126
 
 
 http://support.ludei.com/hc/communities/public/questions/200763155-Trying-to-get-BabylonJS-to-work
+https://crosswalk-project.org/documentation/android/windows_host_setup.html#Configure-the-tools
+https://crosswalk-project.org/documentation/embedding_crosswalk.html
+
+https://download.01.org/crosswalk/releases/crosswalk/android/stable/15.44.384.13/arm/crosswalk-webview-15.44.384.13-arm.zip
+Multiple dex files define Landroid/support/v4/accessibilityservice/AccessibilityServiceInfoCompat$AccessibilityServiceInfoVersionImpl;
+I found the answer
+I remove cordova-2.1.0.jar in build path.
