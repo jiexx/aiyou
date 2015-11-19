@@ -20,7 +20,7 @@ public class LoadingFragment extends Fragment {
 	
 	@ViewById(R.id.lodingInfo)
     TextView lodingInfo;
-	
+
 
 	@AfterViews
 	void afterViews() {

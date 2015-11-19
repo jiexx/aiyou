@@ -104,6 +104,7 @@ app.controller('appCtrl', function ($scope, $location, $cookieStore, DATA) {
 	DATA.lng = $location.search().lng;
 	DATA.lat = $location.search().lat;
 	//debug for test : ?id=15800000000&lng=31.268964&lat=121.443794
+	console.log("load event detected!");
 });
 
 app.controller('gameCtrl', function ($scope, $location, $cookieStore, $http, DATA) {
@@ -655,7 +656,6 @@ app.controller('homeCtrl', function ($scope, $rootScope, $location, $cookieStore
 		//var token = data.token;
 		//$cookieStore.put('token', token);
 		//$location.path('/');
-		console.log(resp);
 		DATA.stars = resp.star;
 		Home.clean();
 		Home.layout(DATA.lat, DATA.lng);
@@ -665,6 +665,7 @@ app.controller('homeCtrl', function ($scope, $rootScope, $location, $cookieStore
 		console.log(DATA.HOST+'  ');
 		$scope.status = status;
 	});
+	
 });
 
 app.controller('rechargeCtrl', function ($scope, $rootScope, $location, $cookieStore, $http, DATA) {
@@ -991,3 +992,16 @@ app.directive('script', ['$window', '$q', '$http', 'DATA', function ($window, $q
 			};
 		}
 	]);
+app.directive('whenReady', ['$interpolate', function($interpolate) {
+  return {
+    restrict: 'A',
+    priority: Number.MIN_SAFE_INTEGER, // execute last, after all other directives if any.
+    link: function($scope, $element, $attributes) {
+		if( window.J2J != null ) {
+			window.J2J.didLoad();
+			console.log('ready j2j');
+		}
+		console.log('ready');
+    }
+  };
+}]);

@@ -53,8 +53,22 @@ public class MainActivity extends Activity {
 	}
 	@Receiver(actions = "com.jiexx.aiyou.START")
 	protected void onProgress() {
-		getFragmentManager().beginTransaction().hide(lf).commit();
 		go();
+		new Thread(new Runnable() {
+
+			@Override
+			public void run() {
+				// TODO Auto-generated method stub
+				try {
+					Thread.sleep(2000);
+				} catch (InterruptedException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
+				getFragmentManager().beginTransaction().hide(lf).commit();
+			}
+			
+		}).start();
 	}
 	
 	@UiThread
@@ -62,11 +76,13 @@ public class MainActivity extends Activity {
 		wv = (XWalkView) findViewById(R.id.webView);
 		XWalkPreferences.setValue("enable-javascript", true);
 		XWalkPreferences.setValue(XWalkPreferences.REMOTE_DEBUGGING, true);
+		wv.addJavascriptInterface(new J2J(lf), "J2J");
 		wv.setUIClient(new XWalkUIClient(wv) {
 			@Override
 			public void onPageLoadStopped(XWalkView view, String url, LoadStatus status) {
+				//Log.e("cache", "------------------------->"+status );
 				if( LoadStatus.FINISHED == status ) {
-					getFragmentManager().beginTransaction().hide(lf).commit();
+					//getFragmentManager().beginTransaction().hide(lf).commit();
 				}
 			}
 			@Override
@@ -75,8 +91,16 @@ public class MainActivity extends Activity {
                 return super.onConsoleMessage(view, message, lineNumber, sourceId, messageType);
             }
 		});
-		wv.clearCache(true);
+		wv.clearCache(false);
 		wv.setResourceClient(new XWalkResourceClient(wv) {
+			@Override
+			public 	void onLoadFinished(XWalkView view, java.lang.String url) {
+				//Log.e("cache", "------------------------->"+url );
+			}
+			
+			public void onProgressChanged(XWalkView view, int progressInPercent) {
+				Log.e("cache", "------------------------->"+progressInPercent );
+			}
 
 			@Override
 			public	WebResourceResponse shouldInterceptLoadRequest(XWalkView view,	String url) {
@@ -105,6 +129,7 @@ public class MainActivity extends Activity {
 			}
 		});
 		wv.load(wwwHome(), null);
+		
 	}
 //	
 	public String wwwHome() {
