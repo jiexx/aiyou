@@ -1,0 +1,27 @@
+1. eclipse 安装，用于开发服务端 
+http://www.eclipse.org/downloads/download.php?file=/technology/epp/downloads/release/mars/R/eclipse-jee-mars-R-win32.zip
+http://www.eclipse.org/downloads/download.php?file=/technology/epp/downloads/release/mars/1/eclipse-jee-mars-1-win32-x86_64.zip
+
+2. maven install，刚安装的eclipse上安装maven
+help->install new software->add
+http://download.eclipse.org/technology/m2e/releases
+windows->preferences->maven->installations->add (install package)
+http://maven.apache.org/plugins/maven-eclipse-plugin/download.cgi
+
+3. new project，在maven上倒入server/目录下工程
+new->maven project
+
+mvn运行时添加运行参数
+5. run as -> run configuration ->  mvn spring-boot:run
+run as -> maven build ( download )
+
+(run configuration:  spring-boot:run)
+
+6.安装mysql 6.5和workbench,执行sql脚本，启动
+http://dev.mysql.com/downloads/workbench/
+
+7.mvn工程启动，或者执行j第3步的jar包,服务器启动完毕;
+
+直接在chrome中执行, id是两个测试号，lat/lng是经纬度，地图我只抓了上海市的
+http://XXXX/index.html//?id=15800000000&lat=31.268964&lng=121.443794 
+http://XXXX/index.html//?id=15800000001&lat=31.278964&lng=121.443794 
