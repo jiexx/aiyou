@@ -45,7 +45,7 @@ public class Home extends DataService {
 		Integer sellor = DATA.existSellor(id);
 		Integer driver = DATA.existDriver(id);
 		Integer user = DATA.existUser(id);
-		Util.log(" "+id, " "+sellor);
+		Util.log(" "+id, " sellor:"+sellor+" driver:"+driver);
 		String md5 = DigestUtils.md5DigestAsHex(String.valueOf(System.currentTimeMillis()).getBytes());
 		if( user == null ) {
 			System.out.println("test1");

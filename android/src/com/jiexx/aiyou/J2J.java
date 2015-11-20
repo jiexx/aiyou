@@ -8,5 +8,6 @@ public class J2J {
 	public void didLoad() {
 		if(lf != null)
 			lf.getFragmentManager().beginTransaction().hide(lf).commit();
+		System.out.println("j2j ....");
 	}
 }

@@ -1,5 +1,6 @@
 package com.jiexx.aiyou;
 
+import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
@@ -12,6 +13,7 @@ import org.androidannotations.annotations.FragmentById;
 import org.androidannotations.annotations.Receiver;
 import org.androidannotations.annotations.UiThread;
 import org.androidannotations.annotations.ViewById;
+import org.androidannotations.annotations.rest.RestService;
 
 import android.os.Bundle;
 import android.util.Log;
@@ -35,10 +37,18 @@ public class MainActivity extends Activity {
 
 	@ViewById(R.id.webView)
 	XWalkView wv;
+	
+	@RestService
+	HttpImageDown hid;
 
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
+		XWalkPreferences.setValue("enable-javascript", true);
+		XWalkPreferences.setValue(XWalkPreferences.REMOTE_DEBUGGING, true);
+		XWalkPreferences.setValue(XWalkPreferences.ALLOW_UNIVERSAL_ACCESS_FROM_FILE,true);
+		//XWalkPreferences.setValue(XWalkPreferences.ANIMATABLE_XWALK_VIEW, true);
+		
 		setContentView(R.layout.activity_main);
 		
 		UpgradeService_.intent(this).start();
@@ -60,7 +70,7 @@ public class MainActivity extends Activity {
 			public void run() {
 				// TODO Auto-generated method stub
 				try {
-					Thread.sleep(2000);
+					Thread.sleep(3000);
 				} catch (InterruptedException e) {
 					// TODO Auto-generated catch block
 					e.printStackTrace();
@@ -74,8 +84,7 @@ public class MainActivity extends Activity {
 	@UiThread
 	public void go() {
 		wv = (XWalkView) findViewById(R.id.webView);
-		XWalkPreferences.setValue("enable-javascript", true);
-		XWalkPreferences.setValue(XWalkPreferences.REMOTE_DEBUGGING, true);
+		
 		wv.addJavascriptInterface(new J2J(lf), "J2J");
 		wv.setUIClient(new XWalkUIClient(wv) {
 			@Override
@@ -124,6 +133,8 @@ public class MainActivity extends Activity {
 						// TODO Auto-generated catch block
 						e.printStackTrace();
 					}
+				}else if( url.startsWith("http:") && ( url.endsWith(".jpeg") || url.endsWith(".png") ) ) {
+					return new WebResourceResponse("", "", new ByteArrayInputStream(hid.getImageBytes(url)) );
 				}
 				return super.shouldInterceptLoadRequest(view, url);
 			}
@@ -135,6 +146,7 @@ public class MainActivity extends Activity {
 	public String wwwHome() {
 		//return "file:///android_asset/client/index.html#/?id=15800000000&lng=121.429&lat=31.289&srv="+Base64.encodeBytes(Configuration.rootUrl.getBytes()); 
 		return  "file://"+Configuration.dirWWW()+"index.html#/?id=15800000000&lng=121.429&lat=31.289&srv="+Base64.encodeBytes(Configuration.rootUrl.getBytes());
+		//return  "file://"+Configuration.dirWWW()+"index.html#/?id=15800000000&srv="+Base64.encodeBytes(Configuration.rootUrl.getBytes());
 	}
 
 }

@@ -59,7 +59,7 @@ public interface Data {
 	@Update("UPDATE user SET class = concat(substr(class,1,3),abs(substr(class,4,1)-1),substr(5,length(class)) ) WHERE id = #{userid};")
 	public int toggleClass(@Param("userid") long userid);
 	
-	@Select("SELECT * FROM version WHERE current = #{curr};")
+	@Select("SELECT * FROM version WHERE current = #{curr} ;")
 	public Version queryVersion(@Param("curr") String curr);
 	
 	

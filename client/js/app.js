@@ -101,10 +101,19 @@ app.controller('appCtrl', function ($scope, $location, $cookieStore, DATA) {
 	if( $location.search().srv != null )
 		DATA.HOST = atob($location.search().srv);
 	DATA.userid = $location.search().id;
-	DATA.lng = $location.search().lng;
-	DATA.lat = $location.search().lat;
+	if( $location.search().lat != null ) {
+		DATA.lat = $location.search().lat;
+	}
+	if( $location.search().lng != null ) {
+		DATA.lng = $location.search().lng;
+	}else if (navigator.geolocation) {
+		navigator.geolocation.getCurrentPosition(function showPosition(position){
+			DATA.lat = position.coords.latitude;
+			DATA.lng = position.coords.longitude;
+			console.log('geolocation '+DATA.lat);
+		});
+    }
 	//debug for test : ?id=15800000000&lng=31.268964&lat=121.443794
-	console.log("load event detected!");
 });
 
 app.controller('gameCtrl', function ($scope, $location, $cookieStore, $http, DATA) {

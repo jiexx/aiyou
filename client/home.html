@@ -36,7 +36,7 @@
 	};
 	LabelFmt.prototype.play = function(isAuth, id, name, thumb, clazz) {
 		var str = ( isAuth == 0 ? '#/register': 'javascript:void(0);') ;
-		return '<a href="'+str+'" class="btn btn-default fa fa-gamepad text-default "></a>';
+		return '<a href="'+str+'" class="btn btn-default fa fa-gamepad text-muted "></a>';
 	};
 	LabelFmt.prototype.playing = function(isAuth, id, name, thumb, clazz) {
 		var str = ( isAuth == 0 ? '#/register': '#/game/?id='+id );

@@ -61,8 +61,8 @@ public class Util {
 		return gson.fromJson(json, clazz);
 	}
 	public static class Grid {
-		private static final float cellx = 0.001f;
-		private static final float celly = 0.001f;
+		private static final float cellx = 0.0025f;
+		private static final float celly = 0.0025f;
 		private static final int level = 2;
 		private int[][] delta;
 		private float originX;
