@@ -96,7 +96,8 @@ public class Setting extends DataService {
 	public @ResponseBody String query(@RequestParam(value = "uid") long uid) {
 		Driver d = DATA.queryDriverById(uid);
 		if(d != null) {
-			ImageList resp = new ImageList( DATA.queryImage(uid), d.car, d.balance );
+			List<Image> li = DATA.queryImage(uid);
+			ImageList resp = new ImageList( li, d.car, d.balance );
 			resp.success();
 			return resp.toJson();
 		};

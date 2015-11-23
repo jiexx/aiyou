@@ -364,11 +364,14 @@ app.controller('settingCtrl', function ($scope, $location, $cookieStore, $http, 
 	var ft = '';
 	$scope.uploadImgSell = function (files) {
 		//Take the first selected file
+		console.log("----uploadImgSell files:"+files.length+"  ");
 		if (files[0] == undefined || files[0] == null || files[0].type == undefined || files[0].type == null)
 			return;
+		console.log("----uploadImgSell files:"+files.length+"  ");
 		if (files[0].type.indexOf('image') > -1) {
 			var reader = new FileReader();
 			reader.onloadend = function (evt) {
+				console.log("----uploadImgSell:"+evt.type+"  "+this.result.length);
 				$scope.sell = this.result;
 				//fd = imgSell.toDataURL("image/jpeg");
 				$scope.$apply();

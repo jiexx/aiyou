@@ -15,12 +15,14 @@ import org.androidannotations.annotations.UiThread;
 import org.androidannotations.annotations.ViewById;
 import org.androidannotations.annotations.rest.RestService;
 
+import android.net.Uri;
 import android.os.Bundle;
 import android.util.Log;
 import android.webkit.WebResourceResponse;
 import android.app.Activity;
 import android.app.FragmentManager;
 import android.app.FragmentTransaction;
+import android.content.Intent;
 
 import org.springframework.util.support.Base64;
 import org.xwalk.core.XWalkPreferences;
@@ -32,6 +34,8 @@ import org.xwalk.core.XWalkView;
 public class MainActivity extends Activity {
 
 	HashMap<String, InputStream> code;
+	
+	android.webkit.ValueCallback<Uri> awvcu;
 	
 	LoadingFragment lf;
 
@@ -99,6 +103,11 @@ public class MainActivity extends Activity {
 				Log.d("CONTENT", String.format("%s @ %d: %s", message, lineNumber, sourceId));
                 return super.onConsoleMessage(view, message, lineNumber, sourceId, messageType);
             }
+			@Override
+	        public void openFileChooser(XWalkView view, android.webkit.ValueCallback<Uri> uploadFile, String acceptType, String capture) {
+				super.openFileChooser(view, uploadFile, acceptType, capture);
+				awvcu = uploadFile;
+	        }
 		});
 		wv.clearCache(false);
 		wv.setResourceClient(new XWalkResourceClient(wv) {
@@ -141,6 +150,13 @@ public class MainActivity extends Activity {
 		});
 		wv.load(wwwHome(), null);
 		
+	}
+	
+	protected void onActivityResult(int requestCode, int resultCode, Intent intent) {
+		if( awvcu != null && intent != null ) {
+			awvcu.onReceiveValue(intent.getData());
+			awvcu = null;
+		}
 	}
 //	
 	public String wwwHome() {
