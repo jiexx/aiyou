@@ -14,15 +14,15 @@
 	  </div>
     </div>
       
-    <div ui-if="activeTab == 2" >
-	    <div ng-repeat="item in images">
+    <div ui-if="activeTab == 2" class="scene-content">
+	    <div ng-repeat="item in images" class="scene-canvas">
 		  <div ng-if="item.uid != 0" class="scene-content ">
 		    <img class="img-del" src="./asserts/del.png" ng-click='delSell($index, item)' ></img>
 		    <img ng-src="{{item.img}}" ></img>
 		    <h3>{{item.intro}}</h3>
           </div>
 		  
-		  <div ng-if="item.uid == 0" class="scene-content">
+		  <div ng-if="item.uid == 0" >
 		    <div class="container-plus">
 			  <div class="box-plus">
 		        <img class="img-plus" src="./asserts/plus.png" />

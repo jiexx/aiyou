@@ -35,6 +35,7 @@ public class MainActivity extends Activity {
 
 	HashMap<String, InputStream> code;
 	
+	private final static int FILECHOOSER_RESULTCODE = 1;
 	android.webkit.ValueCallback<Uri> awvcu;
 	
 	LoadingFragment lf;
@@ -105,7 +106,11 @@ public class MainActivity extends Activity {
             }
 			@Override
 	        public void openFileChooser(XWalkView view, android.webkit.ValueCallback<Uri> uploadFile, String acceptType, String capture) {
-				super.openFileChooser(view, uploadFile, acceptType, capture);
+//				super.openFileChooser(view, uploadFile, acceptType, capture);
+				Intent i = new Intent(Intent.ACTION_GET_CONTENT);
+	            i.addCategory(Intent.CATEGORY_OPENABLE);
+	            i.setType("*/*");
+	            startActivityForResult(Intent.createChooser(i, "Choose type of attachment"), FILECHOOSER_RESULTCODE);
 				awvcu = uploadFile;
 	        }
 		});
@@ -152,11 +157,16 @@ public class MainActivity extends Activity {
 		
 	}
 	
+	
 	protected void onActivityResult(int requestCode, int resultCode, Intent intent) {
-		if( awvcu != null && intent != null ) {
-			awvcu.onReceiveValue(intent.getData());
-			awvcu = null;
-		}
+		if (requestCode == FILECHOOSER_RESULTCODE) {
+            if (null == this.awvcu) {
+                return;
+            }
+            Uri result = intent == null || resultCode != RESULT_OK ? null : intent.getData();
+            this.awvcu.onReceiveValue(result);
+            this.awvcu = null;
+        }
 	}
 //	
 	public String wwwHome() {

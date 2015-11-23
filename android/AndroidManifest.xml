@@ -14,13 +14,15 @@
     <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
     <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
     <uses-permission android:name="android.permission.WAKE_LOCK" />
-
+    
+ <!-- http://stackoverflow.com/questions/24781818/android-openfilechooser-oncreate-called-after-onactivityresult -->
     <application
         android:allowBackup="true"
         android:allowClearUserData="true"
         android:icon="@drawable/ic_launcher"
         android:label="@string/app_name"
         android:hardwareAccelerated="true"
+        android:configChanges="keyboardHidden|orientation|screenSize" 
         android:theme="@android:style/Theme.NoTitleBar" >
         <activity
             android:name="com.jiexx.aiyou.MainActivity_"
