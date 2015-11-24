@@ -9021,8 +9021,12 @@ ui-switch {
   width: 100%;
   text-align: center;
   box-shadow: 8px 6.9417px 14.0346px 0px rgba(0,0,0,0.12);
-  padding: 20px;
   background: white;
+}
+
+.scene-canvas > span {
+  height: 20px;
+  background: #dfdfdf;
 }
 
 .scene-canvas {
@@ -9032,7 +9036,7 @@ ui-switch {
   top: 0;
   left: 0;
   max-width: 100%;
-  text-align: center;
+  background: white;
 }
 
 .scene-canvas > canvas {
