@@ -7484,7 +7484,7 @@ button.close {
   position: absolute;
   width: auto;
   margin: 30px;
-  left: 45%;
+  left: 10%;
   top: 25%;
 }
 
@@ -9017,17 +9017,16 @@ ui-switch {
 
 .scene-content{
   position: relative;
-  height: 80%;
+  height: 90%;
   width: 100%;
   text-align: center;
-  box-shadow: 8px 6.9417px 14.0346px 0px rgba(0,0,0,0.12), 8px 5.24407px 17.2787px 0px rgba(0,0,0,0.24);
+  box-shadow: 8px 6.9417px 14.0346px 0px rgba(0,0,0,0.12);
   padding: 20px;
   background: white;
-  border-radius: 0 0 4px 4px;
 }
 
 .scene-canvas {
-  position: absolute;
+  position: relative;
   height: 100%;
   width: 100%;
   top: 0;
@@ -9063,11 +9062,6 @@ ui-switch {
   background: white;
 }
 
-.scene-content > .carousel > .carousel-inner{
-  position:absolute;
-  left: 0;
-}
-
 .img-plus {
   position:absolute;
   left: 50%;
@@ -9076,12 +9070,16 @@ ui-switch {
   margin-left: -17px;
 }
 
-.container-plus {
-  position:relative;
-  left: 0%;
-  min-height: 100px;
+.scene-canvas > div > img {
+  max-width:100%;
+  max-height:100%;
 }
 
+.container-plus {
+  position:absolute;
+  height: 100%;
+  width: 100%;
+}
 .container-plus  > img{
   max-width:100%;
   max-height:100%;
@@ -9098,7 +9096,7 @@ ui-switch {
 .box-plus {
   position:absolute;
   left: 50%;
-  top: 50%;
+  top: 45%;
   height: 58px;
   width: 58px;
   border: dotted 1px gray;

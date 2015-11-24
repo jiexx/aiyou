@@ -16,7 +16,7 @@
       
     <div ui-if="activeTab == 2" class="scene-content">
 	    <div ng-repeat="item in images" class="scene-canvas">
-		  <div ng-if="item.uid != 0" class="scene-content ">
+		  <div ng-if="item.uid != 0">
 		    <img class="img-del" src="./asserts/del.png" ng-click='delSell($index, item)' ></img>
 		    <img ng-src="{{item.img}}" ></img>
 		    <h3>{{item.intro}}</h3>
@@ -24,16 +24,16 @@
 		  
 		  <div ng-if="item.uid == 0" >
 		    <div class="container-plus">
-			  <div class="box-plus">
+			  <img id="imgSell" ng-show="sell!==''" ng-src="{{sell}}" ></img>
+			  <div class="box-plus" ng-show="sell==null">
 		        <img class="img-plus" src="./asserts/plus.png" />
               </div>
-			  <img id="imgSell" ng-show="sell!==''" ng-src="{{sell}}" ></img>
 			</div>
-              <div class="scrollable-footer modal-body">
-                <div class="col-sm-10">
+              <div class="scrollable-footer section">
+                <div class="col-sm-10 media-left">
                   <input type="text" class="form-control needsclick input-transparent" ng-model="table.commentSell"/>
                 </div>
-			    <div class="col-sm-2 ">
+			    <div class="col-sm-2 media-right">
                   <button class="btn btn-primary pull-right" ng-click="submitSell()">新增</button>
                 </div>
               </div>

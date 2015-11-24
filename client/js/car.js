@@ -27,10 +27,11 @@
 			this.scene.clearColor = new BABYLON.Color3(1, 1, 1);
 			this.car = new BABYLON.Mesh.CreateBox("car", 1, this.scene);
 			this.car.isVisible = false;
+			//this.car.position= new BABYLON.Vector3(-1, -1, 1);
 			
-			var camera = new BABYLON.ArcRotateCamera("Camera", -0.8, 1.2, 28, new BABYLON.Vector3(0, 0, 0), this.scene);
-			//camera.fovMode = Camera.FOVMODE_HORIZONTAL_FIXED;
-			camera.fov = 0.7;
+			var camera = new BABYLON.ArcRotateCamera("Camera", -0.8, 1.2, 10, new BABYLON.Vector3(0, 1, 0), this.scene);
+			//camera.fovMode = camera.FOVMODE_HORIZONTAL_FIXED;
+			camera.fov = 0.9;
 			camera.lowerBetaLimit = 0.1;
 			camera.upperBetaLimit = (Math.PI / 2) * 0.9;
 			camera.lowerRadiusLimit = 4;
@@ -62,11 +63,11 @@
 			})
 
 			//Create Lights
-			var light = new BABYLON.HemisphericLight("light", new BABYLON.Vector3(0, 30, 0), scene);
-			light.position = new BABYLON.Vector3(0, 2, 0);
+			var light = new BABYLON.DirectionalLight("light", new BABYLON.Vector3(-1, -2, -1), scene);
+			light.position = new BABYLON.Vector3(20, 40, 20);
 			light.diffuse = new BABYLON.Color3(1, 1, 1);
 			light.specular = new BABYLON.Color3(1, 1, 1);
-			light.intensity = 0.95;
+			light.intensity = 1.8;
 			
 
 
