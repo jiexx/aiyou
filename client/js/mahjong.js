@@ -388,7 +388,8 @@ var Picture = (function () {
 })();
 var GuiLayer = (function () {
 	function GuiLayer(scene) {
-		this.gui = new bGUI.GUISystem(scene, 1200, 780);
+		var engine = scene.getEngine();
+		this.gui = new bGUI.GUISystem(scene, engine.getRenderHeight(), engine.getRenderWidth() );
 		this.gui.enableClick();
 		this.txtObjs = new Array();
 		this.asserts = new Array();
@@ -557,11 +558,16 @@ var Layout = (function () {
 		this.scene = new BABYLON.Scene(this.engine);
 		this.scene.clearColor = new BABYLON.Color3(35 / 255.0, 116 / 255.0, 172 / 255.0);
 		var light = new BABYLON.PointLight("Point", new BABYLON.Vector3(3 * 14, 0, -100), this.scene);
-		this.camera = new BABYLON.FreeCamera("Camera", new BABYLON.Vector3(3 * 14, 0, -70), this.scene);
+		this.camera = new BABYLON.FreeCamera("Camera", new BABYLON.Vector3(3 * 14, 0, /*-70*/-150), this.scene);
 		this.camera.layerMask = 5;
 		
 		this.init(this.scene);
 		this.initLoadGUI(this.scene);
+		for( var i = 0 ; i < this.scene.activeCameras.length ; i ++ ) {
+			var camera = this.scene.activeCameras[i];
+			camera.noRotationConstraint = true;
+			camera.upVector = new BABYLON.Vector3(1, 0, 0);
+		}
 		var _this = this;
 		this.scene.executeWhenReady(function () {
 			_this.invalidate();
@@ -601,20 +607,20 @@ var Layout = (function () {
 		this.gui.drawText(hisChip, 0.15, 0.2);
 
 		if(myAvator)
-			this.gui.draw64Image(myAvator, 0.1, 0.8, 25.0, 25.0);
+			this.gui.draw64Image(myAvator, 0.1, 0.8, 250.0, 250.0);
 		if(hisAvator)
-			this.gui.draw64Image(hisAvator, 0.1, 0.1, 25.0, 25.0);
+			this.gui.draw64Image(hisAvator, 0.1, 0.1, 250.0, 250.0);
 		
-		this.gui.addImage("draw", 0.7, 0.5, 50.0, 50.0, this.drawOnClick);
-		this.gui.addImage("who", 0.8, 0.5, 50.0, 50.0, this.whoOnClick);
+		this.gui.addImage("draw", 0.7, 0.5, 500.0, 500.0, this.drawOnClick);
+		this.gui.addImage("who", 0.8, 0.5, 500.0, 500.0, this.whoOnClick);
 		this.gui.showImage("draw", false);
 		this.gui.showImage("who", false);
 		
-		this.gui.addImage("win", 0.5, 0.5, 200.0, 200.0);
-		this.gui.addImage("loss", 0.5, 0.5, 200.0, 200.0);
-		this.gui.addImage("continue", 0.9, 0.1, 50.0, 50.0, this.resumeOnClick);
-		this.gui.addImage("gold", 0.1, 0.9, 25.0, 25.0);
-		this.gui.addImage("gold", 0.1, 0.2, 25.0, 25.0);
+		this.gui.addImage("win", 0.5, 0.5, 2000.0, 2000.0);
+		this.gui.addImage("loss", 0.5, 0.5, 2000.0, 2000.0);
+		this.gui.addImage("continue", 0.9, 0.1, 500.0, 500.0, this.resumeOnClick);
+		this.gui.addImage("gold", 0.1, 0.9, 250.0, 250.0);
+		this.gui.addImage("gold", 0.1, 0.2, 250.0, 250.0);
 		
 		this.gui.showImage("win", false);
 		this.gui.showImage("loss", false);

@@ -19,7 +19,7 @@
 		  <div ng-if="item.uid != 0">
 		    <img class="img-del" src="./asserts/del.png" ng-click='delSell($index, item)' ></img>
 		    <img ng-src="{{item.img}}" ></img>
-		    <h3>{{item.intro}}</h3>
+		    <h5 class="scrollable-footer text-center">{{item.intro}}</h5>
           </div>
 		  
 		  <div ng-if="item.uid == 0" >
@@ -39,7 +39,6 @@
               </div>
             <div class="scene-canvas"><input type="file" style="opacity: 0;" class="form-control" onchange="angular.element(this).scope().uploadImgSell(this.files);" file-model="table.imgSellToUpload"/></div>
           </div>
-		  <span class="scrollable-footer"></span>
 	    </div>
 		
 		
