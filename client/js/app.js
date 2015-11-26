@@ -149,7 +149,7 @@ app.controller('gameCtrl', function ($scope, $location, $cookieStore, $http, DAT
 			mgr.close();
 		});
 	};
-	var round = new RoundImpl(DATA.userid, $location.search().chip, onClose, onGUI);
+	var round = new RoundImpl(DATA.HOST+'/game', DATA.userid, $location.search().chip, onClose, onGUI);
 	nav.navClick = function(){
 		round.mgr.close();
 		return true;

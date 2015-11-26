@@ -100,7 +100,7 @@ var RoundManager = (function () {
 	RoundManager.prototype.wait = function (msg) {
 		this.disconnect();
 		var _this = this;
-		var socket = new SockJS('http://localhost:9090/game');
+		var socket = new SockJS(this.round.host);
 		this.client = Stomp.over(socket);
 		this.client.connect({}, function (frame) {
 			_this.stub();
@@ -351,8 +351,9 @@ var End = (function (_super) {
 })(State);
 var RoundImpl = (function (_super) {
 	__extends(RoundImpl, _super);
-	function RoundImpl(uid, chip, onClose, onGUI) {
+	function RoundImpl(host, uid, chip, onClose, onGUI) {
 		_super.call(this, null);
+		this.host = host;
 		this.mgr = new RoundManager(uid, this, chip, onClose, onGUI);
 		this.going = new Going(this);
 		var going = this.going;
