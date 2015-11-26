@@ -272,8 +272,12 @@ public class Util {
 	}
 	public static void insert(LinkedList<Byte> arr, byte value) {
 		int i = 0;
-		while( arr.get(i) < value && i < arr.size() ) i++;
-		arr.add(i, value);
+		while( arr.get(i) < value && i < arr.size() - 1 ) i++;
+		if(i == arr.size() - 1) {
+			arr.add(value);
+		}else {
+			arr.add(i+1, value);
+		}
 	}
 	public static class Disc {
 		public byte disc1;

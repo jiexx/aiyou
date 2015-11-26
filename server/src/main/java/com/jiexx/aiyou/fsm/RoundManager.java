@@ -219,7 +219,9 @@ public class RoundManager {
 	public void draw(byte card) {
 		LinkedList<Byte> handcards = users.get(curr).getCards(cards);
 		String debug = handcards.toString();
-		handcards.add(handcards.indexOf(card), card);
+		
+		Util.insert(handcards, card);
+		
 		Util.log(users.get(curr).stub, "draw "+card+" in: "+debug+ " to:" +users.get(curr).getCards(cards));
 	}
 	public boolean pong(byte card) {

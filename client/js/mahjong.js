@@ -734,7 +734,7 @@ var Layout = (function () {
 	Layout.prototype.draw = function (data) {
 		if (this.myCards.tryDraw(data)) {  // try for my
 			this.gui.showImage("draw", false);
-			this.notify(DISCARD_DRAW, 0);
+			this.notify(DISCARD_DRAW, data);
 		}
 	};
 
