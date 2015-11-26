@@ -720,6 +720,7 @@ var Layout = (function () {
 			that.state = Card.FOCUSED1;
 		} else if (that.state == Card.FOCUSED1) {
 			if (_this.myCards.tryDiscard(that)){
+				_this.gui.showImage("who", false);
 				_this.notify(DISCARD, that.data);
 			}else if (_this.myCards.tryPong(_this.hisCards.hisDiscard())){
 				_this.hisCards.hisDiscardPongci();
@@ -734,6 +735,7 @@ var Layout = (function () {
 	Layout.prototype.draw = function (data) {
 		if (this.myCards.tryDraw(data)) {  // try for my
 			this.gui.showImage("draw", false);
+			this.gui.showImage("who", false);
 			this.notify(DISCARD_DRAW, data);
 		}
 	};
