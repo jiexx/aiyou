@@ -16,9 +16,9 @@
     <div ui-if="activeTab == 2" class="scene-content">
       <div class="carousel ">
 	    <div ng-repeat="item in images" class="carousel-inner" >
-		  <div ng-if="item.img != null"  class="carousel-item">
-		    <img ng-src="{{item.img}}"  ></img>
-		    <h3 class="user-desc">{{item.desc}}</h3>
+		  <div ng-if="item.img != null"  class="carousel-item ">
+		    <img ng-src="{{item.img}}"  class="container-plus-img"></img>
+			<h5 class="scrollable-footer text-center">{{item.intro}}</h5>
           </div>
 	    </div>
 	  </div>

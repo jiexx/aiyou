@@ -389,7 +389,10 @@ var Picture = (function () {
 var GuiLayer = (function () {
 	function GuiLayer(scene) {
 		var engine = scene.getEngine();
-		this.gui = new bGUI.GUISystem(scene, engine.getRenderHeight(), engine.getRenderWidth() );
+		var rect = scene.getEngine().getRenderingCanvasClientRect();
+		var level = scene.getEngine().getHardwareScalingLevel();
+		this.gui = new bGUI.GUISystem(scene, rect.width , rect.height );
+		//this.gui.zoom = 0.05;
 		this.gui.enableClick();
 		this.txtObjs = new Array();
 		this.asserts = new Array();
@@ -594,7 +597,7 @@ var Layout = (function () {
 	Layout.prototype.initLoadGUI = function (scene) {
 		this.gui = new GuiLayer(scene);
 		this.msg = this.gui.drawText("等待对手...", 0.5, 0.5);
-		this.gui.addImage("exit", 0.8, 0.1, 50.0, 50.0, this.exitOnClick);
+		this.gui.addImage("exit", 0.9, 0.1, 50.0, 50.0, this.exitOnClick);
 		this.gui.draw();
 	};
 	Layout.prototype.initGUI = function (myAvator, hisAvator, myName, hisName, myChip, hisChip) {
@@ -607,20 +610,20 @@ var Layout = (function () {
 		this.gui.drawText(hisChip, 0.15, 0.2);
 
 		if(myAvator)
-			this.gui.draw64Image(myAvator, 0.1, 0.8, 250.0, 250.0);
+			this.gui.draw64Image(myAvator, 0.1, 0.8, 25.0, 25.0);
 		if(hisAvator)
-			this.gui.draw64Image(hisAvator, 0.1, 0.1, 250.0, 250.0);
+			this.gui.draw64Image(hisAvator, 0.1, 0.1, 25.0, 25.0);
 		
-		this.gui.addImage("draw", 0.7, 0.5, 500.0, 500.0, this.drawOnClick);
-		this.gui.addImage("who", 0.8, 0.5, 500.0, 500.0, this.whoOnClick);
+		this.gui.addImage("draw", 0.7, 0.5, 50.0, 50.0, this.drawOnClick);
+		this.gui.addImage("who", 0.8, 0.5, 50.0, 50.0, this.whoOnClick);
 		this.gui.showImage("draw", false);
 		this.gui.showImage("who", false);
 		
-		this.gui.addImage("win", 0.5, 0.5, 2000.0, 2000.0);
-		this.gui.addImage("loss", 0.5, 0.5, 2000.0, 2000.0);
-		this.gui.addImage("continue", 0.9, 0.1, 500.0, 500.0, this.resumeOnClick);
-		this.gui.addImage("gold", 0.1, 0.9, 250.0, 250.0);
-		this.gui.addImage("gold", 0.1, 0.2, 250.0, 250.0);
+		this.gui.addImage("win", 0.5, 0.5, 200.0, 200.0);
+		this.gui.addImage("loss", 0.5, 0.5, 200.0, 200.0);
+		this.gui.addImage("continue", 0.9, 0.1, 50.0, 50.0, this.resumeOnClick);
+		this.gui.addImage("gold", 0.1, 0.9, 25.0, 25.0);
+		this.gui.addImage("gold", 0.1, 0.2, 25.0, 25.0);
 		
 		this.gui.showImage("win", false);
 		this.gui.showImage("loss", false);

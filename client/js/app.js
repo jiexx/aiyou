@@ -293,7 +293,7 @@ app.controller('userCtrl', function ($scope, $location, $cookieStore, $http, DAT
 		});
 	};
 
-	$scope.userLnk = DATA.auth('bbs/?id=' + $location.search().id);
+	$scope.userLnk = DATA.auth('#/bbs/?id=' + $location.search().id);
 	$scope.avatar = DATA.getUserById($location.search().id).thumb;
 	$scope.car = null;
 	$scope.commentSell = '';
@@ -347,7 +347,7 @@ app.controller('settingCtrl', function ($scope, $location, $cookieStore, $http, 
 		});
 	};
 
-	$scope.userLnk = DATA.auth('bbs/?id=' + $location.search().id);
+	$scope.userLnk = DATA.auth('#/bbs/?id=' + $location.search().id);
 	$scope.avatar = DATA.getUserById($location.search().id).thumb;
 	$scope.car = null;
 	$scope.commentSell = '';
