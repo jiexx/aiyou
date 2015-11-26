@@ -128,7 +128,7 @@ var RoundManager = (function () {
 			this.client.subscribe('/hook' + point, function (frame) {
 				var msg = JSON.parse(frame.body);
 				_this.recv(msg);
-				_this.mgr.debug('####		RECEIVE ', msg.cmd, msg.opt);
+				_this.mgr.debug('####		RECEIVE ', msg.cmd, msg);
 			});
 		}
 	};
@@ -160,7 +160,7 @@ var RoundManager = (function () {
 		msg.opt = opt;
 		this.send(msg);
 	};
-	RoundManager.prototype.debug = function (prefix, cmd, cardid) {
+	RoundManager.prototype.debug = function (prefix, cmd, msg) {
 		var str = '';
 		switch(cmd) {
 		case V_OPEN: str='OPEN';break;
@@ -175,13 +175,13 @@ var RoundManager = (function () {
 		case V_CONTINUE: str='CONTINUE';break;
 		case V_EXIT: str='EXIT';break;
 		}
-		console.log('####		'+prefix+' message: '+str+' opt: '+cardid);
+		console.log('####		'+prefix+' message: '+str+' opt: '+msg);
 	};
 	RoundManager.prototype.send = function (msg) {
 		msg.toid = parseInt(this.roundid);
 		if(this.client != null)
 			this.client.send("/go/game", {}, JSON.stringify(msg));
-		this.debug('####		SEND', msg.cmd, msg.opt);
+		this.debug('####		SEND', msg.cmd, msg);
 	};
 	return RoundManager;
 })();
