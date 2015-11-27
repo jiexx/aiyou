@@ -175,7 +175,7 @@ var RoundManager = (function () {
 		case V_CONTINUE: str='CONTINUE';break;
 		case V_EXIT: str='EXIT';break;
 		}
-		console.log('####		'+prefix+' message: '+str+' opt: '+msg);
+		console.log('####		'+prefix+' message: '+str+' opt: '+JSON.stringify(msg));
 	};
 	RoundManager.prototype.send = function (msg) {
 		msg.toid = parseInt(this.roundid);

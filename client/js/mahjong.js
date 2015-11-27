@@ -550,29 +550,43 @@ var Layout = (function () {
 		this.dealCard = Card.INVALID;
 		this.userid = -1;
 		
+		if( this.engine != null ) {
+			this.engine.dispose();
+			this.engine = null;
+		}
 		this.engine = new BABYLON.Engine(canvas, true);
+		//var _this = this;
+		//setTimeout(function() { _this.reset(); }, 300);
 		this.reset();
 		return this;
 	};
 	Layout.prototype.reset = function () {
 		if(this.scene != null) {
 			this.scene.dispose();
+			this.scene = null;
 		}
 		this.scene = new BABYLON.Scene(this.engine);
 		this.scene.clearColor = new BABYLON.Color3(35 / 255.0, 116 / 255.0, 172 / 255.0);
+		
 		var light = new BABYLON.PointLight("Point", new BABYLON.Vector3(3 * 14, 0, -100), this.scene);
 		this.camera = new BABYLON.FreeCamera("Camera", new BABYLON.Vector3(3 * 14, 0, /*-70*/-150), this.scene);
 		this.camera.layerMask = 5;
 		
 		this.init(this.scene);
-		this.initLoadGUI(this.scene);
-		for( var i = 0 ; i < this.scene.activeCameras.length ; i ++ ) {
-			var camera = this.scene.activeCameras[i];
-			camera.noRotationConstraint = true;
-			camera.upVector = new BABYLON.Vector3(1, 0, 0);
-		}
+		//this.initLoadGUI(this.scene);
+		//for( var i = 0 ; i < this.scene.activeCameras.length ; i ++ ) {
+		//	var camera = this.scene.activeCameras[i];
+		//	camera.noRotationConstraint = true;
+		//	camera.upVector = new BABYLON.Vector3(1, 0, 0);
+		//}
 		var _this = this;
 		this.scene.executeWhenReady(function () {
+			_this.initLoadGUI(_this.scene);
+			for( var i = 0 ; i < _this.scene.activeCameras.length ; i ++ ) {
+				var camera = _this.scene.activeCameras[i];
+				camera.noRotationConstraint = true;
+				camera.upVector = new BABYLON.Vector3(1, 0, 0);
+			}
 			_this.invalidate();
 		});
 	};

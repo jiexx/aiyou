@@ -974,7 +974,7 @@ app.directive('directiveCar', ['$window', '$http', 'DATA', function ($window, $h
 		}
 ]);
 
-app.directive('script', ['$window', '$q', '$http', 'DATA', function ($window, $q, $http, DATA) {
+app.directive('script', ['$window', '$timeout', '$q', '$http', 'DATA', function ($window, $timeout, $q, $http, DATA) {
 			return {
 				restrict : 'E',
 				scope : false,
@@ -998,6 +998,7 @@ app.directive('script', ['$window', '$q', '$http', 'DATA', function ($window, $q
 					} else if (attr.type === 'text/javascript-game') {
 						var code = elem.text();
 						var f = new Function(code);
+						//$timeout(f, 50);
 						f();
 					}
 				}
@@ -1010,7 +1011,7 @@ app.directive('whenReady', ['$interpolate', function($interpolate) {
     priority: Number.MIN_SAFE_INTEGER, // execute last, after all other directives if any.
     link: function($scope, $element, $attributes) {
 		if( window.J2J != null ) {
-			window.J2J.didLoad();
+			//window.J2J.didLoad();
 			console.log('ready j2j');
 		}
 		console.log('ready');
