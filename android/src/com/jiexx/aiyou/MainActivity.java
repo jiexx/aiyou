@@ -50,9 +50,9 @@ public class MainActivity extends Activity {
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		XWalkPreferences.setValue("enable-javascript", true);
-		XWalkPreferences.setValue(XWalkPreferences.REMOTE_DEBUGGING, true);
+		XWalkPreferences.setValue(XWalkPreferences.REMOTE_DEBUGGING, false);
 		XWalkPreferences.setValue(XWalkPreferences.ALLOW_UNIVERSAL_ACCESS_FROM_FILE,true);
-		//XWalkPreferences.setValue(XWalkPreferences.ANIMATABLE_XWALK_VIEW, true);
+		XWalkPreferences.setValue(XWalkPreferences.ANIMATABLE_XWALK_VIEW, true);
 		
 		setContentView(R.layout.activity_main);
 		
@@ -127,7 +127,7 @@ public class MainActivity extends Activity {
 
 			@Override
 			public	WebResourceResponse shouldInterceptLoadRequest(XWalkView view,	String url) {
-				Log.e("cache", "shouldInterceptRequest-url="+url +"   "+code.size());
+				Log.e("cache", "shouldInterceptRequest-url="+url );
 				int i = 0;
 				if (url.endsWith("js")) {
 					InputStream js = code.get(url.substring(url.lastIndexOf("/www/")+5));
@@ -171,7 +171,7 @@ public class MainActivity extends Activity {
 //	
 	public String wwwHome() {
 		//return "file:///android_asset/client/index.html#/?id=15800000000&lng=121.429&lat=31.289&srv="+Base64.encodeBytes(Configuration.rootUrl.getBytes()); 
-		return  "file://"+Configuration.dirWWW()+"index.html#/?id=15800000000&lng=121.429&lat=31.289&srv="+Base64.encodeBytes(Configuration.rootUrl.getBytes());
+		return  "file://"+Configuration.dirWWW()+"index.html#/?id=15800000000&lng=121.419&lat=31.289&srv="+Base64.encodeBytes(Configuration.rootUrl.getBytes());
 		//return  "file://"+Configuration.dirWWW()+"index.html#/?id=15800000000&srv="+Base64.encodeBytes(Configuration.rootUrl.getBytes());
 	}
 

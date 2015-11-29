@@ -70,7 +70,8 @@ public class GameService {
 	}
 	
 	public void delRound(int id) {
-		active.remove(id);
+		if(id < active.size())
+			active.remove(id);
 	}
 	
 	public void win(long  id) {

@@ -9136,6 +9136,8 @@ ui-switch {
 }
 .list-item-patch {
   height: 60px;
+  padding-left: 25px;
+  padding-right: 25px;
 }
 
 .list-item-patch-img {
