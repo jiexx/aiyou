@@ -6,11 +6,11 @@
 	<div class="scrollable-content" ui-scroll-bottom='bottomReached()'>
     <div class="list-group" ui-state='accordion'>
 	    <div ng-repeat="item in stars"  class="list-group-item list-item-patch">
-		  <div class="col-xs-6" >
+		  <div class="pull-left">
 			  <img ng-src="{{item.thumb}}" class="list-item-patch-img "></img>
 			  {{ item.name }} 
 		  </div>
-		  <div class="col-xs-6" ui-set="{'accordion': item.id}">
+		  <div class="pull-right list-item-patch" ui-set="{'accordion': item.id}">
 		    <i class="fa fa-ellipsis-v list-item-patch-i pull-right " ui-if="accordion != {{item.id}}" ></i>
 			<div ng-switch on="auth" class="list-item-patch-opt" ui-if="accordion == {{item.id}}">
 			  <div ng-switch-when="0"  class=" btn-group pull-right">

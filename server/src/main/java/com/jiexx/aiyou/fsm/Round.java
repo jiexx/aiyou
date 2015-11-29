@@ -16,6 +16,7 @@ public class Round extends State {
 		State start = new NullState(this);
 		State wait = new WaitState(this);
 		State hu = new HuState(this);
+		State off = new StandoffState(this);
 		GoingState going = new GoingState(this);
 		State end = new EndState(this);
 		
@@ -30,6 +31,7 @@ public class Round extends State {
 		
 		going.addTransition(Command.EXIT, wait);
 		going.addTransition(Command.WHO, hu);
+		going.addTransition(Command.STANDOFF, off);
 		
 		hu.addTransition(Command.CONTINUE, wait);
 		hu.addTransition(Command.EXIT, wait);

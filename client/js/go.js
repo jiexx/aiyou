@@ -4,8 +4,8 @@ var __extends = (this && this.__extends) || function (d, b) {
     __.prototype = b.prototype;
     d.prototype = new __();
 };
-var OPEN = '0x10000001', JOIN = '0x10000002', EXIT = '0x10000003', CONTINUE = '0x10000004', DISCARD = '0x20000001', DISCARD_PONG = '0x30000001', DISCARD_CHI = '0x30000002', DISCARD_DRAW = '0x30000003', WAIT = '0x40000001', START = '0x40000002', OVER = '0x40000003', 	START_DEALER = '0x40000004', START_PLAYER = '0x40000005', WHO = '0x50000001', TIMEOUT = '0x50000002', FINAL = '0x50000003', SELFDRAWHO = '0x50000004';
-var V_OPEN = 0x10000001, V_JOIN = 0x10000002, V_EXIT = 0x10000003, V_CONTINUE = 0x10000004, V_DISCARD = 0x20000001, V_DISCARD_PONG = 0x30000001, V_DISCARD_CHI = 0x30000002, V_DISCARD_DRAW = 0x30000003, V_WAIT = 0x40000001, V_START = 0x40000002, V_OVER = 0x40000003, V_START_DEALER = 0x40000004, V_START_PLAYER = 0x40000005, V_WHO = 0x50000001, V_TIMEOUT = 0x50000002, V_FINAL = 0x50000003, V_SELFDRAWHO = 0x50000004;
+var OPEN = '0x10000001', JOIN = '0x10000002', EXIT = '0x10000003', CONTINUE = '0x10000004', DISCARD = '0x20000001', DISCARD_PONG = '0x30000001', DISCARD_CHI = '0x30000002', DISCARD_DRAW = '0x30000003', WAIT = '0x40000001', START = '0x40000002', OVER = '0x40000003', 	START_DEALER = '0x40000004', START_PLAYER = '0x40000005', WHO = '0x50000001', TIMEOUT = '0x50000002', FINAL = '0x50000003', SELFDRAWHO = '0x50000004', STANDOFF = '0x50000005';
+var V_OPEN = 0x10000001, V_JOIN = 0x10000002, V_EXIT = 0x10000003, V_CONTINUE = 0x10000004, V_DISCARD = 0x20000001, V_DISCARD_PONG = 0x30000001, V_DISCARD_CHI = 0x30000002, V_DISCARD_DRAW = 0x30000003, V_WAIT = 0x40000001, V_START = 0x40000002, V_OVER = 0x40000003, V_START_DEALER = 0x40000004, V_START_PLAYER = 0x40000005, V_WHO = 0x50000001, V_TIMEOUT = 0x50000002, V_FINAL = 0x50000003, V_SELFDRAWHO = 0x50000004, V_STANDOFF = 0x50000005;
 var Message = (function () {
     function Message() {
         this.cmd = 0;
@@ -304,7 +304,7 @@ var Going = (function (_super) {
 	}
 	Going.prototype.Enter = function (msg) {
 		if(msg.cmd == V_EXIT) {
-			var mgr = this.getRoot().mgr;
+			//var mgr = this.getRoot().mgr;
 			//mgr.close();
 			this.restore();
 		}
@@ -326,7 +326,7 @@ var Hu = (function (_super) {
 		_super.call(this, r);
 	}
 	Hu.prototype.Enter = function (msg) {
-		var mgr = this.getRoot().mgr;
+		//var mgr = this.getRoot().mgr;
 		var mj = Mahjong.instance();
 		if(msg.cmd == V_WHO) {
 			if(msg.hu == true) {
@@ -337,6 +337,20 @@ var Hu = (function (_super) {
 		}
 	};
 	return Hu;
+})(State);
+var Standoff = (function (_super) {
+	__extends(Standoff, _super);
+	function Standoff(r) {
+		_super.call(this, r);
+	}
+	Standoff.prototype.Enter = function (msg) {
+		//var mgr = this.getRoot().mgr;
+		var mj = Mahjong.instance();
+		if(msg.cmd == V_STANDOFF) {
+			mj.standOff(msg.other[0]);
+		}
+	};
+	return Standoff;
 })(State);
 var End = (function (_super) {
 	__extends(End, _super);
@@ -364,6 +378,7 @@ var RoundImpl = (function (_super) {
 		var deal2 = new Deal2(going);
 		var play2 = new Play2(going);
 		var hu = new Hu(going);
+		var off = new Standoff(going);
 		var end = new End(this);
 		
 		empty.addTransition(OPEN, wait);
@@ -374,22 +389,28 @@ var RoundImpl = (function (_super) {
 		
 		deal.addTransition(DISCARD, play);
 		deal.addTransition(WHO, hu);
+		deal.addTransition(STANDOFF, off);
 		
 		play.addTransition(DISCARD_DRAW, play2);
 		play.addTransition(DISCARD_PONG, play2);
 		play.addTransition(DISCARD_CHI, play2);
 		play.addTransition(WHO, hu);
+		play.addTransition(STANDOFF, off);
 		
 		play2.addTransition(DISCARD, deal2);
 		play2.addTransition(WHO, hu);
+		play2.addTransition(STANDOFF, off);
 		
 		deal2.addTransition(DISCARD_DRAW, deal);
 		deal2.addTransition(DISCARD_PONG, deal);
 		deal2.addTransition(DISCARD_CHI, deal);
 		deal2.addTransition(WHO, hu);
+		deal2.addTransition(STANDOFF, off);
 		
 		hu.addTransition(CONTINUE, wait);
 		hu.addTransition(WHO, hu);
+		off.addTransition(CONTINUE, wait);
+		off.addTransition(STANDOFF, off);		
 		
 		going.setInitState(empty);
 		going.setBackupState(wait);

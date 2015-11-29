@@ -31,13 +31,22 @@ public class GoingPlayer extends State{
 		if(Command.DISCARD.equal(msg.cmd)) {
 			round.mgr.startLoop();
 			round.mgr.discard((byte) msg.opt);
-			while(round.mgr.nextUser()){
-				DiscardAck da = new DiscardAck(Command.DISCARD);
-				da.disc = (byte) msg.opt;
-				da.deal = round.mgr.deal();
-				da.hu = round.mgr.whoIsUser(da.disc);
-				da.sd = round.mgr.whoIsUser(da.deal);
-				round.mgr.notifyUser(gson.toJson(da));
+			if( round.mgr.isDeal() ) {
+				while(round.mgr.nextUser() ){
+					DiscardAck da = new DiscardAck(Command.DISCARD);
+					da.disc = (byte) msg.opt;
+					da.deal = round.mgr.deal();
+					da.hu = round.mgr.whoIsUser(da.disc);
+					da.sd = round.mgr.whoIsUser(da.deal);
+					round.mgr.notifyUser(gson.toJson(da));
+				}
+			}else {
+				System.out.println("stand off ");
+				Message message = new Message();
+				message.cmd = Command.STANDOFF.val();
+				message.toid = msg.toid;
+				message.uid = msg.uid;
+				GameService.instance.receive(message);
 			}
 			round.mgr.step();
 		}

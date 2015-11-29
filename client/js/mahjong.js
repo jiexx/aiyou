@@ -8,12 +8,13 @@
 	Property.prototype.invalidate = function (stuff, data) {
 		if(data == -1)
 			stuff.set(this.materials[data], this.position.x, this.position.y, this.position.z, false);
-		else
+		else {
 			stuff.set(this.materials[data], this.position.x, this.position.y, this.position.z, this.isVisible);
+		}
 	};
 	Property.prototype.set = function (mats, x, y, z, isVisible, onClick) {
 		this.position.x = x;
-		this.position.y = y;
+		this.position.y = y; 
 		this.position.z = z;
 		this.isVisible = isVisible;
 		this.materials = mats;
@@ -519,10 +520,10 @@ var GuiLayer = (function () {
 })();
 
 var Layout = (function () {
-	//'back'  card.data = 0
+	//'back'  card.data = 0  uppercase is not matched with file name case, that result in white card ISSUE
 	var asserts = ['back', 'east', 'west', 'south', 'north', 'zhong', 'fa', 'bai', 'dot1', 'dot2', 'dot3', 'dot4', 'dot5', 'dot6', 'dot7', 'dot8', 'dot9',
-		'Bamboo1', 'Bamboo2', 'Bamboo3', 'Bamboo4', 'Bamboo5', 'Bamboo6', 'Bamboo7', 'Bamboo8', 'Bamboo9',
-		'Char1', 'Char2', 'Char3', 'Char4', 'Char5', 'Char6', 'Char7', 'Char8', 'Char9', ];
+		'bamboo1', 'bamboo2', 'bamboo3', 'bamboo4', 'bamboo5', 'bamboo6', 'bamboo7', 'bamboo8', 'bamboo9',
+		'char1', 'char2', 'char3', 'char4', 'char5', 'char6', 'char7', 'char8', 'char9', ];
 	//'who',	'draw',	'continue',	'exit',	'loss',	'win'];
 	var EXIT = 0x10000003,	CONTINUE = 0x10000004,	DISCARD = 0x20000001,	DISCARD_PONG = 0x30000001,	DISCARD_CHI = 0x30000002,	DISCARD_DRAW = 0x30000003,	WHO = 0x50000001, FINAL = 0x50000003, SELFDRAWHO = 0x50000004;
 	function Layout() {
@@ -569,8 +570,8 @@ var Layout = (function () {
 		this.scene.clearColor = new BABYLON.Color3(35 / 255.0, 116 / 255.0, 172 / 255.0);
 		
 		var light = new BABYLON.PointLight("Point", new BABYLON.Vector3(3 * 14, 0, -100), this.scene);
-		this.camera = new BABYLON.FreeCamera("Camera", new BABYLON.Vector3(3 * 14, 0, /*-70*/-150), this.scene);
-		this.camera.layerMask = 5;
+		//this.camera = new BABYLON.FreeCamera("Camera", new BABYLON.Vector3(3 * 14, 0, /*-70*/-150), this.scene);
+		//this.camera.layerMask = 5;
 		
 		this.init(this.scene);
 		//this.initLoadGUI(this.scene);
@@ -581,6 +582,8 @@ var Layout = (function () {
 		//}
 		var _this = this;
 		this.scene.executeWhenReady(function () {
+			_this.camera = new BABYLON.FreeCamera("Camera", new BABYLON.Vector3(3 * 14, 0, /*-70*/-150), _this.scene);
+			_this.camera.layerMask = 5;
 			_this.initLoadGUI(_this.scene);
 			for( var i = 0 ; i < _this.scene.activeCameras.length ; i ++ ) {
 				var camera = _this.scene.activeCameras[i];
@@ -618,15 +621,15 @@ var Layout = (function () {
 		//this.scene.activeCamera.layerMask    = 5;
 		if (this.msg != -1)
 			this.gui.setTextVisible(this.msg, false);
-		this.gui.drawText(myName, 0.15, 0.8);
-		this.gui.drawText(hisName, 0.15, 0.1);
-		this.gui.drawText(myChip, 0.15, 0.9);
-		this.gui.drawText(hisChip, 0.15, 0.2);
+		this.gui.drawText(myName, 0.15, 0.95);
+		this.gui.drawText(hisName, 0.15, 0.05);
+		this.gui.drawText(myChip, 0.35, 0.95);
+		this.gui.drawText(hisChip, 0.35, 0.05);
 
 		if(myAvator)
-			this.gui.draw64Image(myAvator, 0.1, 0.8, 25.0, 25.0);
+			this.gui.draw64Image(myAvator, 0.1, 0.95, 25.0, 25.0);
 		if(hisAvator)
-			this.gui.draw64Image(hisAvator, 0.1, 0.1, 25.0, 25.0);
+			this.gui.draw64Image(hisAvator, 0.1, 0.05, 25.0, 25.0);
 		
 		this.gui.addImage("draw", 0.7, 0.5, 50.0, 50.0, this.drawOnClick);
 		this.gui.addImage("who", 0.8, 0.5, 50.0, 50.0, this.whoOnClick);
@@ -635,12 +638,14 @@ var Layout = (function () {
 		
 		this.gui.addImage("win", 0.5, 0.5, 200.0, 200.0);
 		this.gui.addImage("loss", 0.5, 0.5, 200.0, 200.0);
+		this.gui.addImage("off", 0.5, 0.5, 200.0, 200.0);
 		this.gui.addImage("continue", 0.9, 0.1, 50.0, 50.0, this.resumeOnClick);
-		this.gui.addImage("gold", 0.1, 0.9, 25.0, 25.0);
-		this.gui.addImage("gold", 0.1, 0.2, 25.0, 25.0);
+		this.gui.addImage("gold", 0.3, 0.95, 8.0, 8.0);
+		this.gui.addImage("gold", 0.3, 0.05, 8.0, 8.0);
 		
 		this.gui.showImage("win", false);
 		this.gui.showImage("loss", false);
+		this.gui.showImage("off", false);
 		this.gui.showImage("continue", false);
 		this.gui.draw();
 		
@@ -795,6 +800,18 @@ var Layout = (function () {
 		});
 	};
 	Layout.prototype.loss = function (hiscards) {
+		var _this = this;
+		this.scene.executeWhenReady(function () {
+			_this.gui.showImage("loss", true, null/*_this.getAnim()*/);
+			_this.gui.showImage("who", false);
+			_this.gui.showImage("continue", true);
+			_this.gui.showImage("draw", false);
+			_this.myCards.hisDiscardPongci();
+			_this.hisCards.reset(Card.SHOW1, hiscards);
+			_this.invalidate();
+		});
+	};
+	Layout.prototype.standOff = function (hiscards) {
 		var _this = this;
 		this.scene.executeWhenReady(function () {
 			_this.gui.showImage("loss", true, null/*_this.getAnim()*/);

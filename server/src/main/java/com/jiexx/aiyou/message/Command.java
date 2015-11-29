@@ -23,7 +23,8 @@ public enum Command {
 	WHO(0x50000001),
 	TIMEOUT(0x50000002),
 	FINAL(0x50000003),
-	SELFDRAWHO(0x50000004)
+	SELFDRAWHO(0x50000004),
+	STANDOFF(0x50000005),
 	;
 	private final int value;
 	
