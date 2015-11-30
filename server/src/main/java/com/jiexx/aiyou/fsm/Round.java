@@ -33,6 +33,9 @@ public class Round extends State {
 		going.addTransition(Command.WHO, hu);
 		going.addTransition(Command.STANDOFF, off);
 		
+		off.addTransition(Command.CONTINUE, wait);
+		off.addTransition(Command.EXIT, wait);
+		
 		hu.addTransition(Command.CONTINUE, wait);
 		hu.addTransition(Command.EXIT, wait);
 		

@@ -639,7 +639,7 @@ var Layout = (function () {
 		this.gui.addImage("win", 0.5, 0.5, 200.0, 200.0);
 		this.gui.addImage("loss", 0.5, 0.5, 200.0, 200.0);
 		this.gui.addImage("off", 0.5, 0.5, 200.0, 200.0);
-		this.gui.addImage("continue", 0.9, 0.1, 50.0, 50.0, this.resumeOnClick);
+		this.gui.addImage("continue", 0.95, 0.1, 50.0, 50.0, this.resumeOnClick);
 		this.gui.addImage("gold", 0.3, 0.95, 8.0, 8.0);
 		this.gui.addImage("gold", 0.3, 0.05, 8.0, 8.0);
 		
@@ -692,7 +692,7 @@ var Layout = (function () {
 	};
 	Layout.prototype.exitOnClick = function (that) {
 		var _this = Mahjong.instance();
-		_this.notify(FINAL, this.userid);
+		_this.notify(FINAL, _this.userid);
 		_this.invalidate();
 	};
 	Layout.prototype.resumeOnClick = function (that) {
@@ -700,6 +700,7 @@ var Layout = (function () {
 		_this.gui.showImage("who", false);
 		_this.gui.showImage("win", false);
 		_this.gui.showImage("loss", false);
+		_this.gui.showImage("off", false);
 		_this.gui.showImage("continue", false);
 		_this.gui.showImage("draw", false);
 
@@ -707,7 +708,7 @@ var Layout = (function () {
 		_this.hisCards.reset(Card.EMPTY2, []);
 		if (_this.msg != -1)
 			_this.gui.setTextVisible(_this.msg, true);
-		_this.notify(CONTINUE, this.userid);
+		_this.notify(CONTINUE, _this.userid);
 		_this.invalidate();
 	};
 	Layout.prototype.whoOnClick = function (that) {
@@ -814,11 +815,11 @@ var Layout = (function () {
 	Layout.prototype.standOff = function (hiscards) {
 		var _this = this;
 		this.scene.executeWhenReady(function () {
-			_this.gui.showImage("loss", true, null/*_this.getAnim()*/);
+			_this.gui.showImage("off", true, null/*_this.getAnim()*/);
 			_this.gui.showImage("who", false);
 			_this.gui.showImage("continue", true);
 			_this.gui.showImage("draw", false);
-			_this.myCards.hisDiscardPongci();
+			_this.gui.draw();
 			_this.hisCards.reset(Card.SHOW1, hiscards);
 			_this.invalidate();
 		});
@@ -826,8 +827,8 @@ var Layout = (function () {
 	Layout.prototype.deal = function (cards) {
 		if(cards != undefined && cards != null) {
 			var _this = this;
-			_this.gui.setTextVisible(_this.msg, false);
 			_this.scene.executeWhenReady(function () {	
+				_this.gui.setTextVisible(_this.msg, false);
 				_this.myCards.restart();
 				_this.myCards.reset(Card.UNFOCUSED1, cards);
 				console.log(cards);
