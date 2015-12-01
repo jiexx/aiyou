@@ -195,21 +195,22 @@ var CardGroup = (function () {
 		else
 			return -1;
 	};
-	CardGroup.prototype.findBack = function (data) {
+	CardGroup.prototype.findBack = function () {
 		var i;
-		for (i = 0; i < DRAWINDEX; i++) {
+		for (i = 0; i < MAX-2; i++) {
 			if (Card.BACK2 == this.cards[i].state)
 				break;
 		}
-		if (i != MAX)
+		if (i != MAX-2) {
 			return i;
-		else
+		}else {
 			return -1;
+		}
 	};
 	CardGroup.prototype.hisDiscard = function () {
 		return this.drop;
 	};
-	CardGroup.prototype.hisDiscardPongci = function () {
+	CardGroup.prototype.heDeleteDrop = function () {
 		this.drop.state = Card.EMPTY1;
 	};
 	CardGroup.prototype.tryDraw = function (data) {
@@ -295,12 +296,14 @@ var CardGroup = (function () {
 		if (this.state == DRAWTIME && this.nextState(0)) {
 			this.pick.state = Card.BACK2;
 			var i = this.findBack();
-			this.cards[i].data = disc1;
-			this.cards[i + 1].data = disc2;
-			this.cards[i + 2].data = disc3;
-			this.cards[i].state = Card.SHOW1;
-			this.cards[i + 1].state = Card.SHOW1;
-			this.cards[i + 2].state = Card.SHOW1;
+			if( i > -1 ) {
+				this.cards[i].data = disc1;
+				this.cards[i + 1].data = disc2;
+				this.cards[i + 2].data = disc3;
+				this.cards[i].state = Card.SHOW2;
+				this.cards[i + 1].state = Card.SHOW2;
+				this.cards[i + 2].state = Card.SHOW2;
+			}
 			return true;
 		}
 		return false;
@@ -583,6 +586,7 @@ var Layout = (function () {
 		var _this = this;
 		this.scene.executeWhenReady(function () {
 			_this.camera = new BABYLON.FreeCamera("Camera", new BABYLON.Vector3(3 * 14, 0, /*-70*/-150), _this.scene);
+			//.camera.attachControl(canvas, false);
 			_this.camera.layerMask = 5;
 			_this.initLoadGUI(_this.scene);
 			for( var i = 0 ; i < _this.scene.activeCameras.length ; i ++ ) {
@@ -619,37 +623,38 @@ var Layout = (function () {
 	};
 	Layout.prototype.initGUI = function (myAvator, hisAvator, myName, hisName, myChip, hisChip) {
 		//this.scene.activeCamera.layerMask    = 5;
-		if (this.msg != -1)
-			this.gui.setTextVisible(this.msg, false);
-		this.gui.drawText(myName, 0.15, 0.95);
-		this.gui.drawText(hisName, 0.15, 0.05);
-		this.gui.drawText(myChip, 0.35, 0.95);
-		this.gui.drawText(hisChip, 0.35, 0.05);
+		var _this = this;
+		this.scene.executeWhenReady(function () {
+			if (_this.msg != -1)
+				_this.gui.setTextVisible(_this.msg, false);
+			_this.gui.drawText(myName, 0.15, 0.95);
+			_this.gui.drawText(hisName, 0.15, 0.05);
+			_this.gui.drawText(myChip, 0.35, 0.95);
+			_this.gui.drawText(hisChip, 0.35, 0.05);
 
-		if(myAvator)
-			this.gui.draw64Image(myAvator, 0.1, 0.95, 25.0, 25.0);
-		if(hisAvator)
-			this.gui.draw64Image(hisAvator, 0.1, 0.05, 25.0, 25.0);
-		
-		this.gui.addImage("draw", 0.7, 0.5, 50.0, 50.0, this.drawOnClick);
-		this.gui.addImage("who", 0.8, 0.5, 50.0, 50.0, this.whoOnClick);
-		this.gui.showImage("draw", false);
-		this.gui.showImage("who", false);
-		
-		this.gui.addImage("win", 0.5, 0.5, 200.0, 200.0);
-		this.gui.addImage("loss", 0.5, 0.5, 200.0, 200.0);
-		this.gui.addImage("off", 0.5, 0.5, 200.0, 200.0);
-		this.gui.addImage("continue", 0.95, 0.1, 50.0, 50.0, this.resumeOnClick);
-		this.gui.addImage("gold", 0.3, 0.95, 8.0, 8.0);
-		this.gui.addImage("gold", 0.3, 0.05, 8.0, 8.0);
-		
-		this.gui.showImage("win", false);
-		this.gui.showImage("loss", false);
-		this.gui.showImage("off", false);
-		this.gui.showImage("continue", false);
-		this.gui.draw();
-		
-		
+			if(myAvator)
+				_this.gui.draw64Image(myAvator, 0.1, 0.95, 25.0, 25.0);
+			if(hisAvator)
+				_this.gui.draw64Image(hisAvator, 0.1, 0.05, 25.0, 25.0);
+			
+			_this.gui.addImage("draw", 0.7, 0.5, 50.0, 50.0, _this.drawOnClick);
+			_this.gui.addImage("who", 0.8, 0.5, 50.0, 50.0, _this.whoOnClick);
+			_this.gui.showImage("draw", false);
+			_this.gui.showImage("who", false);
+			
+			_this.gui.addImage("win", 0.5, 0.5, 200.0, 200.0);
+			_this.gui.addImage("loss", 0.5, 0.5, 200.0, 200.0);
+			_this.gui.addImage("off", 0.5, 0.5, 200.0, 200.0);
+			_this.gui.addImage("continue", 0.95, 0.1, 50.0, 50.0, _this.resumeOnClick);
+			_this.gui.addImage("gold", 0.3, 0.95, 8.0, 8.0);
+			_this.gui.addImage("gold", 0.3, 0.05, 8.0, 8.0);
+			
+			_this.gui.showImage("win", false);
+			_this.gui.showImage("loss", false);
+			_this.gui.showImage("off", false);
+			_this.gui.showImage("continue", false);
+			_this.gui.draw();
+		});		
 	};
 	Layout.prototype.init = function (scene) {
 
@@ -719,7 +724,7 @@ var Layout = (function () {
 		_this.gui.showImage("draw", false);
 		var d = _this.hisCards.hisDiscard().data
 		if (_this.myCards.tryDraw(d)) { 
-			_this.hisCards.hisDiscardPongci();
+			_this.hisCards.heDeleteDrop();
 		}
 		_this.notify(WHO, d);
 		_this.invalidate();
@@ -743,10 +748,12 @@ var Layout = (function () {
 				_this.gui.showImage("who", false);
 				_this.notify(DISCARD, that.data);
 			}else if (_this.myCards.tryPong(_this.hisCards.hisDiscard())){
-				_this.hisCards.hisDiscardPongci();
+				_this.gui.showImage("draw", false);
+				_this.hisCards.heDeleteDrop();
 				_this.notify(DISCARD_PONG, that.data);
 			}else if (_this.myCards.tryCi(_this.hisCards.hisDiscard())){
-				_this.hisCards.hisDiscardPongci();
+				_this.gui.showImage("draw", false);
+				_this.hisCards.heDeleteDrop();
 				_this.notify(DISCARD_CHI, that.data);
 			}
 		}
@@ -777,6 +784,7 @@ var Layout = (function () {
 		});
 	};
 	Layout.prototype.hePongci = function (disc1, disc2, disc3) { // only for his
+		this.myCards.heDeleteDrop();
 		this.hisCards.pongci(disc1, disc2, disc3);
 		this.invalidate();
 	};
@@ -807,7 +815,7 @@ var Layout = (function () {
 			_this.gui.showImage("who", false);
 			_this.gui.showImage("continue", true);
 			_this.gui.showImage("draw", false);
-			_this.myCards.hisDiscardPongci();
+			_this.myCards.heDeleteDrop();
 			_this.hisCards.reset(Card.SHOW1, hiscards);
 			_this.invalidate();
 		});
@@ -819,7 +827,7 @@ var Layout = (function () {
 			_this.gui.showImage("who", false);
 			_this.gui.showImage("continue", true);
 			_this.gui.showImage("draw", false);
-			_this.gui.draw();
+			_this.myCards.heDeleteDrop();
 			_this.hisCards.reset(Card.SHOW1, hiscards);
 			_this.invalidate();
 		});

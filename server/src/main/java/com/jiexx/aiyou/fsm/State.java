@@ -65,17 +65,20 @@ public abstract class State {
 		State state = transitions.get(msg.cmd);
 		if( state != null ) {
 			Util.log(""+msg.uid, "Current :"+this.getClass().getSimpleName()+"<<< Next :"+state.getClass().getSimpleName()+" message received:"+gson.toJson(msg));
+			parent.previous = parent.child;
+			parent.child = state;
+			
 			Exit(msg);
 
 			state.Enter(msg);
 			
 			state.recv(msg);
-			
-			parent.previous = parent.child;
-			parent.child = state;
 		}else {
 			recv(msg);
 		}
+	}
+	public void restore() {
+		child = init;
 	}
 	public void setInitState(State state){
 		init = state;

@@ -56,7 +56,7 @@ public class GoingState extends State{
 	@Override
 	public void reset() {
 		// TODO Auto-generated method stub
-		
+		restore();
 	}
 
 

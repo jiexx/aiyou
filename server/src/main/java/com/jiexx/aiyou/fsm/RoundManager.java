@@ -256,7 +256,7 @@ public class RoundManager {
 	}
 	
 	public boolean isDeal() {
-		return false;//cards.cards.length >= cards.pos;  //tbd
+		return cards.cards.length >= cards.pos;  //tbd
 	}
 	
 	public byte deal() {
