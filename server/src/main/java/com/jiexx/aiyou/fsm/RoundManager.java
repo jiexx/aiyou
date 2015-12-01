@@ -119,6 +119,10 @@ public class RoundManager {
 		}
 	}
 	
+	public void removeAllUser() {
+		users.clear();
+	}
+	
 	public void removeUser(long userid) {
 		users.remove(userid);
 	}
@@ -126,7 +130,12 @@ public class RoundManager {
 	public void step() {
 		token = users.get(token).next;
 	}
-	
+	private void exchangeTransforms() {
+		String dealer = transform.remove(DEALER);
+		String player = transform.remove(PLAYER);
+		transform.put(DEALER, player);
+		transform.put(PLAYER, dealer);
+	}
 	public void playDice() {
 		cards.dieDealDraw();
 		
@@ -135,6 +144,9 @@ public class RoundManager {
 		Set<Entry<Long, UserInfo>> sets = users.entrySet();  
 		for (Entry<Long, UserInfo> entry : sets) {
 			id[i++] = entry.getKey();
+		}
+		if(users.get(id[cards.first]).state == PLAYER && users.get(id[cards.second]).state == DEALER) {
+			exchangeTransforms();
 		}
 		users.get(id[cards.first]).state = DEALER;
 		users.get(id[cards.second]).state = PLAYER;

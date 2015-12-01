@@ -195,17 +195,23 @@ var CardGroup = (function () {
 		else
 			return -1;
 	};
-	CardGroup.prototype.findBack = function () {
-		var i;
-		for (i = 0; i < MAX-2; i++) {
-			if (Card.BACK2 == this.cards[i].state)
-				break;
+	CardGroup.prototype.findBack = function (disc1, disc2, disc3) {
+		var tmp = [];
+		var i, j = 0;
+		for (i = 0; i < MAX && tmp.length < 3; i++) {
+			if (Card.BACK2 == this.cards[i].state &&  this.cards[i] != this.pick && this.cards[i] != this.drop)
+				tmp.push(this.cards[i]);
 		}
-		if (i != MAX-2) {
-			return i;
-		}else {
-			return -1;
+		if(tmp.length == 3) {
+			tmp[0].data = disc1;
+			tmp[1].data = disc2;
+			tmp[2].data = disc3;
+			tmp[0].state = Card.SHOW2;
+			tmp[1].state = Card.SHOW2;
+			tmp[2].state = Card.SHOW2;
 		}
+		delete tmp;
+		tmp = null;
 	};
 	CardGroup.prototype.hisDiscard = function () {
 		return this.drop;
@@ -295,15 +301,7 @@ var CardGroup = (function () {
 	CardGroup.prototype.pongci = function (disc1, disc2, disc3) {
 		if (this.state == DRAWTIME && this.nextState(0)) {
 			this.pick.state = Card.BACK2;
-			var i = this.findBack();
-			if( i > -1 ) {
-				this.cards[i].data = disc1;
-				this.cards[i + 1].data = disc2;
-				this.cards[i + 2].data = disc3;
-				this.cards[i].state = Card.SHOW2;
-				this.cards[i + 1].state = Card.SHOW2;
-				this.cards[i + 2].state = Card.SHOW2;
-			}
+			this.findBack(disc1, disc2, disc3);
 			return true;
 		}
 		return false;
@@ -571,7 +569,7 @@ var Layout = (function () {
 		}
 		this.scene = new BABYLON.Scene(this.engine);
 		this.scene.clearColor = new BABYLON.Color3(35 / 255.0, 116 / 255.0, 172 / 255.0);
-		
+		this.scene.detachControl();
 		var light = new BABYLON.PointLight("Point", new BABYLON.Vector3(3 * 14, 0, -100), this.scene);
 		//this.camera = new BABYLON.FreeCamera("Camera", new BABYLON.Vector3(3 * 14, 0, /*-70*/-150), this.scene);
 		//this.camera.layerMask = 5;
@@ -594,6 +592,7 @@ var Layout = (function () {
 				camera.noRotationConstraint = true;
 				camera.upVector = new BABYLON.Vector3(1, 0, 0);
 			}
+			_this.scene.attachControl();
 			_this.invalidate();
 		});
 	};
