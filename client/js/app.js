@@ -116,7 +116,7 @@ app.controller('appCtrl', function ($scope, $location, $cookieStore, DATA) {
 	//debug for test : ?id=15800000000&lng=31.268964&lat=121.443794
 });
 
-app.controller('gameCtrl', function ($scope, $location, $cookieStore, $http, DATA) {
+app.controller('gameCtrl', function ($scope, $rootScope, $location, $cookieStore, $http, DATA) {
 	var nav = $scope.$parent;
 	nav.titleVisible = false;
 	nav.title = '麻将';
@@ -130,6 +130,11 @@ app.controller('gameCtrl', function ($scope, $location, $cookieStore, $http, DAT
 	var onClose = function() {
 		//round.view.clean();
 		$location.path('/').search({id:DATA.userid,lng:DATA.lng,lat:DATA.lat});
+		$scope.$apply();
+	};
+	var onHelp = function() {
+		//round.view.clean();
+		$rootScope.Ui.turnOn('mb');
 		$scope.$apply();
 	};
 	var onGUI = function(uid, mgr) {
@@ -149,7 +154,7 @@ app.controller('gameCtrl', function ($scope, $location, $cookieStore, $http, DAT
 			mgr.close();
 		});
 	};
-	var round = new RoundImpl(DATA.HOST+'/game', DATA.userid, $location.search().chip, onClose, onGUI);
+	var round = new RoundImpl(DATA.HOST+'/game', DATA.userid, $location.search().chip, onClose, onGUI, onHelp);
 	nav.navClick = function(){
 		round.mgr.close();
 		return true;
@@ -536,6 +541,9 @@ app.controller('bbsCtrl', function ($scope, $rootScope, $location, $cookieStore,
 		$scope.mbConfirmText = '继续';
 		$scope.mbConfirm = confirm;
 	}
+	$scope.onBuy = function() {
+		$location.path('/recharge').search({id:DATA.userid});
+	};
 	$scope.onClickReply = function(topicid, replyText) {
 		if(replyText != null && replyText.length > 8) {
 			$http({

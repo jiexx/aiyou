@@ -136,6 +136,12 @@ public class RoundManager {
 		transform.put(DEALER, player);
 		transform.put(PLAYER, dealer);
 	}
+	private void resetTransforms() {
+		String dealer = transform.remove(DEALER);
+		String player = transform.remove(PLAYER);
+		transform.put(DEALER, dealer);
+		transform.put(PLAYER, player);
+	}
 	public void playDice() {
 		cards.dieDealDraw();
 		
@@ -147,6 +153,8 @@ public class RoundManager {
 		}
 		if(users.get(id[cards.first]).state == PLAYER && users.get(id[cards.second]).state == DEALER) {
 			exchangeTransforms();
+		}else if(users.get(id[cards.first]).state == DEALER && users.get(id[cards.second]).state == PLAYER){
+			resetTransforms();
 		}
 		users.get(id[cards.first]).state = DEALER;
 		users.get(id[cards.second]).state = PLAYER;

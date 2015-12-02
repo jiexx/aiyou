@@ -6,13 +6,13 @@
     <div class="list-group" >
       <div ng-repeat="item in goods" class="panel panel-default media">
 	    <div class="section row" >
-		  <div class="pull-left col-sm-6">
+		  <div class="pull-left col-sm-8">
             <img ng-src="{{item.thumb}}" class="bbs-thumb"/>
           </div>
-		  <div class=" col-sm-6">
+		  <div class="pull-right col-sm-4">
             <h5 class="media-heading">{{item.productname}} {{item.ownername}}</h5>
 			<h6>{{item.html}}</h6>
-		    <h6><small>售价:<img src="./asserts/Mahjong/gold.png" class="bbs-avatar"/>{{item.price}}金币<span class="label label-success">购买</span></small></h6>
+		    <h6><small>售价:<img src="./asserts/Mahjong/gold.png" class="bbs-avatar"/>{{item.price}}金币<span class="label label-primary" ng-click="onBuy()">购买</span></small></h6>
           </div>
         </div>
       </div>
@@ -37,10 +37,10 @@
 			<br style="clear:both;" />
           </div>
 		  <div ng-class="{'collapse': topic.uid == myid || topic.dnd != 1, 'row': topic.uid != myid && topic.dnd == 1}" >
-            <div class="col-sm-10 media-left">
+            <div class="col-xs-10 media-left">
               <input type="text" class="form-control needsclick" ng-model="replyText"/>
 			</div>
-			<div class="col-sm-2 media-right">
+			<div class="col-xs-2 media-right">
               <button class="btn btn-primary pull-right" ng-click="onClickReply(topic.id, replyText);replyText='';">回复</button>
 			</div>
 		  </div>
@@ -48,11 +48,11 @@
       </div>
     </div>
   </div>
-  <div ng-class="{'collapse': !commentVisible , 'scrollable-footer row': commentVisible}">
-    <div class="col-sm-10">
+  <div ng-class="{'collapse': !commentVisible , 'scrollable-footer section': commentVisible}">
+    <div class="col-xs-10 media-left">
       <input type="text" class="form-control needsclick" ng-model="commentText"/>
     </div>
-    <div class="col-sm-2"><button class="form-control btn btn-primary" ng-click="onClickComment(commentText);commentText='';">发表</button>
+    <div class="col-xs-2 media-right"><button class="form-control btn btn-primary" ng-click="onClickComment(commentText);commentText='';">发表</button>
     </div>
   </div>
 </div>

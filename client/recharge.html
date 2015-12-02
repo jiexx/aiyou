@@ -35,6 +35,8 @@
             <a href class="btn btn-default" ui-state="button2" ui-turn-on='button2' ui-class="{'active': button2}" ui-exclusion-group='myButtons' ><img width="32px" height="20px" src="./asserts/MasterCard.png"/></a>
             <a href class="btn btn-default" ui-state="button3" ui-turn-on='button3' ui-class="{'active': button3}" ui-exclusion-group='myButtons' ><img width="32px" height="20px" src="./asserts/UnionPay.png"/></a>
           </div>
+		</div>
+		<div class="section" >
 		  <div class="btn-group">
             <a href class="btn btn-default" ui-state="button4" ui-default="true" ui-turn-on='button4' ui-class="{'active': button4}" ui-exclusion-group='myButtons1' >20元/20金币</a>
             <a href class="btn btn-default" ui-state="button5" ui-turn-on='button5' ui-class="{'active': button5}" ui-exclusion-group='myButtons1' >50元/55金币</a>
@@ -64,11 +66,11 @@
 		  <div class="col-sm-4"><img width="64px" height="40px" src="./asserts/ccv2.png" ui-if="accordion == 3"></img></div>
 		  <small class="btn-danger" ui-if="accordion == 3">{{$parent.cardCCV2Hint}}</small>
 		</div>
-		<div class="section">
-            <button class="btn btn-primary btn-block " ng-click="mbpayConfirm()">确认</button>
-        </div>
+		
       </div>
 	  
-	  <br><br>
+	  <div class="section  scrollable-footer ">
+            <button class="btn btn-primary btn-block " ng-click="mbpayConfirm()">确认</button>
+        </div>
   </div>
 </div>

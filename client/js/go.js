@@ -5,7 +5,7 @@ var __extends = (this && this.__extends) || function (d, b) {
     d.prototype = new __();
 };
 var OPEN = '0x10000001', JOIN = '0x10000002', EXIT = '0x10000003', CONTINUE = '0x10000004', DISCARD = '0x20000001', DISCARD_PONG = '0x30000001', DISCARD_CHI = '0x30000002', DISCARD_DRAW = '0x30000003', WAIT = '0x40000001', START = '0x40000002', OVER = '0x40000003', 	START_DEALER = '0x40000004', START_PLAYER = '0x40000005', WHO = '0x50000001', TIMEOUT = '0x50000002', FINAL = '0x50000003', SELFDRAWHO = '0x50000004', STANDOFF = '0x50000005';
-var V_OPEN = 0x10000001, V_JOIN = 0x10000002, V_EXIT = 0x10000003, V_CONTINUE = 0x10000004, V_DISCARD = 0x20000001, V_DISCARD_PONG = 0x30000001, V_DISCARD_CHI = 0x30000002, V_DISCARD_DRAW = 0x30000003, V_WAIT = 0x40000001, V_START = 0x40000002, V_OVER = 0x40000003, V_START_DEALER = 0x40000004, V_START_PLAYER = 0x40000005, V_WHO = 0x50000001, V_TIMEOUT = 0x50000002, V_FINAL = 0x50000003, V_SELFDRAWHO = 0x50000004, V_STANDOFF = 0x50000005;
+var V_OPEN = 0x10000001, V_JOIN = 0x10000002, V_EXIT = 0x10000003, V_CONTINUE = 0x10000004, V_DISCARD = 0x20000001, V_DISCARD_PONG = 0x30000001, V_DISCARD_CHI = 0x30000002, V_DISCARD_DRAW = 0x30000003, V_WAIT = 0x40000001, V_START = 0x40000002, V_OVER = 0x40000003, V_START_DEALER = 0x40000004, V_START_PLAYER = 0x40000005, V_WHO = 0x50000001, V_TIMEOUT = 0x50000002, V_FINAL = 0x50000003, V_SELFDRAWHO = 0x50000004, V_STANDOFF = 0x50000005, V_HELP = 0x80000001;
 var Message = (function () {
     function Message() {
         this.cmd = 0;
@@ -365,10 +365,11 @@ var End = (function (_super) {
 })(State);
 var RoundImpl = (function (_super) {
 	__extends(RoundImpl, _super);
-	function RoundImpl(host, uid, chip, onClose, onGUI) {
+	function RoundImpl(host, uid, chip, onClose, onGUI, onHelp) {
 		_super.call(this, null);
 		this.host = host;
 		this.mgr = new RoundManager(uid, this, chip, onClose, onGUI);
+		this.onHelp = onHelp;
 		this.going = new Going(this);
 		var going = this.going;
 		var empty = new State(going);
@@ -444,6 +445,10 @@ var RoundImpl = (function (_super) {
 			this.mgr.send(msg);
 			msg.cmd = cmd;
 			this.recv(msg);
+		break;
+		case V_HELP:
+			if(this.onHelp != undefined && this.onHelp != null)
+				this.onHelp();
 		break;
 		}
 	};

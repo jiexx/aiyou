@@ -526,7 +526,7 @@ var Layout = (function () {
 		'bamboo1', 'bamboo2', 'bamboo3', 'bamboo4', 'bamboo5', 'bamboo6', 'bamboo7', 'bamboo8', 'bamboo9',
 		'char1', 'char2', 'char3', 'char4', 'char5', 'char6', 'char7', 'char8', 'char9', ];
 	//'who',	'draw',	'continue',	'exit',	'loss',	'win'];
-	var EXIT = 0x10000003,	CONTINUE = 0x10000004,	DISCARD = 0x20000001,	DISCARD_PONG = 0x30000001,	DISCARD_CHI = 0x30000002,	DISCARD_DRAW = 0x30000003,	WHO = 0x50000001, FINAL = 0x50000003, SELFDRAWHO = 0x50000004;
+	var EXIT = 0x10000003,	CONTINUE = 0x10000004,	DISCARD = 0x20000001,	DISCARD_PONG = 0x30000001,	DISCARD_CHI = 0x30000002,	DISCARD_DRAW = 0x30000003,	WHO = 0x50000001, FINAL = 0x50000003, SELFDRAWHO = 0x50000004, HELP = 0x80000001;
 	function Layout() {
 		this.myCards = null;
 		this.hisCards = null;
@@ -618,6 +618,7 @@ var Layout = (function () {
 		this.gui = new GuiLayer(scene);
 		this.msg = this.gui.drawText("等待对手...", 0.5, 0.5);
 		this.gui.addImage("exit", 0.9, 0.1, 50.0, 50.0, this.exitOnClick);
+		this.gui.addImage("help", 0.85, 0.1, 50.0, 50.0, this.helpOnClick);
 		this.gui.draw();
 	};
 	Layout.prototype.initGUI = function (myAvator, hisAvator, myName, hisName, myChip, hisChip) {
@@ -693,6 +694,11 @@ var Layout = (function () {
 	};
 	Layout.prototype.instance = function () {
 		return this;
+	};
+	Layout.prototype.helpOnClick = function (that) {
+		var _this = Mahjong.instance();
+		_this.notify(HELP, _this.userid);
+		_this.invalidate();
 	};
 	Layout.prototype.exitOnClick = function (that) {
 		var _this = Mahjong.instance();
