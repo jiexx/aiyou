@@ -30,11 +30,11 @@
               </div>
 			</div>
               <div class="scrollable-footer section">
-                <div class="col-sm-10 media-left">
-                  <input type="text" class="form-control needsclick input-transparent" ng-model="table.commentSell"/>
+                <div class="col-xs-9 media-left">
+                  <input type="text" placeholder="说明" class="form-control needsclick input-transparent" ng-model="table.commentSell"/>
                 </div>
-			    <div class="col-sm-2 media-right">
-                  <button class="btn btn-primary pull-right" ng-click="submitSell()">新增</button>
+			    <div class="col-xs-3 media-right">
+                  <button class="btn btn-primary" ng-click="submitSell()">添加</button>
                 </div>
               </div>
             <div class="scene-canvas"><input type="file" style="opacity: 0;" class="form-control" onchange="angular.element(this).scope().uploadImgSell(this.files);" file-model="table.imgSellToUpload"/></div>

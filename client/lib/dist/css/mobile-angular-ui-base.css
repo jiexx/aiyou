@@ -9105,7 +9105,7 @@ ui-switch {
 .box-plus {
   position:absolute;
   left: 50%;
-  top: 45%;
+  top: 35%;
   height: 58px;
   width: 58px;
   border: dotted 1px gray;
@@ -9156,10 +9156,24 @@ ui-switch {
 }
 
 .modals-rotate{
-  /*-webkit-transform: rotate(-90deg);
+  -webkit-transform: rotate(-90deg);
   -moz-transform: rotate(-90deg);
   -o-transform: rotate(-90deg);
   -ms-transform: rotate(-90deg);
   transform: rotate(-90deg);
-  -webkit-backface-visibility: hidden;*/
+  -webkit-backface-visibility: hidden;
+  top: 30%;
+  left: 0;
+  width: 100%;
+  height: 40%;
+}
+.modals-rotate > .modal-content {
+  width: 100%;
+  height: 100%;
+  overflow: auto;
+  -webkit-overflow-scrolling: touch;
+}
+.modals-rotate > .modal-content > .modal-body > p  > img{
+  max-width:100%;
+  max-height:100%;
 }
