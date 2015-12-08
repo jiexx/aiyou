@@ -1,8 +1,8 @@
 ﻿<div ui-content-for="modals">
   <div ng-include="'msgbox.html'"></div>
 </div>
-<div class="scrollable-content section bbs">
-  <div class="scrollable-content" ui-scroll-bottom='bottomReached()'>
+<div class="scrollable-content section ">
+  <div class="bbs" ui-scroll-bottom='bottomReached()'>
     <div class="list-group" >
       <div ng-repeat="item in goods" class="panel panel-default media">
 	    <div class="section row" >
@@ -49,10 +49,10 @@
     </div>
   </div>
   <div ng-class="{'collapse': !commentVisible , 'scrollable-footer section': commentVisible}">
-    <div class="col-xs-10 media-left">
+    <div class="col-sm-8 media-left">
       <input type="text" class="form-control needsclick" ng-model="commentText"/>
     </div>
-    <div class="col-xs-2 media-right"><button class="form-control btn btn-primary" ng-click="onClickComment(commentText);commentText='';">发表</button>
+    <div class="col-sm-4 media-right"><button class="form-control btn btn-primary" ng-click="onClickComment(commentText);commentText='';">发表</button>
     </div>
   </div>
 </div>

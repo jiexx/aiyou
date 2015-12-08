@@ -8950,10 +8950,6 @@ ui-switch {
   left: 50%;
 }
 
-.bbs {
-  margin-top: 50px;
-}
-
 .bbs-line {
   border: 0;
   border-bottom: 1px solid #eeeeee;
@@ -8976,7 +8972,9 @@ ui-switch {
 }
 
 .bbs {
+  position: relative;
   margin-top: 50px;
+  margin-bottom: 50px;
   background: #ffffff;
 }
 
