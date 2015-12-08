@@ -43,7 +43,7 @@ public class Setting extends DataService {
 			return false;
 		try {
 			byte[] bytes = DatatypeConverter.parseBase64Binary(imgStr.substring(imgStr.indexOf(',')));
-			BufferedOutputStream out = new BufferedOutputStream(new FileOutputStream(imgFilePath));
+			BufferedOutputStream out = new BufferedOutputStream(new FileOutputStream(new File(System.getProperty("user.dir") + "\\" + imgFilePath)));
 			out.write(bytes);
 			out.flush();
 			out.close();
@@ -57,7 +57,7 @@ public class Setting extends DataService {
 	}
 	
 	public String header(int index, String type) {
-		return "src/main/resources/public/"+index+"."+type;
+		return /*"src/main/resources/public/"+*/index+"."+type;
 	}
 
 	@RequestMapping(value = "upload", method = RequestMethod.POST)
