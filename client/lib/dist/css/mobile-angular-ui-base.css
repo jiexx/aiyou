@@ -9029,7 +9029,7 @@ ui-switch {
   left: 0;
   max-width: 100%;
   background: transparent;
-  padding-top: 40px;
+
 }
 
 .scene-canvas > div {
@@ -9086,6 +9086,7 @@ ui-switch {
 .container-plus  > img{
   max-width:100%;
   max-height:100%;
+  overflow: hidden;
 }
 .container-plus-img {
   max-width:100%;
