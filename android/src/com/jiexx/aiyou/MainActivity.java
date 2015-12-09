@@ -171,7 +171,7 @@ public class MainActivity extends Activity {
 //	
 	public String wwwHome() {
 		//return "file:///android_asset/client/index.html#/?id=15800000000&lng=121.429&lat=31.289&srv="+Base64.encodeBytes(Configuration.rootUrl.getBytes()); 
-		return  "file://"+Configuration.dirWWW()+"index.html#/?id=15800000001&lng=121.439&lat=31.289&srv="+Base64.encodeBytes(Configuration.rootUrl.getBytes());
+		return  "file://"+Configuration.dirWWW()+"index.html#/?id=15800000000&lng=121.439&lat=31.289&srv="+Base64.encodeBytes(Configuration.rootUrl.getBytes());
 		//return  "file://"+Configuration.dirWWW()+"index.html#/?id=15800000000&srv="+Base64.encodeBytes(Configuration.rootUrl.getBytes());
 	}
 

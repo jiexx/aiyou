@@ -158,20 +158,22 @@ public class Card {
 		for( i = 0 ; i < handcards.size() ; i ++ ) {
 			if( handcards.get(i) !=  handcards.get(i+1) )
 				break;
-			i++;
+			i ++;
 		}
 		return i == handcards.size();
 	}
 	
 	private static boolean rule2( LinkedList<Byte> handcards ) {
-		int j = 0, k = 0;
+		int j = 0, k = 0, step = 0;
 		for( int i = 0 ; i < handcards.size(); i ++ ) {
-			if( handcards.get(i) !=  handcards.get(i+1) + 1 &&  handcards.get(i+1) != handcards.get(i+2) + 2 ) {
+			if( i < handcards.size() - 2 && handcards.get(i) ==  handcards.get(i+1) + 1 &&  handcards.get(i+1) == handcards.get(i+2) + 2 ) {
 				j ++;
-				i += 2;
+				step = 2;
 			}else if( handcards.get(i) ==  handcards.get(i+1) ) {
 				k ++;
+				step = 1;
 			}
+			i += step;
 		}
 		return j == 4 && k == 1;
 	}

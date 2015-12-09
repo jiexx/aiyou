@@ -9029,7 +9029,7 @@ ui-switch {
   left: 0;
   max-width: 100%;
   background: transparent;
-
+  margin-bottom: 40px;
 }
 
 .scene-canvas > div {
