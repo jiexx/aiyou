@@ -9,12 +9,12 @@ var app = angular.module('aiyou', [
 app.config(function ($routeProvider, $controllerProvider, $locationProvider, $httpProvider) {
 	app.registerCtrl = $controllerProvider.register;
 	//$locationProvider.html5Mode(true);
+	//$routeProvider.when('/home', {
+	//	templateUrl : "home.html",
+	//	controller : 'homeCtrl',
+	//	reloadOnSearch : false
+	//});
 	$routeProvider.when('/', {
-		templateUrl : "home.html",
-		controller : 'homeCtrl',
-		reloadOnSearch : false
-	});
-	$routeProvider.when('/home-list', {
 		templateUrl : "home-list.html",
 		controller : 'homeListCtrl',
 		reloadOnSearch : false
@@ -24,16 +24,16 @@ app.config(function ($routeProvider, $controllerProvider, $locationProvider, $ht
 		controller : 'bbsCtrl',
 		reloadOnSearch : false
 	});
-	$routeProvider.when('/user', {
-		templateUrl : "user.html",
-		controller : 'userCtrl',
-		reloadOnSearch : false
-	});
-	$routeProvider.when('/setting', {
-		templateUrl : "setting.html",
-		controller : 'settingCtrl',
-		reloadOnSearch : false
-	});
+	//$routeProvider.when('/user', {
+	//	templateUrl : "user.html",
+	//	controller : 'userCtrl',
+	//	reloadOnSearch : false
+	//});
+	//$routeProvider.when('/setting', {
+	//	templateUrl : "setting.html",
+	//	controller : 'settingCtrl',
+	//	reloadOnSearch : false
+	//});
 	$routeProvider.when('/recharge', {
 		templateUrl : "recharge.html",
 		controller : 'rechargeCtrl',
@@ -439,7 +439,7 @@ app.controller('settingCtrl', function ($scope, $location, $cookieStore, $http, 
 	query();
 });
 
-app.controller('homeListCtrl', function ($scope, $rootScope, $location, $cookieStore, DATA) {
+app.controller('homeListCtrl', function ($scope, $rootScope, $location, $http, $cookieStore, DATA) {
 	var nav = $scope.$parent;
 	nav.title = '列表';
 	nav.navLnk = '/';
@@ -453,8 +453,18 @@ app.controller('homeListCtrl', function ($scope, $rootScope, $location, $cookieS
 		/* global alert: false; */
 		//alert('Congrats you scrolled to the end of the list!');
 	};
-	$scope.auth = (DATA.au == 0? 0 : 1);
-	$scope.stars = DATA.stars;
+	$http({
+		method : 'GET',
+		url : DATA.HOST+'/home.do?id=' + DATA.userid + '&lng=' + DATA.lng + '&lat=' + DATA.lat
+	}).success(function (resp, status, headers, config) {
+		DATA.stars = resp.star;
+		DATA.au = resp.au == 268435456 ? 0 : 1;
+		$scope.auth = (DATA.au == 0? 0 : 1);
+		$scope.stars = DATA.stars;
+	}).error(function (data, status, headers, config) {
+		console.log(DATA.HOST+'  ');
+		$scope.status = status;
+	});
 	$scope.clickPlay = function(userid, $event){
 		console.log("play click");
 		if( DATA.au == 0 ) {
@@ -603,7 +613,7 @@ app.controller('homeCtrl', function ($scope, $rootScope, $location, $cookieStore
 
 	var nav = $scope.$parent;
 	nav.title = '哎呦';
-	nav.navLnk = 'home-list';
+	nav.navLnk = 'home';
 	nav.listStyle = true;
 	nav.navClick = function(){
 		return true;
@@ -669,7 +679,7 @@ app.controller('homeCtrl', function ($scope, $rootScope, $location, $cookieStore
 		}
 	}
 
-	$http({
+	/*$http({
 		method : 'GET',
 		url : DATA.HOST+'/home.do?id=' + DATA.userid + '&lng=' + DATA.lng + '&lat=' + DATA.lat
 	}).success(function (resp, status, headers, config) {
@@ -684,8 +694,12 @@ app.controller('homeCtrl', function ($scope, $rootScope, $location, $cookieStore
 	}).error(function (data, status, headers, config) {
 		console.log(DATA.HOST+'  ');
 		$scope.status = status;
-	});
-	
+	});*/
+	if( DATA.stars != null ) {
+		Home.clean();
+		Home.layout(DATA.lat, DATA.lng);
+		Home.star(DATA.au, resp.star, $compile, $scope);
+	}
 });
 
 app.controller('rechargeCtrl', function ($scope, $rootScope, $location, $cookieStore, $http, DATA) {
