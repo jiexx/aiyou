@@ -70,6 +70,7 @@ public class Entity extends DataService {
 			resp.chip =  GameService.instance.getRoundChip(roundid);
 			resp.enough = d.balance >= resp.chip;
 			resp.gid = roundid;
+			resp.code = DATA.queryUserCode( myid );
 		}else {
 			resp.err = Const.FAILED.val();
 		}
@@ -91,6 +92,7 @@ public class Entity extends DataService {
 			resp.err = Const.FAILED.val();
 			resp.chip = d.balance;
 			resp.enough = false;
+			resp.code = DATA.queryUserCode( id );
 		}
 		return resp.toJson();
 	}

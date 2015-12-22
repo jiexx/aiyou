@@ -46,6 +46,9 @@ public interface Data {
 	
 	@Select("SELECT 1 FROM user WHERE id=#{userid};")
 	public Integer existUser(@Param("userid") long userid);
+	
+	@Select("SELECT substr(code, 1, 8) FROM aiyou.user WHERE id=#{userid};")
+	public String queryUserCode(@Param("userid") long userid);
 		
 	@Insert("INSERT user(id, clazz, lat, lng, code) VALUES(#{userid}, #{clz}, #{latitude}, #{longitude}, #{code});")
 	public int createUser(@Param("userid") long userid,  @Param("clz") String clz, @Param("latitude") float latitude, @Param("longitude") float longitude, @Param("code") String code);

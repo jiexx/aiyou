@@ -186,6 +186,7 @@ app.controller('registerCtrl', function ($scope, $location, $cookieStore, $http,
 	$scope.avatarHint = 1;
 	$scope.holder = '昵称';
 	$scope.nickName = '';
+	$scope.code = '';
 
 	$scope.submit = function () {
 		if ($scope.avatarHint != 0) {
@@ -198,7 +199,7 @@ app.controller('registerCtrl', function ($scope, $location, $cookieStore, $http,
 			$http({
 				method  : 'POST',
 				url: DATA.HOST+'/entity/reg.do', 
-				data: {id: DATA.userid, n : $scope.nickName, a : fd, s : clazz, lat : DATA.lat, lng : DATA.lng}, 
+				data: {id: DATA.userid, n : $scope.nickName, a : fd, s : clazz, lat : DATA.lat, lng : DATA.lng, code : $scope.code }, 
 				//dataType: 'json',
 				//headers : {
 				//	'Content-Type': 'application/x-requested-with; charset=UTF-8'
@@ -444,6 +445,7 @@ app.controller('homeListCtrl', function ($scope, $rootScope, $location, $http, $
 	nav.title = '列表';
 	nav.navLnk = '/';
 	nav.listStyle = false;
+	nav.titleVisible = true;
 	nav.navClick = function(){
 		$rootScope.loading = true;
 		return true;
@@ -465,6 +467,23 @@ app.controller('homeListCtrl', function ($scope, $rootScope, $location, $http, $
 		console.log(DATA.HOST+'  ');
 		$scope.status = status;
 	});
+	var hint = function( enough, code ) {
+		if( enough ) {
+			$location.path('/game').search({id:userid,chip:resp.chip});
+		}else {
+			$rootScope.Ui.turnOn('mb');
+			$scope.mbChip = '您的金币不足,可以选择好友推广挣金币或者直接充值';
+			$scope.mbOptionText = '充值';
+			$scope.mbOption = function() {
+				//var n = encodeURIComponent(JSON.stringify({id:resp.gid,chip:resp.chip}));
+				$location.path('/recharge').search({id:DATA.userid});
+			};
+			$scope.mbConfirmText = '推广';
+			$scope.mbConfirm = function() {
+				window.location.href = "sms:0;body=你的朋友邀请你下载二人麻将 http://112.33.8.90:9090/shell.apk 邀请码 "+code;
+			};
+		}
+	};
 	$scope.clickPlay = function(userid, $event){
 		console.log("play click");
 		if( DATA.au == 0 ) {
@@ -479,7 +498,7 @@ app.controller('homeListCtrl', function ($scope, $rootScope, $location, $http, $
 					//$location.path('/myURL/').search({param: 'value'});
 					url: DATA.HOST+'/entity/eqry.do?id=' + userid + '&chip=' + this.mbiChip,
 				}).success(function (resp, status, headers, config) {
-					$location.path('/game').search({id:userid,chip:resp.chip});
+					hint(resp.enough, resp.code);
 				}).error(function (data, status, headers, config) {
 					$scope.status = status;
 				});
@@ -501,7 +520,7 @@ app.controller('homeListCtrl', function ($scope, $rootScope, $location, $http, $
 						$location.path('/game').search({id:resp.gid,chip:resp.chip});
 					};
 				}else {
-					$scope.mbChip = '您的金币不足,可以选择好友推广挣金币<br>或者直接充值';
+					$scope.mbChip = '您的金币不足,可以选择好友推广挣金币或者直接充值';
 					$scope.mbOptionText = '充值';
 					$scope.mbOption = function() {
 						//var n = encodeURIComponent(JSON.stringify({id:resp.gid,chip:resp.chip}));
@@ -509,7 +528,7 @@ app.controller('homeListCtrl', function ($scope, $rootScope, $location, $http, $
 					};
 					$scope.mbConfirmText = '推广';
 					$scope.mbConfirm = function() {
-						window.location.href = "aiyou://1.1.1.1/register.do?ref="+DATA.userid;
+						window.location.href = "sms:0;body=你的朋友邀请你下载二人麻将 http://112.33.8.90:9090/shell.apk 邀请码 "+resp.code;
 					};
 				}
 			}).error(function (data, status, headers, config) {
