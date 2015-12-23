@@ -4,6 +4,7 @@ import com.jiexx.aiyou.message.Command;
 import com.jiexx.aiyou.message.DiscardAck;
 import com.jiexx.aiyou.message.HuAck;
 import com.jiexx.aiyou.message.Message;
+import com.jiexx.aiyou.service.DataService;
 import com.jiexx.aiyou.service.GameService;
 
 public class HuState extends TimeOutState{
@@ -12,9 +13,13 @@ public class HuState extends TimeOutState{
 		super(root);
 		// TODO Auto-generated constructor stub
 		round = (Round) getRoot();
+		
+		ds = new DataService();
 	}
 	
 	private Round round = null;
+	
+	private DataService ds;
 	
 	@Override
 	public void Enter(final Message msg) {
@@ -34,6 +39,8 @@ public class HuState extends TimeOutState{
 					ha.hu = (round.mgr.getUserId() == msg.uid);
 					ha.other = round.mgr.getCardsOfOther();
 					ha.bonus = (round.mgr.getUserId() == msg.uid ? round.mgr.getChip() : -round.mgr.getChip()) ;
+					ds.getData().chargeBalance( ha.bonus, round.mgr.getUserId() );
+					ha.balance = ds.getData().queryDriverBalance(round.mgr.getUserId());
 					round.mgr.notifyUser(gson.toJson(ha));
 				}while(round.mgr.nextUser());
 

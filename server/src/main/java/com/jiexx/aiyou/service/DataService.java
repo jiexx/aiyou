@@ -17,4 +17,8 @@ public class DataService {
 		System.out.println("test  "+d);
 		this.DATA = d;
 	}
+	
+	public Data getData() {
+		return DATA;
+	}
 }

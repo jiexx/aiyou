@@ -9,5 +9,6 @@ public class HuAck extends Ack {
 	}
 	public LinkedList<LinkedList<Byte>> other;
 	public int bonus;
+	public int balance;
 	public boolean hu;
 }

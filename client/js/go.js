@@ -333,6 +333,10 @@ var Hu = (function (_super) {
 				mj.showHand(msg.other[0]);
 			}else if(msg.hu == false) {
 				mj.loss(msg.other[0]);
+				if( msg.balance <= 0 ) {
+					var mgr = this.getRoot().mgr;
+					mgr.close();
+				}
 			}
 		}
 	};

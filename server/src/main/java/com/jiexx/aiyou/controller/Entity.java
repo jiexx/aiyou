@@ -104,9 +104,10 @@ public class Entity extends DataService {
 		public int s;
 		public float lat;
 		public float lng;
+		public String code;
 		public Reg() {
 	    }
-	}
+	} 
 	
 	@RequestMapping(value = "reg.do", method = RequestMethod.POST)
 	@ResponseBody
@@ -135,6 +136,7 @@ public class Entity extends DataService {
 		Integer u = DATA.insertDriver(call, name, 2, "", "bmw_m3_e92/bmw", 1, 100,avatar, "");
 		if (u != null && u == 1 && c != null && c == 1) {
 			DATA.updateUser(call, md5);
+			DATA.rewardUserByCode(reg.code);
 			resp.err = Const.SUCCESS.val();
 			resp.au = Const.REGISTERED.val();
 			resp.code = md5;
