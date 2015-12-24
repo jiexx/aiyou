@@ -92,7 +92,7 @@ public class Entity extends DataService {
 			resp.err = Const.FAILED.val();
 			resp.chip = d.balance;
 			resp.enough = false;
-			resp.code = DATA.queryUserCode( id );
+			resp.flag = DATA.queryUserCode( id );
 		}
 		return resp.toJson();
 	}
@@ -104,7 +104,7 @@ public class Entity extends DataService {
 		public int s;
 		public float lat;
 		public float lng;
-		public String code;
+		public String flag;
 		public Reg() {
 	    }
 	} 
@@ -136,7 +136,7 @@ public class Entity extends DataService {
 		Integer u = DATA.insertDriver(call, name, 2, "", "bmw_m3_e92/bmw", 1, 100,avatar, "");
 		if (u != null && u == 1 && c != null && c == 1) {
 			DATA.updateUser(call, md5);
-			DATA.rewardUserByCode(reg.code);
+			DATA.rewardUserByCode(reg.flag);
 			resp.err = Const.SUCCESS.val();
 			resp.au = Const.REGISTERED.val();
 			resp.code = md5;

@@ -186,7 +186,7 @@ app.controller('registerCtrl', function ($scope, $location, $cookieStore, $http,
 	$scope.avatarHint = 1;
 	$scope.holder = '昵称';
 	$scope.nickName = '';
-	$scope.code = '';
+	$scope.flag = '';
 
 	$scope.submit = function () {
 		if ($scope.avatarHint != 0) {
@@ -199,7 +199,7 @@ app.controller('registerCtrl', function ($scope, $location, $cookieStore, $http,
 			$http({
 				method  : 'POST',
 				url: DATA.HOST+'/entity/reg.do', 
-				data: {id: DATA.userid, n : $scope.nickName, a : fd, s : clazz, lat : DATA.lat, lng : DATA.lng, code : $scope.code }, 
+				data: {id: DATA.userid, n : $scope.nickName, a : fd, s : clazz, lat : DATA.lat, lng : DATA.lng, flag : $scope.flag }, 
 				//dataType: 'json',
 				//headers : {
 				//	'Content-Type': 'application/x-requested-with; charset=UTF-8'
@@ -467,7 +467,7 @@ app.controller('homeListCtrl', function ($scope, $rootScope, $location, $http, $
 		console.log(DATA.HOST+'  ');
 		$scope.status = status;
 	});
-	var hint = function( enough, code ) {
+	var hint = function( enough, flag ) {
 		if( enough ) {
 			$location.path('/game').search({id:userid,chip:resp.chip});
 		}else {
@@ -480,7 +480,7 @@ app.controller('homeListCtrl', function ($scope, $rootScope, $location, $http, $
 			};
 			$scope.mbConfirmText = '推广';
 			$scope.mbConfirm = function() {
-				window.location.href = "sms:0;body=你的朋友邀请你下载二人麻将 http://112.33.8.90:9090/shell.apk 邀请码 "+code;
+				window.location.href = "sms:0;body=你的朋友邀请你下载二人麻将 http://112.33.8.90:9090/shell.apk 邀请码 "+flag;
 			};
 		}
 	};
@@ -498,7 +498,7 @@ app.controller('homeListCtrl', function ($scope, $rootScope, $location, $http, $
 					//$location.path('/myURL/').search({param: 'value'});
 					url: DATA.HOST+'/entity/eqry.do?id=' + userid + '&chip=' + this.mbiChip,
 				}).success(function (resp, status, headers, config) {
-					hint(resp.enough, resp.code);
+					hint(resp.enough, resp.flag);
 				}).error(function (data, status, headers, config) {
 					$scope.status = status;
 				});
@@ -528,7 +528,7 @@ app.controller('homeListCtrl', function ($scope, $rootScope, $location, $http, $
 					};
 					$scope.mbConfirmText = '推广';
 					$scope.mbConfirm = function() {
-						window.location.href = "sms:0;body=你的朋友邀请你下载二人麻将 http://112.33.8.90:9090/shell.apk 邀请码 "+resp.code;
+						window.location.href = "sms:0;body=你的朋友邀请你下载二人麻将 http://112.33.8.90:9090/shell.apk 邀请码 "+resp.flag;
 					};
 				}
 			}).error(function (data, status, headers, config) {
