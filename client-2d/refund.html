@@ -1,0 +1,24 @@
+<div class="scrollable-content section bbs">
+  <div class="scrollable-content" ui-scroll-bottom='bottomReached()' ui-state='accordion'>
+      <div class="section" >
+		<h6 class="section">
+			<small>*该邮件用于接收退款,务必保证正确，否则将不会被退回</i></small><br>
+		</h6>
+		<h6 class="section">
+			<small class="btn-danger" >{{errHint}}</small><small class="btn-primary" >{{sucHint}}</small>
+		</h6>
+	  </div>
+      <div class="modal-body">
+		<div class="section"> 
+		  <div class="section-wide">
+		    <input type="text" class="form-control needsclick" ng-model="$parent.email" placeholder="收款电子邮件地址" ng-if="hasEmail==0">
+			<h5 class="btn-group " ng-if="hasEmail==1">电子邮件:{{$parent.email}}</h5>
+		  </div>
+		</div>
+		<div class="section">
+            <button class="btn btn-primary btn-block " ng-click="refundConfirm()">确认</button>
+        </div>
+      </div>
+	  <br><br>
+  </div>
+</div>

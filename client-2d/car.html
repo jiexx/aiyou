@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+
+<html>
+<head>
+		<title>g</title>
+  <script src="lib/babylon.max.js"></script>
+  <script src="lib/hands.js"></script>
+  <script src="js/car.js"></script>
+  
+  <style>
+    html {
+      height: 100%;
+    }
+
+    body {
+      margin: 0;
+      height: 100%;
+    }
+
+    canvas {
+      display: block;
+      height: 100%;
+      width: 100%;
+	  position: fixed;
+    }
+  </style>
+</head>
+<body>
+  <canvas id="car">
+  </canvas>
+  <script type="text/javascript">
+    var canvas = document.getElementById("car");
+	Car.create( canvas );
+	var c = Car.load("./asserts/car/bmw_m3_e92/", "bmw.babylon");
+	c.render();
+  </script>
+</body>
+</html>

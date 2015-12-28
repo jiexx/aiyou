@@ -1,0 +1,22 @@
+<div class="modal" ui-if='mbi' ui-state='mbi'>
+  <div class="modal-backdrop in"></div>
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <button class="close" 
+                ui-turn-off="mbi">&times;</button>
+        <h4 class="modal-title">请选择</h4>
+      </div>
+      <div class="modal-body">
+		<div class="btn-group">
+		  <a href class="btn btn-default" ui-turn-on='button1' ui-state='button1' ui-class="{'active': button1}" ui-exclusion-group='myButtons'>二人麻将</a>
+		  <!--a href class="btn btn-default" ui-turn-on='button2' ui-state='button2' ui-class="{'active': button2}" ui-exclusion-group='myButtons'>五子棋</a-->
+		</div>
+        <div class="form-group">金币<input type="text" class="form-control" ng-model="mbiChip"/></div>
+      </div>
+      <div class="modal-footer">
+        <button ui-turn-off="mbi" class="btn btn-primary" ng-click="mbiConfirm()">继续</button>
+      </div>
+    </div>
+  </div>
+</div>

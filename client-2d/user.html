@@ -1,0 +1,36 @@
+﻿<ui-state id='activeTab' default='1'></ui-state>
+<div class="scene" ng-init="table={}">
+    <div class="scene-tabs">
+      <a ui-set="{'activeTab': 1}" ui-class="{'scene-bar': activeTab == 1}"><i class="fa fa-dashboard"></i></a>
+      <a ui-set="{'activeTab': 2}" ui-class="{'scene-bar': activeTab == 2}"><i class="fa fa-photo"></i></a>
+    </div>
+	
+	<div ui-if="activeTab == 1" class="scene-content">
+	  <div class="scene-canvas">
+			<canvas directive-car></canvas>
+			<img ng-src="{{avatar}}" class="driver-avatar"/>
+			<small class="driver-chip"><img src="./asserts/Mahjong/gold.png" class="bbs-avatar"/>{{chip}}金币</small>
+	  </div>
+    </div>
+      
+    <div ui-if="activeTab == 2" class="scene-content">
+      <div class="carousel ">
+	    <div ng-repeat="item in images" class="carousel-inner" >
+		  <div ng-if="item.img != null"  class="carousel-item ">
+		    <img ng-src="{{item.img}}"  class="container-plus-img"></img>
+			<h5 class="scrollable-footer text-center">{{item.intro}}</h5>
+          </div>
+	    </div>
+	  </div>
+    </div>
+</div>
+<a class="btn btn-block btn-lg btn-primary scrollable-footer " ng-href="{{userLnk}} ">
+  <i  class="fa fa-comments-o"></i>
+</a>
+<!--script type="text/javascript-user">
+(function () {  ng-show=''
+	var canvas = document.getElementById("car");
+	if( canvas != null )
+		Car.create( canvas );
+}).call(this);
+</script-->

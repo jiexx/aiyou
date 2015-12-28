@@ -1,0 +1,36 @@
+﻿<div ui-content-for="modals">
+  <div ng-include="'msgbox.html'"></div>
+  <div ng-include="'msgbox-i.html'"></div>
+</div>
+<div class="scrollable-content bbs">
+	<div class="scrollable-content" ui-scroll-bottom='bottomReached()'>
+    <div class="list-group" ui-state='accordion'>
+	    <div ng-repeat="item in stars"  class="list-group-item list-item-patch">
+		  <div class="pull-left">
+			  <img ng-src="{{item.thumb}}" class="list-item-patch-img "></img>
+			  {{ item.name }} 
+		  </div>
+		  <div class="pull-right list-item-patch" ui-set="{'accordion': item.id}">
+		    <i class="fa fa-ellipsis-v list-item-patch-i pull-right " ui-if="accordion != {{item.id}}" ></i>
+			<div ng-switch on="auth" class="list-item-patch-opt" ui-if="accordion == {{item.id}}">
+			  <div ng-switch-when="0"  class=" btn-group pull-right">
+				  <a href="#/register" class="btn btn-default fa fa-eye text-primary "></a>
+				  <a href="#/register" class="btn btn-default fa fa-gamepad" ng-class="item.clz[1]==0 ? 'collapse' : item.clz[1]==1 ? 'text-primary' : 'text-default' "></a>
+				  <a href="#/register" class="btn btn-default fa fa-comments-o text-primary "></a>
+				  <!--a href="#/register" class="btn btn-default fa fa-gear text-primary" ng-class="{'collapse':item.clz[3]==0}"></a-->
+			  </div>
+			  <div ng-switch-default  class=" btn-group pull-right">
+				  <!--a href="#/user/?id={{item.id}}" class="btn btn-default fa fa-eye text-primary "></a-->  
+				  <a href="#/" class="btn btn-default fa fa-eye text-primary "></a>  
+				  <a ng-if="item.clz[1]==1" href="javascript:void(0);" ng-click="clickPlay(item.id)"  class="text-primary btn btn-default fa fa-gamepad"></a>
+				  <a ng-if="item.clz[1]==2" href="javascript:void(0);"   class=" btn btn-default fa fa-gamepad text-muted"></a>
+				  <a href="#/bbs/?id={{item.id}}" class="btn btn-default fa fa-comments-o text-primary "></a>
+				  <!--a href="#/setting/?id={{item.id}}" class="btn btn-default fa fa-gear text-primary" ng-class="{'collapse':item.clz[3]==0}"></a-->
+			  </div>
+			</div>
+		  </div>
+		  
+        </div>
+    </div>
+  </div>
+</div>

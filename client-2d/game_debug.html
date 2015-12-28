@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+
+        <title>game</title>
+        <!-- Babylon.js -->
+        <script src="./lib/babylon.max.js"></script>
+		<script src="./lib/bGUI-1.1.0.min.js"></script>
+		<script src="./lib/hands.js"></script>
+		<script src="./lib/sockjs-0.3.js"></script>
+		<script src="./lib/stomp.js"></script>
+		<script src="./js/mahjong.js"></script>
+		<script src="./js/go.js"></script>
+        <style>
+            html, body {
+                overflow: hidden;
+                width: 100%;
+                height: 100%;
+                margin: 0;
+                padding: 0;
+            }
+
+            #renderCanvas {
+                width: 100%;
+                height: 100%;
+                touch-action: none;
+            }
+        </style>
+    </head>
+<body>
+    <canvas id="renderCanvas"></canvas>
+    <script>
+		var a1 = "data:image/jpeg;base64,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";
+        var canvas = document.getElementById("renderCanvas");
+		var mj = Mahjong.create(canvas, null);
+		//test 1.discard ; 2.undiscard
+		//3.draw card; 4.pong; 5.chi; 6.hu
+		mj.initGUI(a1, a1, "name1", "name2", "2", "3");
+		//mj.deal(new Array(1,2,3,3,5,6,7,8,2,4,11,12,13,13));
+		//mj.heDraw(0);
+		//view.who(new Array(1,2,3,3,5,6,7,8,2,4,11,12,13),false);
+		//mj.heDiscard(10,4);
+		//mj.win();
+		//mj.loss(new Array(2,2,3,3,4,4,5,5,7,7,11,11,12,12));
+		//mj.showHand(new Array(2,2,3,3,4,4,5,5,7,7,11,11,12));
+		//view.invalidate();
+		//var round = new RoundImpl('15800000001');
+		//round.view = view;
+		//view.attach(round);
+        //round.join(0);
+    </script>
+</body>
+</html>

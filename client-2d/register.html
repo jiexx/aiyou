@@ -1,0 +1,30 @@
+﻿
+<div class="has-navbar-top  app-body section">
+ <br><br><br><br>
+  <form role="form" ng-submit='login()'>
+	<fieldset>
+    <div class="user-avatar">
+      <div><a class="fa fa-user feature-icon text-primary" ng-class="{'collapse': avatarHint==0}"></a></div>
+      <div><canvas id="imgAvatar" width="58px" height="58px" /><canvas id="imgAvatarScale" width="58px" height="58px"/></div>
+      <div><span ng-class="{'label label-danger': avatarHint==-1, 'label label-primary': avatarHint==1, 'collapse': avatarHint==0}" >请选择头像</span></div>
+      <div><input type="file" style="opacity: 0;" class="form-control" onchange="angular.element(this).scope().uploadAvatar(this.files)"/></div>
+    </div>
+	
+	  <div class="form-group">
+	  <input type="text" class="form-control" placeholder="{{holder}}" ng-model="nickName"/></div>
+	  
+	  <div class="form-group">
+	  <input type="text" class="form-control" placeholder="邀请码" ng-model="code"/></div>
+
+	<div class="btn-group justified nav-tabs" ui-state='activeTab' default='1'>
+        <a ui-set="{'activeTab': 1}" ui-class="{'active': activeTab == 1}" class="btn btn-default active" ng-click="classify(1)">男生</a>
+
+        <a ui-set="{'activeTab': 2}" ui-class="{'active': activeTab == 2}" class="btn btn-default" ng-click="classify(0)" >女生</a>
+
+        <!--a ui-set="{'activeTab': 3}" ui-class="{'active': activeTab == 3}" class="btn btn-default" ng-click="classify(2)">开店</a-->
+    </div>
+	</fieldset>
+  <br>
+	<button class="btn btn-primary btn-block" ng-click='submit()'>提交</button>
+  </form>
+</div>
