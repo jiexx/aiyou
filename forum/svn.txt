@@ -1,0 +1,8 @@
+svn http://svn.code.sf.net/p/jforum2/code/tags/v2.4.1
+http://sourceforge.net/projects/jforum2/
+
+http://www.coderanch.com/t/627032/jforum/canonical-source-Eclipse-setup
+Run > Run As > Maven Build 
+
+Then set, 
+Goal = "package" 

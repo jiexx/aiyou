@@ -1,0 +1,38 @@
+2.4.1
+
+<p>Some features have been added, changed or fixed in JForum 2.4.1, like:</p>
+
+<ul>
+<li>Upgraded JavaMail from 1.5.2 to 1.5.4</li>
+<li>Upgraded JDOM2 from 2.0.5 to 2.0.6</li>
+<li>Upgraded FreeMarker from 2.3.21 to 2.3.23</li>
+<li>Upgraded Apache Commons Lang3 from 3.3.2 to 3.4</li>
+<li>Upgraded JBoss Cache from 2.2.19 to 2.2.22</li>
+<li>Upgraded SLF4J from 1.7.10 to 1.7.12</li>
+<li>Upgraded C3P0 from 0.9.5 to 0.9.5.1</li>
+<li>Upgraded MySQL Connector/J JDBC Driver from 5.1.34 to 5.1.36</li>
+<li>Upgraded PostgreSQL JDBC Driver from 9.3-1102-jdbc4 to 9.4-1201-jdbc4</li>
+<li>Upgraded HSQLDB from 2.3.2 to 2.3.3</li>
+<li>Upgraded Apache Tika from 1.7 to 1.9</li>
+<li>Upgraded jQuery from 1.11.2 to 1.11.3</li>
+<li>Better fix for "Arbitrary File Upload and Remote Code Execution – Smileys"</li>
+<li>Only show number of edits of a post to logged-in users</li>
+<li>Don't ignore user's "Hide my online status" setting</li>
+<li>Salt the user password with an installation-specific value</li>
+<li>Fix problem where smilies could not be inserted into posts by clicking their icons</li>
+<li>Added some missing settings to the Configurations page</li>
+<li>Dates can be displayed in the local timezone of the forum visitor instead of the timezone of the forum server</li>
+<li>broken "can edit message" setting has been fixed</li>
+<li>Numerous code improvements suggested by FindBugs and PMD</li>
+<li>Fix  Issue 22 : Some user attributes not stored in DB</li>
+<li>Fix  Issue 35 : allow to disable version check by adding a version.check.enabled key to switch for check or not</li>
+<li>Fix  Issue 66 : Improve Automatic URL matching</li>
+<li>Fix  Issue 67 : When topic cache is disabled, all pages except first and last in a forum display 0 threads</li>
+<li>Enforce image height and width when using large external image URL as user avatar</li>
+<li>Add DTD for bb_config.xml</li>
+<li>Rearrange the sequence of filters in web.xml</li>
+</ul>
+
+<p>
+<span color="red"><b>Upgrading is HIGHLY recommended</span>
+</p>
