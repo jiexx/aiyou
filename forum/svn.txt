@@ -6,3 +6,4 @@ Run > Run As > Maven Build
 
 Then set, 
 Goal = "package" 
+java -jar jforum-2.4.1-war-exec.jar -httpPort 8081
