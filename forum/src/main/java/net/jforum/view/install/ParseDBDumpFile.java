@@ -43,8 +43,10 @@
 package net.jforum.view.install;
 
 import java.io.BufferedReader;
+import java.io.FileInputStream;
 import java.io.FileReader;
 import java.io.IOException;
+import java.io.InputStreamReader;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -65,7 +67,8 @@ public final class ParseDBDumpFile
 		BufferedReader reader = null;
 		
 		try {
-			reader = new BufferedReader(new FileReader(filename));
+			InputStreamReader isr = new InputStreamReader(new FileInputStream(filename), "UTF-8");
+			reader = new BufferedReader( isr );
 			String line = null;
 			
 			while ((line = reader.readLine()) != null) {

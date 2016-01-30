@@ -3,7 +3,11 @@ SET @GENERAL_GROUP_ID = 1;
 SET @ADMIN_GROUP_ID = 2;
 SET @ANONYMOUS_ID = 1;
 SET @ADMIN_ID = 2;
-
+SET character_set_client='utf8';
+SET character_set_connection='utf8';
+SET character_set_results='utf8';
+SET character_set_database='utf8';
+SET character_set_server='utf8';
 #
 # Groups
 #
@@ -61,11 +65,11 @@ INSERT INTO jforum_smilies (code, url, disk_name) VALUES (':|', '<img src=\"#CON
 #
 # Demonstration Forum
 #
-INSERT INTO jforum_categories VALUES (1,'Category Test',1,0);
-INSERT INTO jforum_forums VALUES (1,1,'Test Forum','This is a test forum',1,1,1,0);
-INSERT INTO jforum_topics VALUES (1,1,'Welcome to JForum',2,NOW(),0,0,0,0,0,1,1,0,0);
+INSERT INTO jforum_categories VALUES (1,'向日葵社区',1,0);
+INSERT INTO jforum_forums VALUES (1,1,'葵花宝典','社区说明',1,1,1,0);
+INSERT INTO jforum_topics VALUES (1,1,'向日葵软件',2,NOW(),0,0,0,0,0,1,1,0,0);
 INSERT INTO jforum_posts VALUES (1,1,1,2,NOW(),'127.0.0.1',1,0,1,1,null,0,1,0,0);
-INSERT INTO jforum_posts_text VALUES (1,'[b][color=blue][size=18]Congratulations :!: [/size][/color][/b]\nYou have completed the installation, and JForum is up and running. \n\nTo start administering the board, login as [i]Admin / <the password you supplied in the installer>[/i] and access the [b][url=/admBase/login.page]Admin Control Panel[/url][/b] using the link that shows up in the bottom of the page. There you will be able to create Categories, Forums and much more  :D  \n\nFor more information and support, please refer to the following pages:\n\n:arrow: Community forum: http://jforum.andowson.com/\n:arrow: Documentation: http://code.google.com/p/jforum2/w/list\n\nThank you for choosing JForum.\n\n[url=http://jforum.net/team.jsp]The JForum Team[/url]\n\n','Welcome to JForum');
+INSERT INTO jforum_posts_text VALUES (1,'[b][color=blue][size=18]欢迎 :!: [/size][/color][/b]\n  向日葵软件是团沛科技研发的一系列基于大数据和仍工智能的移动互联网软件，目前有营销机器人、今日头条和二人麻将为主打的系列软件 :D  \n\n\n\n','Welcome to JForum');
 
 #
 # Roles

@@ -47,6 +47,8 @@ import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.io.StringReader;
 import java.security.InvalidParameterException;
 import java.util.ArrayList;
 import java.util.Enumeration;
@@ -60,6 +62,7 @@ import java.util.concurrent.ConcurrentHashMap;
 import net.jforum.exceptions.ForumException;
 import net.jforum.util.SortedProperties;
 
+import org.apache.commons.io.IOUtils;
 import org.apache.log4j.Level;
 import org.apache.log4j.Logger;
 
@@ -418,14 +421,16 @@ public final class SystemGlobals implements VariableStore
      * @param file 
      *        file to be loaded. Must not be <code>null</code>
      */
-    private static void loadProps( Properties destination, File file )
+    private static synchronized void loadProps( Properties destination, File file )
     {
         try
         {
             InputStream is = new FileInputStream( file );
+            //String theString = IOUtils.toString(is, "UTF-8"); 
+			InputStreamReader isr = new InputStreamReader(is, "UTF-8");
             try
             {
-                destination.load( is );
+                destination.load( /*new StringReader(theString)*/isr );
             }
             finally
             {
