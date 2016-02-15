@@ -7,3 +7,9 @@ Run > Run As > Maven Build
 Then set, 
 Goal = "package" 
 java -jar jforum-2.4.1-war-exec.jar -httpPort 8081
+
+for debug:
+copy config to webapp/web-inf/, copy templates to webapp/
+mvn config: tomcat:run
+
+http://localhost:8080/jforum
