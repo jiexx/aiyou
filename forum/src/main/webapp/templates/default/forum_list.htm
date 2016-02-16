@@ -1,5 +1,5 @@
 <#include "header.htm"/>
-<script type="text/javascript" src="http://code.jquery.com/jquery-1.11.3.min.js"></script>
+<script type="text/javascript" src="js/jquery-1.11.3.min.js"></script>
 <script type="text/javascript" src="${JForumContext.encodeURL("/js/list/userLocalTime")}?${startupTime}"></script>
 
 <table width="100%" align="center">
@@ -24,7 +24,7 @@
 				</tr>
 			</table>
 
-			<table class="forumline forumlist" cellspacing="1" cellpadding="2" width="100%">
+			<table class="forumline forumlist" cellspacing="2" cellpadding="0" width="100%">
 				<tr>
 					<th class="thcornerl" nowrap="nowrap" colspan="2">&nbsp;${I18n.getMessage("ForumListing.forums")}&nbsp;</th>
 					<th class="thtop" nowrap="nowrap" width="50">&nbsp;${I18n.getMessage("ForumListing.totalTopics")}&nbsp;</th>
@@ -42,7 +42,7 @@
 					<#list category.getForums() as forum>
 					<#assign lpi = forumRepository.getLastPostInfo(forum.id)/>
 					<tr>
-						<td class="row1" valign="middle" align="center">
+						<td class="row1" valign="middle" align="center"><!--${category.getForums().size()}-->
 						<#if forum.unread>
 							<img src="${contextPath}/templates/${templateName}/images/folder_new_big.gif" alt="[New Folder]" />
 						<#else>
@@ -103,7 +103,7 @@
 				</tr>
 			</table>
 
-			<table class="forumline" cellspacing="1" cellpadding="3" width="100%">
+			<table class="forumline" cellspacing="2" cellpadding="0" width="100%">
 				<tr>
 					<td class="cathead" colspan="2"><span class="cattitle">${I18n.getMessage("ForumListing.whoIsOnline")}</span></td>
 				</tr>
@@ -155,7 +155,7 @@
 				<input type="hidden" name="action" value="validateLogin" />
                 <input type="hidden" name="OWASP_CSRFTOKEN" value="${OWASP_CSRFTOKEN!""}" />
                 
-				<table class="forumline" cellspacing="1" cellpadding="3" width="100%">
+				<table class="forumline" cellspacing="2" cellpadding="3" width="100%">
 					<tr>
 						<td class="cathead"><a name="login2" id="login2"></a><span class="cattitle">${I18n.getMessage("Login.enter")}</span></td>
 					</tr>

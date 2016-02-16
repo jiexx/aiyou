@@ -154,7 +154,7 @@ public class AdminAction extends Command {
 	
 	private void checkBoardVersion()
 	{
-		String data = this.readVersionFromSocket();
+		String data ;//= this.readVersionFromSocket();
 		
 		if (StringUtils.isBlank(data)) {
 			this.context.put("developmentVersion", false);
@@ -163,11 +163,11 @@ public class AdminAction extends Command {
 		
 		int index = data.indexOf('\n');
 		
-		String version = data.substring(0, index).trim();
-		String notes = data.substring(index + 1, data.length());
+		//String version = data.substring(0, index).trim();
+		//String notes = data.substring(index + 1, data.length());
 		
-		this.matchVersion(version);
-		this.context.put("notes", notes);
+		//this.matchVersion(version);
+		this.context.put("notes", "ok !");
 	}
 	
 	private void matchVersion(String latest)

@@ -451,7 +451,7 @@ public class PostAction extends Command
 		this.context.put("message", I18n.getMessage("PostShow.replyOnly"));
 	}
 
-	private boolean isReplyOnly(int forumId)
+	protected boolean isReplyOnly(int forumId)
 	{
 		return !SecurityRepository.canAccess(SecurityConstants.PERM_REPLY_ONLY, 
 				Integer.toString(forumId));
@@ -736,7 +736,7 @@ public class PostAction extends Command
 	}
 
 	/* check for spam in subject or body, except for admins */
-	private String validatePost (Post post) {
+	protected String validatePost (Post post) {
 		String str = post.getSubject();
 		String spam = SpamRepository.findSpam(str);
 		if (spam != null)
@@ -1524,7 +1524,7 @@ public class PostAction extends Command
 		this.context.put("smilies", SmiliesRepository.getSmilies());
 	}
 
-	private boolean isForumReadonly(int forumId, boolean isReply) {
+	 boolean isForumReadonly(int forumId, boolean isReply) {
 		if (!SecurityRepository.canAccess(SecurityConstants.PERM_READ_ONLY_FORUMS, Integer.toString(forumId))) {
 			if (isReply) {
 				this.list();
@@ -1540,7 +1540,7 @@ public class PostAction extends Command
 		return false;
 	}
 
-	private boolean anonymousPost(int forumId)  
+	protected boolean anonymousPost(int forumId)  
 	{
 		// Check if anonymous posts are allowed
 		if (!SessionFacade.isLogged()

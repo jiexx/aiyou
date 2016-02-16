@@ -180,3 +180,13 @@ INSERT INTO jforum_role_values ( role_id, role_value ) VALUES (LAST_INSERT_ID(),
 #
 INSERT INTO jforum_roles (name, group_id) VALUES ('perm_moderation_forums', @ADMIN_GROUP_ID);
 INSERT INTO jforum_role_values ( role_id, role_value ) VALUES (LAST_INSERT_ID(), '1');
+
+
+INSERT INTO jforum_role_values (role_id, role_value) VALUES (24, '2');
+INSERT INTO jforum_role_values (role_id, role_value) VALUES (25, '2');
+INSERT INTO jforum_role_values (role_id, role_value) VALUES (30, '2');
+INSERT INTO jforum_role_values (role_id, role_value) VALUES (31, '2');
+INSERT INTO jforum_role_values (role_id, role_value) VALUES (34, '2');
+INSERT INTO jforum_role_values (role_id, role_value) VALUES (35, '2');
+INSERT INTO jforum_role_values (role_id, role_value) VALUES (36, '2');
+INSERT INTO jforum_role_values (role_id, role_value) VALUES (37, '2');

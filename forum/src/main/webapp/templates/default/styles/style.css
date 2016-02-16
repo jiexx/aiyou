@@ -9,7 +9,7 @@ a:hover  { color: #dd6900; text-decoration: underline; }
 
 hr         { border: #dfdfdf 1px solid; height: 0px; }
 .bodyline  { border: #cccccc 1px solid; }
-.forumline { border: #006699 2px solid; }
+.forumline { border: #006699 0px solid; }
 
 /* td */
 table.forumlist td.row1 { height: 50px; }
