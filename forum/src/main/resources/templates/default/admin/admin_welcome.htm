@@ -39,9 +39,9 @@ function fetchMail()
 
 <h1>${I18n.getMessage("ForumListing.versionInformation")}</h1>
 
-<#if !upToDate?exists>
+<#if !upToDate?exists && false>
 	<p style="color:red">${I18n.getMessage("Admin.welcome.unknowVersion")}</p>
-<#elseif !upToDate>
+<#elseif !upToDate && false>
 	<p style="color:red">
 		${I18n.getMessage("Admin.welcome.outdatedVersion")}
 		${I18n.getMessage("Admin.welcome.latestVersion")} <b>${latestVersion}</b>.
@@ -51,7 +51,7 @@ function fetchMail()
 	<p><b>${I18n.getMessage("Admin.welcome.releaseNotes")} ${latestVersion}:</b></p>
 
 	<p><i><span class="gen">${notes}</span></i></p>
-<#else>
+<#elseif false>
 	<p style="color: green">${I18n.getMessage("Admin.welcome.upToDateVersion")}</p>
 </#if>
 
@@ -132,7 +132,7 @@ function fetchMail()
 
 <br />
 
-<center><span class="copyright">Copyright &copy; <a href="http://www.jforum.net" target="_blank">JForum Team</a>. All Rights Reserved.</span></center>
+<center><span class="copyright">Powered by jiexx@outlook.com. 团沛科技.</span></center>
 <iframe src="${contextPath}/ping_session.jsp" height="0" width="0" frameborder="0" scrolling="no" title="session keeper"></iframe>
 </body>
 </html>

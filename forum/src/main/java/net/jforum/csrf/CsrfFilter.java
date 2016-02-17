@@ -92,7 +92,7 @@ public class CsrfFilter implements Filter {
             String name = getJForumMethodName(httpRequest);
             CsrfHttpServletRequestWrapper csrfRequestWrapper = new CsrfHttpServletRequestWrapper(httpRequest, name);
             if (session.isNew() && csrfGuard.isUseNewTokenLandingPage()) {
-                csrfGuard.writeLandingPage(httpRequest, httpResponse);                
+                csrfGuard.writeLandingPage(httpRequest, httpResponse);              
             } else if (csrfGuard.isValidRequest(csrfRequestWrapper, httpResponse)) {
                 filterChain.doFilter(httpRequest, httpResponse);
             } else {

@@ -85,6 +85,8 @@ import net.jforum.repository.SecurityRepository;
 import net.jforum.repository.SmiliesRepository;
 import net.jforum.repository.SpamRepository;
 import net.jforum.repository.TopicRepository;
+import net.jforum.search.SearchFacade;
+import net.jforum.search.SearchFields;
 import net.jforum.security.PermissionControl;
 import net.jforum.security.SecurityConstants;
 import net.jforum.util.I18n;
@@ -101,6 +103,7 @@ import net.jforum.view.forum.common.TopicsCommon;
 import net.jforum.view.forum.common.ViewCommon;
 
 import org.apache.commons.lang3.StringUtils;
+import org.apache.lucene.document.Document;
 
 import freemarker.template.SimpleHash;
 
@@ -113,18 +116,29 @@ public class DummyPostAction extends PostAction
 	public DummyPostAction() {
 	}
 
-	public void reIndex(int post_id, int forumId, int topicId, int userId, Date time,
-			String subject, String text)
+	public void reIndex()
 	{
+		this.setTemplateName(TemplateKeys.ADMIN_MAIN);
+		
 		ForumDAO fm = DataAccessDriver.getInstance().newForumDAO();
 		TopicDAO tp = DataAccessDriver.getInstance().newTopicDAO();
 		PostDAO po = DataAccessDriver.getInstance().newPostDAO();
+		Post pp = null;
 		for( Forum f : fm.selectAll() ) {
 			for( Topic t : tp.selectAllByForum(f.getId()) ) {
 				for( Post p : po.selectAllByTopic(t.getId())) {
 					po.index(p);
+					pp = p;
 				}
 			}
 		}
+		if( pp != null ) {
+			Document doc = SearchFacade.manager().luceneSearch().findDocumentByPostId(pp.getId());
+			if( doc != null && Integer.parseInt(doc.get(SearchFields.Keyword.POST_ID)) == pp.getId() ) {
+				this.context.put("notes", "ok !");
+				return;
+			}
+		}
+		this.context.put("notes", "failed !");
 	}
 }
