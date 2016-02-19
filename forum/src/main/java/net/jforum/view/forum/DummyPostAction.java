@@ -118,7 +118,7 @@ public class DummyPostAction extends PostAction
 
 	public void reIndex()
 	{
-		this.setTemplateName(TemplateKeys.ADMIN_MAIN);
+		this.setTemplateName(TemplateKeys.ADMIN_REINDEX);
 		
 		ForumDAO fm = DataAccessDriver.getInstance().newForumDAO();
 		TopicDAO tp = DataAccessDriver.getInstance().newTopicDAO();
