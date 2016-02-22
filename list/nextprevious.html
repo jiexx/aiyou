@@ -1,0 +1,113 @@
+﻿<!DOCTYPE html>
+<html>
+<head>
+    <title>Next/Previous (AJAX Event Calendar)</title>
+
+        <!-- head -->
+    <meta charset="utf-8">
+    
+	<!-- daypilot libraries -->
+    <script src="js/daypilot-all.min.js?v=2051" type="text/javascript"></script>
+
+
+
+	<!-- /head -->
+       
+</head>
+<body>
+
+<div class="space">
+    Week:
+    <a href="javascript:dp.startDate = dp.startDate.addDays(-7); dp.update();">Previous</a>
+    |
+    <a href="javascript:dp.startDate = dp.startDate.addDays(7); dp.update();">Next</a>
+</div>
+
+<div id="dp"></div>
+
+<script type="text/javascript">
+    
+    var dp = new DayPilot.Calendar("dp");
+
+    // view
+    dp.startDate = "2013-02-26";  // or just dp.startDate = "2013-03-25";
+    dp.viewType = "Week";
+    dp.allDayEventHeight = 25;
+    dp.initScrollPos = 9 * 40;
+    dp.moveBy = 'Full';
+    
+    // bubble, with async loading
+    dp.bubble = new DayPilot.Bubble({
+        cssClassPrefix: "bubble_default",
+        onLoad: function(args) {
+            var ev = args.source;
+            args.async = true;  // notify manually using .loaded()
+            
+            // simulating slow server-side load
+            setTimeout(function() {
+                args.html = "testing bubble for: <br>" + ev.text();
+                args.loaded();
+            }, 500);
+        }
+    });
+    
+    dp.contextMenu = new DayPilot.Menu({
+        cssClassPrefix: "menu_default",
+        items: [
+        {text:"Show event ID", onclick: function() {alert("Event value: " + this.source.value());} },
+        {text:"Show event text", onclick: function() {alert("Event text: " + this.source.text());} },
+        {text:"Show event start", onclick: function() {alert("Event start: " + this.source.start().toStringSortable());} },
+        {text:"Delete", onclick: function() { dp.events.remove(this.source); } }
+    ]});
+
+    // event moving
+    dp.onEventMoved = function (args) {
+        dp.message("Moved: " + args.e.text());
+    };
+    
+    // event resizing
+    dp.onEventResized = function (args) {
+        dp.message("Resized: " + args.e.text());
+    };
+
+    // event creating
+    dp.onTimeRangeSelected = function (args) {
+        var name = prompt("New event name:", "Event");
+        if (!name) return;
+        var e = new DayPilot.Event({
+            start: args.start,
+            end: args.end,
+            id: DayPilot.guid(),
+            resource: args.resource,
+            text: "Event"
+        });
+        dp.events.add(e);
+        dp.clearSelection();
+        dp.message("Created");
+    };
+    
+    dp.onTimeRangeDoubleClicked = function(args) {
+        alert("DoubleClick: start: " + args.start + " end: " + args.end + " resource: " + args.resource);
+    };
+    
+    dp.onEventClick = function(args) {
+        alert("clicked: " + args.e.id());
+    };
+    
+    dp.init();
+
+    var e = new DayPilot.Event({
+        start: new DayPilot.Date("2013-02-25T12:00:00"),
+        end: new DayPilot.Date("2013-02-25T12:00:00").addHours(3),
+        id: DayPilot.guid(),
+        text: "Special <br>event"
+    });
+    dp.events.add(e);
+
+</script>
+
+
+
+</body>
+</html>
+
