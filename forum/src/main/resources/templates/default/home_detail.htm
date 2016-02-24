@@ -1,0 +1,75 @@
+
+<html>
+	<head>
+		<title>团沛软件</title>
+		<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+		<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+		<meta name="keywords" content="Spareparts iphone web template, Andriod web template, Smartphone web template, free webdesigns for Nokia, Samsung, LG, SonyErricsson, Motorola web design" />
+		<link href="./css/style.css" rel="stylesheet" type="text/css"  media="all" />
+	</head>
+	<body>
+		<!---start-wrap---->
+		<div class="wrap">
+			<!---start-header---->
+			<div class="header toTop" id="home">
+				<!---start-logo---->
+				<div class="logo">
+					<a href="#"><img src="./images/logo.png" title="logo" /></a>
+				</div>
+			</div>
+		</div>
+		<!--start-content--->
+		</div><br><br><br><br><br><br>
+		<div class="content">
+			<div class="gallrey-grids">
+				<div class="holder smooth">
+					 <img src="${JForumContext.encodeURL("${product.imageId}")" alt="">
+				</div>
+			</div>
+			<div class="gallery-header">
+				<h3>${product.name}</h3>
+				<p>${product.descDetail}</p>
+			</div>
+			<div class="catch-me">
+						<ul>
+							<li><a href="#"><img src="./images/wei.png" title="facebook"></a></li>
+							<li><a href="#"><img src="./images/bo.png" title="Rss"></a></li>
+							<li><a href="#"><img src="./images/buy.png" title="Googlepluse"></a></li>
+						</ul>
+					</div>
+		</div>
+		
+		<!---start-contact---->
+		<div class="contact" id="contact">
+			<div class="wrap">
+				<h3>留言</h3>
+				<form>
+				<textarea value="Message:" onfocus="this.value = '';" onblur="if (this.value == '') {this.value = 'Message';}">Message</textarea>
+				<input type="submit" value="确认">
+				</form>
+			</div>
+			<p></p>
+		</div>
+		<!---End-contact---->
+		<!---start-contact---->
+		<#list allComments as comment>
+		<div class="contact" id="contact">
+			<div class="wrap">
+				<h4>${comment.body}</h4>
+				<h5>${comment.name}</h5>
+			</div>
+		</div>
+		<#list>
+		<!---End-contact---->
+		<!---start-copy-right---->
+		<div class="copy-right vertical-align: baseline;">
+			<div class="wrap">
+				<p>Powered by 团沛软件. jiexx@outlook.com</p>
+			</div>
+		</div>
+    <!--a href="#" id="toTop" style="display: block;"><span id="toTopHover" style="opacity: 1;"></span></a-->
+		<!---End-copy-right---->
+		<!---start-wrap---->
+	</body>
+</html>
+

@@ -138,6 +138,9 @@ public final class TemplateKeys
 	public static final String ADMIN_MENU = "admin.menu";
 	public static final String ADMIN_MAIN = "admin.main";
 	public static final String ADMIN_REINDEX = "admin.reIndex";
+	
+	public static final String HOME_LIST = "home.list";
+	public static final String HOME_DETAIL = "home.detail";
 
 	public static final String ATTACHMENTS_CONFIG = "attachments.config";
 	public static final String ATTACHMENTS_QUOTA_LIMIT = "attachments.quota.limit";

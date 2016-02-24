@@ -13,3 +13,10 @@ copy config to webapp/web-inf/, copy templates to webapp/
 mvn config: tomcat:run
 
 http://localhost:8080/jforum
+
+
+#1  modulesMapping.properties  new module;
+#2  csrf.properties            new method;
+#3  urlPattern.properties      new arguments;
+#4  TemplateKeys.java          define temp
+#5  templatesMapping.properties  define temp->html;
