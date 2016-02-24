@@ -322,9 +322,9 @@ form {
 	font-family: Arial, helvetica, helve, sans-serif;
 	font-size: 1.2em;
 	text-transform: uppercase;
-	padding: 10px 0px 5px 0px;
+	padding: 10px 10px 10px 10px;
 	color: #545046;
-	padding: 0px 0px 12px 0px;
+	text-align: center;
 }
 .gallery-header p{
 	font-family: Arial, helvetica, helve, sans-serif;
@@ -472,6 +472,26 @@ form {
 	color: #545046;
 	padding: 0px 0px 12px 0px;
 }
+.contact h4{
+	font-family: Arial, helvetica, helve, sans-serif;
+	font-size: 0.9em;
+	text-transform: uppercase;
+	padding: 0px 0px 0px 20px;
+	color: #545046;
+	text-align:left;
+}
+.contact h5{
+	font-family: Arial, helvetica, helve, sans-serif;
+	font-size: 0.5em;
+	text-transform: uppercase;
+	line-height: 1.8em;
+	color: #545046;
+	border-bottom: 1px solid rgba(102, 102, 102, 0.09);
+	padding-bottom: 10px;
+	width:95%;
+	margin:0 auto;
+	text-align: right;
+}
 .contact input[type="text"]{
 	width: 38%;
 	display: inline-block;
@@ -481,6 +501,7 @@ form {
 	font-size: 0.875em;
 	color: #545046;
 	outline: none;
+	width:100%;
 	border: 1px inset rgba(84, 80, 70, 0.08);
 	-webkit-appearance: none;
 }
@@ -495,6 +516,7 @@ form {
 	font-size: 0.875em;
 	color: #545046;
 	outline: none;
+	width:95%;
 	border: 1px inset rgba(84, 80, 70, 0.08);
 	-webkit-appearance: none;
 }
@@ -507,6 +529,7 @@ form {
 	padding-bottom: 10px;
 	width:95%;
 	margin:0 auto;
+	text-align: left;
 }
 .contact input[type="submit"]{
 	font-family: Arial, helvetica, helve, sans-serif;
@@ -517,13 +540,13 @@ form {
 	padding: 12px 0px;
 	text-transform: uppercase;
 	border: none;
-	width: 91%;
+	width: 95%;
 	margin: 0 auto;
 	outline: none;
 	-webkit-appearance: none;
 }
 .contact input[type="submit"]:hover{
-	background: #2D2D2D;
+	background: #dfdfdf;
 	color:#FFF;
 	cursor:pointer;
 }
@@ -550,18 +573,17 @@ form {
 }
 
 /*** move top **/
-#toTop {
-	display: none;
+.toTop {
+	display: block;
 	text-decoration: none;
 	position: fixed;
-	bottom: 10px;
-	right: 10px;
 	overflow: hidden;
-	width: 48px;
-	height: 48px;
+	width: 100%;
+	z-index: 1000;
+	/*padding: 0px;
 	border: none;
 	text-indent: 100%;
-	background: url(../images/arrow_up.png) no-repeat right top;
+	background: url(../images/arrow_up.png) no-repeat right top;*/
 }
 #toTopHover {
 	width: 48px;
