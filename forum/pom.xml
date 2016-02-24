@@ -351,7 +351,8 @@
 				<configuration>
 					<url>http://localhost:8080/forum</url>
 					<server>localhost</server>
-					<path>/${project.build.finalName}</path>
+					<!-- path>/${project.build.finalName}</path-->
+					<path>/</path>
 				</configuration>
 				<executions>
 					<execution>
