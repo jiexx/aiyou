@@ -2,7 +2,7 @@
 <%@page import="java.io.File" %>
 <%
 	String cfg = SystemGlobals.getValue(ConfigKeys.INSTALLATION_CONFIG);
-	String redirect = "forums/home.page";
+	String redirect = "home/list.page";
 	String path = request.getContextPath();
 	
 	if (cfg == null || !(new File(cfg).exists()) || !SystemGlobals.getBoolValue(ConfigKeys.INSTALLED)) {	

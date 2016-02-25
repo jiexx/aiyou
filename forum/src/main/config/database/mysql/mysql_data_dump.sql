@@ -67,9 +67,9 @@ INSERT INTO jforum_smilies (code, url, disk_name) VALUES (':|', '<img src=\"#CON
 #
 INSERT INTO jforum_categories VALUES (1,'藏经阁',1,0);
 INSERT INTO jforum_forums VALUES (1,1,'葵花宝典','',1,1,1,1);
-INSERT INTO jforum_forums VALUES (2,1,'江湖传说','',2,1,2,0);
+INSERT INTO jforum_forums VALUES (2,1,'lansan','',2,1,2,0);
 INSERT INTO jforum_topics VALUES (1,1,'简介',2,NOW(),0,0,0,0,0,1,1,0,0);
-INSERT INTO jforum_topics VALUES (2,2,'这里是大家提问交流的地方',2,NOW(),1,0,0,0,0,2,2,0,0);
+INSERT INTO jforum_topics VALUES (2,2,'products',2,NOW(),1,0,0,0,0,2,2,0,0);
 INSERT INTO jforum_posts VALUES (1,1,1,2,NOW(),'0:0:0:0:0:0:0:1',1,0,1,1,null,0,1,0,0);
 INSERT INTO jforum_posts VALUES (2,2,2,2,NOW(),'0:0:0:0:0:0:0:1',1,0,1,1,NULL,0,1,0,0);
 INSERT INTO jforum_posts_text VALUES (1,'[b][color=blue][size=18]向日葵社区关注健康，关注生命 :!: [/size][/color][/b]\n  \n社区由团沛软件开发和维护，通过智能爬虫从互联网中抓取健康相关的药物保健品知识、网友评论，归纳整理为一部关注健康的葵花宝典\n\n葵花宝典由爬虫生成，不允许编辑:!: \n 江湖传说可以提问发帖 :D  \n\n\n\n','简介');
