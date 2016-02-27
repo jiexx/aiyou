@@ -46,6 +46,7 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.OutputStream;
+import java.io.Serializable;
 import java.util.Collections;
 import java.util.Date;
 import java.util.Iterator;
@@ -114,15 +115,43 @@ import freemarker.template.SimpleHash;
  */
 public class HomeAction extends PostAction 
 {
-	public class Product {
-		String id;
-		String desc;
-		List<String> imageSrcs;
-		public Product(String id, String desc, List<String> imageSrcs) {
+	public class Product implements Serializable {
+		/**
+		 * 
+		 */
+		private static final long serialVersionUID = 2204339307960771545L;
+		public String id;
+		public String desc;
+		public List<Attachment> img;
+		public Product(String id, String desc, List<Attachment> img) {
 			this.id = id;
 			this.desc = desc;
-			this.imageSrcs = imageSrcs;
+			this.img = img;
 		}
+		public Product(Product p) {
+			this.id = p.id;
+			this.desc = p.desc;
+			this.img = p.img;
+		}
+		public String getId() {
+			return this.id;
+		}
+		public void setId(String id) {
+			this.id = id;
+		}
+		public String getDesc() {
+			return this.desc;
+		}
+		public void setDesc(String desc) {
+			this.desc = desc;
+		}
+		public List<Attachment> getImg() {
+			return this.img;
+		}
+		public void setImg(List<Attachment> img) {
+			this.img = img;
+		}
+
 	}
 	public HomeAction() {
 	}
@@ -144,11 +173,11 @@ public class HomeAction extends PostAction
 							List<String> imageSrcs = new LinkedList<String>();
 							if (p.hasAttachments()) {
 								List<Attachment> as = DataAccessDriver.getInstance().newAttachmentDAO().selectAttachments(p.getId());
-								for(Attachment a : as ) {
+								/*for(Attachment a : as ) {
 									imageSrcs.add(a.thumbPath());
-								}
-								if( imageSrcs.size() > 0 ) {
-									pp.add(p.getId(), new Product(p.getText().substring(0, 20), p.getText(), imageSrcs));
+								}*/
+								if( as.size() > 0 ) {
+									pp.add(new Product(String.valueOf(p.getId()), p.getText(), as));
 								}
 							}
 						}
