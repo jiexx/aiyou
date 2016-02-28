@@ -113,41 +113,59 @@ import freemarker.template.SimpleHash;
  * @author roger
  * @version $Id$
  */
-public class HomeAction extends PostAction 
-{
+public class HomeAction extends PostAction {
 	public class Product implements Serializable {
 		/**
 		 * 
 		 */
 		private static final long serialVersionUID = 2204339307960771545L;
 		public String id;
+		public String name;
 		public String desc;
 		public List<Attachment> img;
-		public Product(String id, String desc, List<Attachment> img) {
+
+		public Product(String id, String name, String desc, List<Attachment> img) {
 			this.id = id;
+			this.name = name;
 			this.desc = desc;
 			this.img = img;
 		}
+
 		public Product(Product p) {
 			this.id = p.id;
+			this.name = p.name;
 			this.desc = p.desc;
 			this.img = p.img;
 		}
+
 		public String getId() {
 			return this.id;
 		}
+
 		public void setId(String id) {
 			this.id = id;
 		}
+		
+		public String getName() {
+			return this.name;
+		}
+
+		public void setName(String name) {
+			this.name = name;
+		}
+
 		public String getDesc() {
 			return this.desc;
 		}
+
 		public void setDesc(String desc) {
 			this.desc = desc;
 		}
+
 		public List<Attachment> getImg() {
 			return this.img;
 		}
+
 		public void setImg(List<Attachment> img) {
 			this.img = img;
 		}
@@ -155,29 +173,46 @@ public class HomeAction extends PostAction
 	}
 	public HomeAction() {
 	}
-
-	public void list()
-	{
-		this.setTemplateName(TemplateKeys.HOME_LIST);
+	
+	public void detail() {
+		this.setTemplateName(TemplateKeys.HOME_DETAIL);
 		
+		int productNo = this.request.getIntParameter("product_no");
+		
+		PostDAO po = DataAccessDriver.getInstance().newPostDAO();
+		
+		Post p = po.selectById(productNo);
+		
+		List<Attachment> as = DataAccessDriver.getInstance().newAttachmentDAO()
+				.selectAttachments(p.getId());
+		
+		Product product = new Product(String.valueOf(p.getId()), p.getSubject(), p.getText(), as);
+		this.context.put("product", product);
+	}
+
+	public void list() {
+		this.setTemplateName(TemplateKeys.HOME_LIST);
+
 		ForumDAO fm = DataAccessDriver.getInstance().newForumDAO();
 		TopicDAO tp = DataAccessDriver.getInstance().newTopicDAO();
 		PostDAO po = DataAccessDriver.getInstance().newPostDAO();
 		List<Product> pp = new LinkedList<Product>();
-		for( Forum f : fm.selectAll() ) {
-			if( f.getName().equals("lansan") ) {
-				for( Topic t : tp.selectAllByForum(f.getId()) ) {
-					if( t.getTitle().equals("products") ) {
-						for( Post p : po.selectAllByTopic(t.getId())) {
-							/*po.index(p);*/
-							List<String> imageSrcs = new LinkedList<String>();
+		for (Forum f : fm.selectAll()) {
+			if (f.getName().equals("lansan")) {
+				for (Topic t : tp.selectAllByForum(f.getId())) {
+					if (t.getTitle().equals("products")) {
+						for (Post p : po.selectAllByTopic(t.getId())) {
+							/* po.index(p); */
+							//List<String> imageSrcs = new LinkedList<String>();
 							if (p.hasAttachments()) {
-								List<Attachment> as = DataAccessDriver.getInstance().newAttachmentDAO().selectAttachments(p.getId());
-								/*for(Attachment a : as ) {
-									imageSrcs.add(a.thumbPath());
-								}*/
-								if( as.size() > 0 ) {
-									pp.add(new Product(String.valueOf(p.getId()), p.getText(), as));
+								List<Attachment> as = DataAccessDriver.getInstance().newAttachmentDAO()
+										.selectAttachments(p.getId());
+								/*
+								 * for(Attachment a : as ) {
+								 * imageSrcs.add(a.thumbPath()); }
+								 */
+								if (as.size() > 0) {
+									pp.add(new Product(String.valueOf(p.getId()), p.getSubject(), p.getText(), as));
 								}
 							}
 						}

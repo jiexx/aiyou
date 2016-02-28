@@ -7,6 +7,35 @@
 		<meta name="keywords" content="Spareparts iphone web template, Andriod web template, Smartphone web template, free webdesigns for Nokia, Samsung, LG, SonyErricsson, Motorola web design" />
 		<link href="${contextPath}/templates/${templateName}/css/style.css" rel="stylesheet" type="text/css"  media="all" />
 	</head>
+	<script type="text/javascript">
+		window.onload=function(){ 
+			if (/(iPhone|iPad|iPod|iOS)/i.test(navigator.userAgent)) {
+				//alert(navigator.userAgent);  
+				function iOSversion() {
+					if (/iP(hone|od|ad)/.test(navigator.platform)) {
+						var v = (navigator.appVersion).match(/OS (\d+)_(\d+)_?(\d+)?/);
+						return [parseInt(v[1], 10), parseInt(v[2], 10), parseInt(v[3] || 0, 10)];
+					}
+				}
+				ver = iOSversion();
+				window.url_order = function(name) {
+					if( ver[0] >= 8 ) {
+						/*document.getElementById("url_buy").href*/
+						window.location.href = "sms:18202163278&body=我要订购"+name+",请尽快送到我家";
+					}else {
+						window.location.href = "sms:18202163278;body=我要订购"+name+",请尽快送到我家";
+					}
+				}
+			} else if (/(Android)/i.test(navigator.userAgent)) {
+				//alert(navigator.userAgent); 
+				window.url_order = function(name) {
+					window.location.href = "sms:18202163278?body=我要订购"+name+",请尽快送到我家";
+				}
+			} else {
+				window.location.href ="#";
+			};
+		} 
+	</script>
 	<body>
 		<!---start-wrap---->
 		<div class="wrap">
@@ -25,7 +54,7 @@
 					<div class="wrap subgrid">
 					<form>
 						<input type="text" class="textbox" value="Email:" onfocus="this.value = '';" onblur="if (this.value == '') {this.value = 'Email';}">
-						<input type="submit" value="" />
+						<!--input type="submit" value="" /-->
 						<div class="clear"> </div>
 					</form>
 				</div>
@@ -36,43 +65,23 @@
 				<div class="wrap">	
 					<div class="gallrey-grids">
 							<div class="holder smooth">
-								 <a href="${JForumContext.encodeURL("/home/detail/${product.id}")}"><img src="${contextPath}/${image.thumbPath()}?OWASP_CSRFTOKEN=${OWASP_CSRFTOKEN!""}" alt="[Thumb - ${image.info.realFilename}]"/></a>
+								 <!--a href="${JForumContext.encodeURL("/home/detail/${product.id}")}"--><a href="#"><img src="${contextPath}/${image.thumbPath()}?OWASP_CSRFTOKEN=${OWASP_CSRFTOKEN!""}" alt="[Thumb - ${image.info.realFilename}]"/></a>
 							</div>
 						</div>
 						<div class="clear"> </div>
 					</div>
 				</#list>
 					<div class="gallery-header">
-						<p>${product.desc}</p>
+						<p>&nbsp;&nbsp;${product.desc}</p>
 					</div>
 					<div class="catch-me">
 						<ul>
-							<li><a href="#"><img src="${contextPath}/templates/${templateName}/images/wei.png" title="facebook"></a></li>
-							<li><a href="#"><img src="${contextPath}/templates/${templateName}/images/buy.png" title="Googlepluse"></a></li>
+							<!--li><a href="#"><img src="${contextPath}/templates/${templateName}/images/wei.png" title="facebook"></a></li-->
+							<li><a href="#" onclick="url_order();"><img src="${contextPath}/templates/${templateName}/images/buy.png" title="order"></a></li>
 						</ul>
 					</div>
 			</div>
 			</#list>
-			<div class="Gallery" id="gallery">
-				<div class="wrap">	
-					<div class="gallrey-grids">
-							<div class="holder smooth">
-								 <a href="detail.html"><img src="${contextPath}/templates/${templateName}/images/one.jpg" alt=""></a>
-							</div>
-						</div>
-						<div class="clear"> </div>
-					</div>`
-					<div class="gallery-header">
-						<p>吉姆奈玛茶Gymnema是一种印度茶叶，能非常有效的抑制糖分吸收，所以绰号又叫“糖杀死”。</p>
-					</div>
-					<div class="catch-me">
-						<ul>
-							<li><a href="#"><img src="${contextPath}/templates/${templateName}/images/facebook.png" title="facebook"></a></li>
-							<li><a href="#"><img src="${contextPath}/templates/${templateName}/images/rss.png" title="Rss"></a></li>
-							<li><a href="#"><img src="${contextPath}/templates/${templateName}/images/buy.png" title="Googlepluse"></a></li>
-						</ul>
-					</div>
-			</div>
 			<div class="Gallery" id="gallery">
 				<div class="wrap">	
 					<div class="gallery-header">
