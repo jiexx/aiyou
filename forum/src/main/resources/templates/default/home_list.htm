@@ -65,14 +65,14 @@
 				<div class="wrap">	
 					<div class="gallrey-grids">
 							<div class="holder smooth">
-								 <!--a href="${JForumContext.encodeURL("/home/detail/${product.id}")}"--><a href="#"><img src="${contextPath}/${image.thumbPath()}?OWASP_CSRFTOKEN=${OWASP_CSRFTOKEN!""}" alt="[Thumb - ${image.info.realFilename}]"/></a>
+								 <a href="${JForumContext.encodeURL("/home/detail/${product.id}")}"><img src="${contextPath}/${image.thumbPath()}?OWASP_CSRFTOKEN=${OWASP_CSRFTOKEN!""}" alt="[Thumb - ${image.info.realFilename}]"/></a>
 							</div>
 						</div>
 						<div class="clear"> </div>
 					</div>
 				</#list>
 					<div class="gallery-header">
-						<p>&nbsp;&nbsp;${product.desc}</p>
+						<p>&nbsp;&nbsp;${product.name}</p>
 					</div>
 					<div class="catch-me">
 						<ul>

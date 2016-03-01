@@ -106,6 +106,7 @@ import net.jforum.view.forum.common.ViewCommon;
 
 import org.apache.commons.lang3.StringUtils;
 import org.apache.lucene.document.Document;
+import org.owasp.csrfguard.CsrfGuard;
 
 import freemarker.template.SimpleHash;
 
@@ -123,12 +124,22 @@ public class HomeAction extends PostAction {
 		public String name;
 		public String desc;
 		public List<Attachment> img;
+		public List<Post> comments;
+		
+		public Product() {
+			this.id = null;
+			this.name = null;
+			this.desc = null;
+			this.img = null;
+			this.comments = new LinkedList<Post>();
+		}
 
 		public Product(String id, String name, String desc, List<Attachment> img) {
 			this.id = id;
 			this.name = name;
 			this.desc = desc;
 			this.img = img;
+			this.comments = new LinkedList<Post>();
 		}
 
 		public Product(Product p) {
@@ -136,6 +147,11 @@ public class HomeAction extends PostAction {
 			this.name = p.name;
 			this.desc = p.desc;
 			this.img = p.img;
+			this.comments = p.comments;
+		}
+		
+		public void addComment(Post p) {
+			this.comments.add(p);
 		}
 
 		public String getId() {
@@ -169,6 +185,14 @@ public class HomeAction extends PostAction {
 		public void setImg(List<Attachment> img) {
 			this.img = img;
 		}
+		
+		public List<Post> getComments() {
+			return this.comments;
+		}
+
+		public void setComments(List<Post> comments) {
+			this.comments = comments;
+		}
 
 	}
 	public HomeAction() {
@@ -179,14 +203,23 @@ public class HomeAction extends PostAction {
 		
 		int productNo = this.request.getIntParameter("product_no");
 		
+		TopicDAO tp = DataAccessDriver.getInstance().newTopicDAO();
 		PostDAO po = DataAccessDriver.getInstance().newPostDAO();
+		Product product = new Product();
 		
-		Post p = po.selectById(productNo);
-		
-		List<Attachment> as = DataAccessDriver.getInstance().newAttachmentDAO()
-				.selectAttachments(p.getId());
-		
-		Product product = new Product(String.valueOf(p.getId()), p.getSubject(), p.getText(), as);
+		for(Post p : po.selectAllByTopic(productNo)) {
+			product.addComment(p);
+			if(p != null && p.hasAttachments()) {
+				List<Attachment> as = DataAccessDriver.getInstance().newAttachmentDAO()
+						.selectAttachments(p.getId());
+				if (as.size() > 0) {
+					product.setId(String.valueOf(p.getId()));
+					product.setName(p.getSubject());
+					product.setImg(as);
+					product.setDesc(p.getText());
+				}
+			}
+		}
 		this.context.put("product", product);
 	}
 
@@ -200,26 +233,19 @@ public class HomeAction extends PostAction {
 		for (Forum f : fm.selectAll()) {
 			if (f.getName().equals("lansan")) {
 				for (Topic t : tp.selectAllByForum(f.getId())) {
-					if (t.getTitle().equals("products")) {
-						for (Post p : po.selectAllByTopic(t.getId())) {
-							/* po.index(p); */
-							//List<String> imageSrcs = new LinkedList<String>();
-							if (p.hasAttachments()) {
-								List<Attachment> as = DataAccessDriver.getInstance().newAttachmentDAO()
-										.selectAttachments(p.getId());
-								/*
-								 * for(Attachment a : as ) {
-								 * imageSrcs.add(a.thumbPath()); }
-								 */
-								if (as.size() > 0) {
-									pp.add(new Product(String.valueOf(p.getId()), p.getSubject(), p.getText(), as));
-								}
-							}
+					Post p = po.selectById(t.getFirstPostId());
+					if(p != null && p.hasAttachments()) {
+						List<Attachment> as = DataAccessDriver.getInstance().newAttachmentDAO()
+								.selectAttachments(p.getId());
+						if (as.size() > 0) {
+							pp.add(new Product(String.valueOf(t.getId()), p.getSubject(), p.getText(), as));
 						}
 					}
 				}
 			}
 		}
 		this.context.put("allProducts", pp);
+		//CsrfGuard csrfGuard = CsrfGuard.getInstance();
+        //context.put("OWASP_CSRFTOKEN", csrfGuard.getTokenValue(context.get));
 	}
 }

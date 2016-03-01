@@ -1,11 +1,11 @@
 
 <html>
 	<head>
-		<title>Õ≈≈Ê»Ìº˛</title>
+		<title>Âõ¢Ê≤õËΩØ‰ª∂</title>
 		<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
 		<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
 		<meta name="keywords" content="Spareparts iphone web template, Andriod web template, Smartphone web template, free webdesigns for Nokia, Samsung, LG, SonyErricsson, Motorola web design" />
-		<link href="${JForumContext.encodeURL("./css/style.css")" rel="stylesheet" type="text/css"  media="all" />
+		<link href="${contextPath}/templates/${templateName}/css/style.css" rel="stylesheet" type="text/css"  media="all" />
 	</head>
 	<body>
 		<!---start-wrap---->
@@ -14,27 +14,27 @@
 			<div class="header toTop" id="home">
 				<!---start-logo---->
 				<div class="logo">
-					<a href="#"><img src="${JForumContext.encodeURL("./images/logo.png")" title="logo" /></a>
+					<a href="#"><img src="${contextPath}/templates/${templateName}/images/logo.png" title="logo" /></a>
 				</div>
 			</div>
 		</div>
 		<!--start-content--->
 		</div><br><br><br><br><br><br>
 		<div class="content">
+			<#list product.img as image>
 			<div class="gallrey-grids">
 				<div class="holder smooth">
-					 <img src="${JForumContext.encodeURL("${product.imageId}")" alt="">
+					 <img src="${contextPath}/${image.thumbPath()}?OWASP_CSRFTOKEN=${OWASP_CSRFTOKEN!""}" alt="">
 				</div>
 			</div>
+			</#list>
 			<div class="gallery-header">
 				<h3>${product.name}</h3>
-				<p>${product.descDetail}</p>
+				<p>${product.desc}</p>
 			</div>
 			<div class="catch-me">
 						<ul>
-							<li><a href="#"><img src="${JForumContext.encodeURL("./images/wei.png")" title="facebook"></a></li>
-							<li><a href="#"><img src="./images/bo.png" title="Rss"></a></li>
-							<li><a href="#"><img src="./images/buy.png" title="Googlepluse"></a></li>
+							<li><a href="#"><img src="${contextPath}/templates/${templateName}/images/buy.png" title="ËÆ¢"></a></li>
 						</ul>
 					</div>
 		</div>
@@ -42,29 +42,29 @@
 		<!---start-contact---->
 		<div class="contact" id="contact">
 			<div class="wrap">
-				<h3>¡Ù—‘</h3>
+				<h3>ÁïôË®Ä</h3>
 				<form>
 				<textarea value="Message:" onfocus="this.value = '';" onblur="if (this.value == '') {this.value = 'Message';}">Message</textarea>
-				<input type="submit" value="»∑»œ">
+				<input type="submit" value="Á°ÆËÆ§">
 				</form>
 			</div>
 			<p></p>
 		</div>
 		<!---End-contact---->
 		<!---start-contact---->
-		<#list allComments as comment>
+		<#list product.comments as comment>
 		<div class="contact" id="contact">
 			<div class="wrap">
-				<h4>${comment.body}</h4>
-				<h5>${comment.name}</h5>
+				<h4>${comment.getText()}</h4>
+				<h5>${comment.getPostUsername()}ÂèëË°®‰∫é${comment.getTime().toLocaleString()}</h5>
 			</div>
 		</div>
-		<#list>
+		</#list>
 		<!---End-contact---->
 		<!---start-copy-right---->
 		<div class="copy-right vertical-align: baseline;">
 			<div class="wrap">
-				<p>Powered by Õ≈≈Ê»Ìº˛. jiexx@outlook.com</p>
+				<p>Powered by Âõ¢Ê≤õËΩØ‰ª∂. jiexx@outlook.com</p>
 			</div>
 		</div>
     <!--a href="#" id="toTop" style="display: block;"><span id="toTopHover" style="opacity: 1;"></span></a-->
