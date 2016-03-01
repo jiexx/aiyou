@@ -114,7 +114,7 @@ import freemarker.template.SimpleHash;
  * @author roger
  * @version $Id$
  */
-public class HomeAction extends PostAction {
+public class HomeAction extends Command {
 	public class Product implements Serializable {
 		/**
 		 * 
@@ -196,6 +196,90 @@ public class HomeAction extends PostAction {
 
 	}
 	public HomeAction() {
+	}
+	
+	protected void reply(Topic topic, int forumId) {
+		Post post = new Post();
+		post.setTime(new Date());
+		post.setTopicId(topic.getId());
+		post.setSubject(topic.getTitle());
+		post.setBbCodeEnabled(true);
+		post.setSmiliesEnabled(true);
+		post.setSignatureEnabled(false);
+		post.setModerate(false);
+		
+		//post.setUserIp(request.getRemoteAddr());
+		//post.setUserId(SessionFacade.getUserSession().getUserId());
+		post.setHtmlEnabled(false);
+		post.setText(request.getParameter("content"));
+		if (post.getText() == null || post.getText().trim().equals("")) {
+			return;
+		}
+		post.setForumId(forumId);
+		post.setKarma(new KarmaStatus());
+		
+		PostDAO postDao = DataAccessDriver.getInstance().newPostDAO();
+		int postId = postDao.addNew(post);
+		
+		User user = DataAccessDriver.getInstance().newUserDAO().selectById(SessionFacade.getUserSession().getUserId());
+		topic.setLastPostId(postId);
+		topic.setLastPostBy(user);
+		topic.setLastPostDate(post.getTime());
+		topic.setLastPostTime(post.getTime());
+		
+		TopicDAO topicDao = DataAccessDriver.getInstance().newTopicDAO();
+		topicDao.update(topic);
+		post.hasAttachments(false);
+		
+		postDao.index(post);
+		
+		// Update forum stats, cache and etc
+		DataAccessDriver.getInstance().newUserDAO().incrementPosts(post.getUserId());
+
+		ForumDAO forumDao = DataAccessDriver.getInstance().newForumDAO();
+		TopicsCommon.updateBoardStatus(topic, postId, false, topicDao, forumDao);
+		ForumRepository.updateForumStats(topic, user, post);
+		ForumRepository.reloadForum(post.getForumId());
+
+		int anonymousUser = SystemGlobals.getIntValue(ConfigKeys.ANONYMOUS_USER_ID);
+
+		if (user.getId() != anonymousUser) {
+			SessionFacade.getTopicsReadTime().put(Integer.valueOf(topic.getId()),
+				Long.valueOf(post.getTime().getTime()));
+		}
+
+		if (SystemGlobals.getBoolValue(ConfigKeys.POSTS_CACHE_ENABLED)) {
+			PostRepository.append(post.getTopicId(), PostCommon.preparePostForDisplay(post));
+		}
+	}
+	
+	public void comment() {
+		if(!SessionFacade.isLogged()) {
+			this.setTemplateName(TemplateKeys.HOME_LOGIN);
+			return;
+		}else {
+			String productNo = this.request.getParameter("product_no");
+			if (productNo != null) {
+				int topicId = this.request.getIntParameter("topic_id");
+
+				Topic topic = TopicRepository.getTopic(new Topic(topicId));
+
+				if (topic == null) {
+					topic = DataAccessDriver.getInstance().newTopicDAO().selectRaw(topicId);
+
+					if (topic.getId() == 0) {
+						throw new ForumException("Could not find a topic with id #" + topicId);
+					}
+				}
+
+				int forumId = topic.getForumId();
+
+				if (topic.getStatus() == Topic.STATUS_LOCKED) {
+					return;
+				}
+				reply(topic, forumId);
+			}
+		}
 	}
 	
 	public void detail() {
