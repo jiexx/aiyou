@@ -59,6 +59,7 @@ import net.jforum.Command;
 import net.jforum.JForumExecutionContext;
 import net.jforum.SessionFacade;
 import net.jforum.context.RequestContext;
+import net.jforum.context.ResponseContext;
 import net.jforum.dao.AttachmentDAO;
 import net.jforum.dao.DataAccessDriver;
 import net.jforum.dao.ForumDAO;
@@ -108,7 +109,10 @@ import org.apache.commons.lang3.StringUtils;
 import org.apache.lucene.document.Document;
 import org.owasp.csrfguard.CsrfGuard;
 
+import com.google.gson.Gson;
+
 import freemarker.template.SimpleHash;
+import freemarker.template.Template;
 
 /**
  * @author roger
@@ -195,10 +199,22 @@ public class HomeAction extends Command {
 		}
 
 	}
+	public class Comment {
+		public String name;
+		public String time;
+		public Comment(String name, Date time){
+			this.name = name;
+			this.time = time.toLocaleString();
+		}
+		public String toJson() {
+			Gson gson = new Gson();
+			return gson.toJson(this);
+		}
+	}
 	public HomeAction() {
 	}
 	
-	protected void reply(Topic topic, int forumId) {
+	protected Post reply(Topic topic, int forumId) {
 		Post post = new Post();
 		post.setTime(new Date());
 		post.setTopicId(topic.getId());
@@ -251,6 +267,7 @@ public class HomeAction extends Command {
 		if (SystemGlobals.getBoolValue(ConfigKeys.POSTS_CACHE_ENABLED)) {
 			PostRepository.append(post.getTopicId(), PostCommon.preparePostForDisplay(post));
 		}
+		return post;
 	}
 	
 	public void comment() {
@@ -277,7 +294,12 @@ public class HomeAction extends Command {
 				if (topic.getStatus() == Topic.STATUS_LOCKED) {
 					return;
 				}
-				reply(topic, forumId);
+				JForumExecutionContext.setContentType("text/xml");
+				Post p = reply(topic, forumId);
+				
+				this.setTemplateName(TemplateKeys.API_POST_COMMENT); 
+				Comment c = new Comment(p.getPostUsername(), p.getTime());
+				this.context.put("comment", c.toJson());
 			}
 		}
 	}
@@ -332,4 +354,9 @@ public class HomeAction extends Command {
 		//CsrfGuard csrfGuard = CsrfGuard.getInstance();
         //context.put("OWASP_CSRFTOKEN", csrfGuard.getTokenValue(context.get));
 	}
+	/*public Template process(final RequestContext request, final ResponseContext response, final SimpleHash context)
+	{
+		JForumExecutionContext.setContentType("text/xml");
+		return super.process(request, response, context);
+	}*/
 }
