@@ -1,45 +1,3 @@
-/*
- * Copyright (c) JForum Team
- * All rights reserved.
- * 
- * Redistribution and use in source and binary forms, 
- * with or without modification, are permitted provided 
- * that the following conditions are met:
- * 
- * 1) Redistributions of source code must retain the above 
- * copyright notice, this list of conditions and the 
- * following disclaimer.
- * 2) Redistributions in binary form must reproduce the 
- * above copyright notice, this list of conditions and 
- * the following disclaimer in the documentation and/or 
- * other materials provided with the distribution.
- * 3) Neither the name of "Rafael Steil" nor 
- * the names of its contributors may be used to endorse 
- * or promote products derived from this software without 
- * specific prior written permission.
- * 
- * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT 
- * HOLDERS AND CONTRIBUTORS "AS IS" AND ANY 
- * EXPRESS OR IMPLIED WARRANTIES, INCLUDING, 
- * BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF 
- * MERCHANTABILITY AND FITNESS FOR A PARTICULAR 
- * PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL 
- * THE COPYRIGHT OWNER OR CONTRIBUTORS BE LIABLE 
- * FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, 
- * EXEMPLARY, OR CONSEQUENTIAL DAMAGES 
- * (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF 
- * SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, 
- * OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER 
- * CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER 
- * IN CONTRACT, STRICT LIABILITY, OR TORT 
- * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN 
- * ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF 
- * ADVISED OF THE POSSIBILITY OF SUCH DAMAGE
- * 
- * Created on May 3, 2003 / 5:05:18 PM
- * The JForum Project
- * http://www.jforum.net
- */
 package net.jforum.view.forum;
 
 import java.io.File;
@@ -53,6 +11,7 @@ import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
+import java.util.Random;
 import java.util.concurrent.ConcurrentHashMap;
 
 import net.jforum.Command;
@@ -62,6 +21,7 @@ import net.jforum.SessionFacade;
 import net.jforum.context.RequestContext;
 import net.jforum.context.ResponseContext;
 import net.jforum.dao.AttachmentDAO;
+import net.jforum.dao.BanlistDAO;
 import net.jforum.dao.DataAccessDriver;
 import net.jforum.dao.ForumDAO;
 import net.jforum.dao.KarmaDAO;
@@ -71,6 +31,7 @@ import net.jforum.dao.TopicDAO;
 import net.jforum.dao.UserDAO;
 import net.jforum.dao.UserSessionDAO;
 import net.jforum.entities.Attachment;
+import net.jforum.entities.Banlist;
 import net.jforum.entities.Forum;
 import net.jforum.entities.KarmaStatus;
 import net.jforum.entities.ModerationLog;
@@ -83,6 +44,7 @@ import net.jforum.entities.User;
 import net.jforum.entities.UserSession;
 import net.jforum.exceptions.AttachmentException;
 import net.jforum.exceptions.ForumException;
+import net.jforum.repository.BanlistRepository;
 import net.jforum.repository.ForumRepository;
 import net.jforum.repository.PostRepository;
 import net.jforum.repository.RankingRepository;
@@ -94,9 +56,13 @@ import net.jforum.search.SearchFacade;
 import net.jforum.search.SearchFields;
 import net.jforum.security.PermissionControl;
 import net.jforum.security.SecurityConstants;
+import net.jforum.security.StopForumSpam;
 import net.jforum.util.Hash;
 import net.jforum.util.I18n;
 import net.jforum.util.SafeHtml;
+import net.jforum.util.concurrent.Executor;
+import net.jforum.util.mail.ActivationKeySpammer;
+import net.jforum.util.mail.EmailSenderTask;
 import net.jforum.util.preferences.ConfigKeys;
 import net.jforum.util.preferences.SystemGlobals;
 import net.jforum.util.preferences.TemplateKeys;
@@ -110,6 +76,7 @@ import net.jforum.view.forum.common.ViewCommon;
 
 import org.apache.commons.codec.binary.Base64;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.log4j.Logger;
 import org.apache.lucene.document.Document;
 import org.owasp.csrfguard.CsrfGuard;
 
@@ -123,6 +90,7 @@ import freemarker.template.Template;
  * @version $Id$
  */
 public class HomeAction extends Command {
+	private static final Logger LOGGER = Logger.getLogger(UserAction.class);
 	public class Product implements Serializable {
 		/**
 		 * 
@@ -274,12 +242,145 @@ public class HomeAction extends Command {
 		return post;
 	}
 	
+	private void insert(final boolean hasErrors)
+	{
+		final int userId = SessionFacade.getUserSession().getUserId();
+
+		this.setTemplateName(TemplateKeys.USER_INSERT);
+		this.context.put("action", "insertSave");
+		this.context.put("username", this.request.getParameter("username"));
+		this.context.put("phone", this.request.getParameter("phone"));
+		this.context.put("pageTitle", I18n.getMessage("ForumBase.register"));
+
+		if (SystemGlobals.getBoolValue(ConfigKeys.CAPTCHA_REGISTRATION)){
+			this.context.put("captcha_reg", true);
+		}
+
+		SessionFacade.removeAttribute(ConfigKeys.AGREEMENT_ACCEPTED);
+	}
+	
+	public void registe() {
+		User user = new User();
+
+		String username = this.request.getParameter("username");
+		String password = this.request.getParameter("password");
+		String phone = this.request.getParameter("phone");
+		String captchaResponse = this.request.getParameter("captchaResponse");
+		String ip = this.request.getRemoteAddr();
+
+		boolean error = false;
+		if (StringUtils.isBlank(username)
+				|| StringUtils.isBlank(password)) {
+			this.context.put("error", I18n.getMessage("UsernamePasswordCannotBeNull"));
+			error = true;
+		}
+
+		if (username != null) {
+			username = username.trim();
+		}
+
+        if (!error && username != null && username.length() > SystemGlobals.getIntValue(ConfigKeys.USERNAME_MAX_LENGTH)) {
+			this.context.put("error", I18n.getMessage("User.usernameTooBig"));
+			error = true;
+		}
+
+		if (!error && username != null && (username.indexOf('<') > -1 || username.indexOf('>') > -1)) {
+			this.context.put("error", I18n.getMessage("User.usernameInvalidChars"));
+			error = true;
+		}
+		UserDAO userDao = DataAccessDriver.getInstance().newUserDAO();
+		if (!error && userDao.isUsernameRegistered(username)) {
+			this.context.put("error", I18n.getMessage("UsernameExists"));
+			error = true;
+		}
+
+		if (!error && userDao.findByEmail(phone) != null) {
+			this.context.put("error", I18n.getMessage("User.emailExists", new String[] { phone }));
+			error = true;
+		}
+
+		UserSession userSession = SessionFacade.getUserSession();
+		if (!error && !userSession.validateCaptchaResponse(captchaResponse)){
+			this.context.put("error", I18n.getMessage("CaptchaResponseFails"));
+			error = true;
+		}
+
+		final BanlistDAO banlistDao = DataAccessDriver.getInstance().newBanlistDAO();
+		boolean stopForumSpamEnabled = SystemGlobals.getBoolValue(ConfigKeys.STOPFORUMSPAM_API_ENABLED);
+		if (stopForumSpamEnabled && StopForumSpam.checkIp(ip)) {
+			LOGGER.info("Forum Spam found! Block it: " + ip);
+			final Banlist banlist = new Banlist();
+			banlist.setIp(ip);
+			if (!BanlistRepository.shouldBan(banlist)) {
+				banlistDao.insert(banlist);
+				BanlistRepository.add(banlist);
+			}
+			error = true;
+		} else if (stopForumSpamEnabled && StopForumSpam.checkEmail(phone)) {
+			LOGGER.info("Forum Spam found! Block it: " + phone);
+			final Banlist banlist = new Banlist();
+			banlist.setEmail(phone);
+			if (!BanlistRepository.shouldBan(banlist)) {
+				banlistDao.insert(banlist);
+				BanlistRepository.add(banlist);
+			} else { // email already exists, block source ip now
+				LOGGER.info("Forum Spam found! Block it: " + ip);
+				final Banlist banlist2 = new Banlist();
+				banlist2.setIp(ip);
+				banlistDao.insert(banlist2);
+				BanlistRepository.add(banlist2);
+			}
+			error = true;
+		}
+
+		if (error) {
+			this.insert(true);
+			return;
+		}
+
+		user.setUsername(username);
+		user.setPassword(Hash.sha512(password+SystemGlobals.getValue(ConfigKeys.USER_HASH_SEQUENCE)));
+		user.setEmail(phone);
+
+		/*boolean needPhoneActivation;
+
+		if (needPhoneActivation) {
+			user.setActivationKey(Hash.md5(username + System.currentTimeMillis() + SystemGlobals.getValue(ConfigKeys.USER_HASH_SEQUENCE) + new Random().nextInt(999999)));
+		}*/
+
+		int newUserId = userDao.addNew(user);
+		String productNo = userSession.getLang();
+		SessionFacade.remove(userSession.getSessionId());
+		userSession.setAutoLogin(true);
+		userSession.setUserId(newUserId);
+		userSession.setUsername(user.getUsername());
+		userSession.setLastVisit(new Date(System.currentTimeMillis()));
+		userSession.setStartTime(new Date(System.currentTimeMillis()));
+		SessionFacade.makeLogged();
+
+		SessionFacade.add(userSession);
+
+		// Finalizing.. show the user the congratulations page
+		if(productNo != null) {
+			JForumExecutionContext.setRedirect(this.request.getContextPath()
+				+ "/home/detail"
+				+ SystemGlobals.getValue(ConfigKeys.SERVLET_EXTENSION)
+				+ "?product_no="+productNo);
+		}else {
+			JForumExecutionContext.setRedirect(this.request.getContextPath()
+					+ "/home/list");
+		}
+
+	}
+	
 	public void comment() {
+		String productNo = this.request.getParameter("product_no");
 		if(!SessionFacade.isLogged()) {
+			UserSession userSession = SessionFacade.getUserSession();
+			userSession.setLang(productNo);
 			this.setTemplateName(TemplateKeys.HOME_LOGIN);
 			return;
 		}else {
-			String productNo = this.request.getParameter("product_no");
 			if (productNo != null) {
 				int topicId = this.request.getIntParameter("topic_id");
 
