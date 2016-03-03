@@ -7,6 +7,31 @@
 		<meta name="keywords" content="Spareparts iphone web template, Andriod web template, Smartphone web template, free webdesigns for Nokia, Samsung, LG, SonyErricsson, Motorola web design" />
 		<link href="${contextPath}/templates/${templateName}/css/style.css" rel="stylesheet" type="text/css"  media="all" />
 	</head>
+	<script>
+		function comment(text) {
+			var xhttp = new XMLHttpRequest();
+			xhttp.onreadystatechange = function() {
+				if (xhttp.readyState == 4 && xhttp.status == 200) {
+					var comment = eval(xhttp.responseText);
+					document.getElementById("newComment").nextSibling.innerHTML = 
+					"<div class=\"contact\">" +
+						"<div class=\"wrap\">" +
+							"<h4>${comment.getText()}</h4>" +
+							"<h5>${comment.getPostUsername()}发表于${comment.getTime().toLocaleString()}</h5>" +
+						"</div>"+
+					"</div>";
+				}
+			};
+			var params = "module=home&action=comment&product_no=${product.id}" 
+				+ "&OWASP_CSRFTOKEN="+encodeURIComponent("${OWASP_CSRFTOKEN!""}")
+				+ "&content="++encodeURIComponent(text);
+			xhttp.open("POST", "${JForumContext.encodeURL("/jforum")}", false);
+			xhttp.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
+			xhttp.setRequestHeader("Content-length", params.length);
+			xhttp.setRequestHeader("Connection", "close");
+			xhttp.send(params);
+		}
+	</script>
 	<body>
 		<!---start-wrap---->
 		<div class="wrap">
@@ -43,17 +68,22 @@
 		<div class="contact" id="contact">
 			<div class="wrap">
 				<h3>留言</h3>
-				<form>
-				<textarea value="Message:" onfocus="this.value = '';" onblur="if (this.value == '') {this.value = 'Message';}">Message</textarea>
-				<input type="submit" value="确认">
+				<form action="${JForumContext.encodeURL("/jforum")}" method="post" accept-charset="utf-8">
+					<input type="hidden" name="module" value="home" />
+					<input type="hidden" name="action" value="comment" />
+					<input type="hidden" name="product_no" value="${product.id}" />
+					<input type="hidden" name="OWASP_CSRFTOKEN" value="${OWASP_CSRFTOKEN!""}" />
+					<textarea name="content" value="" onfocus="this.value = '';" onblur="if (this.value == '') {this.value = 'Message';}">Message</textarea>
+					<input type="submit" value="确认">
 				</form>
 			</div>
 			<p></p>
 		</div>
 		<!---End-contact---->
 		<!---start-contact---->
+		<div id="newComment"></div>
 		<#list product.comments as comment>
-		<div class="contact" id="contact">
+		<div class="contact">
 			<div class="wrap">
 				<h4>${comment.getText()}</h4>
 				<h5>${comment.getPostUsername()}发表于${comment.getTime().toLocaleString()}</h5>
