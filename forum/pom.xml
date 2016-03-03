@@ -34,10 +34,15 @@
 		</repository>
 	</repositories>
 	<dependencies>
-		<dependency>  
-		    <groupId>com.google.code.gson</groupId>  
-		    <artifactId>gson</artifactId>  
-		    <version>2.3.1</version>  
+		<dependency>
+			<groupId>com.google.code.gson</groupId>
+			<artifactId>gson</artifactId>
+			<version>2.3.1</version>
+		</dependency>
+		<dependency>
+			<groupId>org.smslib</groupId>
+			<artifactId>smslib</artifactId>
+			<version>3.5.4</version>
 		</dependency>
 		<dependency>
 			<groupId>dumbster</groupId>
@@ -356,7 +361,7 @@
 				<configuration>
 					<url>http://localhost:8080/forum</url>
 					<server>localhost</server>
-					<!-- path>/${project.build.finalName}</path-->
+					<!-- path>/${project.build.finalName}</path -->
 					<path>/</path>
 				</configuration>
 				<executions>

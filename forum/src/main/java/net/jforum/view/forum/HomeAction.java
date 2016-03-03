@@ -56,6 +56,7 @@ import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
 import net.jforum.Command;
+import net.jforum.ControllerUtils;
 import net.jforum.JForumExecutionContext;
 import net.jforum.SessionFacade;
 import net.jforum.context.RequestContext;
@@ -68,6 +69,7 @@ import net.jforum.dao.PollDAO;
 import net.jforum.dao.PostDAO;
 import net.jforum.dao.TopicDAO;
 import net.jforum.dao.UserDAO;
+import net.jforum.dao.UserSessionDAO;
 import net.jforum.entities.Attachment;
 import net.jforum.entities.Forum;
 import net.jforum.entities.KarmaStatus;
@@ -92,6 +94,7 @@ import net.jforum.search.SearchFacade;
 import net.jforum.search.SearchFields;
 import net.jforum.security.PermissionControl;
 import net.jforum.security.SecurityConstants;
+import net.jforum.util.Hash;
 import net.jforum.util.I18n;
 import net.jforum.util.SafeHtml;
 import net.jforum.util.preferences.ConfigKeys;
@@ -105,6 +108,7 @@ import net.jforum.view.forum.common.Stats;
 import net.jforum.view.forum.common.TopicsCommon;
 import net.jforum.view.forum.common.ViewCommon;
 
+import org.apache.commons.codec.binary.Base64;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.lucene.document.Document;
 import org.owasp.csrfguard.CsrfGuard;
@@ -229,7 +233,7 @@ public class HomeAction extends Command {
 		post.setHtmlEnabled(false);
 		post.setText(request.getParameter("content"));
 		if (post.getText() == null || post.getText().trim().equals("")) {
-			return;
+			return null;
 		}
 		post.setForumId(forumId);
 		post.setKarma(new KarmaStatus());
@@ -294,12 +298,18 @@ public class HomeAction extends Command {
 				if (topic.getStatus() == Topic.STATUS_LOCKED) {
 					return;
 				}
-				JForumExecutionContext.setContentType("text/xml");
+				
 				Post p = reply(topic, forumId);
 				
+				JForumExecutionContext.setContentType("text/xml");
 				this.setTemplateName(TemplateKeys.API_POST_COMMENT); 
-				Comment c = new Comment(p.getPostUsername(), p.getTime());
-				this.context.put("comment", c.toJson());
+				if(p != null) {
+					Comment c = new Comment(p.getPostUsername(), p.getTime());
+					this.context.put("comment", c.toJson());
+				}else {
+					this.context.put("comment", "");
+				}
+				
 			}
 		}
 	}
@@ -354,6 +364,162 @@ public class HomeAction extends Command {
 		//CsrfGuard csrfGuard = CsrfGuard.getInstance();
         //context.put("OWASP_CSRFTOKEN", csrfGuard.getTokenValue(context.get));
 	}
+
+    private boolean parseBasicAuthentication()
+	{
+    	String a = request.getHeader("Authorization");
+		if (a != null && a.startsWith("Basic ")) {
+			String auth = request.getHeader("Authorization");
+			String decoded;
+
+			decoded = String.valueOf(new Base64().decode(auth.substring(6)));
+
+			int p = decoded.indexOf(':');
+
+			if (p != -1) {
+				request.setAttribute("username", decoded.substring(0, p));
+				request.setAttribute("password", decoded.substring(p + 1));
+				return true;
+			}
+		}
+		return false;
+	}
+	private void buildSucessfulLoginRedirect()
+	{
+		if (JForumExecutionContext.getRedirectTo() == null) {
+			String forwaredHost = request.getHeader("X-Forwarded-Host");
+
+			if (forwaredHost == null 
+					|| SystemGlobals.getBoolValue(ConfigKeys.LOGIN_IGNORE_XFORWARDEDHOST)) {
+				JForumExecutionContext.setRedirect(this.request.getContextPath()
+					+ "/home/list"
+					+ SystemGlobals.getValue(ConfigKeys.SERVLET_EXTENSION));
+			}
+			else {
+				JForumExecutionContext.setRedirect(this.request.getScheme()
+					+ "://"
+					+ forwaredHost
+					+ this.request.getContextPath()
+					+ "/forums/list"
+					+ SystemGlobals.getValue(ConfigKeys.SERVLET_EXTENSION)); 
+			}
+		}
+	}
+	private boolean isValidReturnPath() {
+		if (request.getParameter("returnPath") != null) {
+			return request.getParameter("returnPath").startsWith(SystemGlobals.getValue(ConfigKeys.FORUM_LINK));
+		} else {
+			return false;
+		}
+	}
+	public void validateLogin()
+	{
+		String password;
+		String username;
+
+		if (parseBasicAuthentication()) {
+			username = (String)this.request.getAttribute("username");
+			password = (String)this.request.getAttribute("password");
+		} 
+		else {
+			username = this.request.getParameter("username");
+			password = this.request.getParameter("password");
+		}
+
+		boolean validInfo = false;
+
+		if (password.length() > 0) {
+			final UserDAO userDao = DataAccessDriver.getInstance().newUserDAO();
+			User user = userDao.validateLogin(username, password);
+
+			if (user != null) {
+				// Note: here we only want to set the redirect location if it hasn't already been
+				// set. This will give the LoginAuthenticator a chance to set the redirect location.
+				this.buildSucessfulLoginRedirect();
+
+				SessionFacade.makeLogged();
+
+				String sessionId = SessionFacade.isUserInSession(user.getId());
+				UserSession userSession = new UserSession(SessionFacade.getUserSession());
+
+				// Remove the "guest" session
+				SessionFacade.remove(userSession.getSessionId());
+
+				userSession.dataToUser(user);
+
+				UserSession currentUs = SessionFacade.getUserSession(sessionId);
+
+				// Check if the user is returning to the system
+				// before its last session has expired ( hypothesis )
+                UserSession tmpUs;
+				if (sessionId != null && currentUs != null) {
+					// Write its old session data
+					SessionFacade.storeSessionData(sessionId, JForumExecutionContext.getConnection());
+					tmpUs = new UserSession(currentUs);
+					SessionFacade.remove(sessionId);
+				}
+				else {
+					UserSessionDAO userSessionDao = DataAccessDriver.getInstance().newUserSessionDAO();
+					tmpUs = userSessionDao.selectById(userSession, JForumExecutionContext.getConnection());
+				}
+
+				I18n.load(user.getLang());
+
+				// Autologin
+				if (this.request.getParameter("autologin") != null
+						&& SystemGlobals.getBoolValue(ConfigKeys.AUTO_LOGIN_ENABLED)) {
+					userSession.setAutoLogin(true);
+
+					// Generate the user-specific hash
+					String systemHash = Hash.md5(SystemGlobals.getValue(ConfigKeys.USER_HASH_SEQUENCE) + user.getId());
+					String userHash = Hash.md5(System.currentTimeMillis() + systemHash);
+
+					// Persist the user hash
+					userDao.saveUserAuthHash(user.getId(), userHash);
+
+					systemHash = Hash.md5(userHash);
+
+					ControllerUtils.addCookie(SystemGlobals.getValue(ConfigKeys.COOKIE_AUTO_LOGIN), "1");
+					ControllerUtils.addCookie(SystemGlobals.getValue(ConfigKeys.COOKIE_USER_HASH), systemHash);
+				}
+				else {
+					// Remove cookies for safety
+					ControllerUtils.addCookie(SystemGlobals.getValue(ConfigKeys.COOKIE_USER_HASH), null);
+					ControllerUtils.addCookie(SystemGlobals.getValue(ConfigKeys.COOKIE_AUTO_LOGIN), null);
+				}
+
+				if (tmpUs == null) {
+					userSession.setLastVisit(new Date(System.currentTimeMillis()));
+				}
+				else {
+					// Update last visit and session start time
+					userSession.setLastVisit(new Date(tmpUs.getStartTime().getTime() + tmpUs.getSessionTime()));
+				}
+
+				SessionFacade.add(userSession);
+				SessionFacade.setAttribute(ConfigKeys.TOPICS_READ_TIME, new ConcurrentHashMap<Integer, Long>());
+				ControllerUtils.addCookie(SystemGlobals.getValue(ConfigKeys.COOKIE_NAME_DATA), 
+					Integer.toString(user.getId()));
+
+				SecurityRepository.load(user.getId(), true);
+				validInfo = true;
+			}
+		}
+
+		// Invalid login
+		if (!validInfo) {
+			this.context.put("invalidLogin", "1");
+			this.setTemplateName(TemplateKeys.HOME_LOGIN);
+
+			if (isValidReturnPath()) {
+				this.context.put("returnPath", this.request.getParameter("returnPath"));
+			}
+		} 
+		else if (isValidReturnPath()) {
+			JForumExecutionContext.setRedirect(this.request.getParameter("returnPath"));
+		}
+	}
+
 	/*public Template process(final RequestContext request, final ResponseContext response, final SimpleHash context)
 	{
 		JForumExecutionContext.setContentType("text/xml");
