@@ -142,6 +142,7 @@ public final class TemplateKeys
 	public static final String HOME_LIST = "home.list";
 	public static final String HOME_DETAIL = "home.detail";
 	public static final String HOME_LOGIN = "home.login";
+	public static final String HOME_REGISTE = "home.registe";
 
 	public static final String ATTACHMENTS_CONFIG = "attachments.config";
 	public static final String ATTACHMENTS_QUOTA_LIMIT = "attachments.quota.limit";

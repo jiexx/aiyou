@@ -16,15 +16,15 @@
 					document.getElementById("newComment").nextSibling.innerHTML = 
 					"<div class=\"contact\">" +
 						"<div class=\"wrap\">" +
-							"<h4>${comment.getText()}</h4>" +
-							"<h5>${comment.getPostUsername()}发表于${comment.getTime().toLocaleString()}</h5>" +
+							"<h4>"+comment.text+"</h4>" +
+							"<h5>"+comment.username+"发表于"+comment.time+"</h5>" +
 						"</div>"+
 					"</div>";
 				}
 			};
 			var params = "module=home&action=comment&product_no=${product.id}" 
 				+ "&OWASP_CSRFTOKEN="+encodeURIComponent("${OWASP_CSRFTOKEN!""}")
-				+ "&content="++encodeURIComponent(text);
+				+ "&content="+encodeURIComponent(text);
 			xhttp.open("POST", "${JForumContext.encodeURL("/jforum")}", false);
 			xhttp.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
 			xhttp.setRequestHeader("Content-length", params.length);
@@ -68,12 +68,12 @@
 		<div class="contact" id="contact">
 			<div class="wrap">
 				<h3>留言</h3>
-				<form action="${JForumContext.encodeURL("/jforum")}" method="post" accept-charset="utf-8">
+				<form action="${JForumContext.encodeURL("/home/detail/${product.id}")}" method="post" accept-charset="utf-8">
 					<input type="hidden" name="module" value="home" />
 					<input type="hidden" name="action" value="comment" />
 					<input type="hidden" name="product_no" value="${product.id}" />
 					<input type="hidden" name="OWASP_CSRFTOKEN" value="${OWASP_CSRFTOKEN!""}" />
-					<textarea name="content" value="" onfocus="this.value = '';" onblur="if (this.value == '') {this.value = 'Message';}">Message</textarea>
+					<textarea name="content" value="${content}" >${content}</textarea>
 					<input type="submit" value="确认">
 				</form>
 			</div>

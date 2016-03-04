@@ -172,11 +172,21 @@ public class HomeAction extends Command {
 
 	}
 	public class Comment {
+		public String productNo;
 		public String name;
 		public String time;
-		public Comment(String name, Date time){
+		public String text;
+		public Comment(String productNo, String name, Date time, String text){
+			this.productNo = productNo;
 			this.name = name;
 			this.time = time.toLocaleString();
+			this.text = text;
+		}
+		public Comment(String productNo, String text){
+			this.productNo = productNo;
+			this.name = "";
+			this.time = "";
+			this.text = text;
 		}
 		public String toJson() {
 			Gson gson = new Gson();
@@ -195,6 +205,8 @@ public class HomeAction extends Command {
 		post.setSmiliesEnabled(true);
 		post.setSignatureEnabled(false);
 		post.setModerate(false);
+		post.setUserIp(request.getRemoteAddr());
+		post.setUserId(SessionFacade.getUserSession().getUserId());
 		
 		//post.setUserIp(request.getRemoteAddr());
 		//post.setUserId(SessionFacade.getUserSession().getUserId());
@@ -246,17 +258,7 @@ public class HomeAction extends Command {
 	{
 		final int userId = SessionFacade.getUserSession().getUserId();
 
-		this.setTemplateName(TemplateKeys.USER_INSERT);
-		this.context.put("action", "insertSave");
-		this.context.put("username", this.request.getParameter("username"));
-		this.context.put("phone", this.request.getParameter("phone"));
-		this.context.put("pageTitle", I18n.getMessage("ForumBase.register"));
-
-		if (SystemGlobals.getBoolValue(ConfigKeys.CAPTCHA_REGISTRATION)){
-			this.context.put("captcha_reg", true);
-		}
-
-		SessionFacade.removeAttribute(ConfigKeys.AGREEMENT_ACCEPTED);
+		this.setTemplateName(TemplateKeys.HOME_REGISTE);
 	}
 	
 	public void registe() {
@@ -349,7 +351,7 @@ public class HomeAction extends Command {
 		}*/
 
 		int newUserId = userDao.addNew(user);
-		String productNo = userSession.getLang();
+		String productNo = ((Comment)userSession.getSaved()).productNo;
 		SessionFacade.remove(userSession.getSessionId());
 		userSession.setAutoLogin(true);
 		userSession.setUserId(newUserId);
@@ -375,15 +377,15 @@ public class HomeAction extends Command {
 	
 	public void comment() {
 		String productNo = this.request.getParameter("product_no");
+		String content = this.request.getParameter("content");
+		UserSession userSession = SessionFacade.getUserSession();
 		if(!SessionFacade.isLogged()) {
-			UserSession userSession = SessionFacade.getUserSession();
-			userSession.setLang(productNo);
+			userSession.setSaved(new Comment(productNo, content));
 			this.setTemplateName(TemplateKeys.HOME_LOGIN);
 			return;
 		}else {
 			if (productNo != null) {
-				int topicId = this.request.getIntParameter("topic_id");
-
+				int topicId = Integer.valueOf(productNo);
 				Topic topic = TopicRepository.getTopic(new Topic(topicId));
 
 				if (topic == null) {
@@ -402,10 +404,10 @@ public class HomeAction extends Command {
 				
 				Post p = reply(topic, forumId);
 				
-				JForumExecutionContext.setContentType("text/xml");
+				JForumExecutionContext.setContentType("application/json");
 				this.setTemplateName(TemplateKeys.API_POST_COMMENT); 
 				if(p != null) {
-					Comment c = new Comment(p.getPostUsername(), p.getTime());
+					Comment c = new Comment(productNo, p.getPostUsername(), p.getTime(), p.getText());
 					this.context.put("comment", c.toJson());
 				}else {
 					this.context.put("comment", "");
@@ -415,11 +417,7 @@ public class HomeAction extends Command {
 		}
 	}
 	
-	public void detail() {
-		this.setTemplateName(TemplateKeys.HOME_DETAIL);
-		
-		int productNo = this.request.getIntParameter("product_no");
-		
+	private Product detailInfo(int productNo) {
 		TopicDAO tp = DataAccessDriver.getInstance().newTopicDAO();
 		PostDAO po = DataAccessDriver.getInstance().newPostDAO();
 		Product product = new Product();
@@ -430,14 +428,30 @@ public class HomeAction extends Command {
 				List<Attachment> as = DataAccessDriver.getInstance().newAttachmentDAO()
 						.selectAttachments(p.getId());
 				if (as.size() > 0) {
-					product.setId(String.valueOf(p.getId()));
+					product.setId(String.valueOf(p.getTopicId()));
 					product.setName(p.getSubject());
 					product.setImg(as);
 					product.setDesc(p.getText());
 				}
 			}
 		}
+		return product;
+	}
+	
+	public void detail() {
+		this.setTemplateName(TemplateKeys.HOME_DETAIL);
+		
+		int productNo = this.request.getIntParameter("product_no");
+		Comment c = ((Comment)SessionFacade.getUserSession().getSaved());
+		
+		Product product = detailInfo(productNo);
 		this.context.put("product", product);
+		if(c != null) {
+			this.context.put("content", c.text);
+			SessionFacade.getUserSession().setSaved(null);
+		}else {
+			this.context.put("content", "");
+		}
 	}
 
 	public void list() {
@@ -513,17 +527,17 @@ public class HomeAction extends Command {
 			return false;
 		}
 	}
-	public void validateLogin()
+	public void login()
 	{
 		String password;
 		String username;
 
 		if (parseBasicAuthentication()) {
-			username = (String)this.request.getAttribute("username");
+			username = (String)this.request.getAttribute("userphone");
 			password = (String)this.request.getAttribute("password");
 		} 
 		else {
-			username = this.request.getParameter("username");
+			username = this.request.getParameter("userphone");
 			password = this.request.getParameter("password");
 		}
 
@@ -536,17 +550,19 @@ public class HomeAction extends Command {
 			if (user != null) {
 				// Note: here we only want to set the redirect location if it hasn't already been
 				// set. This will give the LoginAuthenticator a chance to set the redirect location.
-				this.buildSucessfulLoginRedirect();
+				//this.buildSucessfulLoginRedirect();
 
 				SessionFacade.makeLogged();
 
 				String sessionId = SessionFacade.isUserInSession(user.getId());
 				UserSession userSession = new UserSession(SessionFacade.getUserSession());
 
+				Object saved = SessionFacade.getUserSession().getSaved();
 				// Remove the "guest" session
 				SessionFacade.remove(userSession.getSessionId());
 
 				userSession.dataToUser(user);
+				userSession.setSaved(saved);
 
 				UserSession currentUs = SessionFacade.getUserSession(sessionId);
 
@@ -616,8 +632,20 @@ public class HomeAction extends Command {
 				this.context.put("returnPath", this.request.getParameter("returnPath"));
 			}
 		} 
-		else if (isValidReturnPath()) {
-			JForumExecutionContext.setRedirect(this.request.getParameter("returnPath"));
+		else{
+			Comment c = ((Comment)SessionFacade.getUserSession().getSaved());
+			if(c != null) {
+				this.setTemplateName(TemplateKeys.HOME_DETAIL);
+				
+				int productNo = Integer.valueOf(c.productNo);
+				
+				Product product = detailInfo(productNo);
+				this.context.put("product", product);
+				this.context.put("content", c.text);
+				SessionFacade.getUserSession().setSaved(null);
+			}else {
+				this.setTemplateName(TemplateKeys.HOME_LIST);
+			}
 		}
 	}
 

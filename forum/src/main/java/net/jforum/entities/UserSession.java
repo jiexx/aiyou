@@ -82,6 +82,8 @@ public class UserSession implements Serializable
 	private String username;
 	private String lang;
 	private String ip;
+	
+	private Object saved;
 
 	private boolean autoLogin;
 	private boolean viewOnline;
@@ -127,6 +129,16 @@ public class UserSession implements Serializable
 	public String getIp()
 	{
 		return this.ip;
+	}
+	
+	public void setSaved(final Object saved)
+	{
+		this.saved = saved;
+	}
+	
+	public Object getSaved()
+	{
+		return this.saved;
 	}
 
 	/**

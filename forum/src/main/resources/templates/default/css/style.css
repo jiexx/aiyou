@@ -191,6 +191,51 @@ body{
 .search-about input[type="submit"]:hover{
 	background:url(../images/search.png) no-repeat center center #dfdfdf/*#2D2D2D*/;
 }
+.login-about{
+	/*background:#2D2D2D;*/
+	padding: 1.5em 0 2em 0;
+	text-align: center;
+}
+.login-about input[type="password"]{
+	width: 100%;
+	padding: 10px;
+	border: none;
+	outline: none;
+	font-family: Arial, helvetica, helve, sans-serif;
+	color: #545046;
+	float: left;
+	border-left: 1px inset rgba(84, 80, 70, 0.13);
+}
+.login-about input[type="text"]{
+	width: 100%;
+	padding: 10px;
+	border: none;
+	outline: none;
+	font-family: Arial, helvetica, helve, sans-serif;
+	color: #545046;
+	float: left;
+	border-left: 1px inset rgba(84, 80, 70, 0.13);
+}
+.login-about input[type="submit"]{
+	width: 100%;
+	border: none;
+	outline: none;
+	background: #2B7D92;
+	font-family: Arial, helvetica, helve, sans-serif;
+	color: #fff;
+	cursor: pointer;
+	padding: 10px 20px;
+	float: left;
+	/*display: block;
+	width: 100%;*/
+}
+.search-about input[type="submit"]:hover{
+	background:#2D2D2D;
+}
+.search-about a{
+	font-family: Arial, helvetica, helve, sans-serif;
+	font-size: 13px ;
+}
 form {
 	margin: 0 auto;
 	background:#F5F5F5;
