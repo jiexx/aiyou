@@ -5,6 +5,8 @@ import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.io.Serializable;
+import java.io.UnsupportedEncodingException;
+import java.net.URLEncoder;
 import java.util.Collections;
 import java.util.Date;
 import java.util.Iterator;
@@ -13,6 +15,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Random;
 import java.util.concurrent.ConcurrentHashMap;
+
+import javax.servlet.http.HttpServletRequest;
 
 import net.jforum.Command;
 import net.jforum.ControllerUtils;
@@ -259,14 +263,18 @@ public class HomeAction extends Command {
 		final int userId = SessionFacade.getUserSession().getUserId();
 
 		this.setTemplateName(TemplateKeys.HOME_REGISTE);
+		
+		if (SystemGlobals.getBoolValue(ConfigKeys.CAPTCHA_REGISTRATION)){
+			this.context.put("captcha_reg", true);
+		}
 	}
 	
 	public void registe() {
 		User user = new User();
 
-		String username = this.request.getParameter("username");
+		String username = this.request.getParameter("userphone");
 		String password = this.request.getParameter("password");
-		String phone = this.request.getParameter("phone");
+		String nickname = this.request.getParameter("nickname");
 		String captchaResponse = this.request.getParameter("captchaResponse");
 		String ip = this.request.getRemoteAddr();
 
@@ -296,8 +304,8 @@ public class HomeAction extends Command {
 			error = true;
 		}
 
-		if (!error && userDao.findByEmail(phone) != null) {
-			this.context.put("error", I18n.getMessage("User.emailExists", new String[] { phone }));
+		if (!error && userDao.findByEmail(nickname) != null) {
+			this.context.put("error", I18n.getMessage("User.emailExists", new String[] { nickname }));
 			error = true;
 		}
 
@@ -318,10 +326,10 @@ public class HomeAction extends Command {
 				BanlistRepository.add(banlist);
 			}
 			error = true;
-		} else if (stopForumSpamEnabled && StopForumSpam.checkEmail(phone)) {
-			LOGGER.info("Forum Spam found! Block it: " + phone);
+		} else if (stopForumSpamEnabled && StopForumSpam.checkEmail(nickname)) {
+			LOGGER.info("Forum Spam found! Block it: " + nickname);
 			final Banlist banlist = new Banlist();
-			banlist.setEmail(phone);
+			//banlist.setEmail(phone);
 			if (!BanlistRepository.shouldBan(banlist)) {
 				banlistDao.insert(banlist);
 				BanlistRepository.add(banlist);
@@ -342,7 +350,7 @@ public class HomeAction extends Command {
 
 		user.setUsername(username);
 		user.setPassword(Hash.sha512(password+SystemGlobals.getValue(ConfigKeys.USER_HASH_SEQUENCE)));
-		user.setEmail(phone);
+		user.setEmail(nickname);
 
 		/*boolean needPhoneActivation;
 
@@ -351,7 +359,7 @@ public class HomeAction extends Command {
 		}*/
 
 		int newUserId = userDao.addNew(user);
-		String productNo = ((Comment)userSession.getSaved()).productNo;
+		//String productNo = ((Comment)userSession.getSaved()).productNo;
 		SessionFacade.remove(userSession.getSessionId());
 		userSession.setAutoLogin(true);
 		userSession.setUserId(newUserId);
@@ -362,17 +370,9 @@ public class HomeAction extends Command {
 
 		SessionFacade.add(userSession);
 
-		// Finalizing.. show the user the congratulations page
-		if(productNo != null) {
-			JForumExecutionContext.setRedirect(this.request.getContextPath()
-				+ "/home/detail"
-				+ SystemGlobals.getValue(ConfigKeys.SERVLET_EXTENSION)
-				+ "?product_no="+productNo);
-		}else {
-			JForumExecutionContext.setRedirect(this.request.getContextPath()
-					+ "/home/list");
-		}
 
+		// Finalizing.. show the user the congratulations page
+		validateLogin(username, password);
 	}
 	
 	public void comment() {
@@ -381,7 +381,19 @@ public class HomeAction extends Command {
 		UserSession userSession = SessionFacade.getUserSession();
 		if(!SessionFacade.isLogged()) {
 			userSession.setSaved(new Comment(productNo, content));
-			this.setTemplateName(TemplateKeys.HOME_LOGIN);
+			//this.setTemplateName(TemplateKeys.HOME_LOGIN);
+			String returnPath = this.request.getRequestURL().toString();
+			
+			try {
+				returnPath = URLEncoder.encode(returnPath, "UTF-8");
+			}
+			catch (UnsupportedEncodingException e) {
+				LOGGER.error(e);
+			}
+			JForumExecutionContext.setRedirect(this.request.getContextPath() 
+				+ "/home/login" 
+				+ SystemGlobals.getValue(ConfigKeys.SERVLET_EXTENSION) 
+				+ "?returnPath=" + returnPath);
 			return;
 		}else {
 			if (productNo != null) {
@@ -403,11 +415,11 @@ public class HomeAction extends Command {
 				}
 				
 				Post p = reply(topic, forumId);
-				
+				String name = DataAccessDriver.getInstance().newUserDAO().selectById(p.getUserId()).getUsername();
 				JForumExecutionContext.setContentType("application/json");
 				this.setTemplateName(TemplateKeys.API_POST_COMMENT); 
 				if(p != null) {
-					Comment c = new Comment(productNo, p.getPostUsername(), p.getTime(), p.getText());
+					Comment c = new Comment(productNo, name, p.getTime(), p.getText());
 					this.context.put("comment", c.toJson());
 				}else {
 					this.context.put("comment", "");
@@ -417,7 +429,7 @@ public class HomeAction extends Command {
 		}
 	}
 	
-	private Product detailInfo(int productNo) {
+	private void detailInfo(int productNo) {
 		TopicDAO tp = DataAccessDriver.getInstance().newTopicDAO();
 		PostDAO po = DataAccessDriver.getInstance().newPostDAO();
 		Product product = new Product();
@@ -435,22 +447,34 @@ public class HomeAction extends Command {
 				}
 			}
 		}
-		return product;
-	}
-	
-	public void detail() {
-		this.setTemplateName(TemplateKeys.HOME_DETAIL);
-		
-		int productNo = this.request.getIntParameter("product_no");
 		Comment c = ((Comment)SessionFacade.getUserSession().getSaved());
 		
-		Product product = detailInfo(productNo);
 		this.context.put("product", product);
 		if(c != null) {
 			this.context.put("content", c.text);
 			SessionFacade.getUserSession().setSaved(null);
 		}else {
 			this.context.put("content", "");
+		}
+		
+		if(!SessionFacade.isLogged()) {
+			this.context.put("isLogged", 0);
+		}else{
+			this.context.put("isLogged", 1);
+		}
+	}
+	
+	public void detail() {
+		this.setTemplateName(TemplateKeys.HOME_DETAIL);
+		
+		String productNo = this.request.getParameter("product_no");
+		
+		if(productNo != null) {
+			detailInfo(Integer.valueOf(productNo));
+		}else {
+			JForumExecutionContext.setRedirect(this.request.getContextPath() 
+					+ "/home/list" 
+					+ SystemGlobals.getValue(ConfigKeys.SERVLET_EXTENSION));
 		}
 	}
 
@@ -527,23 +551,10 @@ public class HomeAction extends Command {
 			return false;
 		}
 	}
-	public void login()
-	{
-		String password;
-		String username;
-
-		if (parseBasicAuthentication()) {
-			username = (String)this.request.getAttribute("userphone");
-			password = (String)this.request.getAttribute("password");
-		} 
-		else {
-			username = this.request.getParameter("userphone");
-			password = this.request.getParameter("password");
-		}
-
+	private void validateLogin(String username, String password) {
 		boolean validInfo = false;
 
-		if (password.length() > 0) {
+		if (password != null && password.length() > 0) {
 			final UserDAO userDao = DataAccessDriver.getInstance().newUserDAO();
 			User user = userDao.validateLogin(username, password);
 
@@ -625,7 +636,11 @@ public class HomeAction extends Command {
 
 		// Invalid login
 		if (!validInfo) {
-			this.context.put("invalidLogin", "1");
+			if(password == null) {
+				this.context.put("invalidLogin", 1);
+			}else {
+				this.context.put("invalidLogin", 2);
+			}
 			this.setTemplateName(TemplateKeys.HOME_LOGIN);
 
 			if (isValidReturnPath()) {
@@ -633,20 +648,31 @@ public class HomeAction extends Command {
 			}
 		} 
 		else{
-			Comment c = ((Comment)SessionFacade.getUserSession().getSaved());
-			if(c != null) {
-				this.setTemplateName(TemplateKeys.HOME_DETAIL);
-				
-				int productNo = Integer.valueOf(c.productNo);
-				
-				Product product = detailInfo(productNo);
-				this.context.put("product", product);
-				this.context.put("content", c.text);
-				SessionFacade.getUserSession().setSaved(null);
+			if(isValidReturnPath()) {
+				String returnPath = this.request.getParameter("returnPath");
+				JForumExecutionContext.setRedirect(returnPath);				
 			}else {
-				this.setTemplateName(TemplateKeys.HOME_LIST);
+				JForumExecutionContext.setRedirect(this.request.getContextPath() 
+						+ "/home/list" 
+						+ SystemGlobals.getValue(ConfigKeys.SERVLET_EXTENSION));
 			}
 		}
+	}
+	public void login()
+	{
+		String password;
+		String username;
+
+		if (parseBasicAuthentication()) {
+			username = (String)this.request.getAttribute("userphone");
+			password = (String)this.request.getAttribute("password");
+		} 
+		else {
+			username = this.request.getParameter("userphone");
+			password = this.request.getParameter("password");
+		}
+
+		validateLogin(username, password);
 	}
 
 	/*public Template process(final RequestContext request, final ResponseContext response, final SimpleHash context)

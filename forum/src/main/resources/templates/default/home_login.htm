@@ -32,7 +32,7 @@
 		</div>
 		</div><br><br><br><br><br><br>
 		<!--start-content--->
-			<form action="${JForumContext.encodeURL("/home/login")}" method="post"  accept-charset="${encoding}">
+			<form method="post"  accept-charset="${encoding}" action="${JForumContext.encodeURL("/home/login")}" onsubmit="return checkLogin()">
 				  <input type="hidden" name="module" value="home" />
 				  <input type="hidden" name="action" value="login" />
 				  <input type="hidden" name="OWASP_CSRFTOKEN" value="${OWASP_CSRFTOKEN!""}" />
@@ -42,7 +42,7 @@
 				  </#if>
 				  <div class="about">
 					  <p>&nbsp;
-					  <#if invalidLogin?exists>
+					  <#if invalidLogin?exists && invalidLogin == 2>
 						手机号码/密码错误
 					  </#if>
 					  </p>
@@ -63,15 +63,15 @@
 				</div>
 				<div class="login-about">
 					<div class="wrap subgrid">
-						<input type="submit" value="登陆" onClick="checkLogin()"/>
+						<input type="submit" value="登陆"/>
 						<div class="clear"> </div>
 					</div>
 				</div>
 				<div class="login-about">
 					<div class="wrap subgrid">
+						<a href="${JForumContext.encodeURL('/home/registe')}?returnPath=${returnPath}">新用户注册</a>
 						<div class="clear"> </div>
 					</div>
-					<a href="${JForumContext.encodeURL('/home/reg')}">新用户注册</a>
 				</div>
 			</form>
 		</div>

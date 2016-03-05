@@ -17,36 +17,42 @@
 
 	function validateRegistrationForm(f)
 	{
-		if (f.username.value == "") {
-			alert("${I18n.getMessage("User.fillUsername")}");
-			f.username.focus();
+		if (f.userphone.value == "") {
+			document.getElementById("hint").innerHTML = "请填写手机号";
+			f.userphone.focus();
 			
 			return false;
 		}
 		
-		if (f.email.value == "" || checkemail(f.email.value) != true) {
-			alert("${I18n.getMessage("User.fillEmail")}");
-			f.email.focus();
+		if (f.nickname.value == "") {
+			document.getElementById("hint").innerHTML = "请填写昵称";
+			f.nickname.focus();
 
 			return false;
 		}
 		
 		if (f.password.value == "") {
-			alert("${I18n.getMessage("User.fillPassword")}");
+			document.getElementById("hint").innerHTML = "请填写密码";
 			f.password.focus();
 			
 			return false;
 		}
 		
 		if (f.password_confirm.value == "") {
-			alert("${I18n.getMessage("User.fillPasswordConfirmation")}");
+			document.getElementById("hint").innerHTML = "请确认密码";
 			f.password_confirm.focus();
 			
 			return false;
 		}
 		
 		if (f.password.value != f.password_confirm.value) {
-			alert("${I18n.getMessage("User.passwordNotMatch")}");
+			document.getElementById("hint").innerHTML = "两次密码输入不一致";
+			return false;
+		}
+		
+		if(f.captchaResponse.value == ""){
+			document.getElementById("hint").innerHTML = "请填写验证码";
+			f.captchaResponse.focus();
 			return false;
 		}
 		
@@ -60,64 +66,73 @@
 	/* ]]> */
 	</script>
 	<body>
-		<form id="formregister" accept-charset="${encoding}" name="formregister" action="${JForumContext.encodeURL("/jforum")}" method="post" onsubmit="return validateRegistrationForm(this);">
+	<!---start-wrap---->
+		<div class="wrap">
+			<!---start-header---->
+			<div class="header toTop" id="home">
+				<!---start-logo---->
+				<div class="logo">
+					<a href="#"><img src="${contextPath}/templates/${templateName}/images/logo.png" title="logo" /></a>
+				</div>
+			</div>
+		</div>
+		</div><br><br><br><br><br><br>
+		<form accept-charset="${encoding}"  method="post" onsubmit="return validateRegistrationForm(this);">
 		<input type="hidden" name="action" value="${action}" />
 		<input type="hidden" name="module" value="${moduleName}" />
 		<input type="hidden" name="OWASP_CSRFTOKEN" value="${OWASP_CSRFTOKEN!""}" />
-				
-		<table class="forumline" cellspacing="1" cellpadding="3" width="100%">
-			<tr>
-				<th class="thhead" valign="middle" colspan="2">${I18n.getMessage("User.registerInformation")}</th>
-			</tr>
-				
-			<tr>
-				<td class="row2" colspan="2" align="center"><span class="gensmall"><font color="red">${I18n.getMessage("User.requiredFields")}</font></span></td>
-			</tr>
-				
-			<tr>
-				<td class="row1" width="38%"><span class="gen">${I18n.getMessage("User.user")}: *</span></td>
-				<td class="row2"><input class="post" type="text" style="width:200px" maxlength="50" size="25" name="username" value="${username?default("")?html}"/></td>
-			</tr>
-				
-			<tr>
-				<td class="row1"><span class="gen">电话: *</span></td>
-				<td class="row2"><input class="post" type="text" style="width:200px" maxlength="255" size="25" name="email" value="${email?default("")?html}"/></td>
-			</tr>
-				
-			<tr>
-				<td class="row1"><span class="gen">${I18n.getMessage("User.password")}: *</span></td>
-				<td class="row2"><input name="password" type="password" class="post" id="password" style="width:200px" size="25" maxlength="32" autocomplete="off" /> </td>
-			</tr>
-				
-			<tr>
-				<td class="row1"><span class="gen">${I18n.getMessage("User.confirmPassword")}: * </span></td>
-				<td class="row2"><input class="post" style="width:200px" type="password" maxlength="32" size="25" name="password_confirm" autocomplete="off" /> </td>
-			</tr>
-
+			<div class="about">
+				  <p id="hint">&nbsp;
+				  <#if error?exists>
+					${error}
+				  </#if>
+				  </p>
+				<div class="clear"> </div>
+			</div>
+			  
+			  <div class="login-about">
+				<div class="wrap subgrid">
+					<input type="text" id="userphone" name="userphone" class="textbox" placeholder="手机号码">
+					<div class="clear"> </div>
+				</div>
+			</div>
+			<div class="login-about">
+				<div class="wrap subgrid">
+					<input type="text" id="nickname" name="nickname" class="textbox" placeholder="昵称">
+					<div class="clear"> </div>
+				</div>
+			</div>
+			<div class="login-about">
+				<div class="wrap subgrid">
+					<input type="password" id="password" name="password" class="textbox" placeholder="用户密码">
+					<div class="clear"> </div>
+				</div>
+			</div>
+			<div class="login-about">
+				<div class="wrap subgrid">
+					<input type="password" id="password_confirm" name="password_confirm" class="textbox" placeholder="确认密码">
+					<div class="clear"> </div>
+				</div>
+			</div>
 			<#if captcha_reg?exists>
-				<tr>
-					<td class="row1" width="38%" valign="top"><span class="gen">${I18n.getMessage("User.captchaResponse")}: *</span></td>
-					<td class="row2">
-						<input class="post" type="text" style="width:200px; font-weight: bold;" maxlength="25" size="25" name="captchaResponse" /> 
-						<p><img src="${JForumContext.encodeURL("/captcha/generate/${timestamp}")}" align="top" alt="Captcha unavailable" id="captcha_img"/></p>
-						<span class="gensmall">${I18n.getMessage("User.hardCaptchaPart1")} <a href="#newCaptcha" onclick="newCaptcha()"><b>${I18n.getMessage("User.hardCaptchaPart2")}</b></a></span>
-					</td>
-				</tr>
+			<div class="login-about">
+				<div class="wrap subgrid">
+					<input type="text" id="captchaResponse" name="captchaResponse" placeholder="输入下方验证码"/> 
+					<div class="pull-left"><img src="${JForumContext.encodeURL("/captcha/generate/${timestamp}")}" />
+					<a href="#newCaptcha" onclick="newCaptcha()">刷新验证码</a></div>
+					<div class="clear"> </div>
+					
+				</div>
+			</div>
+					
 			</#if>
+			<div class="login-about">
+				<div class="wrap subgrid">
+					<input type="submit" value="提交注册"/>
+					<div class="clear"> </div>
+				</div>
+			</div>	
 								
-			<#if error?exists>
-			<tr>
-				<td class="row2" colspan="2" align="center"><span class="gen"><font color="#ff0000"><b>${error}</b></font></span></td>
-			</tr>
-			</#if>
-				
-			<tr align="center">
-				<td class="catbottom" colspan="2">
-					<input class="mainoption" type="submit" value="${I18n.getMessage("User.submit")}" name="submit" />&nbsp;&nbsp;
-					<input class="liteoption" type="reset" value="${I18n.getMessage("User.reset")}" name="reset" />
-				</td>
-			</tr>
-		</table>
 		</form>
 	</body>
 </html>

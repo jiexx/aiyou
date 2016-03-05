@@ -232,9 +232,24 @@ body{
 .search-about input[type="submit"]:hover{
 	background:#2D2D2D;
 }
-.search-about a{
+.wrap a {
+	color:rgb(0, 0, 204);
 	font-family: Arial, helvetica, helve, sans-serif;
 	font-size: 13px ;
+}
+.wrap a:visited {
+	color:rgb(0, 0, 204);
+	text-decoration: none;
+}
+.wrap a:hover {
+	color:rgb(0, 0, 204);
+	text-decoration: none;
+}
+.wrap img {
+	padding-top: 15px;
+}
+.pull-left {
+	float: left;
 }
 form {
 	margin: 0 auto;

@@ -8,28 +8,38 @@
 		<link href="${contextPath}/templates/${templateName}/css/style.css" rel="stylesheet" type="text/css"  media="all" />
 	</head>
 	<script>
-		function comment(text) {
+		function comment() {
+			var text = document.getElementById("content").value;
+			if(text == null || text.length == 0) {
+				document.getElementById("content").placeholder="留言不为空";
+				return false;
+			}
 			var xhttp = new XMLHttpRequest();
 			xhttp.onreadystatechange = function() {
 				if (xhttp.readyState == 4 && xhttp.status == 200) {
-					var comment = eval(xhttp.responseText);
-					document.getElementById("newComment").nextSibling.innerHTML = 
+					var comment = JSON.parse(xhttp.responseText);//eval('(' +xhttp.responseText + ')');
+					var newNode = document.createElement("div"); 
+					newNode.innerHTML = 
 					"<div class=\"contact\">" +
 						"<div class=\"wrap\">" +
 							"<h4>"+comment.text+"</h4>" +
-							"<h5>"+comment.username+"发表于"+comment.time+"</h5>" +
+							"<h5>"+comment.name+"发表于"+comment.time+"</h5>" +
 						"</div>"+
 					"</div>";
+					var list = document.getElementById("newComment");
+					list.insertBefore(newNode, list.lastChild);
+					document.getElementById("content").value = "";
 				}
 			};
 			var params = "module=home&action=comment&product_no=${product.id}" 
 				+ "&OWASP_CSRFTOKEN="+encodeURIComponent("${OWASP_CSRFTOKEN!""}")
 				+ "&content="+encodeURIComponent(text);
-			xhttp.open("POST", "${JForumContext.encodeURL("/jforum")}", false);
+			xhttp.open("POST", "${JForumContext.encodeURL("/home/comment")}", false);
 			xhttp.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
-			xhttp.setRequestHeader("Content-length", params.length);
-			xhttp.setRequestHeader("Connection", "close");
+			//xhttp.setRequestHeader("Content-length", params.length);
+			//xhttp.setRequestHeader("Connection", "close");
 			xhttp.send(params);
+			return false;
 		}
 	</script>
 	<body>
@@ -68,12 +78,16 @@
 		<div class="contact" id="contact">
 			<div class="wrap">
 				<h3>留言</h3>
-				<form action="${JForumContext.encodeURL("/home/detail/${product.id}")}" method="post" accept-charset="utf-8">
+				<#if isLogged?exists && isLogged == 1>
+				<form method="post" accept-charset="utf-8" action="${JForumContext.encodeURL("/home/detail/${product.id}")}" onsubmit="return comment();">
+				<#else>
+				<form method="post" accept-charset="utf-8" action="${JForumContext.encodeURL("/home/detail/${product.id}")}">
+				</#if>
 					<input type="hidden" name="module" value="home" />
 					<input type="hidden" name="action" value="comment" />
 					<input type="hidden" name="product_no" value="${product.id}" />
 					<input type="hidden" name="OWASP_CSRFTOKEN" value="${OWASP_CSRFTOKEN!""}" />
-					<textarea name="content" value="${content}" >${content}</textarea>
+					<textarea id="content" name="content" value="${content}" >${content}</textarea>
 					<input type="submit" value="确认">
 				</form>
 			</div>

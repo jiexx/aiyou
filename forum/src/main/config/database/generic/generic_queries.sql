@@ -207,7 +207,7 @@ PostModel.selectAllByTopicByLimit = SELECT p.post_id, topic_id, forum_id, p.user
 	AND topic_id = ? \
 	AND p.user_id = u.user_id \
 	AND p.need_moderate = 0 \
-	ORDER BY post_time ASC \
+	ORDER BY post_time DESC \
 	LIMIT ?, ?
 
 PostModel.selectByUserByLimit = SELECT p.post_id, topic_id, forum_id, p.user_id, post_time, poster_ip, enable_bbcode, p.attach, \
