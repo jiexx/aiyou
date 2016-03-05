@@ -462,6 +462,16 @@ public class HomeAction extends Command {
 		}else{
 			this.context.put("isLogged", 1);
 		}
+		
+		String returnPath = this.request.getRequestURL().toString();
+		
+		try {
+			returnPath = URLEncoder.encode(returnPath, "UTF-8");
+		}
+		catch (UnsupportedEncodingException e) {
+			LOGGER.error(e);
+		}
+		this.context.put("returnPath", returnPath);
 	}
 	
 	public void detail() {

@@ -69,7 +69,11 @@
 			</div>
 			<div class="catch-me">
 						<ul>
-							<li><a href="#"><img src="${contextPath}/templates/${templateName}/images/buy.png" title="订"></a></li>
+							<#if isLogged?exists && isLogged == 1>
+							<li><a href="/#"><img src="${contextPath}/templates/${templateName}/images/buy.png" title="订"></a></li>
+							<#else>
+							<li><a href="${JForumContext.encodeURL('/home/login')}?returnPath=${returnPath}"><img src="${contextPath}/templates/${templateName}/images/buy.png" title="订"></a></li>
+							</#if>
 						</ul>
 					</div>
 		</div>
