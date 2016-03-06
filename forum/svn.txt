@@ -20,3 +20,14 @@ http://localhost:8080/jforum
 #3  urlPattern.properties      new arguments;
 #4  TemplateKeys.java          define temp
 #5  templatesMapping.properties  define temp->html;
+
+chinese err
+mysql[client]
+default-character-set= utf8
+[mysqld]
+character-set-server=utf8      different!
+init_connect='SET NAMES utf8'
+
+ create database bbs character set utf8;
+
+

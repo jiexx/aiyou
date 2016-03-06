@@ -29,7 +29,7 @@ body{
 /*---start-wrap----*/
 /*---start-header----*/
 .logo{
-	padding: 15px 0 10px 0px;
+	padding: 0px 0 0px 0px;
 	background: #2B7D92;
 	text-align: center;
 }
@@ -245,7 +245,7 @@ body{
 	color:rgb(0, 0, 204);
 	text-decoration: none;
 }
-.wrap img {
+.pull-left img {
 	padding-top: 15px;
 }
 .pull-left {

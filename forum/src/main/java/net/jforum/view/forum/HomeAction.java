@@ -435,7 +435,6 @@ public class HomeAction extends Command {
 		Product product = new Product();
 		
 		for(Post p : po.selectAllByTopic(productNo)) {
-			product.addComment(p);
 			if(p != null && p.hasAttachments()) {
 				List<Attachment> as = DataAccessDriver.getInstance().newAttachmentDAO()
 						.selectAttachments(p.getId());
@@ -445,6 +444,8 @@ public class HomeAction extends Command {
 					product.setImg(as);
 					product.setDesc(p.getText());
 				}
+			}else {
+				product.addComment(p);
 			}
 		}
 		Comment c = ((Comment)SessionFacade.getUserSession().getSaved());
