@@ -169,14 +169,32 @@ p{
 	line-height: 1.6em;
 }
 .search-about input[type="text"]{
-	width: 80%;
+	background: url(../images/search.png) no-repeat center center/*#2B7D92*/;
+	width: 55px;
 	padding: 10px;
-	border: none;
+	border: solid 1px #ccc;
 	outline: none;
 	font-family: Arial, helvetica, helve, sans-serif;
-	color: #545046;
-	float: left;
-	border-left: 1px inset rgba(84, 80, 70, 0.13);
+	-webkit-border-radius: 10em;
+	-moz-border-radius: 10em;
+	border-radius: 10em;
+	
+	-webkit-transition: all .5s;
+	-webkit-transition: all .5s;
+	transition: all .5s;
+}
+.search-about input[type="text"]:focus{
+	width: 80%;
+	padding: 10px;
+	border: solid 1px #ccc;
+	outline: none;
+	font-family: Arial, helvetica, helve, sans-serif;
+	background-color: #2B7D92;
+	background:none;
+	
+	-webkit-box-shadow: 0 0 5px rbga(43,125,146,.5);
+	-moz-box-shadow: 0 0 5px rbga(43,125,146,.5);
+	box-shadow: 0 0 5px rbga(43,125,146,.5);
 }
 .search-about input[type="submit"]{
 	width: 20%;
