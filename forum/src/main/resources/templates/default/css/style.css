@@ -26,6 +26,9 @@ body{
 	background-size: 100% 9.75%;
 	font-family: verdana, arial, helvetica, helve, sans-serif;
 }
+p{
+	text-indent: 2em;
+}
 /*---start-wrap----*/
 /*---start-header----*/
 .logo{
@@ -375,7 +378,7 @@ form {
 .gallery-header{
 	text-align: left;
 	/*border-bottom: 1px solid rgba(102, 102, 102, 0.09);*/
-	padding: 0px 0px 13px 0px;
+	padding: 0px 0px 0px 0px;
 	
 }
 .gallery-header h3{
@@ -397,7 +400,7 @@ form {
 /* Common division block */
 .holder{
    float: left;
-	margin: 10px 10px 0px 0px;
+	margin: 0px 10px 10px 0px;
 	position: relative;
 	overflow: hidden;
 	box-shadow: 0px 0px 10px rgba(187, 255, 181, 0.26);

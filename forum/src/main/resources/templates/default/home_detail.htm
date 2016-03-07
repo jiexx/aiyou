@@ -9,6 +9,36 @@
 		<link href="${contextPath}/templates/${templateName}/css/style.css" rel="stylesheet" type="text/css"  media="all" />
 	</head>
 	<script>
+		window.onload=function(){ 
+			if (/(iPhone|iPad|iPod|iOS)/i.test(navigator.userAgent)) {
+				//alert(navigator.userAgent);  
+				function iOSversion() {
+					if (/iP(hone|od|ad)/.test(navigator.platform)) {
+						var v = (navigator.appVersion).match(/OS (\d+)_(\d+)_?(\d+)?/);
+						return [parseInt(v[1], 10), parseInt(v[2], 10), parseInt(v[3] || 0, 10)];
+					}
+				}
+				ver = iOSversion();
+				window.url_order = function(name) {
+					if( ver[0] >= 8 ) {
+						/*document.getElementById("url_buy").href*/
+						window.location.href = "sms:18202163278&body=我要订购"+name+",请尽快送到我家";
+					}else {
+						window.location.href = "sms:18202163278;body=我要订购"+name+",请尽快送到我家";
+					}
+				}
+			} else if (/(Android)/i.test(navigator.userAgent)) {
+				//alert(navigator.userAgent); 
+				window.url_order = function(name) {
+					window.location.href = "sms:18202163278?body=我要订购"+name+",请尽快送到我家";
+				}
+			} else {
+				window.url_order = function(name) {
+					//window.location.href = "sms:18202163278?body=我要订购"+name+",请尽快送到我家";
+					alert("请致电18202163278");
+				}
+			};
+		} 
 		function comment() {
 			var text = document.getElementById("content").value;
 			if(text == null || text.length == 0) {
@@ -50,13 +80,16 @@
 			<div class="header toTop" id="home">
 				<!---start-logo---->
 				<div class="logo">
-					<a href="#"><img src="${contextPath}/templates/${templateName}/images/logo.png" title="logo" /></a>
+					<a href="${JForumContext.encodeURL("/home/list")}"><img src="${contextPath}/templates/${templateName}/images/logo.png" title="logo" /></a>
 				</div>
 			</div>
 		</div>
 		<!--start-content--->
 		</div><br><br><br><br><br><br>
 		<div class="content">
+			<div class="gallery-header">
+				<h3>${product.name}</h3>
+			</div>
 			<#list product.img as image>
 			<div class="gallrey-grids">
 				<div class="holder smooth">
@@ -65,16 +98,12 @@
 			</div>
 			</#list>
 			<div class="gallery-header">
-				<h3>${product.name}</h3>
 				<p>${product.desc}</p>
 			</div>
 			<div class="catch-me">
 						<ul>
-							<#if isLogged?exists && isLogged == 1>
-							<li><a href="/#"><img src="${contextPath}/templates/${templateName}/images/buy.png" title="订"></a></li>
-							<#else>
-							<li><a href="${JForumContext.encodeURL('/home/login')}?returnPath=${returnPath}"><img src="${contextPath}/templates/${templateName}/images/buy.png" title="订"></a></li>
-							</#if>
+							<li><a href="#" onClick="url_order('${product.name}')"><img src="${contextPath}/templates/${templateName}/images/buy.png" title="订"></a></li>
+							<!--li><a href="${JForumContext.encodeURL('/home/login')}?returnPath=${returnPath}"><img src="${contextPath}/templates/${templateName}/images/buy.png" title="订"></a></li-->
 						</ul>
 					</div>
 		</div>

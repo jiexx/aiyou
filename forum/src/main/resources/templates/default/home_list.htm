@@ -153,15 +153,15 @@
 			<div class="header toTop" id="home">
 				<!---start-logo---->
 				<div class="logo">
-					<a href="#"><img src="${contextPath}/templates/${templateName}/images/logo.png" title="logo" /></a>
+					<a href="${JForumContext.encodeURL("/home/list")}"><img src="${contextPath}/templates/${templateName}/images/logo.png" title="logo" /></a>
 				</div>
 			</div>
 		</div>
 		</div><br><br><br><br><br><br>
 		<!--start-content--->
 		<div class="content">
-				<div class="search-about">
-					<div class="wrap subgrid">
+			<div class="search-about">
+				<div class="wrap subgrid">
 					<form>
 						<input type="text" class="textbox" value="Email:" onfocus="this.value = '';" onblur="if (this.value == '') {this.value = 'Email';}">
 						<!--input type="submit" value="" /-->
@@ -171,37 +171,38 @@
 			</div>
 			<#list allProducts as product>
 			<div class="Gallery" id="gallery">
+				<div class="gallery-header">
+					<h3>${product.name}</h3>
+				</div>
 				<#list product.img as image>
 				<div class="wrap">	
 					<div class="gallrey-grids">
-							<div class="holder smooth">
-								 <a href="${JForumContext.encodeURL("/home/detail/${product.id}")}"><img src="${contextPath}/${image.thumbPath()}?OWASP_CSRFTOKEN=${OWASP_CSRFTOKEN!""}" alt="[Thumb - ${image.info.realFilename}]"/></a>
-							</div>
+						<div class="holder smooth">
+							 <a href="${JForumContext.encodeURL("/home/detail/${product.id}")}"><img src="${contextPath}/${image.thumbPath()}?OWASP_CSRFTOKEN=${OWASP_CSRFTOKEN!""}" alt="[Thumb - ${image.info.realFilename}]"/></a>
 						</div>
-						<div class="clear"> </div>
 					</div>
+					<div class="clear"> </div>
+				</div>
 				</#list>
-					<div class="gallery-header">
-						<p>&nbsp;&nbsp;${product.name}</p>
-					</div>
-					<div class="catch-me">
-						<ul>
-							<!--li><a href="#"><img src="${contextPath}/templates/${templateName}/images/wei.png" title="facebook"></a></li-->
-							<li><a href="#" onclick="showMessage();"><img src="${contextPath}/templates/${templateName}/images/wei.png" title="order" /></a></li>
-						</ul>
-					</div>
+				<div class="catch-me">
+					<ul>
+						<!--li><a href="#"><img src="${contextPath}/templates/${templateName}/images/wei.png" title="facebook"></a></li-->
+						<li><a href="#" onclick="showMessage();"><img src="${contextPath}/templates/${templateName}/images/wei.png" title="order" /></a></li>
+					</ul>
+				</div>
 			</div>
 			</#list>
 			<div class="Gallery" id="gallery">
 				<div class="wrap">	
 					<div class="gallery-header">
 						<h3>兰山的故事</h3>
-						<p>&nbsp;&nbsp;有一次我在皖南采访一位开工厂的老板。他给我 们泡了一小杯野茶，我一开始并不注意，野茶的样子杂杂的，色泽跟老茶没有什么区别。当我不经 意喝了几口之后，立即感得满嘴泛甜，而且这种甜越来越浓、越来越醇。凭着我多年喝茶的经验， 觉得这应该是好茶。这时那位老板在一旁笑着解释道：这是他的老婆在山崖采摘下来的天然野茶。 我打开那只存放野茶的饼干筒，里面只有浅浅一层野茶，因为奇特不可多得，才觉得非常少。就是 偶然那次遇到野茶，至今我久久不忘。</p>
-						<p>&nbsp;&nbsp;健康好比追寻野茶，在世界各个不起眼的角落里，走的路越得多健康就离你越近...</p>
+						<p>有一次我在皖南采访一位开工厂的老板。他给我 们泡了一小杯野茶，我一开始并不注意，野茶的样子杂杂的，色泽跟老茶没有什么区别。当我不经意喝了几口之后，立即感得满嘴泛甜，而且这种甜越来越浓、越来越醇。凭着我多年喝茶的经验， 觉得这应该是好茶。这时那位老板在一旁笑着解释道：这是他的老婆在山崖采摘下来的天然野茶。 我打开那只存放野茶的饼干筒，里面只有浅浅一层野茶，因为奇特不可多得，才觉得非常少。就是 偶然那次遇到野茶，至今我久久不忘。</p>
+						<p>曾经，我们是一群忙碌的上班族，顾不上停下脚步来欣赏世界，现在，我们致力于为忙碌的你介绍各类美味浓醇，来自世界各地的茶点，为忙碌的你在午后，在黄昏，奉上一份奇妙的滋味。</p>
 					</div>
+				</div>
 			</div>
+			<div class="clear"> </div>
 		</div>
-		<div class="clear"> </div>
 		<!---start-copy-right---->
 		<div class="copy-right vertical-align: baseline;">
 			<div class="wrap">
