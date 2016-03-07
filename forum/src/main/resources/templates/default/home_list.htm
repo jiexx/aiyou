@@ -1,7 +1,7 @@
 
 <html>
 	<head>
-		<title>团沛软件</title>
+		<title>味浓</title>
 		<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
 		<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
 		<meta name="keywords" content="Spareparts iphone web template, Andriod web template, Smartphone web template, free webdesigns for Nokia, Samsung, LG, SonyErricsson, Motorola web design" />
@@ -150,31 +150,35 @@
 		<!---start-wrap---->
 		<div class="wrap">
 			<!---start-header---->
-			<div class="header toTop" id="home">
+			<div class="header toTop logo-wrap" id="home">
 				<!---start-logo---->
-				<div class="logo">
-					<a href="${JForumContext.encodeURL("/home/list")}"><img src="${contextPath}/templates/${templateName}/images/logo.png" title="logo" /></a>
-				</div>
-			</div>
-		</div>
-		</div><br><br><br>
-		<!--start-content--->
-		<div class="content">
-			<div class="search-about">
-				<div class="wrap subgrid">
-					<form>
+				<div class="logo-wrap">
+					<div class="logo"><a href="${JForumContext.encodeURL("/home/list")}"><img src="${contextPath}/templates/${templateName}/images/logo.png" title="logo" /></a></div>
+					<div class="search-about">
 						<input type="text" class="textbox" ">
 						<!--input type="submit" value="" /-->
-						<div class="clear"> </div>
-					</form>
+					</div>
 				</div>
+				
+				<div class="clear"> </div>
 			</div>
+		</div>
+		<br><br><br>
+		<!--start-content--->
+		<div class="content">
+			
 			<div class="Gallery" id="gallery">
 				<div class="wrap">	
 					<div class="gallery-header">
 						<br>
-						<p>曾经，我们是一群忙碌的上班族，顾不上停下脚步来欣赏世界，现在，我们致力于在你停歇的午后黄昏，奉上来自世界各地各类美味浓醇的茶点，不仅为健康，也为一份奇妙的滋味。</p>
+						<p>曾经，我们是一群忙碌的上班族，顾不上停下脚步来欣赏世界，现在，我们致力于在你停歇的午后黄昏，奉上来自世界各地美味浓醇的茶点，不仅为健康，也为一份奇妙的滋味。</p>
 						<br>
+					</div>
+					<div class="catch-me">
+						<ul>
+							<!--li><a href="#"><img src="${contextPath}/templates/${templateName}/images/wei.png" title="facebook"></a></li-->
+							<li><a href="#" onclick="showMessage();"><img src="${contextPath}/templates/${templateName}/images/wei.png" title="order" /></a></li>
+						</ul>
 					</div>
 				</div>
 			</div>
@@ -195,8 +199,10 @@
 				</#list>
 				<div class="catch-me">
 					<ul>
-						<!--li><a href="#"><img src="${contextPath}/templates/${templateName}/images/wei.png" title="facebook"></a></li-->
-						<li><a href="#" onclick="showMessage();"><img src="${contextPath}/templates/${templateName}/images/wei.png" title="order" /></a></li>
+						<li class="catch-me-left">${product.desc}</li>
+						<#if product.hasMore>
+						<li><a href="${JForumContext.encodeURL("/home/detail/${product.id}")}">阅读更多</a></li>
+						</#if>
 					</ul>
 				</div>
 			</div>

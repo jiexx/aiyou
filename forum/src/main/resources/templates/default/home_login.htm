@@ -1,6 +1,6 @@
 <html>
 	<head>
-		<title>团沛软件</title>
+		<title>味浓</title>
 		<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
 		<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
 		<meta name="keywords" content="Spareparts iphone web template, Andriod web template, Smartphone web template, free webdesigns for Nokia, Samsung, LG, SonyErricsson, Motorola web design" />
@@ -24,14 +24,20 @@
 		<!---start-wrap---->
 		<div class="wrap">
 			<!---start-header---->
-			<div class="header toTop" id="home">
+			<div class="header toTop logo-wrap" id="home">
 				<!---start-logo---->
-				<div class="logo">
-					<a href="${JForumContext.encodeURL("/home/list")}"><img src="${contextPath}/templates/${templateName}/images/logo.png" title="logo" /></a>
+				<div class="logo-wrap">
+					<div class="logo"><a href="${JForumContext.encodeURL("/home/list")}"><img src="${contextPath}/templates/${templateName}/images/logo.png" title="logo" /></a></div>
+					<div class="search-about">
+						<input type="text" class="textbox" ">
+						<!--input type="submit" value="" /-->
+					</div>
 				</div>
+				
+				<div class="clear"> </div>
 			</div>
 		</div>
-		</div><br><br><br><br><br><br>
+		<br><br><br>
 		<!--start-content--->
 			<form method="post"  accept-charset="${encoding}" action="${JForumContext.encodeURL("/home/login")}" onsubmit="return checkLogin()">
 				  <input type="hidden" name="module" value="home" />

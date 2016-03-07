@@ -103,6 +103,7 @@ public class HomeAction extends Command {
 		public String id;
 		public String name;
 		public String desc;
+		public boolean hasMore;
 		public List<Attachment> img;
 		public List<Post> comments;
 		
@@ -117,7 +118,13 @@ public class HomeAction extends Command {
 		public Product(String id, String name, String desc, List<Attachment> img) {
 			this.id = id;
 			this.name = name;
-			this.desc = desc;
+			if(desc.length() > 20){
+				this.desc = desc.substring(0, 20)+"...";
+				this.hasMore = true;
+			}else {
+				this.desc = desc;
+				this.hasMore = false;
+			}
 			this.img = img;
 			this.comments = new LinkedList<Post>();
 		}
@@ -148,6 +155,14 @@ public class HomeAction extends Command {
 
 		public void setName(String name) {
 			this.name = name;
+		}
+		
+		public boolean getHasMore() {
+			return this.hasMore;
+		}
+
+		public void setHasMore(boolean hasMore) {
+			this.hasMore = hasMore;
 		}
 
 		public String getDesc() {
