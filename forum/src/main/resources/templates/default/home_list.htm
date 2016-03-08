@@ -10,6 +10,12 @@
 	</head>
 	<script type="text/javascript">
 		window.onload=function(){ 
+			var ua = navigator.userAgent.toLowerCase();
+			if(ua.match(/MicroMessenger/i)=="micromessenger") {
+				document.getElementById('header').className = "header toBottom logo-wrap";
+			} else {
+				document.getElementById('header').className = "header toTop logo-wrap";
+			}
 			if (/(iPhone|iPad|iPod|iOS)/i.test(navigator.userAgent)) {
 				//alert(navigator.userAgent);  
 				function iOSversion() {
@@ -144,13 +150,13 @@
 		function showMessage(){
 			alertMsg("<div class=\"wrap\"><a href=\"#\">关注我们的微信</a><img src=\"${contextPath}/templates/${templateName}/images/weicode.png\"/></div>");
 		}
-
+		
 	</script>
 	<body>
 		<!---start-wrap---->
 		<div class="wrap">
 			<!---start-header---->
-			<div class="header toTop logo-wrap" id="home">
+			<div class="header toTop logo-wrap" id="header">
 				<!---start-logo---->
 				<div class="logo-wrap">
 					<div class="logo"><a href="${JForumContext.encodeURL("/home/list")}"><img src="${contextPath}/templates/${templateName}/images/logo.png" title="logo" /></a></div>
