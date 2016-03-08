@@ -1,0 +1,127 @@
+
+<html>
+	<head>
+		<title>味浓</title>
+		<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+		<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+		<meta name="keywords" content="Spareparts iphone web template, Andriod web template, Smartphone web template, free webdesigns for Nokia, Samsung, LG, SonyErricsson, Motorola web design" />
+		<link rel="icon" href="${contextPath}/templates/${templateName}/images/favicon.ico" type="image/x-icon" />
+		<link href="${contextPath}/templates/${templateName}/css/style.css" rel="stylesheet" type="text/css"  media="all" />
+	</head>
+	<script>
+		window.onload=function(){ 
+			if (/(iPhone|iPad|iPod|iOS)/i.test(navigator.userAgent)) {
+				//alert(navigator.userAgent);  
+				function iOSversion() {
+					if (/iP(hone|od|ad)/.test(navigator.platform)) {
+						var v = (navigator.appVersion).match(/OS (\d+)_(\d+)_?(\d+)?/);
+						return [parseInt(v[1], 10), parseInt(v[2], 10), parseInt(v[3] || 0, 10)];
+					}
+				}
+				ver = iOSversion();
+				window.url_order = function(name) {
+					if( ver[0] >= 8 ) {
+						/*document.getElementById("url_buy").href*/
+						window.location.href = "sms:18202163278&body=我要订购"+name+",请尽快送到我家";
+					}else {
+						window.location.href = "sms:18202163278;body=我要订购"+name+",请尽快送到我家";
+					}
+				}
+			} else if (/(Android)/i.test(navigator.userAgent)) {
+				//alert(navigator.userAgent); 
+				window.url_order = function(name) {
+					window.location.href = "sms:18202163278?body=我要订购"+name+",请尽快送到我家";
+				}
+			} else {
+				window.url_order = function(name) {
+					//window.location.href = "sms:18202163278?body=我要订购"+name+",请尽快送到我家";
+					alert("请致电18202163278");
+				}
+			};
+		} 
+		function comment() {
+			var text = document.getElementById("content").value;
+			if(text == null || text.length == 0) {
+				document.getElementById("content").placeholder="留言不为空";
+				return false;
+			}
+			var xhttp = new XMLHttpRequest();
+			xhttp.onreadystatechange = function() {
+				if (xhttp.readyState == 4 && xhttp.status == 200) {
+					var comment = JSON.parse(xhttp.responseText);//eval('(' +xhttp.responseText + ')');
+					var newNode = document.createElement("div"); 
+					newNode.innerHTML = 
+					"<div class=\"contact\">" +
+						"<div class=\"wrap\">" +
+							"<h4>"+comment.text+"</h4>" +
+							"<h5>"+comment.name+"发表于"+comment.time+"</h5>" +
+						"</div>"+
+					"</div>";
+					var list = document.getElementById("newComment");
+					list.insertBefore(newNode, list.lastChild);
+					document.getElementById("content").value = "";
+				}
+			};
+			var params = "module=home&action=comment&product_no=${product.id}" 
+				+ "&OWASP_CSRFTOKEN="+encodeURIComponent("${OWASP_CSRFTOKEN!""}")
+				+ "&content="+encodeURIComponent(text);
+			xhttp.open("POST", "${JForumContext.encodeURL("/home/comment")}", false);
+			xhttp.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
+			//xhttp.setRequestHeader("Content-length", params.length);
+			//xhttp.setRequestHeader("Connection", "close");
+			xhttp.send(params);
+			return false;
+		}
+	</script>
+	<body>
+		<!---start-wrap---->
+		<div class="wrap">
+			<!---start-header---->
+			<div class="header toTop logo-wrap" id="home">
+				<!---start-logo---->
+				<div class="logo-wrap">
+					<div class="logo"><a href="${JForumContext.encodeURL("/home/list")}"><img src="${contextPath}/templates/${templateName}/images/logo.png" title="logo" /></a></div>
+					<div class="search-about">
+						<input type="text" class="textbox" ">
+						<!--input type="submit" value="" /-->
+					</div>
+				</div>
+				
+				<div class="clear"> </div>
+			</div>
+		</div>
+		<br><br><br>
+		<!--start-content--->
+		<div class="content">
+			<div class="gallery-header">
+				<h3>${product.name}</h3>
+			</div>
+			<#list product.img as image>
+			<div class="gallrey-grids">
+				<div class="holder smooth">
+					 <img src="${contextPath}/${image.thumbPath()}?OWASP_CSRFTOKEN=${OWASP_CSRFTOKEN!""}" alt="">
+				</div>
+			</div>
+			</#list>
+			<div class="gallery-header">
+				<p>${product.desc}</p>
+			</div>
+			<div class="catch-me">
+				<ul>
+					<li><a href="#" onClick="url_order('${product.name}')"><img src="${contextPath}/templates/${templateName}/images/buy.png" title="订"></a></li>
+					<!--li><a href="${JForumContext.encodeURL('/home/login')}?returnPath=${returnPath}"><img src="${contextPath}/templates/${templateName}/images/buy.png" title="订"></a></li-->
+				</ul>
+			</div>
+		</div>
+		<!---start-copy-right---->
+		<div class="copy-right vertical-align: baseline;">
+			<div class="wrap">
+				<p>Powered by 团沛软件. jiexx@outlook.com</p>
+			</div>
+		</div>
+    <!--a href="#" id="toTop" style="display: block;"><span id="toTopHover" style="opacity: 1;"></span></a-->
+		<!---End-copy-right---->
+		<!---start-wrap---->
+	</body>
+</html>
+

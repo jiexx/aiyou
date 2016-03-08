@@ -1,0 +1,147 @@
+<html>
+	<head>
+		<title>味浓</title>
+		<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+		<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+		<meta name="keywords" content="Spareparts iphone web template, Andriod web template, Smartphone web template, free webdesigns for Nokia, Samsung, LG, SonyErricsson, Motorola web design" />
+		<link rel="icon" href="${contextPath}/templates/${templateName}/images/favicon.ico" type="image/x-icon" />
+		<link href="${contextPath}/templates/${templateName}/css/style.css" rel="stylesheet" type="text/css"  media="all" />
+	</head>
+	<script type="text/javascript">
+	/* <![CDATA[ */
+	function checkphone(str) {
+		var filter=/^([\w]+(?:(?:-|\+|\.)[\w]+)*)@((?:[\w-]+\.)*\w[\w-]{0,66})\.([a-z]{2,6}(?:\.[a-z]{2})?)$/i
+		var fmt=/^1[3|4|5|8][0-9]\d{4,8}$/i
+		if (fmt.test(str)) return true;
+		else return false;
+	}
+
+	function validateRegistrationForm(f)
+	{
+		if (f.userphone.value == "") {
+			document.getElementById("hint").innerHTML = "请填写手机号";
+			f.userphone.focus();
+			
+			return false;
+		}
+		
+		if (f.nickname.value == "") {
+			document.getElementById("hint").innerHTML = "请填写昵称";
+			f.nickname.focus();
+
+			return false;
+		}
+		
+		if (f.password.value == "") {
+			document.getElementById("hint").innerHTML = "请填写密码";
+			f.password.focus();
+			
+			return false;
+		}
+		
+		if (f.password_confirm.value == "") {
+			document.getElementById("hint").innerHTML = "请确认密码";
+			f.password_confirm.focus();
+			
+			return false;
+		}
+		
+		if (f.password.value != f.password_confirm.value) {
+			document.getElementById("hint").innerHTML = "两次密码输入不一致";
+			return false;
+		}
+		
+		if(f.captchaResponse.value == ""){
+			document.getElementById("hint").innerHTML = "请填写验证码";
+			f.captchaResponse.focus();
+			return false;
+		}
+		
+		return true;
+	}
+
+	function newCaptcha()
+	{	
+		document.getElementById("captcha_img").src = "${JForumContext.encodeURL("/captcha/generate")}?timestamp="+new Date().getTime();
+	}
+	/* ]]> */
+	</script>
+	<body>
+	<!---start-wrap---->
+		<!---start-wrap---->
+		<div class="wrap">
+			<!---start-header---->
+			<div class="header toTop logo-wrap" id="home">
+				<!---start-logo---->
+				<div class="logo-wrap">
+					<div class="logo"><a href="${JForumContext.encodeURL("/home/list")}"><img src="${contextPath}/templates/${templateName}/images/logo.png" title="logo" /></a></div>
+					<div class="search-about">
+						<input type="text" class="textbox" ">
+						<!--input type="submit" value="" /-->
+					</div>
+				</div>
+				
+				<div class="clear"> </div>
+			</div>
+		</div>
+		<br><br><br>
+		<!--start-content--->
+		<form accept-charset="${encoding}"  method="post" onsubmit="return validateRegistrationForm(this);">
+		<input type="hidden" name="action" value="${action}" />
+		<input type="hidden" name="module" value="${moduleName}" />
+		<input type="hidden" name="OWASP_CSRFTOKEN" value="${OWASP_CSRFTOKEN!""}" />
+			<div class="about">
+				  <p id="hint">&nbsp;
+				  <#if error?exists>
+					${error}
+				  </#if>
+				  </p>
+				<div class="clear"> </div>
+			</div>
+			  
+			  <div class="login-about">
+				<div class="wrap subgrid">
+					<input type="text" id="userphone" name="userphone" class="textbox" placeholder="手机号码">
+					<div class="clear"> </div>
+				</div>
+			</div>
+			<div class="login-about">
+				<div class="wrap subgrid">
+					<input type="text" id="nickname" name="nickname" class="textbox" placeholder="昵称">
+					<div class="clear"> </div>
+				</div>
+			</div>
+			<div class="login-about">
+				<div class="wrap subgrid">
+					<input type="password" id="password" name="password" class="textbox" placeholder="用户密码">
+					<div class="clear"> </div>
+				</div>
+			</div>
+			<div class="login-about">
+				<div class="wrap subgrid">
+					<input type="password" id="password_confirm" name="password_confirm" class="textbox" placeholder="确认密码">
+					<div class="clear"> </div>
+				</div>
+			</div>
+			<#if captcha_reg?exists>
+			<div class="login-about">
+				<div class="wrap subgrid">
+					<input type="text" id="captchaResponse" name="captchaResponse" placeholder="输入下方验证码"/> 
+					<div class="pull-left"><img src="${JForumContext.encodeURL("/captcha/generate/${timestamp}")}" />
+					<a href="#newCaptcha" onclick="newCaptcha()">刷新验证码</a></div>
+					<div class="clear"> </div>
+					
+				</div>
+			</div>
+					
+			</#if>
+			<div class="login-about">
+				<div class="wrap subgrid">
+					<input type="submit" value="提交注册"/>
+					<div class="clear"> </div>
+				</div>
+			</div>	
+								
+		</form>
+	</body>
+</html>

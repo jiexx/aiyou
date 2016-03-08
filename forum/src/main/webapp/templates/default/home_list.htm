@@ -1,0 +1,232 @@
+
+<html>
+	<head>
+		<title>味浓</title>
+		<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+		<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+		<meta name="keywords" content="Spareparts iphone web template, Andriod web template, Smartphone web template, free webdesigns for Nokia, Samsung, LG, SonyErricsson, Motorola web design" />
+		<link rel="icon" href="${contextPath}/templates/${templateName}/images/favicon.ico" type="image/x-icon" />
+		<link href="${contextPath}/templates/${templateName}/css/style.css" rel="stylesheet" type="text/css"  media="all" />
+	</head>
+	<script type="text/javascript">
+		window.onload=function(){ 
+			if (/(iPhone|iPad|iPod|iOS)/i.test(navigator.userAgent)) {
+				//alert(navigator.userAgent);  
+				function iOSversion() {
+					if (/iP(hone|od|ad)/.test(navigator.platform)) {
+						var v = (navigator.appVersion).match(/OS (\d+)_(\d+)_?(\d+)?/);
+						return [parseInt(v[1], 10), parseInt(v[2], 10), parseInt(v[3] || 0, 10)];
+					}
+				}
+				ver = iOSversion();
+				window.url_order = function(name) {
+					if( ver[0] >= 8 ) {
+						/*document.getElementById("url_buy").href*/
+						window.location.href = "sms:18202163278&body=我要订购"+name+",请尽快送到我家";
+					}else {
+						window.location.href = "sms:18202163278;body=我要订购"+name+",请尽快送到我家";
+					}
+				}
+			} else if (/(Android)/i.test(navigator.userAgent)) {
+				//alert(navigator.userAgent); 
+				window.url_order = function(name) {
+					window.location.href = "sms:18202163278?body=我要订购"+name+",请尽快送到我家";
+				}
+			} else {
+				window.location.href ="#";
+			};
+		} 
+		function alertMsg(msg, mode) {
+			msg = msg || '';
+			mode = mode || 0;
+			var top = document.body.scrollTop || document.documentElement.scrollTop;
+			var isIe = (document.all) ? true : false;
+			var isIE6 = isIe && !window.XMLHttpRequest;
+			var sTop = document.documentElement.scrollTop || document.body.scrollTop;
+			var sLeft = document.documentElement.scrollLeft || document.body.scrollLeft;
+			var winSize = function () {
+				var xScroll,
+				yScroll,
+				windowWidth,
+				windowHeight,
+				pageWidth,
+				pageHeight;
+				if (window.innerHeight && window.scrollMaxY) {
+					xScroll = document.body.scrollWidth;
+					yScroll = window.innerHeight + window.scrollMaxY;
+				} else if (document.body.scrollHeight > document.body.offsetHeight) { // all but Explorer Mac
+					xScroll = document.body.scrollWidth;
+					yScroll = document.body.scrollHeight;
+				} else { // Explorer Mac...would also work in Explorer 6 Strict, Mozilla and Safari
+					xScroll = document.body.offsetWidth;
+					yScroll = document.body.offsetHeight;
+				}
+
+				if (self.innerHeight) { // all except Explorer
+					windowWidth = self.innerWidth;
+					windowHeight = self.innerHeight;
+				} else if (document.documentElement && document.documentElement.clientHeight) { // Explorer 6 Strict Mode
+					windowWidth = document.documentElement.clientWidth;
+					windowHeight = document.documentElement.clientHeight;
+				} else if (document.body) { // other Explorers
+					windowWidth = document.body.clientWidth;
+					windowHeight = document.body.clientHeight;
+				}
+
+				// for small pages with total height less then height of the viewport
+				if (yScroll < windowHeight) {
+					pageHeight = windowHeight;
+				} else {
+					pageHeight = yScroll;
+				}
+
+				// for small pages with total width less then width of the viewport
+				if (xScroll < windowWidth) {
+					pageWidth = windowWidth;
+				} else {
+					pageWidth = xScroll;
+				}
+
+				return {
+					'pageWidth' : pageWidth,
+					'pageHeight' : pageHeight,
+					'windowWidth' : windowWidth,
+					'windowHeight' : windowHeight
+				}
+			}
+			();
+			//alert(winSize.pageWidth);
+			var styleStr = 'top:0;left:0;position:absolute;z-index:10000;background:#666;width:' + winSize.pageWidth + 'px;height:' + (winSize.pageHeight + 30) + 'px;';
+			styleStr += (isIe) ? "filter:alpha(opacity=80);" : "opacity:0.8;"; 
+			var shadowDiv = document.createElement('div');
+			shadowDiv.style.cssText = styleStr; 
+			shadowDiv.id = "shadowDiv";
+			if (isIE6) {
+				var maskIframe = document.createElement('iframe');
+				maskIframe.style.cssText = 'width:' + winSize.pageWidth + 'px;height:' + (winSize.pageHeight + 30) + 'px;position:absolute;visibility:inherit;z-index:-1;filter:alpha(opacity=0);';
+				maskIframe.frameborder = 0;
+				maskIframe.src = "about:blank";
+				shadowDiv.appendChild(maskIframe);
+			}
+			document.body.insertBefore(shadowDiv, document.body.firstChild); 
+			var styleStr1 = 'display:block;position:fixed;_position:absolute;left:' + (winSize.windowWidth / 2 - 200) + 'px;top:' + (winSize.windowHeight / 2 - 150) + 'px;_top:' + (winSize.windowHeight / 2 + top - 150) + 'px;';
+			var alertBox = document.createElement('div');
+			alertBox.id = 'alertMsg';
+			alertBox.style.cssText = styleStr1;
+			var alertMsg_info = document.createElement('P');
+			alertMsg_info.id = 'alertMsg_info';
+			alertMsg_info.innerHTML = msg;
+			alertBox.appendChild(alertMsg_info);
+			var btn1 = document.createElement('a');
+			btn1.id = 'alertMsg_btn1';
+			btn1.href = 'javas' + 'cript:void(0)';
+			btn1.innerHTML = '<cite>确定</cite>';
+			btn1.onclick = function () {
+				document.body.removeChild(alertBox);
+				document.body.removeChild(shadowDiv);
+				return true;
+			};
+			alertBox.appendChild(btn1);
+			if (mode === 1) {
+				var btn2 = document.createElement('a');
+				btn2.id = 'alertMsg_btn2';
+				btn2.href = 'javas' + 'cript:void(0)';
+				btn2.innerHTML = '<cite>取消</cite>';
+				btn2.onclick = function () {
+					document.body.removeChild(alertBox);
+					document.body.removeChild(shadowDiv);
+					return false;
+				};
+				alertBox.appendChild(btn2);
+			}
+			document.body.appendChild(alertBox);
+		};
+		function showMessage(){
+			alertMsg("<div class=\"wrap\"><a href=\"#\">关注我们的微信</a><img src=\"${contextPath}/templates/${templateName}/images/weicode.png\"/></div>");
+		}
+
+	</script>
+	<body>
+		<!---start-wrap---->
+		<div class="wrap">
+			<!---start-header---->
+			<div class="header toTop logo-wrap" id="home">
+				<!---start-logo---->
+				<div class="logo-wrap">
+					<div class="logo"><a href="${JForumContext.encodeURL("/home/list")}"><img src="${contextPath}/templates/${templateName}/images/logo.png" title="logo" /></a></div>
+					<div class="search-about">
+						<input type="text" class="textbox" ">
+						<!--input type="submit" value="" /-->
+					</div>
+				</div>
+				
+				<div class="clear"> </div>
+			</div>
+		</div>
+		<br><br><br>
+		<!--start-content--->
+		<div class="content">
+			
+			<div class="Gallery" id="gallery">
+				<div class="wrap">	
+					<div class="gallery-header">
+						<br>
+						<p>曾经，我们是一群忙碌的上班族，顾不上停下脚步来欣赏世界，现在，我们致力于在你停歇的午后黄昏，奉上来自世界各地美味浓醇的茶点，不仅为健康，也为一份奇妙的滋味。</p>
+						<br>
+					</div>
+					<div class="catch-me">
+						<ul>
+							<!--li><a href="#"><img src="${contextPath}/templates/${templateName}/images/wei.png" title="facebook"></a></li-->
+							<li><a href="#" onclick="showMessage();"><img src="${contextPath}/templates/${templateName}/images/wei.png" title="order" /></a></li>
+						</ul>
+					</div>
+				</div>
+			</div>
+			<#list allProducts as product>
+			<div class="Gallery" id="gallery">
+				<div class="gallery-header">
+					<h3>${product.name}</h3>
+				</div>
+				<#list product.img as image>
+				<div class="wrap">	
+					<div class="gallrey-grids">
+						<div class="holder smooth">
+							 <a href="${JForumContext.encodeURL("/home/detail/${product.id}")}"><img src="${contextPath}/${image.thumbPath()}?OWASP_CSRFTOKEN=${OWASP_CSRFTOKEN!""}" alt="[Thumb - ${image.info.realFilename}]"/></a>
+						</div>
+					</div>
+					<div class="clear"> </div>
+				</div>
+				</#list>
+				<div class="catch-me">
+					<ul>
+						<li class="catch-me-left">${product.desc}</li>
+						<#if product.hasMore>
+						<li><a href="${JForumContext.encodeURL("/home/detail/${product.id}")}">阅读更多</a></li>
+						</#if>
+					</ul>
+				</div>
+			</div>
+			</#list>
+			<div class="Gallery" id="gallery">
+				<div class="wrap">	
+					<div class="gallery-header">
+						<h3>兰山的故事</h3>
+						<p>有一次我在川南采访一位开工厂的老板。他给我 们泡了一小杯野茶，我一开始并不注意，野茶的样子杂杂的，色泽跟老茶没有什么区别。当我不经意喝了几口之后，立即感得满嘴泛甜，而且这种甜越来越浓、越来越醇。凭着我多年喝茶的经验， 觉得这应该是好茶。这时那位老板在一旁笑着解释道：这是他的老婆在山崖采摘下来的天然野茶。 我打开那只存放野茶的饼干筒，里面只有浅浅一层野茶，因为奇特不可多得，才觉得非常少。就是 偶然那次遇到野茶，至今我久久不忘。</p>
+						<br>
+					</div>
+				</div>
+			</div>
+			<div class="clear"> </div>
+		</div>
+		<!---start-copy-right---->
+		<div class="copy-right vertical-align: baseline;">
+			<div class="wrap">
+				<p>Powered by 团沛软件. jiexx@outlook.com</p>
+			</div>
+		</div>
+    <!--a href="#" id="toTop" style="display: block;"><span id="toTopHover" style="opacity: 1;"></span></a-->
+		<!---End-copy-right---->
+		<!---start-wrap---->
+	</body>
+</html>
+

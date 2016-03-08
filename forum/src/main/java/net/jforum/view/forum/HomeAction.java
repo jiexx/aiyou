@@ -106,6 +106,7 @@ public class HomeAction extends Command {
 		public boolean hasMore;
 		public List<Attachment> img;
 		public List<Post> comments;
+		public List<Product> postWithAttachment;
 		
 		public Product() {
 			this.id = null;
@@ -113,6 +114,7 @@ public class HomeAction extends Command {
 			this.desc = null;
 			this.img = null;
 			this.comments = new LinkedList<Post>();
+			this.postWithAttachment = null;
 		}
 
 		public Product(String id, String name, String desc, List<Attachment> img) {
@@ -135,6 +137,15 @@ public class HomeAction extends Command {
 			this.desc = p.desc;
 			this.img = p.img;
 			this.comments = p.comments;
+			this.postWithAttachment = p.postWithAttachment;
+		}
+		
+		public void addPostWithAttachment(Product p) {
+			this.postWithAttachment.add(p);
+		}
+		
+		public int countOfPostWithAttachment() {
+			this.postWithAttachment.size();
 		}
 		
 		public void addComment(Post p) {
@@ -187,6 +198,14 @@ public class HomeAction extends Command {
 
 		public void setComments(List<Post> comments) {
 			this.comments = comments;
+		}
+		
+		public List<Product> getPostWithAttachment() {
+			return this.postWithAttachment;
+		}
+
+		public void setPostWithAttachment(List<Product> postWithAttachment) {
+			this.postWithAttachment = postWithAttachment;
 		}
 
 	}
@@ -439,7 +458,6 @@ public class HomeAction extends Command {
 				}else {
 					this.context.put("comment", "");
 				}
-				
 			}
 		}
 	}
@@ -454,10 +472,14 @@ public class HomeAction extends Command {
 				List<Attachment> as = DataAccessDriver.getInstance().newAttachmentDAO()
 						.selectAttachments(p.getId());
 				if (as.size() > 0) {
-					product.setId(String.valueOf(p.getTopicId()));
-					product.setName(p.getSubject());
-					product.setImg(as);
-					product.setDesc(p.getText());
+					if(product.countOfPostWithAttachment() == 0){
+						product.addPostWithAttachment(new Product(String.valueOf(p.getId()), p.getSubject(), p.getText(), as));
+					}else {
+						product.setId(String.valueOf(p.getTopicId()));
+						product.setName(p.getSubject());
+						product.setImg(as);
+						product.setDesc(p.getText());
+					}
 				}
 			}else {
 				product.addComment(p);
