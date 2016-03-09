@@ -394,6 +394,8 @@ form {
 }
 /*---start-gallery----*/
 .Gallery {
+	/*float: left;
+	max-width: 400px;*/
 	padding: 0px 0px;
 	margin: 15px 15px;
 	background-color: white;
@@ -401,8 +403,8 @@ form {
 	border-radius: 0.5em;
 }
 .gallery-header{
-	text-align: center;
-	/*border-bottom: 1px solid rgba(102, 102, 102, 0.09);*/
+	/*text-align: center;
+	border-bottom: 1px solid rgba(102, 102, 102, 0.09);*/
 	padding: 0px 0px 0px 0px;
 	
 }
@@ -557,6 +559,7 @@ form {
 .catch-me-left{
 	float:left;
 	padding-left: 15px;
+	padding-
 }
 /*---contact----*/
 .contact{
