@@ -723,6 +723,14 @@ form {
 	text-indent: 100%;
 	background: url(../images/arrow_up.png) no-repeat right top;*/
 }
+.toBottom {
+	display: block;
+	text-decoration: none;
+	position: fixed;
+	overflow: hidden;
+	width: 100%;
+	z-index: 1000;
+	bottom: 0;
 #toTopHover {
 	width: 48px;
 	height: 48px;
