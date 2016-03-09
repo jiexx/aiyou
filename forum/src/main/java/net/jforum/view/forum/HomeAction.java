@@ -114,7 +114,7 @@ public class HomeAction extends Command {
 			this.desc = null;
 			this.img = null;
 			this.comments = new LinkedList<Post>();
-			this.postWithAttachment = null;
+			this.postWithAttachment = new LinkedList<Product>();
 		}
 
 		public Product(String id, String name, String desc, List<Attachment> img) {
@@ -145,7 +145,7 @@ public class HomeAction extends Command {
 		}
 		
 		public int countOfPostWithAttachment() {
-			this.postWithAttachment.size();
+			return this.postWithAttachment.size();
 		}
 		
 		public void addComment(Post p) {
@@ -472,7 +472,7 @@ public class HomeAction extends Command {
 				List<Attachment> as = DataAccessDriver.getInstance().newAttachmentDAO()
 						.selectAttachments(p.getId());
 				if (as.size() > 0) {
-					if(product.countOfPostWithAttachment() == 0){
+					if(product.countOfPostWithAttachment() > 0){
 						product.addPostWithAttachment(new Product(String.valueOf(p.getId()), p.getSubject(), p.getText(), as));
 					}else {
 						product.setId(String.valueOf(p.getTopicId()));

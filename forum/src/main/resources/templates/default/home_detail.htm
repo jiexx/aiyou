@@ -112,7 +112,7 @@
 				<div class="gallery-header">
 					<p>${product.desc}</p>
 				</div>
-				<#list post as product.postWithAttachment>
+				<#list product.postWithAttachment as post >
 				<div class="gallery-footer">
 					<a href="${JForumContext.encodeURL("/home/subdetail/${product.id}")}">
 						<img src="${contextPath}/${post.img[0].thumbPath()}?OWASP_CSRFTOKEN=${OWASP_CSRFTOKEN!""}" alt="">

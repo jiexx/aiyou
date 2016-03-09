@@ -173,7 +173,7 @@ p{
 	line-height: 1.6em;
 }
 .search-about input[type="text"]{
-	background: url(../images/search.png) no-repeat center center/*#2B7D92*/;
+	background: url(../images/search2.png) no-repeat center center/*#2B7D92*/;
 	width: 28px;
 	margin: 6px;
 	padding: 6px 0px 6px 0px;
@@ -401,7 +401,7 @@ form {
 	border-radius: 0.5em;
 }
 .gallery-header{
-	text-align: left;
+	text-align: center;
 	/*border-bottom: 1px solid rgba(102, 102, 102, 0.09);*/
 	padding: 0px 0px 0px 0px;
 	
@@ -657,7 +657,7 @@ form {
 	border-radius: 5px;
 	box-shadow: 1px 1px 10px black;
 	padding: 10px;
-	font-size: 12px;
+	font-size: 1em;
 	position: absolute;
 	text-align: center;
 	background: #fff;
@@ -675,7 +675,7 @@ form {
 	background: url(images/gray_btn.png) no-repeat left top;
 	padding-left: 3px;
 	color: #000000;
-	font-size: 12px;
+	font-size: 1em;
 	text-decoration: none;
 	margin-right: 10px;
 	cursor: pointer;
@@ -699,7 +699,7 @@ form {
 .copy-right p{
 	font-family: Arial, helvetica, helve, sans-serif;
 	color: #FFF;
-	font-size:1em;
+	font-size: 0.2em;
 	line-height: 1.8em;
 	margin: 0 auto;
 }
