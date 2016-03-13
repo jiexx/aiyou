@@ -43,7 +43,7 @@ console.log(browser.cli.args.length + " " + id + " " + link + " " + type );
 // for redirect page
 var xpathFetch = '//div[contains(@id,"result_")]/div/div[0]/div/div/a';
 var xpathRedirect = '//div[@id="pagn")]/span[@class="pagnLink"]/a';
-var xpathImage = '//div[contains(@id,"result_")]/div/div[0]/div/div/a/img';
+var xpathImage = '//div[contains(@id,"result_")]';
 
 //for fetch page
 var xpathDesc = '//div[@id="productDescription")]/div[@class="content"]/div[@class="productDescriptionWrapper"]';
@@ -68,8 +68,9 @@ browser.then(function() {
 		});
 	}else if(type == 'redirect') {
 		console.log( 'redirect' );
+		this.echo(this.getHTML());
 		var imagesInfo = this.getElementInfo(xpathImage);
-		console.log( 'imagesInfo' );
+		require('utils').dump( imagesInfo );
 		var fetchInfo = this.getElementInfo(xpathFetch);
 		var redirectInfo = this.getElementInfo(xpathUpdate);
 		
