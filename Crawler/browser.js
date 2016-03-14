@@ -8,7 +8,7 @@ var browser = require('casper').create({
         //javascriptEnabled: false,
         userAgent: 'Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.21 (KHTML, like Gecko) Chrome/25.0.1349.2 Safari/537.21'
     },
-    logLevel: "debug",              // Only "info" level messages will be logged
+    //logLevel: "debug",              // Only "info" level messages will be logged
     verbose: true  
 });
 
@@ -38,6 +38,7 @@ browser.options.onResourceRequested = function(C, requestData, request) {
 		console.log('Skipping JS file: ' + requestData['url']);
 		request.abort();
 	}
+	console.log('Down JS file: ' + requestData['url']);
 };
 
 var id = browser.cli.get(0);
@@ -76,23 +77,44 @@ browser.then(function() {
 	
 	if(type == 'fetch') {  // can be 
 		//this.echo('------------>'+this.getHTML());
-		browser.withFrame(0, function() {
-		    this.test.assertTitle('FRAME TITLE');this.echo(this.getTitle());
+		/*this.evaluate( function() {
+		    console.log('hello  '+document.querySelector('div.productDescriptionWrapper')); 
+		});
+		var info = this.getElementsInfo(x('//iframe[@id="product-description-iframe"]'));
+		require('utils').dump(info);*/
+		console.log('page.framesCount '+this.page.childFramesName().toString());
+		
+		this.withFrame('product-description-iframe', function() {
+			console.log('withFrame.......');
+			var info = this.getElementsInfo(x('//div[@class="productDescriptionWrapper"]'));
+			require('utils').dump(info);
 		});
 		
-		browser.waitForSelector(x(xpathDesc), function() {
-			this.echo(this.getHTML());
-		});
+		/*this.waitFor(function check() {
+		    return this.evaluate(function() {
+		        return document.querySelectorAll('div.productDescriptionWrapper').length > 0;
+		    });
+		}, function then() {
+		    this.captureSelector('yoursitelist.png', 'div.productDescriptionWrapper');
+		    console.log('yoursitelist.......');
+		}, function timeout() { 
+			console.log('timeout.......'+this.page.childFramesName());
+			this.echo('Page url is ' + this.getCurrentUrl());
+			this.captureSelector('body.png', 'body#dp');
+			this.captureSelector('product.png', 'iframe#product-description-iframe');
+			var info = this.getElementsInfo(x('//iframe[@id="product-description-iframe"]'));
+			require('utils').dump(info);
+			//var fs = require('fs');
+			//fs.write('amazon.html', this.page.content, 'w');
+		}, 5000);
 
-		this.echo('Page url is ' + this.getCurrentUrl());
-		var fs = require('fs');
-		fs.write('amazon.html', this.page.content, 'w');
-		/*browser.withFrame('flashHolder', function() {
+		
+		browser.withFrame('flashHolder', function() {
 			this.test.assertSelectorExists('#the-flash-thing', 'Should show Flash');
 		});*/
-		var descInfo = this.getElementsInfo(x(xpathDesc));
+		//var descInfo = this.getElementsInfo(x(xpathDesc));
 		
-		require('utils').dump(descInfo);
+		//require('utils').dump(descInfo);
 		/*browser.open('http://127.0.0.1/update', {
 		    method: 'post',
 		    data:   {
