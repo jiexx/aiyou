@@ -5,22 +5,20 @@ var UrlSet =  {
 	redirectUrls: [],
 	visitedUrls: [],
 	
-	addFetchUrls: function(createUrl, list) {
+	addFetchUrls: function(list) {
 		for(url in list) {
-			var u = createUrl(url);
-			var visited = this.visitedUrls[u.getId()];
+			var visited = this.visitedUrls[url.getId()];
 			if(visited == null || visited == false) {
-				this.fetchUrls[u.getId()] = u;
+				this.fetchUrls[url.getId()] = url;
 			}
 		}
 	},
 	
-	addRedirectUrls: function(createUrl, list) {
+	addRedirectUrls: function(list) {
 		for(url in list) {
-			var u = createUrl(url);
-			var visited = this.visitedUrls[u.getId()];
+			var visited = this.visitedUrls[url.getId()];
 			if(visited == null || visited == false) {
-				this.redirectUrls[u.getId()] = u;
+				this.redirectUrls[url.getId()] = url;
 			}
 		}
 	},

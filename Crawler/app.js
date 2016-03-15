@@ -7,7 +7,7 @@ eval(fs.readFileSync('urlset.js')+'');
 
 var us = new UrlSet();
 
-app.get('/update', function (req, res) {
+app.get('/redirect', function (req, res) {
 /*	fs.readFile( __dirname + "/" + "users.json", 'utf8', function (err, data) {
        console.log( data );
        res.end( data );
@@ -15,7 +15,7 @@ app.get('/update', function (req, res) {
 	var data = JSON.parse(req);
 	us.addFetchUrls(data.fetchLinks);
 	us.addRedirectUrls(data.redirectLinks);
-	us.visited(data.type, data.id);
+	us.visited('redirect', data.id);
 	
 	us.loop();
 	
