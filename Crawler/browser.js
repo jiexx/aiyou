@@ -34,7 +34,8 @@ browser.on("remote.message", function(msg) {
 
 browser.options.onResourceRequested = function(C, requestData, request) {
 //browser.on("page.resource.requested", function(requestData, request) {
-	if ( !(/.*amazon\.com.*/gi).test(requestData['url']) /*|| requestData['Content-Type'] == 'text/javascript'*/ ) {
+	if ( !(/.*amazon\.com.*/gi).test(requestData['url']) 
+			/*|| (/.*\.css/gi).test(requestData['url']) || requestData['Content-Type'] == 'text/javascript'*/ ) {
 		console.log('Skipping JS file: ' + requestData['url']);
 		request.abort();
 	}
@@ -76,18 +77,21 @@ browser.then(function() {
 	console.log( '--------------->'+linksRedirect );*/
 	
 	if(type == 'fetch') {  // can be 
-		//this.echo('------------>'+this.getHTML());
-		/*this.evaluate( function() {
-		    console.log('hello  '+document.querySelector('div.productDescriptionWrapper')); 
-		});
-		var info = this.getElementsInfo(x('//iframe[@id="product-description-iframe"]'));
-		require('utils').dump(info);*/
+		
 		console.log('page.framesCount '+this.page.childFramesName().toString());
 		
 		this.withFrame('product-description-iframe', function() {
-			console.log('withFrame.......');
-			var info = this.getElementsInfo(x('//div[@class="productDescriptionWrapper"]'));
-			require('utils').dump(info);
+			console.log('product-description.......');
+			var product = this.getElementInfo(x('//div[@class="productDescriptionWrapper"]'));
+			console.log(product.text);
+			
+			browser.open('http://127.0.0.1/detail', {
+			    method: 'post',
+			    data:   {
+			    	'id': id,
+			        'desc': descInfo,
+			    },
+			});
 		});
 		
 		/*this.waitFor(function check() {
@@ -115,24 +119,17 @@ browser.then(function() {
 		//var descInfo = this.getElementsInfo(x(xpathDesc));
 		
 		//require('utils').dump(descInfo);
-		/*browser.open('http://127.0.0.1/update', {
-		    method: 'post',
-		    data:   {
-		    	'id': id,
-		    	'type': 'fetch',
-		        'desc': descInfo,
-		    },
-		});*/
 	}else if(type == 'redirect') {
 		console.log( 'redirect' );
 		//this.echo(this.getHTML());
 		//this.download(link, 'amazon.html');
 		var linksImage = this.getElementsAttribute(x(xpathImage), 'src');
 		var fetchs = this.getElementsInfo(x(xpathFetch));
-		//require('utils').dump(fetchs);
 		var linksFetch = this.getElementsAttribute(x(xpathFetch), 'href');
 		var titlesFetch = this.getElementsAttribute(x(xpathFetch), 'title');
-		//var linksRedirect = this.getElementsAttribute(x(xpathRedirect), 'href');
+		var linksRedirect = this.getElementsAttribute(x(xpathRedirect), 'href');
+		
+		this.download(linksImage, id+'.png');
 		
 		console.log( 'linksImage' );
 		console.log( linksImage );
@@ -140,18 +137,16 @@ browser.then(function() {
 		console.log( titlesFetch );
 		console.log( 'linksRedirect' );
 		console.log( linksRedirect );
-		/*browser.open('http://127.0.0.1/update', {
+		this.thenOpen('http://127.0.0.1/redirect', {
 		    method: 'post',
 		    data:   {
 		    	'id': id,
-		    	'type': 'fetch',
 		        'fetchLinks': linksFetch,
 		        'redirectLinks':  linksRedirect,
 		        'name': titlesFetch,
 		        'image': linksImage
 		    },
-		});*/
-		console.log(titlesFetch);
+		});
 	}
 });
   
