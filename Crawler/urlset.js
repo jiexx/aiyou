@@ -5,27 +5,24 @@ var UrlSet =  {
 	redirectUrls: [],
 	visitedUrls: [],
 	
-	addFetchUrls: function(list) {
-		for(url in list) {
-			var visited = this.visitedUrls[url.getId()];
-			if(visited == null || visited == false) {
-				this.fetchUrls[url.getId()] = url;
-			}
+	addFetchUrl: function(url) {
+		var visited = this.visitedUrls[url.getId()];
+		if(visited == null || visited == false) {
+			this.fetchUrls[url.getId()] = url;
 		}
 	},
 	
-	addRedirectUrls: function(list) {
-		for(url in list) {
-			var visited = this.visitedUrls[url.getId()];
-			if(visited == null || visited == false) {
-				this.redirectUrls[url.getId()] = url;
-			}
+	addRedirectUrl: function(url) {
+		var visited = this.visitedUrls[url.getId()];
+		if(visited == null || visited == false) {
+			this.redirectUrls[url.getId()] = url;
 		}
 	},
 
 	visited: function(type, id) {
 		if(type == 'fetch') {
 			if(fetchUrls[id] != null) {
+				fetchUrls[id].close();
 				visitedUrls[fetchUrls[id].getId()] = true;
 				delete fetchUrls[id];
 			}else {
@@ -34,6 +31,7 @@ var UrlSet =  {
 		}
 		else if(type == 'redirect') {
 			if(redirectUrls[id] != null) {
+				redirectUrls[id].close();
 				visitedUrls[redirectUrls[id].getId()] = true;
 				delete redirectUrls[id];
 			}else {
@@ -46,13 +44,23 @@ var UrlSet =  {
 		return 'fetchUrls:' + fetchUrls.length +' redirectUrls:' + redirectUrls.length + 'visitedUrls:' + visitedUrls.length + ' ';
 	},
 	
+	close: function() {
+		var url;
+		for(url in this.fetchUrls) {
+			url.close();
+		}
+		for(url in this.redirectUrls) {
+			url.close();
+		}
+	},
+	
 	loop: function() {
 		var url;
 		for(url in this.fetchUrls) {
-			url.open();
+			url.open('fetch');
 		}
 		for(url in this.redirectUrls) {
-			url.open();
+			url.open('redirect');
 		}
 	}
 }

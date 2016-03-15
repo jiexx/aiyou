@@ -85,7 +85,7 @@ browser.then(function() {
 			var product = this.getElementInfo(x('//div[@class="productDescriptionWrapper"]'));
 			console.log(product.text);
 			
-			browser.open('http://127.0.0.1/detail', {
+			browser.open('http://127.0.0.1:8081/detail', {
 			    method: 'post',
 			    data:   {
 			    	'id': id,
@@ -137,16 +137,18 @@ browser.then(function() {
 		console.log( titlesFetch );
 		console.log( 'linksRedirect' );
 		console.log( linksRedirect );
-		this.thenOpen('http://127.0.0.1/redirect', {
-		    method: 'post',
-		    data:   {
-		    	'id': id,
-		        'fetchLinks': linksFetch,
-		        'redirectLinks':  linksRedirect,
-		        'name': titlesFetch,
-		        'image': linksImage
-		    },
-		});
+		if(linksFetch.length == titlesFetch.length && titlesFetch.length == linksImage.length) {
+			this.thenOpen('http://127.0.0.1:8081/redirect', {
+			    method: 'post',
+			    data:   {
+			    	'id': id,
+			        'fetchLinks': linksFetch,
+			        'redirectLinks':  linksRedirect,
+			        'name': titlesFetch,
+			        'image': linksImage
+			    },
+			});
+		}
 	}
 });
   
