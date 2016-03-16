@@ -27,10 +27,10 @@ var URL = {
 		// Now launch a casperjs script and get result.
 		this.proc = exec.spawn('casperjs', ['browser.js', this.id, this.link, type]);
 		//this.proc = exec.spawn('java');
-	
+		var pid = this.proc.pid;
 		this.proc.stdout.on('data', function(data) {
+			console.log('stdout proc '+pid);
 		    console.log(data.toString());
-		    console.log('stdout');
 		});
 		
 		this.proc.stderr.on('data', function(data) {

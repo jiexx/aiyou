@@ -1,5 +1,9 @@
 var express = require('express');
 var mysql = require('mysql');
+var bodyParser = require('body-parser');
+var multer = require('multer'); // v1.0.5
+var upload = multer(); // for parsing multipart/form-data
+
 
 var connection = mysql.createConnection({
 	host : '127.0.0.1',
@@ -23,19 +27,20 @@ connection.connect(function(error, results) {
 	});
 });
 var app = express();
+var router = express.Router();
 var fs = require("fs");
 
 eval(fs.readFileSync('url.js') + '');
 eval(fs.readFileSync('urlset.js') + '');
 
-var us = Object.create(UrlSet);
+var us = UrlSet.create();
 
 function save(id, name, pic, desc) {
 	if (!dbReady)
 		return;
 	var values = [ id, name, pic, desc ];
 	connection.query(
-			'INSERT INTO product SET id = ?, name = ? , pic = ?, desc = ?',
+			'INSERT INTO product SET id = ?, name = ? , pic = ?, descr = ?',
 			values, function(error, results) {
 				if (error) {
 					console.log("save Error: " + error.message);
@@ -52,7 +57,7 @@ function update(id, desc) {
 		return;
 	var values = [ desc, id ];
 	connection.query(
-			'UPDATE product SET desc = ? WHERE id = ?',
+			'UPDATE product SET descr = ? WHERE id = ?',
 			values, function(error, results) {
 				if (error) {
 					console.log("update Error: " + error.message);
@@ -64,22 +69,32 @@ function update(id, desc) {
 			});
 }
 
-app.get('/redirect', function(req, res) {
+app.use(bodyParser.json()); // for parsing application/json
+app.use(bodyParser.urlencoded({ extended: true })); // for parsing application/x-www-form-urlencoded
+
+app.get('/', function (req, res) {
+	console.log('Hello World!');
+	res.send('Hello World!');
+});
+
+
+app.post('/redirect', upload.array(), function(req, res) {
 	/*
 	 * fs.readFile( __dirname + "/" + "users.json", 'utf8', function (err, data) {
 	 * console.log( data ); res.end( data ); });
 	 */
-	var data = JSON.parse(req);
-	console.log('REST redirect: '+data.id);
+	console.log('REST redirect: '+req.body.toString());
+	var data = req.body;
 	
 	for ( var i = 0 ; i < data.fetchLinks.length ; i ++ ) {
-		var fetch = URL(data.fetchLinks[i]);
+		var fetch = URL.create(data.fetchLinks[i]);
 		us.addFetchUrl(fetch);
-		save(id, data.titlesFetch[i], data.linksImage[i], '');
+		save(fetch.getId(), data.names[i], data.linksImage[i], '');
+		console.log('REST redirect save: '+fetch.getId()+data.names[i]+data.linksImage[i]);
 	}
 
-	for ( var link in data.redirectLinks) {
-		us.addRedirectUrl(URL.create(link));
+	for ( var i in data.redirectLinks) {
+		us.addRedirectUrl(URL.create(data.redirectLinks[i]));
 	}
 
 	us.visited('redirect', data.id);
@@ -89,9 +104,9 @@ app.get('/redirect', function(req, res) {
 	console.log(data.name + '  ' + us.counter());
 })
 
-app.get('/fetch', function(req, res) {
+app.post('/fetch', upload.array(), function(req, res) {
 	
-	var data = JSON.parse(req);
+	var data = req.body;
 	console.log('REST fetch: '+data.id);
 	
 	update(data.id, data.desc);
@@ -109,12 +124,13 @@ var server = app
 					var host = server.address().address
 					var port = server.address().port
 
-					console.log("应用实例，访问地址为 http://%s:%s", host, port)
+					console.log("RUNNING http://%s:%s", host, port)
 
 					var url = URL.create('http://www.amazon.com/Tea/b/ref=dp_bc_3?ie=UTF8&node=16318401');
 					url.open('redirect');
 
-				})
+				});
+
 				
 process.on('SIGINT', function() {
     console.log('Naughty SIGINT-handler');

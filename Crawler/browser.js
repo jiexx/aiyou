@@ -9,7 +9,7 @@ var browser = require('casper').create({
         //resourceTimeout: 5000,
         userAgent: 'Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.21 (KHTML, like Gecko) Chrome/25.0.1349.2 Safari/537.21'
     },
-    //logLevel: "debug",              // Only "info" level messages will be logged
+    logLevel: "debug",              // Only "info" level messages will be logged
     verbose: true  
 });
 
@@ -41,7 +41,7 @@ browser.on("page.created", function(){
 
 browser.options.onResourceRequested = function(C, requestData, request) {
 //browser.on("page.resource.requested", function(requestData, request) {
-	if ( !(/.*amazon\.com.*/gi).test(requestData['url']) 
+	if ( !(/.*amazon\.com.*/gi).test(requestData['url']) && !(/http:\/\/127\.0\.0\.1.*/gi).test(requestData['url'])
 			/*|| (/.*\.css/gi).test(requestData['url']) || requestData['Content-Type'] == 'text/javascript'*/ ) {
 		console.log('Skipping JS file: ' + requestData['url']);
 		request.abort();
@@ -74,14 +74,15 @@ browser.start();
 browser.open(link);  
 
 browser.then(function() {
-	/*var linksRedirect = this.evaluate(function getLinks(xpathRedirect) {
-        var links = document.querySelectorAll('span.pagnLink a');
+	var domain = this.evaluate(function getLinks() {
+        /*var links = document.querySelectorAll('span.pagnLink a');
         return Array.prototype.map.call(links, function(e) {
             return e.getAttribute('href')
-        });
-    }, xpathRedirect);
+        });*/
+		return document.domain;
+    });
 	
-	console.log( '--------------->'+linksRedirect );*/
+	/*console.log( '--------------->'+linksRedirect );*/
 	
 	if(type == 'fetch') {  // can be 
 		
@@ -93,11 +94,18 @@ browser.then(function() {
 			console.log(product.text);
 			
 			browser.open('http://127.0.0.1:8081/detail', {
-			    method: 'post',
+				headers: {
+					'Content-Type': 'application/json; charset=utf-8'
+		        },
+			    method: 'POST',
 			    data:   {
 			    	'id': id,
 			        'desc': descInfo,
 			    },
+			}, function(response){
+			    if(response.status == 200){
+			        //require('utils').dump(this.page.content);
+			    }
 			});
 		});
 		
@@ -156,6 +164,13 @@ browser.then(function() {
 			if(linksFetch[i].length > 0)
 				fetchs.push(linksFetch[i]);
 		}
+		console.log( 'linksRedirect, size '+linksRedirect.length );
+		var redirects = [];
+		for(var i in linksRedirect) {
+			console.log('linksRedirect '+i+' '+linksRedirect[i]);
+			if(linksRedirect[i].length > 0)
+				redirects.push('http://'+domain+linksRedirect[i]);
+		}
 		console.log( titlesFetch );
 		console.log( 'linksRedirect, size '+linksRedirect.length );
 		console.log( linksRedirect );
@@ -163,14 +178,19 @@ browser.then(function() {
 		if(fetchs.length == names.length && names.length == linksImage.length) {
 			console.log( 'redirect : thenOpen'  );
 			this.thenOpen('http://127.0.0.1:8081/redirect', {
-			    method: 'post',
+				headers: {
+					'Content-Type': 'application/json; charset=utf-8'
+		        },
+			    method: 'POST',
 			    data:   {
 			    	'id': id,
 			        'fetchLinks': fetchs,
-			        'redirectLinks':  linksRedirect,
-			        'name': names,
-			        'image': linksImage
+			        'redirectLinks':  redirects,
+			        'names': names,
+			        'linksImage': linksImage
 			    },
+			}, function() {
+			    this.echo("POST request has been sent.")
 			});
 		}
 	}

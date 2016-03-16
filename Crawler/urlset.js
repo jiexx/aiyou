@@ -21,27 +21,27 @@ var UrlSet =  {
 
 	visited: function(type, id) {
 		if(type == 'fetch') {
-			if(fetchUrls[id] != null) {
-				fetchUrls[id].close();
-				visitedUrls[fetchUrls[id].getId()] = true;
-				delete fetchUrls[id];
+			if(this.fetchUrls[id] != null) {
+				this.fetchUrls[id].close();
+				this.visitedUrls[fetchUrls[id].getId()] = true;
+				delete this.fetchUrls[id];
 			}else {
-				console.log('ERROR: invalid fetch id'+id)
+				console.log('INFO: invalid fetch id:'+id)
 			}
 		}
 		else if(type == 'redirect') {
-			if(redirectUrls[id] != null) {
-				redirectUrls[id].close();
-				visitedUrls[redirectUrls[id].getId()] = true;
-				delete redirectUrls[id];
+			if(this.redirectUrls[id] != null) {
+				this.redirectUrls[id].close();
+				this.visitedUrls[redirectUrls[id].getId()] = true;
+				delete this.redirectUrls[id];
 			}else {
-				console.log('ERROR: invalid redirect id'+id)
+				console.log('INFO: invalid redirect id:'+id)
 			}
 		}
 	},
 	
 	counter: function() {
-		return 'fetchUrls:' + fetchUrls.length +' redirectUrls:' + redirectUrls.length + 'visitedUrls:' + visitedUrls.length + ' ';
+		return 'fetchUrls:' + this.fetchUrls.length +' redirectUrls:' + this.redirectUrls.length + 'visitedUrls:' + this.visitedUrls.length + ' ';
 	},
 	
 	close: function() {
@@ -55,9 +55,9 @@ var UrlSet =  {
 	},
 	
 	loop: function() {
-		var url;
-		for(url in this.fetchUrls) {
-			url.open('fetch');
+		var i;
+		for(i in this.fetchUrls) {
+			this.fetchUrls[i].open('fetch');
 		}
 		/*
 		 * for(url in this.redirectUrls) { url.open('redirect'); }
