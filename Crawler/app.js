@@ -13,10 +13,10 @@ connection.connect(function(error, results) {
 		return;
 	}
 	console.log('Connected to MySQL');
-	client.query('USE crawler', function(error, results) {
+	connection.query('USE crawler', function(error, results) {
 		if (error) {
 			console.log('ClientConnectionReady Error: ' + error.message);
-			client.end();
+			connection.end();
 			return;
 		}
 		dbReady = true;
@@ -28,7 +28,7 @@ var fs = require("fs");
 eval(fs.readFileSync('url.js') + '');
 eval(fs.readFileSync('urlset.js') + '');
 
-var us = new UrlSet();
+var us = Object.create(UrlSet);
 
 function save(id, name, pic, desc) {
 	if (!dbReady)
@@ -70,14 +70,16 @@ app.get('/redirect', function(req, res) {
 	 * console.log( data ); res.end( data ); });
 	 */
 	var data = JSON.parse(req);
+	console.log('REST redirect: '+data.id);
+	
 	for ( var i = 0 ; i < data.fetchLinks.length ; i ++ ) {
-		var fetch = new URL(data.fetchLinks[i]);
+		var fetch = URL(data.fetchLinks[i]);
 		us.addFetchUrl(fetch);
 		save(id, data.titlesFetch[i], data.linksImage[i], '');
 	}
 
 	for ( var link in data.redirectLinks) {
-		us.addRedirectUrl(new URL(link));
+		us.addRedirectUrl(URL.create(link));
 	}
 
 	us.visited('redirect', data.id);
@@ -88,14 +90,15 @@ app.get('/redirect', function(req, res) {
 })
 
 app.get('/fetch', function(req, res) {
-
+	
 	var data = JSON.parse(req);
+	console.log('REST fetch: '+data.id);
 	
 	update(data.id, data.desc);
 
 	us.visited('fetch', data.id);
 
-	console.log(data.name + '  ' + us.counter());
+	console.log(data.id + '  ' + us.counter());
 })
 
 var server = app
@@ -108,8 +111,8 @@ var server = app
 
 					console.log("应用实例，访问地址为 http://%s:%s", host, port)
 
-					var url = new URL('http://www.amazon.com/Tea/b/ref=dp_bc_3?ie=UTF8&node=16318401');
-					url.open();
+					var url = URL.create('http://www.amazon.com/Tea/b/ref=dp_bc_3?ie=UTF8&node=16318401');
+					url.open('redirect');
 
 				})
 				
@@ -118,6 +121,7 @@ process.on('SIGINT', function() {
 });
 process.on('exit', function () {
     console.log('exit');
+    us.close();
 });
 process.on('SIGINT', function() {
 	connection.end();
@@ -127,6 +131,6 @@ process.on('SIGINT', function() {
 });
 process.on('uncaughtException', function(err) {
     console.log(err);
-    server.kill();
+    //server.kill();
     process.kill();
 });

@@ -6,6 +6,7 @@ var browser = require('casper').create({
         loadImages:  false,        // The WebPage instance used by Casper will
         loadPlugins: false,         // use these settings
         //javascriptEnabled: false,
+        //resourceTimeout: 5000,
         userAgent: 'Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.21 (KHTML, like Gecko) Chrome/25.0.1349.2 Safari/537.21'
     },
     //logLevel: "debug",              // Only "info" level messages will be logged
@@ -32,6 +33,12 @@ browser.on("remote.message", function(msg) {
 	this.echo("console.log: "+msg);
 });
 
+browser.on("page.created", function(){
+    this.page.onResourceTimeout = function(request){
+    	this.echo("onResourceTimeout: "+request);
+    };
+});
+
 browser.options.onResourceRequested = function(C, requestData, request) {
 //browser.on("page.resource.requested", function(requestData, request) {
 	if ( !(/.*amazon\.com.*/gi).test(requestData['url']) 
@@ -53,7 +60,7 @@ if (browser.cli.args.length != 3) {
 }
 console.log(browser.cli.args.length + " " + id + " " + link + " " + type );
 // for redirect page
-var xpathFetch = '//li[contains(@id,"result_")]/div/div[2]/div/a';
+var xpathFetch = '//li[contains(@id,"result_")]/div/div[2]/div[1]/a';
 var xpathRedirect = '//span[@class="pagnLink"]/a';
 var xpathImage = '//li[contains(@id,"result_")]/div/div[1]/div/div/a/img';
 
@@ -129,22 +136,39 @@ browser.then(function() {
 		var titlesFetch = this.getElementsAttribute(x(xpathFetch), 'title');
 		var linksRedirect = this.getElementsAttribute(x(xpathRedirect), 'href');
 		
-		this.download(linksImage, id+'.png');
+		/*for(var i in linksImage) {
+			this.download(linksImage[i], id+'.png');
+		}*/
 		
-		console.log( 'linksImage' );
+		
+		console.log( 'linksImage, size '+linksImage.length );
 		console.log( linksImage );
-		console.log( 'titlesFetch' );
+		console.log( 'titlesFetch, size '+titlesFetch.length );
+		var names = [];
+		for(var i in titlesFetch) {
+			if(titlesFetch[i].length > 0)
+				names.push(titlesFetch[i]);
+		}
+		console.log( 'linksFetch, size '+linksFetch.length );
+		var fetchs = [];
+		for(var i in linksFetch) {
+			console.log('linksFetch '+i+' '+linksFetch[i]);
+			if(linksFetch[i].length > 0)
+				fetchs.push(linksFetch[i]);
+		}
 		console.log( titlesFetch );
-		console.log( 'linksRedirect' );
+		console.log( 'linksRedirect, size '+linksRedirect.length );
 		console.log( linksRedirect );
-		if(linksFetch.length == titlesFetch.length && titlesFetch.length == linksImage.length) {
+		console.log( 'fetchs, size '+fetchs.length+' names, size '+names.length+' linksImage, size '+ linksImage.length);
+		if(fetchs.length == names.length && names.length == linksImage.length) {
+			console.log( 'redirect : thenOpen'  );
 			this.thenOpen('http://127.0.0.1:8081/redirect', {
 			    method: 'post',
 			    data:   {
 			    	'id': id,
-			        'fetchLinks': linksFetch,
+			        'fetchLinks': fetchs,
 			        'redirectLinks':  linksRedirect,
-			        'name': titlesFetch,
+			        'name': names,
 			        'image': linksImage
 			    },
 			});

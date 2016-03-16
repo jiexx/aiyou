@@ -59,8 +59,14 @@ var UrlSet =  {
 		for(url in this.fetchUrls) {
 			url.open('fetch');
 		}
-		for(url in this.redirectUrls) {
-			url.open('redirect');
-		}
+		/*
+		 * for(url in this.redirectUrls) { url.open('redirect'); }
+		 */
+	},
+	
+	create: function() {
+		function F() {};
+		F.prototype = UrlSet;
+		return new F();
 	}
-}
+};

@@ -7,7 +7,8 @@ var URL = {
 	
 	URL: function(link) {
 		this.link = link;
-		this.id = crypto.createHash('md5').update(link).digest('hex');;
+		this.id = crypto.createHash('md5').update(link).digest('hex');
+		console.log('URL create: '+this.id+' '+this.link);
 	},
 	
 	open: function(type) {
@@ -18,15 +19,26 @@ var URL = {
 		var casperjs = path.resolve(__dirname, 'bins', 'casperjs', 'bin');
 	
 		// console.log(process.env.PATH);
-		process.env.PATH = process.env.PATH + ':' + phantomjs;
-		process.env.PATH = process.env.PATH + ':' + casperjs;
+		//process.env.PATH = process.env.PATH + ':' + phantomjs;
+		//process.env.PATH = process.env.PATH + ':' + casperjs;
 		console.log(process.env.PATH);
 	
+		console.log('type: '+type);
 		// Now launch a casperjs script and get result.
 		this.proc = exec.spawn('casperjs', ['browser.js', this.id, this.link, type]);
+		//this.proc = exec.spawn('java');
 	
 		this.proc.stdout.on('data', function(data) {
 		    console.log(data.toString());
+		    console.log('stdout');
+		});
+		
+		this.proc.stderr.on('data', function(data) {
+			console.log(data.toString());
+		});
+
+		this.proc.on('close', function(data) {
+			console.log('close '+data.toString());
 		});
 	},
 	
@@ -38,5 +50,13 @@ var URL = {
 	
 	getId: function() {
 		return this.id;
+	},
+	
+	create: function(link) {
+		function F() {};
+		F.prototype = URL;
+		var f = new F();
+		f.URL(link);
+		return f;
 	}
-}
+};
