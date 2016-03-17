@@ -7,15 +7,27 @@ var browser = require('casper').create({
         loadPlugins: false,         // use these settings
         //javascriptEnabled: false,
         //resourceTimeout: 5000,
-        userAgent: 'Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.21 (KHTML, like Gecko) Chrome/25.0.1349.2 Safari/537.21'
+        //userAgent: 'Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.21 (KHTML, like Gecko) Chrome/25.0.1349.2 Safari/537.21'
+        userAgent: 'Mozilla/5.0 (Windows; U; Windows NT 5.1; en-US) AppleWebKit/534.16 (KHTML, like Gecko) Chrome/10.0.648.151 Safari/534.16',
     },
     logLevel: "debug",              // Only "info" level messages will be logged
     verbose: true  
 });
 
+var id = browser.cli.get(0);
+var link = browser.cli.get(1);
+var type = browser.cli.get(2);
+
+if (browser.cli.args.length != 3) {
+	console.log('Usage: browser.js <some URL>' );
+	console.log(browser.cli.args.length + " " + id + " " + link + " " + type );
+	browser.exit();
+}
+console.log(browser.cli.args.length + " " + id + " " + link + " " + type );
+
 browser.on('error', function(msg,backtrace) {
 	this.echo("=========================");
-	this.echo("ERROR:");
+	this.echo("ERROR:" + ''+type+' id:'+id+' link:'+link);
 	this.echo(msg);
 	this.echo(backtrace);
 	this.echo("=========================");
@@ -23,7 +35,7 @@ browser.on('error', function(msg,backtrace) {
 
 browser.on("page.error", function(msg, backtrace) {
 	this.echo("=========================");
-	this.echo("PAGE.ERROR:");
+	this.echo("PAGE.ERROR:" + ''+type+' id:'+id+' link:'+link);
 	this.echo(msg);
 	this.echo(backtrace);
 	this.echo("=========================");
@@ -43,22 +55,13 @@ browser.options.onResourceRequested = function(C, requestData, request) {
 //browser.on("page.resource.requested", function(requestData, request) {
 	if ( !(/.*amazon\.com.*/gi).test(requestData['url']) && !(/http:\/\/127\.0\.0\.1.*/gi).test(requestData['url'])
 			/*|| (/.*\.css/gi).test(requestData['url']) || requestData['Content-Type'] == 'text/javascript'*/ ) {
-		console.log('Skipping JS file: ' + requestData['url']);
+		//console.log('Skipping JS file: ' + requestData['url']);
 		request.abort();
 	}
-	console.log('Down JS file: ' + requestData['url']);
+	//console.log('Down JS file: ' + requestData['url']);
 };
 
-var id = browser.cli.get(0);
-var link = browser.cli.get(1);
-var type = browser.cli.get(2);
 
-if (browser.cli.args.length != 3) {
-	console.log('Usage: browser.js <some URL>' );
-	console.log(browser.cli.args.length + " " + id + " " + link + " " + type );
-	browser.exit();
-}
-console.log(browser.cli.args.length + " " + id + " " + link + " " + type );
 // for redirect page
 var xpathFetch = '//li[contains(@id,"result_")]/div/div[2]/div[1]/a';
 var xpathRedirect = '//span[@class="pagnLink"]/a';
@@ -86,7 +89,7 @@ browser.then(function() {
 	
 	if(type == 'fetch') {  // can be 
 		
-		console.log('page.framesCount '+this.page.childFramesName().toString());
+		console.log('fetch '+this.page.childFramesName().toString());
 		
 		this.withFrame('product-description-iframe', function() {
 			console.log('product-description.......');
@@ -100,12 +103,10 @@ browser.then(function() {
 			    method: 'POST',
 			    data:   {
 			    	'id': id,
-			        'desc': descInfo,
+			        'desc': product.text,
 			    },
 			}, function(response){
-			    if(response.status == 200){
-			        //require('utils').dump(this.page.content);
-			    }
+				this.echo("POST fetch has been sent.")
 			});
 		});
 		
@@ -177,7 +178,7 @@ browser.then(function() {
 		console.log( 'fetchs, size '+fetchs.length+' names, size '+names.length+' linksImage, size '+ linksImage.length);
 		if(fetchs.length == names.length && names.length == linksImage.length) {
 			console.log( 'redirect : thenOpen'  );
-			this.thenOpen('http://127.0.0.1:8081/redirect', {
+			browser.open('http://127.0.0.1:8081/redirect', {
 				headers: {
 					'Content-Type': 'application/json; charset=utf-8'
 		        },

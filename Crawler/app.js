@@ -83,8 +83,10 @@ app.post('/redirect', upload.array(), function(req, res) {
 	 * fs.readFile( __dirname + "/" + "users.json", 'utf8', function (err, data) {
 	 * console.log( data ); res.end( data ); });
 	 */
-	console.log('REST redirect: '+req.body.toString());
 	var data = req.body;
+	console.log('REST redirect: '+data.id);
+	if(us.isVisited(data.id))
+		return;
 	
 	for ( var i = 0 ; i < data.fetchLinks.length ; i ++ ) {
 		var fetch = URL.create(data.fetchLinks[i]);
@@ -102,18 +104,22 @@ app.post('/redirect', upload.array(), function(req, res) {
 	us.loop();
 
 	console.log(data.name + '  ' + us.counter());
+	res.send('');
 })
 
-app.post('/fetch', upload.array(), function(req, res) {
+app.post('/detail', upload.array(), function(req, res) {
 	
 	var data = req.body;
 	console.log('REST fetch: '+data.id);
+	if(us.isVisited(data.id))
+		return;
 	
 	update(data.id, data.desc);
 
 	us.visited('fetch', data.id);
 
 	console.log(data.id + '  ' + us.counter());
+	res.send('');
 })
 
 var server = app
@@ -127,6 +133,7 @@ var server = app
 					console.log("RUNNING http://%s:%s", host, port)
 
 					var url = URL.create('http://www.amazon.com/Tea/b/ref=dp_bc_3?ie=UTF8&node=16318401');
+					us.addRedirectUrl(url);
 					url.open('redirect');
 
 				});

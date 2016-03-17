@@ -8,7 +8,7 @@ var URL = {
 	URL: function(link) {
 		this.link = link;
 		this.id = crypto.createHash('md5').update(link).digest('hex');
-		console.log('URL create: '+this.id+' '+this.link);
+		//console.log('URL create: '+this.id+' '+this.link);
 	},
 	
 	open: function(type) {
@@ -21,15 +21,15 @@ var URL = {
 		// console.log(process.env.PATH);
 		//process.env.PATH = process.env.PATH + ':' + phantomjs;
 		//process.env.PATH = process.env.PATH + ':' + casperjs;
-		console.log(process.env.PATH);
-	
-		console.log('type: '+type);
+		//console.log(process.env.PATH);
+		
 		// Now launch a casperjs script and get result.
 		this.proc = exec.spawn('casperjs', ['browser.js', this.id, this.link, type]);
 		//this.proc = exec.spawn('java');
 		var pid = this.proc.pid;
+		console.log('OPEN type: '+type+' pid:'+pid);
 		this.proc.stdout.on('data', function(data) {
-			console.log('stdout proc '+pid);
+			//console.log('stdout proc '+pid);
 		    console.log(data.toString());
 		});
 		
@@ -43,8 +43,8 @@ var URL = {
 	},
 	
 	close: function() {
-		if(this.proc.connected()) {
-			this.proc.disconnect()
+		if(this.proc != null && this.proc.connected) {
+			this.proc.disconnect();
 		}
 	},
 	
