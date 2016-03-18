@@ -23,9 +23,9 @@ var num = (browser.cli.args.length / 2);
 console.log( 'redirect num of links:'+num );
 var id = [];
 var link = [];
-for(var i = 0 ; i < browser.cli.args.length ; i += 2) {
-	id[i] = browser.cli.get(i);
-	link[i] = browser.cli.get(i+1);
+for(var i = 0 ; i < num ; i ++) {
+	id[i] = browser.cli.get(2*i);
+	link[i] = browser.cli.get(2*i+1);
 }
 
 
@@ -79,7 +79,10 @@ browser.start();
 for(var j = 0 ; j < num ; j ++) {
 	browser.thenOpen(link[j]);  
 	console.log("id["+j+"]:"+id[j]+" link["+j+"]: "+link[j]);
-	browser.waitForUrl(link[j], (function(j) {
+	(function(arg){ 
+	browser.waitForUrl(link[j], function() {
+		var k = ''+arg;
+		console.log(""+k+"-->>"+ arg);
 		var domain = this.evaluate(function getLinks() {
 			return document.domain;
 	    });
@@ -109,9 +112,10 @@ for(var j = 0 ; j < num ; j ++) {
 			if(linksRedirect[i].length > 0)
 				redirects.push('http://'+domain+linksRedirect[i]);
 		}
-		console.log("id["+j+"]-->>"+id.toString());
+		
+		console.log("id["+k+"]-->>"+ k.toString());
 		var result =  {
-		    'id': id[j],
+		    'id': id[k],
 	        'fetchLinks': fetchs,
 	        'redirectLinks':  redirects,
 	        'names': names,
@@ -129,7 +133,8 @@ for(var j = 0 ; j < num ; j ++) {
 			    this.echo("POST request has been sent.");
 			});
 		}
-	})(j));
+	});
+	})(j);
 }
 	
 browser.then(function() {  

@@ -23,9 +23,10 @@ var num = (browser.cli.args.length / 2);
 console.log( 'redirect num of links:'+num );
 var id = [];
 var link = [];
-for(var i = 0 ; i < browser.cli.args.length ; i += 2) {
-	id[i] = browser.cli.get(i);
-	link[i] = browser.cli.get(i+1);
+for(var i = 0 ; i < num ; i ++) {
+	id[i] = browser.cli.get(2*i);
+	link[i] = browser.cli.get(2*i+1);
+	console.log("args id["+i+"]:"+browser.cli.get(i)+" link["+i+"]: "+browser.cli.get(i+1));
 }
 
 
@@ -78,16 +79,20 @@ console.log('browser fetch');
 for(var j = 0 ; j < num ; j ++) {
 	browser.thenOpen(link[j]);  
 	console.log("id["+j+"]:"+id[j]+" link["+j+"]: "+link[j]);
+	(function(arg){ 
 	browser.waitForUrl(link[j], function(j) {
 		console.log('fetch '+this.page.childFramesName().toString());
+		var k = arg;
+		var image = this.getElementsAttribute(x(xpathImage), 'src');
+		var info = this.getElementsInfo(x(xpathImage));
+		//require('utils').dump(info);
+		this.download(image, 'img/'+id[k]+'.jpg');
 		
 		this.withFrame('product-description-iframe', function() {
 			var product = this.getElementInfo(x(xpathDesc));
-			var image = this.getElementsAttribute(x(xpathImage), 'src');
-			this.download(image, 'img/'+id[browser.couter]+'.jpg');
-			
+			console.log("id["+k+"]-->>"+image);
 			var result =  {
-				'id': id[j],
+				'id': id[k],
 				'desc': product.text
 			};
 			console.log('fetch '+result.toString());
@@ -102,6 +107,7 @@ for(var j = 0 ; j < num ; j ++) {
 			});
 		});
 	});
+	})(j);
 }
 	
   
