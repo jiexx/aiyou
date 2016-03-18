@@ -45,6 +45,69 @@ var UrlSet =  {
 		}
 	},
 	
+	loopOneBrowser: function() {
+		//this.openRedirect();
+		this.openFetch();
+	},
+	
+	openRedirect: function() {
+		var url, args=[];
+		args.push('browser-redirect.js');
+		for(i in this.redirectUrls) {
+			url = this.redirectUrls[i];
+			if(url != null && this.visitedUrls[url.getId()] == null){
+				args.push(url.getId());
+				args.push(url.getLink());
+			}
+		}
+		var exec = require('child_process');
+
+		this.proc = exec.spawn('casperjs', args);
+		
+		var pid = this.proc.pid;
+		console.log('OPEN Redirect: '+pid);
+		this.proc.stdout.on('data', function(data) {
+		    console.log(data.toString());
+		});
+		
+		this.proc.stderr.on('data', function(data) {
+			console.log(data.toString());
+		});
+
+		this.proc.on('close', function(data) {
+			console.log('close '+data.toString());
+		});
+	},
+	
+	openFetch: function() {
+		var url, args=[];
+		args.push('browser-fetch.js');
+		for(i in this.redirectUrls) {
+			url = this.redirectUrls[i];
+			if(url != null && this.visitedUrls[url.getId()] == null){
+				args.push(url.getId());
+				args.push(url.getLink());
+			}
+		}
+		var exec = require('child_process');
+
+		this.proc = exec.spawn('casperjs', args);
+		
+		var pid = this.proc.pid;
+		console.log('OPEN Fetch: '+pid);
+		this.proc.stdout.on('data', function(data) {
+		    console.log(data.toString());
+		});
+		
+		this.proc.stderr.on('data', function(data) {
+			console.log(data.toString());
+		});
+
+		this.proc.on('close', function(data) {
+			console.log('close '+data.toString());
+		});
+	},
+	
 	counter: function() {
 		return 'fetchUrls:' + this.fetchUrls.length +' redirectUrls:' + this.redirectUrls.length + 'visitedUrls:' + this.visitedUrls.length + ' ';
 	},
@@ -57,7 +120,7 @@ var UrlSet =  {
 				url.close();
 		}
 		for(i in this.redirectUrls) {
-			url = this.fetchUrls[i];
+			url = this.redirectUrls[i];
 			if(url != null)
 				url.close();
 		}

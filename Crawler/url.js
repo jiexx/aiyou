@@ -52,6 +52,10 @@ var URL = {
 		return this.id;
 	},
 	
+	getLink: function() {
+		return this.link;
+	},
+	
 	create: function(link) {
 		function F() {};
 		F.prototype = URL;

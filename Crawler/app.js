@@ -101,7 +101,7 @@ app.post('/redirect', upload.array(), function(req, res) {
 
 	us.visited('redirect', data.id);
 
-	us.loop();
+	us.loopOneBrowser();
 
 	console.log(data.name + '  ' + us.counter());
 	res.send('');
@@ -134,7 +134,7 @@ var server = app
 
 					var url = URL.create('http://www.amazon.com/Tea/b/ref=dp_bc_3?ie=UTF8&node=16318401');
 					us.addRedirectUrl(url);
-					url.open('redirect');
+					us.openRedirect();
 
 				});
 
