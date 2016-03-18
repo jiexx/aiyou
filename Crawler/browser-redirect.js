@@ -79,7 +79,7 @@ browser.start();
 for(var j = 0 ; j < num ; j ++) {
 	browser.thenOpen(link[j]);  
 	console.log("id["+j+"]:"+id[j]+" link["+j+"]: "+link[j]);
-	browser.waitForUrl(link[j], function(j) {
+	browser.waitForUrl(link[j], (function(j) {
 		var domain = this.evaluate(function getLinks() {
 			return document.domain;
 	    });
@@ -129,10 +129,9 @@ for(var j = 0 ; j < num ; j ++) {
 			    this.echo("POST request has been sent.");
 			});
 		}
-	});
+	})(j));
 }
 	
-  
 browser.then(function() {  
 	browser.exit();  
 	console.log('browser exit');

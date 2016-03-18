@@ -11,7 +11,7 @@ var browser = require('casper').create({
         userAgent: 'Mozilla/5.0 (Windows; U; Windows NT 5.1; en-US) AppleWebKit/534.16 (KHTML, like Gecko) Chrome/10.0.648.151 Safari/534.16'
     },
     //logLevel: "debug",              // Only "info" level messages will be logged
-    verbose: true  
+    //verbose: true  
 });
 
 if (browser.cli.args.length % 2 != 0) {
@@ -63,7 +63,7 @@ browser.options.onResourceRequested = function(C, requestData, request) {
 		//console.log('Skipping JS file: ' + requestData['url']);
 		request.abort();
 	}
-	console.log('Down JS file: ' + requestData['url']);
+	//console.log('Down JS file: ' + requestData['url']);
 };
 
 
@@ -90,7 +90,7 @@ for(var j = 0 ; j < num ; j ++) {
 				'id': id[j],
 				'desc': product.text
 			};
-			
+			console.log('fetch '+result.toString());
 			browser.thenOpen('http://127.0.0.1:8081/detail', {
 				headers: {
 					'Content-Type': 'application/json; charset=utf-8'

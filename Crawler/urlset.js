@@ -30,7 +30,8 @@ var UrlSet =  {
 				this.visitedUrls[this.fetchUrls[id].getId()] = this.fetchUrls[id];
 				delete this.fetchUrls[id];
 			}else {
-				console.log('INFO: invalid fetch id:'+id);
+				this.fetchUrls[id].close();
+				console.log('INFO: revisit fetch id:'+id);
 			}
 		}
 		else if(type == 'redirect') {
@@ -39,8 +40,7 @@ var UrlSet =  {
 				this.visitedUrls[this.redirectUrls[id].getId()] = this.redirectUrls[id];
 				delete this.redirectUrls[id];
 			}else {
-				this.visitedUrls[id] = true;
-				console.log('INFO: invalid redirect id:'+id);
+				console.log('INFO: revisit redirect id:'+id);
 			}
 		}
 	},
@@ -66,6 +66,7 @@ var UrlSet =  {
 		
 		var pid = this.proc.pid;
 		console.log('OPEN Redirect: '+pid);
+		console.log(args.toString());
 		this.proc.stdout.on('data', function(data) {
 		    console.log(data.toString());
 		});
@@ -82,8 +83,8 @@ var UrlSet =  {
 	openFetch: function() {
 		var url, args=[];
 		args.push('browser-fetch.js');
-		for(i in this.redirectUrls) {
-			url = this.redirectUrls[i];
+		for(i in this.fetchUrls) {
+			url = this.fetchUrls[i];
 			if(url != null && this.visitedUrls[url.getId()] == null){
 				args.push(url.getId());
 				args.push(url.getLink());
@@ -95,6 +96,7 @@ var UrlSet =  {
 		
 		var pid = this.proc.pid;
 		console.log('OPEN Fetch: '+pid);
+		console.log(args.toString());
 		this.proc.stdout.on('data', function(data) {
 		    console.log(data.toString());
 		});
