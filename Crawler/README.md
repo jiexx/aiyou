@@ -10,6 +10,8 @@ casperjs browser.js 0 "http://www.amazon.com/Tea/b/ref=dp_bc_3?ie=UTF8&node=1631
 
 npm install body-parser
 npm install multer
+
+
 drop database crawler;
 create database crawler char set utf8;
-create table crawler.product(id varchar(64), name varchar(512), pic text, descr text);
+create table crawler.product(id varchar(512), name varchar(512), pic text, descr text, producer varchar(512), score varchar(64), review text, link varchar(512));

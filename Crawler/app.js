@@ -47,25 +47,25 @@ function save(id, name, pic, desc) {
 					connection.end();
 					return;
 				}
-				console.log('Inserted: ' + results.affectedRows + ' row.');
-				console.log('Id inserted: ' + results.insertId);
+				//console.log('Inserted: ' + results.affectedRows + ' row.' +' id:'+ id);
+				//console.log('Id inserted: ' + results.insertId);
 			});
 }
 
-function update(id, desc) {
+function update(id, desc, producer, score, review, link) {
 	if (!dbReady)
 		return;
-	var values = [ desc, id ];
+	var values = [ desc, producer, score, review, link, id ];
 	connection.query(
-			'UPDATE product SET descr = ? WHERE id = ?',
+			'UPDATE product SET descr = ?, producer = ?, score = ?, review = ?, link = ? WHERE id = ?',
 			values, function(error, results) {
 				if (error) {
 					console.log("update Error: " + error.message);
 					connection.end();
 					return;
 				}
-				console.log('updated: ' + results.affectedRows + ' row.');
-				console.log('Id updated: ' + results.insertId);
+				//console.log('updated: ' + results.affectedRows + ' row.' +' id:'+ id);
+				//console.log('Id updated: ' + results.insertId);
 			});
 }
 
@@ -84,42 +84,44 @@ app.post('/redirect', upload.array(), function(req, res) {
 	 * console.log( data ); res.end( data ); });
 	 */
 	var data = req.body;
-	console.log('REST redirect: '+data.id);
-	if(us.isVisited(data.id))
-		return;
+	console.log('[app] [REST/redirect] '+data.id);
+	//if(us.isVisited(data.id))  for repeated visit issue.
+	//	return;
+	fs.appendFile('redirects.txt', data.redirectLinks.toString()+'\n', function (err) {});
 	
 	for ( var i = 0 ; i < data.fetchLinks.length ; i ++ ) {
 		var fetch = URL.create(data.fetchLinks[i]);
 		us.addFetchUrl(fetch);
 		save(fetch.getId(), data.names[i], data.linksImage[i], '');
-		console.log('REST redirect save: '+fetch.getId()+data.names[i]+data.linksImage[i]);
+		//console.log('REST redirect save: '+fetch.getId()+data.names[i]+data.linksImage[i]);
 	}
 
 	for ( var i in data.redirectLinks) {
 		us.addRedirectUrl(URL.create(data.redirectLinks[i]));
 	}
 
-	us.visited('redirect', data.id);
+	//us.visited('redirect', data.id);
+	
+	res.send('OK.');
 
+	console.log('  this.time still have: ' + us.counter());
 	us.loopOneBrowser();
 
-	console.log(data.name + '  ' + us.counter());
-	res.send('');
 })
 
 app.post('/detail', upload.array(), function(req, res) {
 	
 	var data = req.body;
-	console.log('REST fetch: '+data.id);
-	if(us.isVisited(data.id))
-		return;
+	console.log('[app] [REST/detail] '+data.id);
+	//if(us.isVisited(data.id))
+	//	return;
 	
-	update(data.id, data.desc);
+	update(data.id, data.desc, data.producer, data.score, data.review, data.link );
 
-	us.visited('fetch', data.id);
+	//us.visited('fetch', data.id);
 
-	console.log(data.id + '  ' + us.counter());
-	res.send('');
+	//console.log(data.id + '  this.time still have: ' + us.counter());
+	res.send('OK.');
 })
 
 var server = app
@@ -131,7 +133,7 @@ var server = app
 					var port = server.address().port
 
 					console.log("RUNNING http://%s:%s", host, port)
-
+					
 					var url = URL.create('http://www.amazon.com/Tea/b/ref=dp_bc_3?ie=UTF8&node=16318401');
 					us.addRedirectUrl(url);
 					us.openRedirect();

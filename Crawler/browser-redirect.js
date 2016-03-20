@@ -6,7 +6,7 @@ var browser = require('casper').create({
         loadImages:  false,        // The WebPage instance used by Casper will
         loadPlugins: false,         // use these settings
         //javascriptEnabled: false,
-        //resourceTimeout: 5000,
+        //resourceTimeout: 30000,
         //userAgent: 'Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.21 (KHTML, like Gecko) Chrome/25.0.1349.2 Safari/537.21'
         userAgent: 'Mozilla/5.0 (Windows; U; Windows NT 5.1; en-US) AppleWebKit/534.16 (KHTML, like Gecko) Chrome/10.0.648.151 Safari/534.16'
     },
@@ -20,6 +20,7 @@ if (browser.cli.args.length % 2 != 0) {
 }
 
 var num = (browser.cli.args.length / 2); 
+var counter = num;
 console.log( 'redirect num of links:'+num );
 var id = [];
 var link = [];
@@ -28,9 +29,11 @@ for(var i = 0 ; i < num ; i ++) {
 	link[i] = browser.cli.get(2*i+1);
 }
 
-
+var fs = require('fs');
 
 browser.on('error', function(msg,backtrace) {
+	var d = new Date();
+	fs.write('err/direct_'+d.getTime().toString()+'.txt',  msg+"\n\n"+browser.getHTML(), 'w');
 	this.echo("=========================");
 	this.echo("ERROR:");
 	this.echo(msg);
@@ -39,6 +42,8 @@ browser.on('error', function(msg,backtrace) {
 });
 
 browser.on("page.error", function(msg, backtrace) {
+	var d = new Date();
+	fs.write('err/direct_'+d.getTime().toString()+'.txt',  msg+"\n\n"+browser.getHTML(), 'w');
 	this.echo("=========================");
 	this.echo("PAGE.ERROR:");
 	this.echo(msg);
@@ -55,34 +60,36 @@ browser.on("page.created", function(){
     	this.echo("onResourceTimeout: "+request);
     };
 });
-
+browser.options.retryTimeout = 20;
+browser.options.waitTimeout = 600000; 
 browser.options.onResourceRequested = function(C, requestData, request) {
 //browser.on("page.resource.requested", function(requestData, request) {
 	if ( !(/.*amazon\.com.*/gi).test(requestData['url']) && !(/http:\/\/127\.0\.0\.1.*/gi).test(requestData['url'])
-			/*|| (/.*\.css/gi).test(requestData['url']) || requestData['Content-Type'] == 'text/javascript'*/ ) {
-		//console.log('Skipping JS file: ' + requestData['url']);
+			&&!(/.*s\.amazon-adsystem\.com.*/gi).test(requestData['url']) 
+			&&!(/.*fls-na\.amazon\.com.*/gi).test(requestData['url']) /*|| (/.*\.css/gi).test(requestData['url']) || requestData['Content-Type'] == 'text/javascript'*/ ) {
+		//console.log('redirect Skipping JS file: ' + requestData['url']);
 		request.abort();
+	}else {
+		//console.log('redirect Down JS file: ' + requestData['url']);
 	}
-	console.log('Down JS file: ' + requestData['url']);
 };
 
 
 // for redirect page
-var xpathFetch = '//li[contains(@id,"result_")]/div/div[2]/div[1]/a';
-var xpathRedirect = '//span[@class="pagnLink"]/a';
+var xpathFetch = '//a[@class="a-link-normal s-access-detail-page  a-text-normal"]';
+var xpathRedirect = '//a[@id="pagnNextLink"]';
 var xpathImage = '//li[contains(@id,"result_")]/div/div[1]/div/div/a/img';
 
 var x = require('casper').selectXPath;
 
 browser.start();  
-
+console.log('enter browser redirect');
 for(var j = 0 ; j < num ; j ++) {
 	browser.thenOpen(link[j]);  
-	console.log("id["+j+"]:"+id[j]+" link["+j+"]: "+link[j]);
 	(function(arg){ 
-	browser.waitForUrl(link[j], function() {
-		var k = ''+arg;
-		console.log(""+k+"-->>"+ arg);
+	browser.waitUntilVisible(x(xpathImage), function() {
+		var k = arg;
+		console.log("-->> redirect id["+k+"]:"+id[k]+" link["+k+"]: "+link[k]);
 		var domain = this.evaluate(function getLinks() {
 			return document.domain;
 	    });
@@ -93,7 +100,10 @@ for(var j = 0 ; j < num ; j ++) {
 		var fetchs = this.getElementsInfo(x(xpathFetch));
 		var linksFetch = this.getElementsAttribute(x(xpathFetch), 'href');
 		var titlesFetch = this.getElementsAttribute(x(xpathFetch), 'title');
-		var linksRedirect = this.getElementsAttribute(x(xpathRedirect), 'href');
+		var linksRedirect;
+		if(browser.exists(x(xpathRedirect))){
+		   linksRedirect = this.getElementsAttribute(x(xpathRedirect), 'href');
+		}
 		
 		var names = [];
 		for(var i in titlesFetch) {
@@ -104,16 +114,29 @@ for(var j = 0 ; j < num ; j ++) {
 		for(var i in linksFetch) {
 			if(linksFetch[i].length > 0)
 				fetchs.push(linksFetch[i]);
-			console.log(linksFetch[i]);
+			//console.log(linksFetch[i]);
 		}
 
 		var redirects = [];
 		for(var i in linksRedirect) {
-			if(linksRedirect[i].length > 0)
-				redirects.push('http://'+domain+linksRedirect[i]);
+			var c;
+			if(linksRedirect[i].length > 300) {
+				var a = linksRedirect[i].indexOf('spIA=');
+				var b = linksRedirect[i].indexOf('&', a);
+				if(b > -1) {
+					c = linksRedirect[i].substring(0,a)+linksRedirect[i].substring(b);
+				}else {
+					c = linksRedirect[i].substring(0,a);
+				}
+			}else {
+				c = linksRedirect[i];
+			}
+			if(linksRedirect[i].length > 0) {
+				redirects.push('http://'+domain+c);
+			}
+			
 		}
 		
-		console.log("id["+k+"]-->>"+ k.toString());
 		var result =  {
 		    'id': id[k],
 	        'fetchLinks': fetchs,
@@ -121,6 +144,7 @@ for(var j = 0 ; j < num ; j ++) {
 	        'names': names,
 	        'linksImage': linksImage
 	    };
+		//console.log( redirects[0].toString());
 		
 		if(fetchs.length == names.length && names.length == linksImage.length) {
 			browser.thenOpen('http://127.0.0.1:8081/redirect', {
@@ -129,8 +153,15 @@ for(var j = 0 ; j < num ; j ++) {
 		        },
 			    method: 'POST',
 			    data: result
-			}, function() {
-			    this.echo("POST request has been sent.");
+			}, function(response){
+				this.echo("POST redirect has been sent. "+ response.status /*+" "+ this.page.content*/);
+				if(response.status == 200 && this.page.content.indexOf("OK.")){
+					counter --;
+					this.echo("POST redirect exit "+counter);
+					if(counter <= 0) {
+						browser.exit();  
+					}
+			    }
 			});
 		}
 	});
