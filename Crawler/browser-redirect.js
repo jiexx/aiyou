@@ -124,9 +124,9 @@ for(var j = 0 ; j < num ; j ++) {
 				var a = linksRedirect[i].indexOf('spIA=');
 				var b = linksRedirect[i].indexOf('&', a);
 				if(b > -1) {
-					c = linksRedirect[i].substring(0,a)+linksRedirect[i].substring(b);
+					c = linksRedirect[i].substring(0,a-1)+linksRedirect[i].substring(b);
 				}else {
-					c = linksRedirect[i].substring(0,a);
+					c = linksRedirect[i].substring(0,a-1);
 				}
 			}else {
 				c = linksRedirect[i];

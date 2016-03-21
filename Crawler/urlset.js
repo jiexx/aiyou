@@ -1,74 +1,66 @@
-var UrlSet =  {
-	fetchUrls: [],
-	redirectUrls: [],
-	visitedUrls: [],  // if only enter browser, even if browser failed, it will be visited. this for avoiding many repeated visit issue.
+var Queue = {
+	which: '',
+	urls: [],
+	visiting: [],
+	visited: [],
 	procs: [],
-	loopQueue: 0,
 	PROCMAX: 8,
 	PARAMAX: 32,
+	TIMEOUT: 300000,
 	
-	LOG: function(func, info) {
-		console.log('[UrlSet] ['+func+'] '+info);
+	statistics: function() {
+		return '[QUEUE] '+this.which+' PROC:' + JSON.stringify(this.getNum(this.procs)) 
+		+' URLS:'+JSON.stringify(this.getNum(this.urls)) 
+		+' VISITING:'+JSON.stringify(this.getNum(this.visiting))
+		+' VISITED:'+JSON.stringify(this.getNum(this.visited));
 	},
 	
-	addFetchUrl: function(url) {
-		var visited = this.visitedUrls[url.getId()];
-		if(visited == null) {
-			this.fetchUrls[url.getId()] = url;
-		}
+	isNoVisit: function(id) {
+		return this.visited[id] == null && this.visiting[id] == null;
 	},
 	
-	addRedirectUrl: function(url) {
-		var visited = this.visitedUrls[url.getId()];
-		if(visited == null) {
-			this.redirectUrls[url.getId()] = url;
-		}
-	},
-	
-	isVisited: function(id) {
-		return this.visitedUrls[id] != null;
-	},
-
-	visited: function(type, id) {
-		if(type == 'fetch') {
-			if(this.fetchUrls[id] != null) {
-				//this.fetchUrls[id].close();
-				this.visitedUrls[this.fetchUrls[id].getId()] = this.fetchUrls[id];
-				delete this.fetchUrls[id];
-			}else {
-				//this.fetchUrls[id].close();
-				this.LOG('visited', 'revisite fetch id:'+id);
-			}
-		}
-		else if(type == 'redirect') {
-			if(this.redirectUrls[id] != null) {
-				//this.redirectUrls[id].close();
-				this.visitedUrls[this.redirectUrls[id].getId()] = this.redirectUrls[id];
-				delete this.redirectUrls[id];
-			}else {
-				this.LOG('visited', 'revisite redirect id:'+id);
+	updateTimeout: function() {
+		for(var i in this.visiting) {
+			if( this.visiting[i].escape() > this.TIMEOUT ) {
+				this.urls[i] = this.visiting[i];
+				delete this.visiting[i];
 			}
 		}
 	},
 	
-	loopOneBrowser: function() {
-		if(this.getNum(this.procs).HAS < this.PROCMAX && this.getNum(this.fetchUrls).HAS > 0 ) {
-			this.openFetch();
-		}
-		if(this.getNum(this.redirectUrls).HAS > 0) {
-			this.openRedirect();
+	add: function(url) {
+		if(this.isNoVisit(url.getId())) {
+			this.urls[url.getId()] = url;
 		}
 	},
 	
-	openRedirect: function() {
+	_visiting: function(id) {
+		if(this.urls[id] != null) {
+			this.visiting[id] = this.urls[id];
+			delete this.urls[id];
+		}else {
+			console.log('[QUEUE] '+this.which+' revisiting pid: '+pid);
+		}
+	},
+	
+	_visited: function(id) {
+		if(this.visiting[id] != null) {
+			this.visited[id] = this.visiting[id];
+			delete this.visiting[id];
+		}else {
+			console.log('[QUEUE] '+this.which+' revisited pid: '+pid);
+		}
+	},
+	
+	open: function() {
 		var url, args=[], num = 0;
-		args.push('browser-redirect.js');
-		for(var i in this.redirectUrls) {
-			url = this.redirectUrls[i];
-			if(url != null && this.visitedUrls[url.getId()] == null && (++num) < this.PARAMAX){
+		args.push(this.which);
+		for(var i in this.urls) {
+			url = this.urls[i];
+			if(url != null && this.isNoVisit(url.getId()) && (++num) < this.PARAMAX){
 				args.push(url.getId());
 				args.push(url.getLink());
-				this.visited('redirect', url.getId());// for repeated visit issue.
+				this._visiting(url.getId());// for repeated visit issue.
 			}
 		}
 		var exec = require('child_process');
@@ -77,65 +69,21 @@ var UrlSet =  {
 		this.procs.push(proc);
 		
 		var pid = proc.pid;
-		this.LOG('openRedirect', 'pid:'+pid);
-		console.log('[BROWSER] OPEN Redirect pid: '+pid);
+		var _this = this;
+		console.log('[BROWSER] OPEN '+this.which+' pid: '+pid);
 		proc.stdout.on('data', function(data) {
-		    console.log('[BROWSER] INFO redirect pid: '+pid +' '+  data.toString());
+		    console.log('[BROWSER] INFO '+_this.which+' pid: '+pid +' '+  data.toString());
 		});
 		
 		proc.stderr.on('data', function(data) {
-			console.log('[BROWSER] ERROR redirect pid: '+pid +' '+  data.toString());
+			console.log('[BROWSER] ERROR '+_this.which+' pid: '+pid +' '+  data.toString());
 		});
 
-		var _this = this;
+		
 		proc.on('exit', function(data) {
-			_this.delProc(proc);
-			console.log('[BROWSER] EXIT redirect pid: '+pid +' '+  data.toString());
+			_this.exitProc(proc);
+			console.log('[BROWSER] EXIT '+_this.which+' pid: '+pid +' '+  data.toString());
 		});
-	},
-	
-	openFetch: function() {
-		var url, args=[], num = 0;
-		args.push('browser-fetch.js');
-		for(var i in this.fetchUrls) {
-			url = this.fetchUrls[i];
-			if(url != null && this.visitedUrls[url.getId()] == null && (++num) < this.PARAMAX){
-				args.push(url.getId());
-				args.push(url.getLink());
-				this.visited('fetch', url.getId());// for repeated visit issue.
-			}
-		}
-		var exec = require('child_process');
-
-		var proc = exec.spawn('casperjs', args);
-		this.procs.push(proc);
-		
-		var pid = proc.pid;
-		console.log('[BROWSER] OPEN Fetch: '+pid);
-		//console.log(args.toString());
-		proc.stdout.on('data', function(data) {
-			console.log('[BROWSER] INFO fetch pid: '+pid +' '+ data.toString());
-		});
-		
-		proc.stderr.on('data', function(data) {
-			console.log('[BROWSER] ERROR fetch pid: '+pid +' '+  data.toString());
-		});
-		
-		var _this = this;
-		proc.on('exit', function(data) {
-			_this.delProc(proc);
-			console.log('[BROWSER] EXIT fetch pid: '+pid +' '+  data.toString());
-		});
-	},
-	
-	delProc: function(proc) {
-		this.LOG('delProc', 'pid:'+proc.pid+' '+this.counter());
-		for(var i in this.procs) {
-			if(this.procs[i] == proc){
-				this.procs.splice(i,1);
-			}
-		}
-		this.loopOneBrowser();
 	},
 	
 	getNum: function(arr) {
@@ -150,40 +98,77 @@ var UrlSet =  {
 		return {HAS:has, NO:no};
 	},
 	
-	counter: function() {
-		return 'LOOPQUEUE:'+this.loopQueue+' PROC:' + JSON.stringify(this.getNum(this.procs)) +' REDIRECTS:'+JSON.stringify(this.getNum(this.redirectUrls)) +' FETCHS:'+JSON.stringify(this.getNum(this.fetchUrls));
-	},
-	
-	close: function() {
-		var url, i;
-		for(i in this.fetchUrls) {
-			url = this.fetchUrls[i];
-			if(url != null)
-				url.close();
+	exitProc: function(proc) {
+		for(var i in this.procs) {
+			if(this.procs[i] == proc){
+				delete this.procs[i];
+			}
 		}
-		for(i in this.redirectUrls) {
-			url = this.redirectUrls[i];
-			if(url != null)
-				url.close();
+		if(this.getNum(this.visiting).HAS > 0) {
+			var _this = this;
+			setTimeout(function(){
+				
+				_this.updateTimeout();
+				
+				_this.loop();
+				
+			},this.TIMEOUT);
 		}
 	},
 	
 	loop: function() {
-		var i;
-		for(i in this.fetchUrls) {
-			var visited = this.visitedUrls[this.fetchUrls[i].getId()];
-			if(visited == null) {
-				this.fetchUrls[i].open('fetch');
-			}
+		if(this.getNum(this.procs).HAS < this.PROCMAX && this.getNum(this.urls).HAS > 0 ) {
+			
+			console.log(this.statistics());
+			
+			this.open();
 		}
-		/*
-		 * for(url in this.redirectUrls) { url.open('redirect'); }
-		 */
+	},
+	
+	create: function(which, procNum) {
+		function F() {};
+		F.prototype = Queue;
+		var f = new F();
+		f.which = which;
+		f.PROCMAX = procNum;
+		return f;
+	}
+}
+
+var UrlSet =  {
+	queueRedirects: null,
+	queueFetchs: null,
+	
+	addFetchUrl: function(url) {
+		this.queueFetchs.add(url);
+	},
+	
+	addRedirectUrl: function(url) {
+		this.queueRedirects.add(url);
+	},
+	
+	visitedFetchUrl: function(id) {
+		this.queueFetchs._visited(id);
+	},
+	
+	visitedRedirectUrl: function(id) {
+		this.queueRedirects._visited(id);
+	},
+	
+	loopFetch: function() {
+		this.queueFetchs.loop();
+	},
+	
+	loopRedirect: function() {
+		this.queueRedirects.loop();
 	},
 	
 	create: function() {
 		function F() {};
 		F.prototype = UrlSet;
-		return new F();
+		var f = new F();
+		f.queueRedirects = Queue.create('browser-redirect.js', 3);
+		f.queueFetchs = Queue.create('browser-fetch.js', 8);
+		return f;
 	}
 };

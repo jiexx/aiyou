@@ -4,6 +4,7 @@ var URL = {
 	link : '',
 	id : '',
 	proc : null,
+	time : 0,
 
 	getURLParameter: function(name) {
 		return decodeURI(
@@ -14,7 +15,12 @@ var URL = {
 	URL : function (link) {
 		this.link = link;
 		this.id =  crypto.createHash('md5').update(link).digest('hex');
-			//console.log('URL create: '+this.id+' '+this.link);
+		this.time = (new Date()).getTime();
+	},
+	
+	escape: function() {
+		var d = (new Date()).getTime() - this.time;
+		return d;
 	},
 
 	open : function (type) {
