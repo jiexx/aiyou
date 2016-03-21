@@ -1,12 +1,4 @@
 var Queue = {
-	which: '',
-	urls: [],
-	visiting: [],
-	visited: [],
-	procs: [],
-	PROCMAX: 8,
-	PARAMAX: 32,
-	TIMEOUT: 300000,
 	
 	statistics: function() {
 		return '[QUEUE] '+this.which+' PROC:' + JSON.stringify(this.getNum(this.procs)) 
@@ -112,6 +104,10 @@ var Queue = {
 				
 				_this.loop();
 				
+				if(this.getNum(this.visiting).HAS == 0) {
+					_this.onFinish();
+				}
+				
 			},this.TIMEOUT);
 		}
 	},
@@ -125,12 +121,19 @@ var Queue = {
 		}
 	},
 	
-	create: function(which, procNum) {
+	create: function(which, procNum, paramNum, onfinish) {
 		function F() {};
 		F.prototype = Queue;
 		var f = new F();
 		f.which = which;
 		f.PROCMAX = procNum;
+		f.urls = [];
+		f.visiting = [];
+		f.visited = [];
+		f.procs = [];
+		f.PARAMAX = 32;
+		f.TIMEOUT = 300000;
+		f.onFinish = onfinish;
 		return f;
 	}
 }
@@ -167,8 +170,10 @@ var UrlSet =  {
 		function F() {};
 		F.prototype = UrlSet;
 		var f = new F();
-		f.queueRedirects = Queue.create('browser-redirect.js', 3);
-		f.queueFetchs = Queue.create('browser-fetch.js', 8);
+		f.queueFetchs = Queue.create('browser-fetch.js', 8, 32, null);
+		f.queueRedirects = Queue.create('browser-redirect.js', 3, 32, function(){
+			f.queueFetchs.loop();
+		});
 		return f;
 	}
 };

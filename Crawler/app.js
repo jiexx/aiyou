@@ -17,7 +17,7 @@ connection.connect(function(error, results) {
 		return;
 	}
 	console.log('Connected to MySQL');
-	connection.query('USE crawler', function(error, results) {
+	connection.query('USE amazon', function(error, results) {
 		if (error) {
 			console.log('ClientConnectionReady Error: ' + error.message);
 			connection.end();
