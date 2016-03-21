@@ -141,7 +141,7 @@ process.on('SIGINT', function() {
 });
 process.on('exit', function () {
     console.log('exit');
-    us.close();
+    //us.close();
 });
 process.on('SIGINT', function() {
 	connection.end();
