@@ -31,7 +31,7 @@ var Queue = {
 			this.visiting[id] = this.urls[id];
 			delete this.urls[id];
 		}else {
-			console.log('[QUEUE] '+this.which+' revisiting pid: '+pid);
+			console.log('[QUEUE] '+this.which+' revisiting id: '+id);
 		}
 	},
 	
@@ -40,7 +40,16 @@ var Queue = {
 			this.visited[id] = this.visiting[id];
 			delete this.visiting[id];
 		}else {
-			console.log('[QUEUE] '+this.which+' revisited pid: '+pid);
+			console.log('[QUEUE] '+this.which+' revisited id: '+id);
+		}
+	},
+	
+	_error: function(id) {
+		if(this.visiting[id] != null) {
+			this.error = this.visiting[id];
+			delete this.visiting[id];
+		}else {
+			console.log('[QUEUE] '+this.which+' rerror id: '+id);
 		}
 	},
 	
@@ -102,10 +111,11 @@ var Queue = {
 				
 				_this.updateTimeout();
 				
-				_this.loop();
-				
-				if(this.getNum(this.visiting).HAS == 0) {
+				if(_this.getNum(_this.visiting).HAS == 0 && _this.getNum(_this.urls).HAS == 0) {
 					_this.onFinish();
+				}else {
+					console.log('[BROWSER] TIMEOUT '+_this.which+' pid: '+proc.pid);
+					_this.loop();
 				}
 				
 			},this.TIMEOUT);
@@ -130,9 +140,10 @@ var Queue = {
 		f.urls = [];
 		f.visiting = [];
 		f.visited = [];
+		f.error = null;
 		f.procs = [];
 		f.PARAMAX = 32;
-		f.TIMEOUT = 300000;
+		f.TIMEOUT = 30000;
 		f.onFinish = onfinish;
 		return f;
 	}
@@ -148,6 +159,10 @@ var UrlSet =  {
 	
 	addRedirectUrl: function(url) {
 		this.queueRedirects.add(url);
+	},
+	
+	errorRedirectUrl: function(id) {
+		this.queueRedirects._error(id);
 	},
 	
 	visitedFetchUrl: function(id) {

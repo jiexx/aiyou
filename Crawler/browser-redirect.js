@@ -52,7 +52,7 @@ browser.on("page.error", function(msg, backtrace) {
 });
 
 browser.on("remote.message", function(msg) {
-	this.echo("console.log: "+msg);
+	this.echo("console.log: "+msg.toString());
 });
 
 browser.on("page.created", function(){
@@ -137,33 +137,41 @@ for(var j = 0 ; j < num ; j ++) {
 			
 		}
 		
-		var result =  {
-		    'id': id[k],
-	        'fetchLinks': fetchs,
-	        'redirectLinks':  redirects,
-	        'names': names,
-	        'linksImage': linksImage
-	    };
-		//console.log( redirects[0].toString());
-		
+		console.log( "fetchs.length:"+fetchs.length+" names.length:"+names.length+" linksImage.length:"+linksImage.length );
+		var result;
 		if(fetchs.length == names.length && names.length == linksImage.length) {
-			browser.thenOpen('http://127.0.0.1:8081/redirect', {
-				headers: {
-					'Content-Type': 'application/json; charset=utf-8'
-		        },
-			    method: 'POST',
-			    data: result
-			}, function(response){
-				this.echo("POST redirect has been sent. "+ response.status /*+" "+ this.page.content*/);
-				if(response.status == 200 && this.page.content.indexOf("OK.")){
-					counter --;
-					this.echo("POST redirect exit "+counter);
-					if(counter <= 0) {
-						browser.exit();  
-					}
-			    }
-			});
+			result =  {
+				'id': id[k],
+				'error': 0,
+				'fetchLinks': fetchs,
+				'redirectLinks':  redirects,
+				'names': names,
+				'linksImage': linksImage
+			};
+		}else {
+			result =  {
+				'id': id[k],
+				'error': 1,
+				'redirectLinks':  redirects,
+				'currLink': link[k]
+			};
 		}
+		browser.thenOpen('http://127.0.0.1:8081/redirect', {
+			headers: {
+				'Content-Type': 'application/json; charset=utf-8'
+			},
+			method: 'POST',
+			data: result
+		}, function(response){
+			this.echo("POST redirect has been sent. "+ response.status /*+" "+ this.page.content*/);
+			if(response.status == 200 && this.page.content.indexOf("OK.")){
+				counter --;
+				this.echo("POST redirect exit "+counter);
+				if(counter <= 0) {
+					browser.exit();  
+				}
+			}
+		});
 	});
 	})(j);
 }

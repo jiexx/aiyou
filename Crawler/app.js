@@ -86,7 +86,21 @@ app.post('/redirect', upload.array(), function(req, res) {
 	var data = req.body;
 	console.log('[app] [REST/redirect] '+data.id);
 	
+	if(data.error == 1) {
+		us.errorRedirectUrl(data.id);
+		fs.appendFile('redirects.txt', 'ERR_LINKS_IMG '+data.currLink.toString()+'\n', function (err) {});
+		
+		for ( var i in data.redirectLinks) {
+			us.addRedirectUrl(URL.create(data.redirectLinks[i]));
+		}
+	
+		res.send('OK.');
+		
+		us.loopRedirect();
+		return;
+	}
 	us.visitedRedirectUrl(data.id);
+	fs.appendFile('redirects.txt', 'SUCCESS       '+data.redirectLinks.toString()+'\n', function (err) {});
 	
 	for ( var i = 0 ; i < data.fetchLinks.length ; i ++ ) {
 		var fetch = URL.create(data.fetchLinks[i]);
@@ -97,7 +111,7 @@ app.post('/redirect', upload.array(), function(req, res) {
 	for ( var i in data.redirectLinks) {
 		us.addRedirectUrl(URL.create(data.redirectLinks[i]));
 	}
-	fs.appendFile('redirects.txt', data.redirectLinks.toString()+'\n', function (err) {});
+	
 	
 	res.send('OK.');
 
@@ -124,10 +138,16 @@ var server = app
 				8081,
 				function() {
 
-					var host = server.address().address
-					var port = server.address().port
+					var host = server.address().address;
+					var port = server.address().port;
 
-					console.log("RUNNING http://%s:%s", host, port)
+					console.log("RUNNING http://%s:%s", host, port);
+					if(fs.exists('redirects.txt')) {
+						fs.unlink('redirects.txt');
+					}
+					if(fs.exists('fetches.txt')) {
+						fs.unlink('fetches.txt');
+					}
 
 					var url = URL.create('http://www.amazon.com/Tea/b/ref=dp_bc_3?ie=UTF8&node=16318401');
 					us.addRedirectUrl(url);
