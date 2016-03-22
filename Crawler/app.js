@@ -35,6 +35,23 @@ eval(fs.readFileSync('urlset.js') + '');
 
 var us = UrlSet.create();
 
+function select() {
+	if (!dbReady)
+		return;
+	var values = null;
+	connection.query(
+			'SELECT link WHERE desc<>""; ', function(error, results, fields) {
+				if (error) {
+					console.log("select Error: " + error.message);
+					connection.end();
+					return;
+				}
+				values = results;
+				//console.log('Inserted: ' + results.affectedRows + ' row.' +' id:'+ id);
+				//console.log('Id inserted: ' + results.insertId);
+			});
+}
+
 function save(id, name, pic, desc, link) {
 	if (!dbReady)
 		return;
@@ -133,6 +150,24 @@ app.post('/detail', upload.array(), function(req, res) {
 	us.loopFetch();
 })
 
+app.get('/resumedetail', upload.array(), function(req, res) {
+	
+	var data = req.body;
+	console.log('[app] [REST/resumedetail] ');
+	us.clearFetch();
+	
+	var d = select();
+	
+	for ( var i = 0 ; i < d.length ; i ++ ) {
+		var fetch = URL.create(d[i].link);
+		us.addFetchUrl(fetch);
+	}
+
+	res.send('DO...');
+	
+	us.loopFetch();
+})
+
 var server = app
 		.listen(
 				8081,
@@ -149,9 +184,18 @@ var server = app
 						fs.unlink('fetches.txt');
 					}
 
-					var url = URL.create('http://www.amazon.com/Tea/b/ref=dp_bc_3?ie=UTF8&node=16318401');
+					/*var url = URL.create('http://www.amazon.com/Tea/b/ref=dp_bc_3?ie=UTF8&node=16318401');
 					us.addRedirectUrl(url);
-					us.loopRedirect();
+					us.loopRedirect();*/
+					
+					var d = select();
+					
+					for ( var i = 0 ; i < d.link.length ; i ++ ) {
+						var fetch = URL.create(d.link[i]);
+						us.addFetchUrl(fetch);
+					}
+					
+					us.loopFetch();
 
 				});
 

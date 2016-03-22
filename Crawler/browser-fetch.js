@@ -118,9 +118,12 @@ for(var j = 0 ; j < num ; j ++) {
 		//var info = this.getElementsInfo(x(xpathImage));
 		//require('utils').dump(info);
 		console.log("fetch image :"+image);
-		var a = image.toString().lastIndexOf("jpg\"");
-		var b = image.toString().lastIndexOf("\"http");
-		var c = image.toString().substring(a+3,b+1);
+		if(image != null) {
+			var a = image.toString().lastIndexOf("jpg\"");
+			var b = image.toString().lastIndexOf("\"http");
+			var c = image.toString().substring(a+3,b+1);
+		}
+			
 		//console.log("fetch image :"+a + ", "+b+", "+c);
 		//this.download(c, 'img/'+id[k]+'.jpg');
 		
