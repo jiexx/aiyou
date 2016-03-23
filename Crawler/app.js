@@ -36,17 +36,23 @@ eval(fs.readFileSync('urlset.js') + '');
 var us = UrlSet.create();
 
 function select() {
-	if (!dbReady)
-		return;
 	var values = null;
 	connection.query(
-			'SELECT link WHERE desc<>""; ', function(error, results, fields) {
+			'SELECT id, link WHERE desc<>""; ', function(error, results, fields) {
 				if (error) {
 					console.log("select Error: " + error.message);
 					connection.end();
 					return;
 				}
 				values = results;
+				
+				for ( var i = 0 ; i < values.length ; i ++ ) {
+					var fetch = URL.create(values[i].link);
+					fetch.id = values[i].id
+					us.addFetchUrl(fetch);
+				}
+				
+				us.loopFetch();
 				//console.log('Inserted: ' + results.affectedRows + ' row.' +' id:'+ id);
 				//console.log('Id inserted: ' + results.insertId);
 			});
@@ -143,6 +149,15 @@ app.post('/detail', upload.array(), function(req, res) {
 	
 	us.visitedFetchUrl(data.id);
 	
+	if(data.desc.length == 0) {
+		data.desc = 'ERR_DESC';
+	}else if(data.producer.length == 0){
+		data.producer = 'ERR_PRODUCER';
+	}else if(data.score.length == 0){
+		data.score = 'ERR_SCORE';
+	}else if(data.review.length == 0){
+		data.review = 'ERR_REVIEW';
+	}
 	update(data.id, data.desc, data.producer, data.score, data.review, data.link );
 
 	res.send('OK.');
@@ -189,13 +204,6 @@ var server = app
 					us.loopRedirect();*/
 					
 					var d = select();
-					
-					for ( var i = 0 ; i < d.link.length ; i ++ ) {
-						var fetch = URL.create(d.link[i]);
-						us.addFetchUrl(fetch);
-					}
-					
-					us.loopFetch();
 
 				});
 

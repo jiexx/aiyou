@@ -14,19 +14,17 @@ var browser = require('casper').create({
     //verbose: true  
 });
 
-if (browser.cli.args.length % 2 != 0) {
-	console.log('Usage: browser-redirect.js <some ID> <some URL>' );
+if (browser.cli.args.length == 1) {
+	console.log('Usage: browser-translate.js <some STRING>' );
 	browser.exit();
 }
 
-var num = (browser.cli.args.length / 2); 
+var num = (browser.cli.args.length); 
 var counter = num;
 //console.log( 'fetch num of links:'+num );
-var id = [];
-var link = [];
+var str = [];
 for(var i = 0 ; i < num ; i ++) {
-	id[i] = browser.cli.get(2*i);
-	link[i] = browser.cli.get(2*i+1);
+	str[i] = browser.cli.get(i);
 	//console.log("args id["+i+"]:"+browser.cli.get(i)+" link["+i+"]: "+browser.cli.get(i+1));
 }
 
@@ -35,84 +33,62 @@ var fs = require('fs');
 browser.on('error', function(msg,backtrace) {
 	var d = new Date();
 	fs.write('err/fetch_'+d.getTime().toString()+'.txt',  msg+"\n\n"+browser.getHTML(), 'w');
-	this.echo("ERROR:");
-	this.echo(msg);
-	this.echo(backtrace);
-	this.echo("=========================");
+	this.echo("--->> ERROR:"+msg+" stack:"+backtrace);
 });
 
 browser.on("page.error", function(msg, backtrace) {
 	var d = new Date();
 	fs.write('err/fetch_'+d.getTime().toString()+'.txt',  msg+"\n\n"+browser.getHTML(), 'w');
-	this.echo("=========================");
-	this.echo("PAGE.ERROR:");
-	this.echo(msg);
-	this.echo(backtrace);
-	this.echo("=========================");
+	this.echo("--->> PAGE.ERROR:"+msg+" stack:"+backtrace);
 });
 
 browser.on("remote.message", function(msg) {
-	this.echo("console.log: "+msg);
+	this.echo("--->> remote.message: "+msg);
 });
 
 browser.on("page.created", function(){
     this.page.onResourceTimeout = function(request){
-    	this.echo("onResourceTimeout: "+request);
+    	this.echo("--->> onResourceTimeout: "+request);
     };
 });
 browser.options.retryTimeout = 20;
 browser.options.waitTimeout = 20000; 
 browser.options.onResourceRequested = function(C, requestData, request) {
 //browser.on("page.resource.requested", function(requestData, request) {
-	if ( !(/.*amazon\.com.*/gi).test(requestData['url']) && !(/http:\/\/127\.0\.0\.1.*/gi).test(requestData['url'])
-			/*|| (/.*\.css/gi).test(requestData['url']) || requestData['Content-Type'] == 'text/javascript'*/ ) {
-		//console.log('Skipping JS file: ' + requestData['url']);
+	if ( !(/.*amazon\.com.*/gi).test(requestData['url']) && !(/http:\/\/127\.0\.0\.1.*/gi).test(requestData['url']) 
+			){
 		request.abort();
 	}
-	//console.log('Down JS file: ' + requestData['url']);
 };
 
 
 // for redirect page
-var xpathDesc = '//div[@class="productDescriptionWrapper"]';
-var xpathImage = '//div[@id="imgTagWrapperId"]/img';
-var xpathVisible = '//iframe[@id="product-description-iframe"]';
-var xpathProducer = '//div[@id="brandBylineWrapper"]/div/a';
-var xpathBrand = '//a[@id="brand"]';
-var xpathRemark = '//span[@id="acrPopover"]';
-var xpathReview = '//span[@id="acrCustomerReviewText"]';
+var xpathButton = '//div[@id="TranslateButton"]';
+var xpathSourceBtn = '//div[@class="col translationContainer sourceText"]/div[class="LanguageSelector"]';
+var xpathSourceLan = '//div[@class="col translationContainer sourceText"]/td[@value="en"]';
+var xpathSourceTxt = '//textarea[@id="srcText"]';
 
-var xselImage = 'div#imgTagWrapperId';
-var xselVisible = 'iframe#product-description-iframe';
-var xselProducer = 'div#brandBylineWrapper';
-var xselBrand = 'a#brand';
-var xselRemark = 'span#acrPopover';
-var xselReview = 'span#acrCustomerReviewText';
+var xpathDestBtn = '//div[@class="col translationContainer destinationText"]/div[class="LanguageSelector"]';
+var xpathDestLan = '//div[@class="col translationContainer destinationText"]/td[@value="en"]';
+var xpathDestTxt = '//textarea[@id="destText"]';
+
+var xselButton = 'div#TranslateButton';
 
 var x = require('casper').selectXPath;
 
-browser.start();  
-console.log('enter browser fetch');
-for(var j = 0 ; j < num ; j ++) {
-	if(link[j].indexOf('http://') != 0) {
-		continue;
-	}
-
-	browser.thenOpen(link[j]);  
-	
-	(function(arg){ 
+function traslate(arg){ 
 	browser.waitFor(function check() {
 		    return this.evaluate(function(fs,xpathImage,xpathProducer,xpathRemark,xpathReview,xselBrand ) {
-		    	/*console.log('xpathImage '+document.querySelectorAll(xpathImage).length+
+		    	console.log('xpathImage '+document.querySelectorAll(xpathImage).length+
 		    			' xpathProducer'+document.querySelectorAll(xpathProducer).length+
 		    			' xpathRemark'+document.querySelectorAll(xpathRemark).length+
 		    			' xpathReview'+document.querySelectorAll(xpathReview).length+
-		    			' xselBrand'+document.querySelectorAll(xselBrand).length);*/
-		        var a = /*document.querySelectorAll(xpathImage).length > 0
+		    			' xselBrand'+document.querySelectorAll(xselBrand).length);
+		        a = /*document.querySelectorAll(xpathImage).length > 0
 		        &&*/ document.querySelectorAll(xpathProducer).length > 0
 		        || document.querySelectorAll(xpathRemark).length > 0
 		        || document.querySelectorAll(xpathReview).length > 0;
-		        /*console.log(a);*/
+		        console.log(a);
 		        return a; 
 		    }, fs,xselImage,xselProducer,xselRemark,xselReview, xselBrand);
 	}, function() {
@@ -159,7 +135,7 @@ for(var j = 0 ; j < num ; j ++) {
 				'id': id[k],
 				'desc': product.text,
 				'producer':producer,
-				'score':score,
+				'remark':score,
 				'review':review,
 				'link':link[k]
 			};
@@ -183,7 +159,18 @@ for(var j = 0 ; j < num ; j ++) {
 			});
 		});
 	});
-	})(j);
+}
+
+browser.start();  
+console.log('enter browser translator');
+browser.thenOpen('http://www.bing.com/Translator');  
+
+for(var j = 0 ; j < num ; j ++) {
+	browser.waitUntilVisible(xselButton, function(){
+		browser.sendKeys(x(xpathSourceTxt), str[j]);
+		browser.click(x(xpathButton));
+	});
+	()(j);
 }
 	
   

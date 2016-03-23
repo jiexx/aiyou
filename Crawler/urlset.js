@@ -121,6 +121,22 @@ var Queue = {
 				
 			},this.TIMEOUT);
 		}
+		else if(this.getNum(this.visiting).HAS == 0 && this.getNum(this.urls).HAS > 0) {
+			var _this = this;
+			setTimeout(function(){
+				
+				if(_this.getNum(_this.visiting).HAS == 0 && _this.getNum(_this.urls).HAS == 0) {
+					if(_this.onFinish != null) {
+						_this.onFinish();
+					}
+					console.log('[BROWSER] FINISH !!! '+_this.which+' pid: '+proc.pid);	
+				}else {
+					console.log('[BROWSER] TIMEOUT '+_this.which+' pid: '+proc.pid);
+					_this.loop();
+				}
+				
+			},this.TIMEOUT);
+		}
 	},
 	
 	loop: function() {
