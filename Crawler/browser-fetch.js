@@ -119,7 +119,7 @@ for(var j = 0 ; j < num ; j ++) {
 		//console.log('fetch '+this.page.childFramesName().toString());
 		var k = arg;
 		console.log("-->>  fetch id["+k+"]:"+id[k]+" link["+k+"]: "+link[k]);
-		var image = this.getElementsAttribute(x(xpathImage), 'data-a-dynamic-image');
+		var image = this.getElementAttribute(x(xpathImage), 'data-a-dynamic-image');
 		
 		var producer = '';
 		if(this.exists(x(xpathProducer))) {
@@ -143,7 +143,7 @@ for(var j = 0 ; j < num ; j ++) {
 		//var info = this.getElementsInfo(x(xpathImage));
 		//require('utils').dump(info);
 		console.log("fetch image :"+image);
-		if(image != null) {
+		if(image != null && image instanceof String) {
 			var a = image.toString().lastIndexOf("jpg\"");
 			var b = image.toString().lastIndexOf("\"http");
 			var c = image.toString().substring(a+3,b+1);
