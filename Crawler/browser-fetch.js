@@ -136,7 +136,7 @@ for(var j = 0 ; j < num ; j ++) {
 		}
 		
 		var review = '';
-		if(this.exists(x(xpathRemark))) {
+		if(this.exists(x(xpathReview))) {
 			review = this.getElementInfo(x(xpathReview)).text;
 		}
 		

@@ -73,17 +73,17 @@ var Queue = {
 		var _this = this;
 		console.log('[BROWSER] OPEN '+this.which+' pid: '+pid);
 		proc.stdout.on('data', function(data) {
-		    console.log('[BROWSER] INFO '+_this.which+' pid: '+pid +' '+  data.toString());
+		    console.log('[BROWSER] INFO '+_this.which+' pid: '+pid +' '+  data );
 		});
 		
 		proc.stderr.on('data', function(data) {
-			console.log('[BROWSER] ERROR '+_this.which+' pid: '+pid +' '+  data.toString());
+			console.log('[BROWSER] ERROR '+_this.which+' pid: '+pid +' '+  data );
 		});
 
 		
 		proc.on('exit', function(data) {
 			_this.exitProc(proc);
-			console.log('[BROWSER] EXIT '+_this.which+' pid: '+pid +' '+  data.toString());
+			console.log('[BROWSER] EXIT '+_this.which+' pid: '+pid +' '+  data );
 		});
 	},
 	
