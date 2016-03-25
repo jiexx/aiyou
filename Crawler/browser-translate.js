@@ -14,14 +14,16 @@ var browser = require('casper').create({
     //verbose: true  
 });
 
-if (browser.cli.args.length == 1) {
+phantom.outputEncoding = "GBK";
+
+if (browser.cli.args.length == 0) {
 	console.log('Usage: browser-translate.js <some STRING>' );
 	browser.exit();
 }
 
 var num = (browser.cli.args.length); 
 var counter = num;
-//console.log( 'fetch num of links:'+num );
+console.log( 'fetch num of links:'+browser.cli.args );
 var str = [];
 for(var i = 0 ; i < num ; i ++) {
 	str[i] = browser.cli.get(i);
@@ -64,17 +66,21 @@ browser.options.onResourceRequested = function(C, requestData, request) {
 
 // for redirect page
 var xpathButton = '//div[@id="TranslateButton"]';
-var xpathSourceBtn = '//div[@class="col translationContainer sourceText"]/div[class="LanguageSelector"]';
-var xpathSourceLan = '//div[@class="col translationContainer sourceText"]/td[@value="en"]';
+var xpathSourceBtn = '//div[@class="col translationContainer sourceText"]//div[@class="LanguageSelector"]';
+var xpathSourceLan = '//div[@class="col translationContainer sourceText"]//td[@value="en"]';
 var xpathSourceTxt = '//textarea[@id="srcText"]';
 
-var xpathDestBtn = '//div[@class="col translationContainer destinationText"]/div[class="LanguageSelector"]';
-var xpathDestLan = '//div[@class="col translationContainer destinationText"]/td[@value="zh-CHS"]';
-var xpathDestTxt = '//textarea[@id="destText"]/div[@paragraphname="paragraph0"]';
+var xpathDestBtn = '//div[@class="col translationContainer destinationText"]//div[@class="LanguageSelector"]';
+var xpathDestLan = '//div[@class="col translationContainer destinationText"]//td[@value="zh-CHS"]';
+var xpathDestTxt = '//div[@id="destText"]/div[@paragraphname="paragraph0"]';
 
-var xpathDestStr = '//textarea[@id="destText"]';
+var xpathDestStr = '//div[@id="destText"]';
 
 var xselButton = 'div#TranslateButton';
+var xselSourceLan = 'div.col.translationContainer.sourceText   td[value="en"]';
+var xselDestLan = 'div.col.translationContainer.destinationText   td[value="zh-CHS"]';
+var xselDestTxt = 'div[id="destText"] div[paragraphname="paragraph0"]';
+var xselSourceTxt = 'textarea[id="srcText"]';
 
 var x = require('casper').selectXPath;
 
@@ -91,11 +97,36 @@ for(var j = 0 ; j < num ; j ++) {
 		}, function() {
 			
 			console.log('enter browser xpathButton');
-			browser.click(x(xpathSourceBtn)).waitUntilVisible(x(xpathSourceLan), function(){
+			browser.click(x(xpathSourceBtn));
+			//console.log(JSON.stringify(browser.getElementInfo(x(xpathSourceLan))));
+			browser.waitFor(function check() {
+				return this.evaluate(function(xselSourceLan) {
+					console.log(' xselSourceLan'+document.querySelectorAll(xselSourceLan).length);
+					return document.querySelectorAll(xselSourceLan).length > 0
+				},xselSourceLan);
+			}, function() {
+				console.log('enter browser xpathSourceLan');
 				browser.click(x(xpathSourceLan));
-				browser.thenClick(x(xpathDestBtn)).waitUntilVisible(x(xpathDestLan), function(){
-					browser.sendKeys(x(xpathSourceTxt), str[k]).waitUntilVisible(x(xpathDestTxt), function(){
+				browser.thenClick(x(xpathDestBtn));
+				browser.waitFor(function check() {
+					return this.evaluate(function(xselDestLan) {
+						console.log(' xselDestLan');
+						return document.querySelectorAll(xselDestLan).length > 0
+					},xselDestLan);
+				}, function() {
+					browser.click(x(xpathDestLan));
+					console.log('enter browser xpathDestLan:'+str[k]);
+					browser.click(x('//img[@class="clearInput"]'));
+					browser.sendKeys(x(xpathSourceTxt), str[k]);
+					browser.click(x(xpathButton));
+					browser.waitFor(function check() {
+						return this.evaluate(function(xselDestTxt) {
+							return document.querySelectorAll(xselDestTxt).length > 0
+						},xselDestTxt);
+					}, function() {
+						console.log(' xpathDestStr');
 						if(this.exists(x(xpathDestStr))) {
+							console.log(' xselDestTxt');
 							var destStr = this.getElementInfo(x(xpathDestStr)).text;
 							console.log('translate result:'+destStr);
 							browser.thenOpen('http://127.0.0.1:8081/translate', {
