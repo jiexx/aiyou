@@ -68,7 +68,7 @@ browser.options.onResourceRequested = function(C, requestData, request) {
 
 // for redirect page
 var xpathRedirect = '//a';
-var xpathImage = '//li[contains(@id,"result_")]/div/div[1]/div/div/a/img';
+var dicts = ['²É¹º', 'ÕÐ±ê'];
 
 var x = require('casper').selectXPath;
 
@@ -83,6 +83,8 @@ for(var j = 0 ; j < num ; j ++) {
 		var domain = this.evaluate(function getLinks() {
 			return document.domain;
 	    });
+		
+	    if(this.getHTML().indexOf('')
 	
 		//this.echo(this.getHTML());
 		//this.download(link, 'amazon.html');
@@ -102,7 +104,7 @@ for(var j = 0 ; j < num ; j ++) {
 		console.log( "fetchs.length:"+fetchs.length+" names.length:"+names.length+" linksImage.length:"+linksImage.length );
 		var result =  {
 				'id': id[k],
-				'error': 1,
+				'hit': 1,
 				'redirectLinks':  redirects,
 				'currLink': link[k]
 			};
