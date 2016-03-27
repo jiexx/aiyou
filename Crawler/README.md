@@ -15,3 +15,6 @@ npm install multer
 drop database crawler;
 create database crawler char set utf8;
 create table crawler.product(id varchar(512), name varchar(512), pic text, descr text, producer varchar(512), score varchar(64), review text, link varchar(512));
+
+drop table amazon.bank;
+create table amazon.bank(id varchar(64), curr varchar(512) , link varchar(512), hit int, hitPage int, hitLink int);

@@ -1,6 +1,4 @@
-/**
- * http://usejsdoc.org/
- */
+
 var browser = require('casper').create({
 	pageSettings: {
         loadImages:  false,        // The WebPage instance used by Casper will
@@ -13,22 +11,23 @@ var browser = require('casper').create({
     //logLevel: "debug",              // Only "info" level messages will be logged
     verbose: true  
 });
+phantom.outputEncoding = "GBK";
 
 if (browser.cli.args.length % 2 != 0) {
-	console.log('Usage: browser-redirect.js <some ID> <some URL>' );
+	console.log('Usage: browser-bank.js <some ID> <some URL>' );
 	browser.exit();
 }
 
-var num = (browser.cli.args.length / 2); 
+var num = (browser.cli.args.length / 2);  
 var counter = num;
-console.log( 'redirect num of links:'+num );
+
 var id = [];
 var link = [];
 for(var i = 0 ; i < num ; i ++) {
 	id[i] = browser.cli.get(2*i);
 	link[i] = browser.cli.get(2*i+1);
+	//console.log("args id["+i+"]:"+browser.cli.get(i)+" link["+i+"]: "+browser.cli.get(i+1));
 }
-
 var fs = require('fs');
 
 browser.on('error', function(msg,backtrace) {
@@ -68,47 +67,87 @@ browser.options.onResourceRequested = function(C, requestData, request) {
 
 // for redirect page
 var xpathRedirect = '//a';
-var dicts = ['²É¹º', 'ÕÐ±ê'];
+var dicts = [/é‡‡è´­/g, /æ‹›æ ‡/g];
 
 var x = require('casper').selectXPath;
 
-browser.start();  
+browser.start(); 
 console.log('enter browser bank');
 for(var j = 0 ; j < num ; j ++) {
-	browser.thenOpen(link[j]);  
+	
 	(function(arg){ 
-	browser.waitUntilVisible(x(xpathImage), function() {
 		var k = arg;
-		console.log("-->> redirect id["+k+"]:"+id[k]+" link["+k+"]: "+link[k]);
+		console.log(':'+link[k]);
+		browser.thenOpen(link[k]);  
+		browser.waitForResource(function testResource(resource) {
+			console.log("-->> : "+link[k]+" -->>"+JSON.stringify(resource));
+		    return resource.contentType.indexOf("text/html") >= 0;
+		}, function onReceived() {
+		
 		var domain = this.evaluate(function getLinks() {
 			return document.domain;
 	    });
-		
-	    if(this.getHTML().indexOf('')
+		//console.log('getHTML:'+this.getHTML());
+	    var n = 0;
+	    for(var i in dicts) {
+	    	var a = this.getHTML().match(dicts[i]);
+	    	if(a != null)
+	    		n += this.getHTML().match(dicts[i]).length;
+	    }
+	    
 	
 		//this.echo(this.getHTML());
 		//this.download(link, 'amazon.html');
-		var linksRedirect;
+		var linksRedirect, linksText;
 		if(browser.exists(x(xpathRedirect))){
-		   linksRedirect = this.getElementsAttribute(x(xpathRedirect), 'href');
+			linksText = this.getElementsInfo(x(xpathRedirect));
+			//linksRedirect = this.getElementsAttribute(x(xpathRedirect), 'href');
 		}
+		//require('utils').dump(linksText);
+		
+		var m = 0;
+		for(var i in linksText) {
+			for(var t in dicts) {
+				var a = linksText[i].text.match(dicts[t]);
+				if(a != null)
+					m += a.length;
+			}
+	    }
 
 		var redirects = [];
-		for(var i in linksRedirect) {
-			var c = linksRedirect[i];
-			if(linksRedirect[i].indexOf('/') == 0) {
-				redirects.push('http://'+domain+c);
+		for(var i in linksText) {
+			var c = linksText[i].attributes.href;
+			if(c == null) {
+				continue;
+			}
+			if( c.indexOf('http://') == 0){
+				if(c.indexOf(document.domain) < 0) {
+					fs.write('bank_external.txt',  c +"\t\t\t\t"+linksText[i].text+"\n", 'a');
+					continue;
+				}
+			}
+			var b = 0;
+			for(var t in dicts) {
+				var a = linksText[i].text.match(dicts[t]);
+				if(a != null)
+					b = a.length;
+				if(b > 0)
+					console.log(c+' '+b);
+			}
+			if(c.indexOf('/') == 0) {
+				redirects.push({link:'http://'+domain+c, hit:b});
 			}
 		}
 		
-		console.log( "fetchs.length:"+fetchs.length+" names.length:"+names.length+" linksImage.length:"+linksImage.length );
 		var result =  {
 				'id': id[k],
-				'hit': 1,
+				'hitPage': n,
+				'hitLink': m,
 				'redirectLinks':  redirects,
-				'currLink': link[k]
+				'currLink': link[k],
 			};
-		browser.thenOpen('http://127.0.0.1:8081/redirect', {
+		//console.log( JSON.stringify(result) );
+		browser.thenOpen('http://127.0.0.1:8081/bank', {
 			headers: {
 				'Content-Type': 'application/json; charset=utf-8'
 			},
