@@ -63,7 +63,7 @@ browser.on("page.created", function(){
     };
 });
 browser.options.retryTimeout = 20;
-browser.options.waitTimeout = 120000; 
+browser.options.waitTimeout = 12000000000000000; 
 browser.options.onResourceRequested = function(C, requestData, request) {
 //browser.on("page.resource.requested", function(requestData, request) {
 	if ( !(/.*hc360\.com.*/gi).test(requestData['url']) && !(/http:\/\/127\.0\.0\.1.*/gi).test(requestData['url'])
@@ -84,15 +84,21 @@ var xpathRedirect = '//a[@data-useractivelogs="UserBehavior_s_nextpage"]';
 
 var x = require('casper').selectXPath;
 
+function captureImage() {
+	browser.thenOpen("http://s.hc360.com/?w=%C3%AB%BD%ED&mc=buyer");  
+	browser.then(function(){
+		var d = new Date();
+		this.captureSelector('captcha/'+d.getTime().toString()+'.png', 'body > div:nth-child(4) > table > tbody > tr > td:nth-child(2) > form > img');
+	});
+}
+
 browser.start();  
 console.log('enter browser redirect');
 for(var j = 0 ; j < num ; j ++) {
 	(function(arg){ 
 	var k = arg;
 	browser.thenOpen(link[k]);  
-	browser.then(function(){
-		require('utils').dump(browser.getHTML());
-	});
+	setInterval(captureImage(), 6000);
 	browser.waitUntilVisible('span.total', function() {
 		
 		var domain = this.evaluate(function getLinks() {
