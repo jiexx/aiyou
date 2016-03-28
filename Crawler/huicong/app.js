@@ -106,7 +106,7 @@ app.post('/redirect', upload.array(), function(req, res) {
 	 */
 	 //console.log(">>>>>>>>>>>>>>"+JSON.stringify(req.body));
 	 	 
-	console.log(">>>>>>>>>>>>>>"+decodeURI(decodeURI(req.body.encode))));
+	console.log(">>>>>>>>>>>>>>"+decodeURI(decodeURI(req.body.encode)));
 	var data = JSON.parse(decodeURI(decodeURI(req.body.encode)));
 	console.log('[app] [REST/redirect] '+data.id);
 	
@@ -129,11 +129,7 @@ app.post('/redirect', upload.array(), function(req, res) {
 	for ( var i = 0 ; i < data.fetchLinks.length ; i ++ ) {
 		var fetch = URL.create(data.fetchLinks[i]);
 		us.addFetchUrl(fetch);
-		var fetchTitles = iconv.decode(data.fetchTitles[i],'GBK');
-		var fetchPrices = iconv.decode(data.fetchPrices[i],'GBK');
-		var fetchAmounts = iconv.decode(data.fetchAmounts[i],'GBK');
-		var fetchDays = iconv.decode(data.fetchDays[i],'GBK');
-		save(fetch.getId(), fetchTitles, fetchPrices, fetchAmounts, fetchDays, data.currLink);
+		save(fetch.getId(), data.fetchTitles[i], data.fetchPrices[i], data.fetchAmounts[i], data.fetchDays[i], data.currLink);
 	}
 
 	for ( var i in data.redirectLinks) {
@@ -143,7 +139,7 @@ app.post('/redirect', upload.array(), function(req, res) {
 	var buf = iconv.encode('OK.', 'GBK');
 	res.send('OK.');
 
-	//us.loopRedirect();
+	us.loopRedirect();
 
 })
 
@@ -190,7 +186,7 @@ app.get('/resumedetail', upload.array(), function(req, res) {
 
 var banks = 
 [
-"http://s.hc360.com/?w=%C3%AB%BD%ED&mc=buyer&ee=2"
+"http://s.hc360.com/?w=%C3%AB%BD%ED&mc=buyer"
 ];
 var server = app
 		.listen(
