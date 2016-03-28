@@ -3,7 +3,7 @@ var mysql = require('mysql');
 var bodyParser = require('body-parser');
 var multer = require('multer'); // v1.0.5
 var upload = multer(); // for parsing multipart/form-data
-
+var iconv = require('iconv-lite');
 
 var connection = mysql.createConnection({
 	host : '127.0.0.1',
@@ -75,12 +75,13 @@ function update(id, desc, producer, addr, left, link) {
 			});
 }
 
-function save(id, title, price, amount, days, redirectLinks, currLink) {
+function save(id, title, price, amount, days, currLink) {
 	if (!dbReady)
 		return;
-	var values = [ id, title, price, amount, days, redirectLinks, currLink ];
+	var values = [ id, title, price, amount, days, currLink ];
+	console.log("save:"+values);
 	connection.query(
-			'INSERT INTO hc360 SET id = ?, title = ? , price = ?, amount = ?, days = ?, redirect = ?, link = ?',
+			'INSERT INTO hc360 SET id = ?, title = ? , price = ?, amount = ?, days = ?, link = ?',
 			values, function(error, results) {
 				if (error) {
 					console.log("save Error: " + error.message);
@@ -103,7 +104,10 @@ app.post('/redirect', upload.array(), function(req, res) {
 	 * fs.readFile( __dirname + "/" + "users.json", 'utf8', function (err, data) {
 	 * console.log( data ); res.end( data ); });
 	 */
-	var data = req.body;
+	 //console.log(">>>>>>>>>>>>>>"+JSON.stringify(req.body));
+	 	 
+	console.log(">>>>>>>>>>>>>>"+decodeURI(decodeURI(req.body.encode))));
+	var data = JSON.parse(decodeURI(decodeURI(req.body.encode)));
 	console.log('[app] [REST/redirect] '+data.id);
 	
 	if(data.error == 1) {
@@ -125,17 +129,21 @@ app.post('/redirect', upload.array(), function(req, res) {
 	for ( var i = 0 ; i < data.fetchLinks.length ; i ++ ) {
 		var fetch = URL.create(data.fetchLinks[i]);
 		us.addFetchUrl(fetch);
-		save(fetch.getId(), data.fetchTitles[i], data.fetchPrices[i], data.fetchAmounts[i], data.fetchDays[i],  data.redirectLinks, data.currLink);
+		var fetchTitles = iconv.decode(data.fetchTitles[i],'GBK');
+		var fetchPrices = iconv.decode(data.fetchPrices[i],'GBK');
+		var fetchAmounts = iconv.decode(data.fetchAmounts[i],'GBK');
+		var fetchDays = iconv.decode(data.fetchDays[i],'GBK');
+		save(fetch.getId(), fetchTitles, fetchPrices, fetchAmounts, fetchDays, data.currLink);
 	}
 
 	for ( var i in data.redirectLinks) {
 		us.addRedirectUrl(URL.create(data.redirectLinks[i]));
 	}
 	
-	
+	var buf = iconv.encode('OK.', 'GBK');
 	res.send('OK.');
 
-	us.loopRedirect();
+	//us.loopRedirect();
 
 })
 
@@ -182,7 +190,7 @@ app.get('/resumedetail', upload.array(), function(req, res) {
 
 var banks = 
 [
-"http://s.hc360.com/?w=%C3%AB%BD%ED&mc=buyer"
+"http://s.hc360.com/?w=%C3%AB%BD%ED&mc=buyer&ee=2"
 ];
 var server = app
 		.listen(

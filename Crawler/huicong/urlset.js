@@ -1,4 +1,3 @@
-var iconv = require('iconv-lite');
 var Queue = {
 	
 	statistics: function() {
@@ -78,20 +77,20 @@ var Queue = {
 			console.log('Caught exception: ' + err); 
 		}); 
 		proc.stdout.on('data', function(data) {
-			var str = iconv.decode(data,'GBK');
-		    console.log('[BROWSER] INFO '+_this.which+' pid: '+pid +' '+  str );
+			//var str = iconv.decode(data,'utf8');
+		    console.log('[BROWSER] INFO '+_this.which+' pid: '+pid +' '+  data );
 		});
 		
 		proc.stderr.on('data', function(data) {
-			var str = iconv.decode(data,'GBK');
-			console.log('[BROWSER] ERROR '+_this.which+' pid: '+pid +' '+  str );
+			//var str = iconv.decode(data,'utf8');
+			console.log('[BROWSER] ERROR '+_this.which+' pid: '+pid +' '+  data );
 		});
 
 		
 		proc.on('exit', function(data) {
 			_this.exitProc(proc);
-			var str = iconv.decode(data,'GBK');
-			console.log('[BROWSER] EXIT '+_this.which+' pid: '+pid +' '+  str );
+			//var str = iconv.decode(data,'GBK');
+			console.log('[BROWSER] EXIT '+_this.which+' pid: '+pid +' '+  data );
 		});
 	},
 	

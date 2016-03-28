@@ -14,7 +14,7 @@ var browser = require('casper').create({
     //logLevel: "debug",              // Only "info" level messages will be logged
     verbose: true  
 });
-phantom.outputEncoding = "GBK";
+phantom.outputEncoding = "utf-8";
 
 if (browser.cli.args.length % 2 != 0) {
 	console.log('Usage: browser-redirect.js <some ID> <some URL>' );
@@ -84,7 +84,7 @@ var xpathRedirect = '//a[@data-useractivelogs="UserBehavior_s_nextpage"]';
 
 var x = require('casper').selectXPath;
 
-browser.start();  
+browser.start("http://www.baidu.com");  
 console.log('enter browser redirect');
 for(var j = 0 ; j < num ; j ++) {
 	browser.thenOpen(link[j]);  
@@ -93,8 +93,7 @@ for(var j = 0 ; j < num ; j ++) {
 		var k = arg;
 		var domain = this.evaluate(function getLinks() {
 			return document.domain;
-	    });
-	
+	    });  
 		//this.echo(this.getHTML());
 		//this.download(link, 'amazon.html');
 		var fetchTitles, fetchLinks;
@@ -140,6 +139,7 @@ for(var j = 0 ; j < num ; j ++) {
 			fetchTitles.length == fetchLinks.length && 
 			fetchTitles.length == fetchPrices.length && 
 		   fetchTitles.length == fetchDays.length) {
+			
 			result =  {
 				'id': id[k],
 				'error': 0,
@@ -151,6 +151,7 @@ for(var j = 0 ; j < num ; j ++) {
 				'redirectLinks':  linksRedirect,
 				'currLink': link[k]
 			};
+			
 		}else {
 			result =  {
 				'id': id[k],
@@ -159,15 +160,19 @@ for(var j = 0 ; j < num ; j ++) {
 				'currLink': link[k]
 			};
 		}
+		var r = JSON.stringify(result);
+		r = encodeURI(r);
+		r = encodeURI(r);
+		
 		console.log(JSON.stringify(result));
 		browser.thenOpen('http://127.0.0.1:8081/redirect', {
 			headers: {
 				'Content-Type': 'application/json; charset=utf-8'
 			},
 			method: 'POST',
-			data: result
+			data: {encode:r}
 		}, function(response){
-			this.echo("POST redirect has been sent. "+ response.status );
+			this.echo("POST redirect has been sent. "+ response.status +"  \n"+this.page.content.substring(1,100) );
 			if(response.status == 200 && this.page.content.indexOf("OK.")){
 				counter --;
 				this.echo("POST redirect exit "+counter);
