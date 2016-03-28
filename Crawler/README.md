@@ -18,3 +18,5 @@ create table crawler.product(id varchar(512), name varchar(512), pic text, descr
 
 drop table amazon.bank;
 create table amazon.bank(id varchar(64), curr varchar(512) , link varchar(512), hit int, hitPage int, hitLink int);
+
+create table amazon.hc360(id varchar(64), title varchar(256), price varchar(128), amount varchar(128), descr text, producer varchar(128), addr varchar(128), days varchar(128), link varchar(256), redirect varchar(256));

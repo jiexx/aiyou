@@ -1,3 +1,4 @@
+var iconv = require('iconv-lite');
 var Queue = {
 	
 	statistics: function() {
@@ -67,23 +68,30 @@ var Queue = {
 		var exec = require('child_process');
 		
 		var proc = exec.spawn('casperjs', args);
+		console.log(args.toString());
 		this.procs.push(proc);
 		
 		var pid = proc.pid;
 		var _this = this;
 		console.log('[BROWSER] OPEN '+this.which+' pid: '+pid);
+		proc.on('uncaughtException', function (err) { 
+			console.log('Caught exception: ' + err); 
+		}); 
 		proc.stdout.on('data', function(data) {
-		    console.log('[BROWSER] INFO '+_this.which+' pid: '+pid +' '+  data );
+			var str = iconv.decode(data,'GBK');
+		    console.log('[BROWSER] INFO '+_this.which+' pid: '+pid +' '+  str );
 		});
 		
 		proc.stderr.on('data', function(data) {
-			console.log('[BROWSER] ERROR '+_this.which+' pid: '+pid +' '+  data );
+			var str = iconv.decode(data,'GBK');
+			console.log('[BROWSER] ERROR '+_this.which+' pid: '+pid +' '+  str );
 		});
 
 		
 		proc.on('exit', function(data) {
 			_this.exitProc(proc);
-			console.log('[BROWSER] EXIT '+_this.which+' pid: '+pid +' '+  data );
+			var str = iconv.decode(data,'GBK');
+			console.log('[BROWSER] EXIT '+_this.which+' pid: '+pid +' '+  str );
 		});
 	},
 	
@@ -229,7 +237,7 @@ var UrlSet =  {
 			f.queueFetchs.loop();
 		});*/
 		f.queueFetchs = Queue.create('browser-fetch.js', 3, 32, null);
-		f.queueRedirects = Queue.create('browser-bank.js', 3, 32, null);
+		f.queueRedirects = Queue.create('browser-redirect.js', 3, 32, null);
 		return f;
 	}
 };

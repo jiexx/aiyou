@@ -1,6 +1,7 @@
 /**
  * http://usejsdoc.org/
  */
+console.log("start");
 var browser = require('casper').create({
 	pageSettings: {
         loadImages:  false,        // The WebPage instance used by Casper will
@@ -96,9 +97,10 @@ for(var j = 0 ; j < num ; j ++) {
 	
 		//this.echo(this.getHTML());
 		//this.download(link, 'amazon.html');
-		var fetchTitles;
+		var fetchTitles, fetchLinks;
 		if(browser.exists(x(xpathFetchTitle))){
 		   fetchTitles = this.getElementsAttribute(x(xpathFetchTitle), 'title');
+		   fetchLinks = this.getElementsAttribute(x(xpathFetchTitle), 'href');
 		}
 		var fetchPrices = [], fetchAmounts = [];
 		if(browser.exists(x(xpathFetchPrice))){
@@ -113,8 +115,8 @@ for(var j = 0 ; j < num ; j ++) {
 				fetchAmounts.push(f.substring(d,e));
 		   }
 		}
-		require('utils').dump(fetchPrices);
-		require('utils').dump(fetchAmounts);
+		//require('utils').dump(fetchPrices);
+		//require('utils').dump(fetchAmounts);
 		var fetchDays = [];
 		if(browser.exists(x(xpathFetchDay))){
 		   var a = this.getElementsInfo(x(xpathFetchDay));
@@ -129,11 +131,13 @@ for(var j = 0 ; j < num ; j ++) {
 		}
 		
 		console.log( "fetchTitles.length:"+fetchTitles.length
+					+" fetchLinks.length:"+fetchLinks.length
 					+" fetchPrices.length:"+fetchPrices.length
 					+" fetchAmounts.length:"+fetchAmounts.length
 					+" fetchDays.length:"+fetchDays.length );
 		var result;
 		if(fetchTitles.length == fetchAmounts.length && 
+			fetchTitles.length == fetchLinks.length && 
 			fetchTitles.length == fetchPrices.length && 
 		   fetchTitles.length == fetchDays.length) {
 			result =  {
@@ -143,7 +147,9 @@ for(var j = 0 ; j < num ; j ++) {
 				'fetchPrices': fetchPrices,
 				'fetchAmounts': fetchAmounts,
 				'fetchDays': fetchDays,
+				'fetchLinks':fetchLinks,
 				'redirectLinks':  linksRedirect,
+				'currLink': link[k]
 			};
 		}else {
 			result =  {
@@ -154,7 +160,7 @@ for(var j = 0 ; j < num ; j ++) {
 			};
 		}
 		console.log(JSON.stringify(result));
-		/*browser.thenOpen('http://127.0.0.1:8081/redirect', {
+		browser.thenOpen('http://127.0.0.1:8081/redirect', {
 			headers: {
 				'Content-Type': 'application/json; charset=utf-8'
 			},
@@ -166,10 +172,11 @@ for(var j = 0 ; j < num ; j ++) {
 				counter --;
 				this.echo("POST redirect exit "+counter);
 				if(counter <= 0) {
+					console.log('browser exit 0');
 					browser.exit();  
 				}
 			}
-		});*/
+		});
 	});
 	})(j);
 }

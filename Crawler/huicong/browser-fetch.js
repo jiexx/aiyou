@@ -77,7 +77,7 @@ browser.options.onResourceRequested = function(C, requestData, request) {
 // for redirect page
 var xpathDesc = '//div[@class="bmm-ibx"]';
 var xpathCompany = '//div[@class="companyi"]/ul/li[1]';
-var xpathAddress = '//div[@class="companyi"]/ul/li[3]';
+var xpathAddress = '//div[@class="companyi"]/ul';
 var xpathLeft = '//span[@id="leftDay"]';
 
 var x = require('casper').selectXPath;
@@ -101,24 +101,28 @@ for(var j = 0 ; j < num ; j ++) {
 		//console.log('fetch '+this.page.childFramesName().toString());
 		var k = arg;
 		
-		var fetchDesc;
+		var fetchDesc = '';
 		if(browser.exists(x(xpathDesc))){
 		   fetchDesc = this.getElementInfo(x(xpathDesc)).text;
 		   fetchDesc = fetchDesc.replace(/[\n\t]/g, "");
 		}
 		
-		var fetchCompany;
+		var fetchCompany = '';
 		if(browser.exists(x(xpathCompany))){
 		   fetchCompany = this.getElementInfo(x(xpathCompany)).text;
 		   fetchCompany = fetchCompany.replace(/[\n\t]/g, "");
 		}
 		
-		var fetchAddr;
+		var fetchAddr = '';
 		if(browser.exists(x(xpathAddress))){
-		   fetchAddr = this.getElementInfo(x(xpathAddress)).text;
+		   var f = this.getElementInfo(x(xpathAddress)).text;
+		   var a = f.indexOf('所在地区：') +5;
+		   var b = f.indexOf('\n', a);
+		   fetchAddr = f.substring(a, b);
+		   console.log(fetchAddr);
 		}
 		
-		var fetchLeft;
+		var fetchLeft = '';
 		if(browser.exists(x(xpathLeft))){
 		   fetchLeft = this.getElementInfo(x(xpathLeft)).text;
 		}
@@ -133,7 +137,7 @@ for(var j = 0 ; j < num ; j ++) {
 		};
 		console.log('fetch '+JSON.stringify(result));
 		this.echo("fetch POST request will send.");
-		/*browser.thenOpen('http://127.0.0.1:8081/detail', {
+		browser.thenOpen('http://127.0.0.1:8081/detail', {
 			headers: {
 				'Content-Type': 'application/json; charset=utf-8'
 			},
@@ -148,7 +152,7 @@ for(var j = 0 ; j < num ; j ++) {
 					browser.exit();  
 				}
 			}
-		});*/
+		});
 	});
 	})(j);
 }

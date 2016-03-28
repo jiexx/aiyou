@@ -58,29 +58,12 @@ function select() {
 			});
 }
 
-function save(id, name, pic, desc, link) {
+function update(id, desc, producer, addr, left, link) {
 	if (!dbReady)
 		return;
-	var values = [ id, name, pic, desc, link ];
+	var values = [ desc, producer, addr, left, link ];
 	connection.query(
-			'INSERT INTO product SET id = ?, name = ? , pic = ?, descr = ?, link = ?',
-			values, function(error, results) {
-				if (error) {
-					console.log("save Error: " + error.message);
-					connection.end();
-					return;
-				}
-				//console.log('Inserted: ' + results.affectedRows + ' row.' +' id:'+ id);
-				//console.log('Id inserted: ' + results.insertId);
-			});
-}
-
-function update(id, desc, producer, score, review) {
-	if (!dbReady)
-		return;
-	var values = [ desc, producer, score, review, id ];
-	connection.query(
-			'UPDATE product SET descr = ?, producer = ?, score = ?, review = ? WHERE id = ?',
+			'UPDATE hc360 SET descr = ?, producer = ?, addr = ?, days = ? WHERE link = ?',
 			values, function(error, results) {
 				if (error) {
 					console.log("update Error: " + error.message);
@@ -92,12 +75,12 @@ function update(id, desc, producer, score, review) {
 			});
 }
 
-function saveBank(id, curr, link, hit, hitPage, hitLink) {
+function save(id, title, price, amount, days, redirectLinks, currLink) {
 	if (!dbReady)
 		return;
-	var values = [ id, curr, link, hit, hitPage, hitLink ];
+	var values = [ id, title, price, amount, days, redirectLinks, currLink ];
 	connection.query(
-			'INSERT INTO bank SET id = ?, curr = ? , link = ?, hit = ?, hitPage = ?, hitLink = ?',
+			'INSERT INTO hc360 SET id = ?, title = ? , price = ?, amount = ?, days = ?, redirect = ?, link = ?',
 			values, function(error, results) {
 				if (error) {
 					console.log("save Error: " + error.message);
@@ -125,7 +108,7 @@ app.post('/redirect', upload.array(), function(req, res) {
 	
 	if(data.error == 1) {
 		us.errorRedirectUrl(data.id);
-		fs.appendFile('redirects.txt', 'ERR_LINKS_IMG '+data.currLink.toString()+'\n', function (err) {});
+		fs.appendFile('redirects.txt', 'ERR_LINKS_IMG '+data.currLink.toString()+'\n', 'utf-8', function (err) {});
 		
 		for ( var i in data.redirectLinks) {
 			us.addRedirectUrl(URL.create(data.redirectLinks[i]));
@@ -137,12 +120,12 @@ app.post('/redirect', upload.array(), function(req, res) {
 		return;
 	}
 	us.visitedRedirectUrl(data.id);
-	fs.appendFile('redirects.txt', 'SUCCESS       '+data.redirectLinks.toString()+'\n', function (err) {});
+	fs.appendFile('redirects.txt', 'SUCCESS       '+data.redirectLinks.toString()+'\n', 'utf-8', function (err) {});
 	
 	for ( var i = 0 ; i < data.fetchLinks.length ; i ++ ) {
 		var fetch = URL.create(data.fetchLinks[i]);
 		us.addFetchUrl(fetch);
-		save(fetch.getId(), data.names[i], data.linksImage[i], '', data.fetchLinks[i]);
+		save(fetch.getId(), data.fetchTitles[i], data.fetchPrices[i], data.fetchAmounts[i], data.fetchDays[i],  data.redirectLinks, data.currLink);
 	}
 
 	for ( var i in data.redirectLinks) {
@@ -167,12 +150,12 @@ app.post('/detail', upload.array(), function(req, res) {
 		data.desc = 'ERR_DESC';
 	}else if(data.producer.length == 0){
 		data.producer = 'ERR_PRODUCER';
-	}else if(data.score.length == 0){
-		data.score = 'ERR_SCORE';
-	}else if(data.review.length == 0){
-		data.review = 'ERR_REVIEW';
+	}else if(data.addr.length == 0){
+		data.addr = 'ERR_ADDR';
+	}else if(data.left.length == 0){
+		data.left = 'ERR_LEFT';
 	}
-	update(data.id, data.desc, data.producer, data.score, data.review, data.link );
+	update(data.id, data.desc, data.producer, data.addr, data.left, data.link );
 
 	res.send('OK.');
 	
@@ -197,26 +180,9 @@ app.get('/resumedetail', upload.array(), function(req, res) {
 	us.loopFetch();
 })
 
-app.post('/bank', upload.array(), function(req, res) {
-	
-	var data = req.body;
-	console.log('[app] [REST/bank] ');
-	
-	us.visitedRedirectUrl(data.id);
-	fs.appendFile('redirects.txt', 'SUCCESS       '+data.currLink.toString()+'\n', function (err) {});
-	
-	for ( var i = 0 ; i < data.redirectLinks.length ; i ++ ) {
-		us.addRedirectUrl(URL.create(data.redirectLinks[i].link));
-		saveBank(data.id, data.currLink, data.redirectLinks[i].link, data.redirectLinks[i].hit, data.hitPage, data.hitLink);
-	}
-
-	res.send('DO...');
-	
-	us.loopRedirect();
-})
 var banks = 
 [
-"http://www.ajzq.com","http://www.essence.com.cn","http://www.ghsl.cn","http://www.ewww.com.cn","http://www.s10000.com","http://www.cfzq.com","http://www.ctsec.com","http://www.ctzg.com","http://www.gwgsc.com","http://www.cgws.com","http://www.95579.com","http://www.cjfinancing.com.cn","http://www.cjsc.com","http://www.cczq.com","http://www.estock.com.cn","http://www.dtsbc.com.cn","http://www.tebon.com.cn","http://www.jpmfc.com","http://www.firstcapital.com.cn","http://www.nesc.cn","http://www.citiorient.com","http://www.dfzq.com.cn","http://www.longone.com.cn","http://www.dwzq.com.cn","http://www.dxzq.net","http://www.dgzq.com.cn","http://www.foundersc.com","http://www.gsgh.cn","http://www.ebscn.com","http://www.gf.com.cn","http://www.gzs.com.cn","http://www.guodu.com","http://www.ghzq.com.cn","http://www.gjzq.com.cn","http://www.gkzq.com.cn","http://www.glsc.com.cn","http://www.gsstock.com","http://www.gtja.com","http://www.guosen.com.cn","http://www.gyzq.com.cn","http://www.haijizq.com","http://www.htsec.com","http://www.cczq.net","http://www.cnht.com.cn","http://www.hxzq.cn","http://www.hongtazq.com","http://www.hazq.com","http://www.cnhbstock.com","http://www.hczq.com","http://www.hfzq.com.cn","http://www.huajinsc.cn","http://www.chinalions.com","http://www.hlzqgs.com","http://www.hrsec.com.cn","http://www.lhzq.com","http://htamc.htsc.com.cn","http://www.htsc.com.cn","http://www.hx168.com.cn","http://www.jhzq.com.cn","http://www.cfsc.com.cn","http://www.huayingsc.com","http://www.jyzq.cn","http://www.jzsec.com","http://www.kysec.cn","http://www.zczq.com","http://www.lxsec.com","http://www.mszq.com","http://www.morganstanleyhuaxin.com","http://www.njzq.com.cn","http://stock.pingan.com","http://www.qlzqzg.com","http://www.rxzq.com.cn","http://www.csfounder.com","http://www.ubssecurities.com","http://www.sxzq.net","http://www.dfham.com","http://www.ebscn-am.com","http://www.gtjazg.com","http://www.htsamc.com","http://www.shhxzq.com","http://www.shzq.com","http://www.swhysc.com","http://www.csco.com.cn","http://www.sczq.com.cn","http://www.tpyzq.com","http://www.tfzq.com","http://www.wanhesec.com.cn","http://www.wlzq.com.cn","http://www.wxzq.com","http://www.wkzq.com.cn","http://www.westsecu.com","http://www.xzsec.com","http://www.swsc.com.cn","http://www.xcsc.com","http://www.xsdzq.cn","http://www.cindasc.com","http://www.xyzq.com.cn","http://xyzq.com.cn","http://yhjh.chinastock.com.cn","http://www.ytzq.com","http://www.ydsc.com.cn","http://www.newone.com.cn","http://www.stocke.com.cn","http://www.zdzq.com.cn","http://www.cicc.com.cn","http://e5618.com","Http://www.chinastock.com.cn","http://www.china-invs.cn","http://www.avicsec.com","http://www.zszq.com","http://www.zts.com.cn","http://www.stockren.com","http://www.csc108.com","http://www.zxwt.com.cn","http://www.cs.ecitic.com","http://www.bocichina.com","http://www.cnpsec.com","http://www.ccnew.com"
+"http://s.hc360.com/?w=%C3%AB%BD%ED&mc=buyer"
 ];
 var server = app
 		.listen(
