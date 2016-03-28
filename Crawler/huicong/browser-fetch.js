@@ -8,7 +8,7 @@ var browser = require('casper').create({
         //javascriptEnabled: false,
         //resourceTimeout: 5000,
         //userAgent: 'Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.21 (KHTML, like Gecko) Chrome/25.0.1349.2 Safari/537.21'
-        userAgent: 'Mozilla/5.0 (Windows; U; Windows NT 5.1; en-US) AppleWebKit/534.16 (KHTML, like Gecko) Chrome/10.0.648.151 Safari/534.16'
+        userAgent: 'Mozilla/5.0 (Windows NT 6.1; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/49.0.2623.87 Safari/537.36'
     }
     //logLevel: "debug",              // Only "info" level messages will be logged
     //verbose: true  
@@ -88,10 +88,12 @@ for(var j = 0 ; j < num ; j ++) {
 	if(link[j].indexOf('http://') != 0) {
 		continue;
 	}
-
-	browser.thenOpen(link[j]);  
-	
 	(function(arg){ 
+	var k = arg;
+	
+	browser.thenOpen(link[k]);  
+	//console.log('fetch '+link[k]);
+	
 	browser.waitFor(function check() {
 		    return this.evaluate(function(fs) {
 		        var a = document.querySelectorAll('div.footer').length > 0;
@@ -99,7 +101,7 @@ for(var j = 0 ; j < num ; j ++) {
 		    }, fs);
 	}, function() {
 		//console.log('fetch '+this.page.childFramesName().toString());
-		var k = arg;
+		
 		
 		var fetchDesc = '';
 		if(browser.exists(x(xpathDesc))){
@@ -135,14 +137,19 @@ for(var j = 0 ; j < num ; j ++) {
 			'left':fetchLeft,
 			'link':link[k]
 		};
-		console.log('fetch '+JSON.stringify(result));
+		console.log('fetch '+fetchCompany);
+		var r = JSON.stringify(result);
+		r = encodeURI(r);
+		r = encodeURI(r);
+		
+		
 		this.echo("fetch POST request will send.");
 		browser.thenOpen('http://127.0.0.1:8081/detail', {
 			headers: {
 				'Content-Type': 'application/json; charset=utf-8'
 			},
 			method: 'POST',
-			data: result
+			data: {encode:r}
 		}, function(response){
 			this.echo("POST fetch has been sent. "+ response.status );
 			if(response.status == 200 && this.page.content.indexOf("OK.")){

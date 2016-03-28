@@ -3,7 +3,7 @@ var mysql = require('mysql');
 var bodyParser = require('body-parser');
 var multer = require('multer'); // v1.0.5
 var upload = multer(); // for parsing multipart/form-data
-var iconv = require('iconv-lite');
+//var iconv = require('iconv-lite');
 
 var connection = mysql.createConnection({
 	host : '127.0.0.1',
@@ -38,7 +38,7 @@ var us = UrlSet.create();
 function select() {
 	var values = null;
 	connection.query(
-			'SELECT id, link WHERE desc<>""; ', function(error, results, fields) {
+			'SELECT id, link,descr FROM amazon.hc360 WHERE descr IS NULL; ', function(error, results, fields) {
 				if (error) {
 					console.log("select Error: " + error.message);
 					connection.end();
@@ -61,13 +61,17 @@ function select() {
 function update(id, desc, producer, addr, left, link) {
 	if (!dbReady)
 		return;
-	var values = [ desc, producer, addr, left, link ];
+	var email = (/[^a-z]*([0-9a-z]*([-.\w]*[0-9a-z])*@([0-9a-z]+\.)+[a-z]{2,9}).*/gi).exec(desc);
+	var phone = (/[^1]*(1[3578]{1}[0-9]{9}).*/g).exec(desc);
+	
+	var values = [ desc, email, phone, producer, addr, left, link ];
+	console.log("update:"+email + " phone:" + phone + " left:" +left+ " producer:"+producer+" addr:"+addr);
 	connection.query(
-			'UPDATE hc360 SET descr = ?, producer = ?, addr = ?, days = ? WHERE link = ?',
+			'UPDATE hc360 SET descr = ?, email = ?, phone = ?, producer = ?, addr = ?, days = ? WHERE link = ?',
 			values, function(error, results) {
 				if (error) {
 					console.log("update Error: " + error.message);
-					connection.end();
+					//connection.end();
 					return;
 				}
 				//console.log('updated: ' + results.affectedRows + ' row.' +' id:'+ id);
@@ -75,17 +79,17 @@ function update(id, desc, producer, addr, left, link) {
 			});
 }
 
-function save(id, title, price, amount, days, currLink) {
+function save(id, title, price, amount, days, fetchLink, currLink) {
 	if (!dbReady)
 		return;
-	var values = [ id, title, price, amount, days, currLink ];
+	var values = [ id, title, price, amount, days, fetchLink, currLink ];
 	console.log("save:"+values);
 	connection.query(
-			'INSERT INTO hc360 SET id = ?, title = ? , price = ?, amount = ?, days = ?, link = ?',
+			'INSERT INTO hc360 SET id = ?, title = ? , price = ?, amount = ?, days = ?, link = ?, redirect = ?',
 			values, function(error, results) {
 				if (error) {
 					console.log("save Error: " + error.message);
-					connection.end();
+					//connection.end();
 					return;
 				}
 			});
@@ -129,37 +133,42 @@ app.post('/redirect', upload.array(), function(req, res) {
 	for ( var i = 0 ; i < data.fetchLinks.length ; i ++ ) {
 		var fetch = URL.create(data.fetchLinks[i]);
 		us.addFetchUrl(fetch);
-		save(fetch.getId(), data.fetchTitles[i], data.fetchPrices[i], data.fetchAmounts[i], data.fetchDays[i], data.currLink);
+		save(fetch.getId(), data.fetchTitles[i], data.fetchPrices[i], data.fetchAmounts[i], data.fetchDays[i], data.fetchLinks[i], data.currLink);
 	}
 
 	for ( var i in data.redirectLinks) {
 		us.addRedirectUrl(URL.create(data.redirectLinks[i]));
 	}
 	
-	var buf = iconv.encode('OK.', 'GBK');
 	res.send('OK.');
 
-	us.loopRedirect();
+	if(data.redirectLinks.length > 0) {
+		us.loopRedirect();
+	}else {
+		us.loopFetch();
+	}
+	
 
 })
 
 app.post('/detail', upload.array(), function(req, res) {
 	
-	var data = req.body;
+	console.log(">>>>>>>>>>>>>>"+decodeURI(decodeURI(req.body.encode)));
+	var data = JSON.parse(decodeURI(decodeURI(req.body.encode)));
 	console.log('[app] [REST/detail] '+data.id);
 	
 	us.visitedFetchUrl(data.id);
 	
 	if(data.desc.length == 0) {
 		data.desc = 'ERR_DESC';
-	}else if(data.producer.length == 0){
-		data.producer = 'ERR_PRODUCER';
+	}else if(data.company.length == 0){
+		data.company = 'ERR_PRODUCER';
 	}else if(data.addr.length == 0){
 		data.addr = 'ERR_ADDR';
 	}else if(data.left.length == 0){
 		data.left = 'ERR_LEFT';
 	}
-	update(data.id, data.desc, data.producer, data.addr, data.left, data.link );
+	update(data.id, data.desc, data.company, data.addr, data.left, data.link );
 
 	res.send('OK.');
 	
@@ -203,7 +212,7 @@ var server = app
 					if(fs.exists('fetches.txt')) {
 						fs.unlink('fetches.txt');
 					}
-					
+										
 					for(var i in banks) {
 						var url = URL.create(banks[i]);
 						us.addRedirectUrl(url);

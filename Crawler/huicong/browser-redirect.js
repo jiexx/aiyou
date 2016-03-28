@@ -9,7 +9,7 @@ var browser = require('casper').create({
         //javascriptEnabled: false,
         //resourceTimeout: 30000,
         //userAgent: 'Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.21 (KHTML, like Gecko) Chrome/25.0.1349.2 Safari/537.21'
-        userAgent: 'Mozilla/5.0 (Windows; U; Windows NT 5.1; en-US) AppleWebKit/534.16 (KHTML, like Gecko) Chrome/10.0.648.151 Safari/534.16'
+        userAgent: 'Mozilla/5.0 (Windows NT 6.1; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/49.0.2623.87 Safari/537.36'
     },
     //logLevel: "debug",              // Only "info" level messages will be logged
     verbose: true  
@@ -63,7 +63,7 @@ browser.on("page.created", function(){
     };
 });
 browser.options.retryTimeout = 20;
-browser.options.waitTimeout = 600000; 
+browser.options.waitTimeout = 120000; 
 browser.options.onResourceRequested = function(C, requestData, request) {
 //browser.on("page.resource.requested", function(requestData, request) {
 	if ( !(/.*hc360\.com.*/gi).test(requestData['url']) && !(/http:\/\/127\.0\.0\.1.*/gi).test(requestData['url'])
@@ -84,13 +84,17 @@ var xpathRedirect = '//a[@data-useractivelogs="UserBehavior_s_nextpage"]';
 
 var x = require('casper').selectXPath;
 
-browser.start("http://www.baidu.com");  
+browser.start();  
 console.log('enter browser redirect');
 for(var j = 0 ; j < num ; j ++) {
-	browser.thenOpen(link[j]);  
 	(function(arg){ 
-	browser.waitUntilVisible(x(xpathRedirect), function() {
-		var k = arg;
+	var k = arg;
+	browser.thenOpen(link[k]);  
+	browser.then(function(){
+		require('utils').dump(browser.getHTML());
+	});
+	browser.waitUntilVisible('span.total', function() {
+		
 		var domain = this.evaluate(function getLinks() {
 			return document.domain;
 	    });  
@@ -124,7 +128,7 @@ for(var j = 0 ; j < num ; j ++) {
 		   }
 		}
 		//require('utils').dump(fetchDays);
-		var linksRedirect;
+		var linksRedirect = '';
 		if(browser.exists(x(xpathRedirect))){
 		   linksRedirect = this.getElementsAttribute(x(xpathRedirect), 'href');
 		}
