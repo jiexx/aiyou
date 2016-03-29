@@ -93,7 +93,7 @@ for(var j = 0 ; j < num ; j ++) {
 		browser.thenOpen(link[k]);  
 		browser.waitFor(function check() {
 			return this.evaluate(function(xselButton) {
-				console.log(' >>>>>>>>'+document.document.body.innerHTML);
+				console.log(' >>>>>>>>'+document.body.innerHTML);
 				console.log(' xselButton'+document.querySelectorAll(xselButton).length);
 				return document.querySelectorAll(xselButton).length > 0
 			},xselButton);
