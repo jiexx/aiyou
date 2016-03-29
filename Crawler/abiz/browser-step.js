@@ -9,19 +9,50 @@ var browser = require('casper').create({
         //resourceTimeout: 5000,
         //userAgent: 'Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.21 (KHTML, like Gecko) Chrome/25.0.1349.2 Safari/537.21'
         userAgent: 'Mozilla/5.0 (Windows; U; Windows NT 5.1; en-US) AppleWebKit/534.16 (KHTML, like Gecko) Chrome/10.0.648.151 Safari/534.16'
-    }
-    //logLevel: "debug",              // Only "info" level messages will be logged
-    //verbose: true  
+    },
+    logLevel: "debug",              // Only "info" level messages will be logged
+    verbose: true  
 });
 
-phantom.outputEncoding = "utf-8";
+phantom.outputEncoding = "GBK";
+phantom.cookiesEnabled = true;
 phantom.addCookie({
-  'Hm_lpvt_2a5404afa4139eb47a34deacf850d09f'     : '1459229944',   /* required property */
-  'Hm_lvt_2a5404afa4139eb47a34deacf850d09f'    : '1459214300,1459214400,1459214710,1459220198',  /* required property */
-  '_abiz_session'   : 'ZXJuYW1lIjoiZWxsYTE1OCJ9--aEQIhwL2yJM24vBGq4s+I3OhoRc=',
-  '_ga'     : 'GA1.2.1250911312.1459214301',                /* required property */
-  'logonTimes' : 1,
+	'name': '_abiz_session',
+	'value': 'eyJ1c2VybmFtZSI6IumZiOWHpOWohyIsIm1pY191c2VybmFtZSI6ImVsbGExNTgiLCJfY3NyZiI6IlRtK0QwbFgzOUZ6ZkhPUXEzOC9RRnc9PSIsIl9hX2siOiJlbGxhMTU4IiwidGFnIjoiMDc5NjRmYWYtYzg3Zi00YzgzLThiNmItMWVhN2JhYjkzOWI5IiwiX2FfcG5fIjoiYWJpeiIsImdlbmRlciI6IuWls+WjqyIsInRtX2ZsYWdfZm9yX2NtcyI6IjEiLCJtZW1iZXJJZGVudGl0eSI6IjAwMDEwIiwid2ViVG1fZmxhZ19mb3JfY21zIjoiMSIsInNob3dyb29tX3VzZXJuYW1lIjoiZWxsYTE1OCJ9--HMERu02Cres24oYHqiHR0cFZEdE=',
+	'domain': '.abiz.com',
+	'path': '/'
 });
+phantom.addCookie({
+	'name': 'Hm_lvt_2a5404afa4139eb47a34deacf850d09f',
+	'value': '1459171063,1459250706,1459250735,1459250742',
+	'domain': '.abiz.com',
+	'path': '/'
+});
+phantom.addCookie({
+	'name': 'Hm_lpvt_2a5404afa4139eb47a34deacf850d09f',
+	'value': '1459254169',
+	'domain': '.abiz.com',
+	'path': '/'
+});
+phantom.addCookie({
+	'name': '_ga',
+	'value': 'GA1.2.1813069929.1459097671',
+	'domain': '.abiz.com',
+	'path': '/'
+});
+phantom.addCookie({
+	'name': '_dc_gtm_UA-34187825-1',
+	'value': '1',
+	'domain': '.abiz.com',
+	'path': '/'
+});
+phantom.addCookie({
+	'name': 'logonTimes',
+	'value': '1',
+	'domain': '.abiz.com',
+	'path': '/'
+});
+
 
 if (browser.cli.args.length == 0) {
 	console.log('Usage: browser-step.js <some STRING>' );
@@ -53,6 +84,7 @@ browser.on("page.error", function(msg, backtrace) {
 });
 
 browser.on("remote.message", function(msg) {
+	fs.write('err/fetch_'+d.getTime().toString()+'.txt',  msg+"\n\n"+browser.getHTML(), 'w');
 	this.echo("--->> remote.message: "+msg);
 });
 
@@ -61,14 +93,18 @@ browser.on("page.created", function(){
     	this.echo("--->> onResourceTimeout: "+request);
     };
 });
-browser.options.retryTimeout = 20;
-browser.options.waitTimeout = 20000; 
+browser.options.retryTimeout = 200;
+browser.options.waitTimeout = 240000; 
 browser.options.onResourceRequested = function(C, requestData, request) {
 //browser.on("page.resource.requested", function(requestData, request) {
-//	if ( !(/.*amazon\.com.*/gi).test(requestData['url']) && !(/http:\/\/127\.0\.0\.1.*/gi).test(requestData['url']) 
-//			){
-//		request.abort();
-//	}
+	if ( !(/.*\.abiz\..*/gi).test(requestData['url']) && !(/http:\/\/127\.0\.0\.1.*/gi).test(requestData['url']) 
+			){
+		console.log(' Skipping file: ' + requestData['url']);
+		request.abort();
+	}else {
+		console.log(' Down file: ' + requestData['url']);
+	}
+	
 };
 
 
@@ -77,36 +113,50 @@ var xselButton = 'button#publish';
 var xselPrice = 'input#unitPriceNew0';
 var xselExpire = 'input#effectiveTime0';
 var xselPeriod = 'input#shipDate0';
-var xselTax1 = 'input.rdo[value="0"][name="taxFlag"]';
-var xselTax2 = 'input.rdo[value="0"][name="freightFlag"]';
-var xselContact = 'i.contact-panel';
+var xselTax1 = 'input.rdo[name="taxFlag"][value="0"]';
+var xselTax2 = 'input.rdo[name="freightFlag"][value="0"]';
+var xselGend = 'input[name="gender"][value="0"]';
+var xselContact = 'div.contact-panel';
+var xselForm = {
+				'input#unitPriceNew0': '10000',
+				'input#effectiveTime0': '2016-08-31',
+				'input#shipDate0': '200',
+				'input#mobile':'17802357738',
+				'input#comName':'绅度贸易有限公司',
+				'input#userName': 'roger',
+				'select#telNationalNo': '86',
+				'input#email': '411099012@qq.com'
+			};
 
 var x = require('casper').selectXPath;
 //casperjs browser-step.js "0000" "http://www.abiz.com/inquiries/IxJrcEgUUnzP/quote"
 
-browser.start();  
-console.log('enter browser step');
+browser.start();
+
+console.log('enter browser step :');
 for(var j = 0 ; j < num ; j ++) {
 	(function(arg){
 		var k = arg;
-	
+		
 		browser.thenOpen(link[k]);  
 		browser.waitFor(function check() {
 			return this.evaluate(function(xselButton) {
-				console.log(' >>>>>>>>'+document.body.innerHTML);
+				//var str = document.body;
 				console.log(' xselButton'+document.querySelectorAll(xselButton).length);
 				return document.querySelectorAll(xselButton).length > 0
 			},xselButton);
 		}, function() {
 			
-			console.log('enter browser input');
-			browser.sendKeys(xselPrice, '10000');
-			browser.sendKeys(xselExpire, '2016-08-31');
-			browser.sendKeys(xselPeriod, '200');
+			console.log('enter browser input fill');
+			browser.fillSelectors('form#form', xselForm, true);
 			browser.click(xselTax1);
 			browser.click(xselTax2);
+			browser.click(xselGend);
+			this.evaluate(function(){  
+				document.querySelector('form#form').submit();
+			});
 			browser.then(function() {
-				browser.click(xselButton);
+				console.log(">>>>>>" + this.getCurrentUrl());
 				browser.waitFor(function check() {
 					return this.evaluate(function(xselContact) {
 						console.log(' xselContact'+document.querySelectorAll(xselContact).length);
@@ -122,7 +172,7 @@ for(var j = 0 ; j < num ; j ++) {
 					};
 					
 					var r = JSON.stringify(result);
-					console.log(r);
+					console.log('>>>>>>>>>>'+r);
 					r = encodeURI(r);
 					r = encodeURI(r);
 					
