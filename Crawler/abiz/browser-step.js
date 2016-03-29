@@ -16,29 +16,28 @@ var browser = require('casper').create({
 
 phantom.outputEncoding = "utf-8";
 phantom.addCookie({
-  'name'     : 'Valid-Cookie-Name',   /* required property */
-  'value'    : 'Valid-Cookie-Value',  /* required property */
-  'domain'   : 'localhost',
-  'path'     : '/foo',                /* required property */
-  'httponly' : true,
-  'secure'   : false,
-  'expires'  : (new Date()).getTime() + (1000 * 60 * 60)   /* <-- expires in 1 hour */
+  'Hm_lpvt_2a5404afa4139eb47a34deacf850d09f'     : '1459229944',   /* required property */
+  'Hm_lvt_2a5404afa4139eb47a34deacf850d09f'    : '1459214300,1459214400,1459214710,1459220198',  /* required property */
+  '_abiz_session'   : 'ZXJuYW1lIjoiZWxsYTE1OCJ9--aEQIhwL2yJM24vBGq4s+I3OhoRc=',
+  '_ga'     : 'GA1.2.1250911312.1459214301',                /* required property */
+  'logonTimes' : 1,
 });
 
 if (browser.cli.args.length == 0) {
-	console.log('Usage: browser-translate.js <some STRING>' );
+	console.log('Usage: browser-step.js <some STRING>' );
 	browser.exit();
 }
 
-var num = (browser.cli.args.length); 
+var num = (browser.cli.args.length / 2); 
 var counter = num;
-console.log( 'fetch num of links:'+browser.cli.args );
-var str = [];
+//console.log( 'fetch num of links:'+num );
+var id = [];
+var link = [];
 for(var i = 0 ; i < num ; i ++) {
-	str[i] = browser.cli.get(i);
+	id[i] = browser.cli.get(2*i);
+	link[i] = browser.cli.get(2*i+1);
 	//console.log("args id["+i+"]:"+browser.cli.get(i)+" link["+i+"]: "+browser.cli.get(i+1));
 }
-
 var fs = require('fs');
 
 browser.on('error', function(msg,backtrace) {
@@ -74,86 +73,73 @@ browser.options.onResourceRequested = function(C, requestData, request) {
 
 
 // for redirect page
-var xpathButton = '//div[@id="TranslateButton"]';
-var xpathSourceBtn = '//div[@class="col translationContainer sourceText"]//div[@class="LanguageSelector"]';
-var xpathSourceLan = '//div[@class="col translationContainer sourceText"]//td[@value="en"]';
-var xpathSourceTxt = '//textarea[@id="srcText"]';
-
-var xpathDestBtn = '//div[@class="col translationContainer destinationText"]//div[@class="LanguageSelector"]';
-var xpathDestLan = '//div[@class="col translationContainer destinationText"]//td[@value="zh-CHS"]';
-var xpathDestTxt = '//div[@id="destText"]/div[@paragraphname="paragraph0"]';
-
-var xpathDestStr = '//div[@id="destText"]';
-
 var xselButton = 'button#publish';
 var xselPrice = 'input#unitPriceNew0';
 var xselExpire = 'input#effectiveTime0';
 var xselPeriod = 'input#shipDate0';
+var xselTax1 = 'input.rdo[value="0"][name="taxFlag"]';
+var xselTax2 = 'input.rdo[value="0"][name="freightFlag"]';
+var xselContact = 'i.contact-panel';
 
 var x = require('casper').selectXPath;
-
+//casperjs browser-step.js "0000" "http://www.abiz.com/inquiries/IxJrcEgUUnzP/quote"
 
 browser.start();  
-console.log('enter browser translator');
-browser.thenOpen('http://www.bing.com/Translator/');  
+console.log('enter browser step');
 for(var j = 0 ; j < num ; j ++) {
-	(function(k){
+	(function(arg){
+		var k = arg;
+	
+		browser.thenOpen(link[k]);  
 		browser.waitFor(function check() {
 			return this.evaluate(function(xselButton) {
-				//console.log(' xselButton'+document.querySelectorAll(xselButton).length);
+				console.log(' >>>>>>>>'+document.document.body.innerHTML);
+				console.log(' xselButton'+document.querySelectorAll(xselButton).length);
 				return document.querySelectorAll(xselButton).length > 0
 			},xselButton);
 		}, function() {
 			
-			console.log('enter browser xpathButton');
-			browser.click(x(xpathSourceBtn));
-			//console.log(JSON.stringify(browser.getElementInfo(x(xpathSourceLan))));
-			browser.waitFor(function check() {
-				return this.evaluate(function(xselSourceLan) {
-					console.log(' xselSourceLan'+document.querySelectorAll(xselSourceLan).length);
-					return document.querySelectorAll(xselSourceLan).length > 0
-				},xselSourceLan);
-			}, function() {
-				console.log('enter browser xpathSourceLan');
-				browser.click(x(xpathSourceLan));
-				browser.thenClick(x(xpathDestBtn));
+			console.log('enter browser input');
+			browser.sendKeys(xselPrice, '10000');
+			browser.sendKeys(xselExpire, '2016-08-31');
+			browser.sendKeys(xselPeriod, '200');
+			browser.click(xselTax1);
+			browser.click(xselTax2);
+			browser.then(function() {
+				browser.click(xselButton);
 				browser.waitFor(function check() {
-					return this.evaluate(function(xselDestLan) {
-						console.log(' xselDestLan');
-						return document.querySelectorAll(xselDestLan).length > 0
-					},xselDestLan);
+					return this.evaluate(function(xselContact) {
+						console.log(' xselContact'+document.querySelectorAll(xselContact).length);
+						return document.querySelectorAll(xselContact).length > 0
+					},xselContact);
 				}, function() {
-					browser.click(x(xpathDestLan));
-					console.log('enter browser xpathDestLan:'+str[k]);
-					browser.click(x('//img[@class="clearInput"]'));
-					browser.sendKeys(x(xpathSourceTxt), str[k]);
-					browser.click(x(xpathButton));
-					browser.waitFor(function check() {
-						return this.evaluate(function(xselDestTxt) {
-							return document.querySelectorAll(xselDestTxt).length > 0
-						},xselDestTxt);
-					}, function() {
-						console.log(' xpathDestStr');
-						if(this.exists(x(xpathDestStr))) {
-							console.log(' xselDestTxt');
-							var destStr = this.getElementInfo(x(xpathDestStr)).text;
-							console.log('translate result:'+destStr);
-							browser.thenOpen('http://127.0.0.1:8081/translate', {
-								headers: {
-									'Content-Type': 'application/json; charset=utf-8'
-						        },
-							    method: 'POST',
-							    data: destStr
-							}, function(response){
-								this.echo("POST fetch has been sent. "+ response.status /*+" "+ this.page.content*/);
-								if(response.status == 200 && this.page.content.indexOf("OK.")){
-									counter --;
-									this.echo("POST fetch exit "+counter);
-									if(counter <= 0) {
-										browser.exit();  
-									}
-							    }
-							});
+					var contact = browser.getElementInfo(xselContact).text;
+					
+					var result =  {
+						'id': id[k],
+						'contact': contact,
+						'link':link[k]
+					};
+					
+					var r = JSON.stringify(result);
+					console.log(r);
+					r = encodeURI(r);
+					r = encodeURI(r);
+					
+					browser.thenOpen('http://127.0.0.1:8081/detail', {
+						headers: {
+							'Content-Type': 'application/json; charset=utf-8'
+						},
+						method: 'POST',
+						data: {encode:r}
+					}, function(response){
+						this.echo("POST fetch has been sent. "+ response.status );
+						if(response.status == 200 && this.page.content.indexOf("OK.")){
+							counter --;
+							this.echo("POST fetch exit "+counter);
+							if(counter <= 0) {
+								browser.exit();  
+							}
 						}
 					});
 				});
