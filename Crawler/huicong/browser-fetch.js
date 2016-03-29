@@ -137,7 +137,7 @@ for(var j = 0 ; j < num ; j ++) {
 			'left':fetchLeft,
 			'link':link[k]
 		};
-		console.log('fetch '+fetchCompany);
+		//console.log('fetch '+fetchCompany);
 		var r = JSON.stringify(result);
 		r = encodeURI(r);
 		r = encodeURI(r);

@@ -58,46 +58,14 @@ function select() {
 			});
 }
 
-function extract() {
-	connection.query(
-			'SELECT id, link,descr FROM amazon.hc360 WHERE descr IS NOT NULL; ', function(error, results, fields) {
-				if (error) {
-					console.log("select Error: " + error.message);
-					connection.end();
-					return;
-				}
-				for ( var i = 0 ; i < results.length ; i ++ ) {
-					var email = (/[^a-z]*([0-9a-z]*([-.\w]*[0-9a-z])*@([0-9a-z]+\.)+[a-z]{2,9}).*/gi).exec(results[i].descr);
-					var phone = (/[^1]*(1[3578]{1}[0-9]{9}).*/g).exec(results[i].descr);
-					var e = '', p = '';
-					console.log(results[i].descr);
-					if(email != null && email[1] != null) {
-						e = email[1];
-					}
-					if(phone != null && phone[1] != null && phone[1].length>=11) {
-						p = phone[1];
-					}
-					var values = [  e, p, results[i].link ];
-					console.log(values.toString());
-					console.log(">>>>>>>>>> update |email:"+e + " |phone:" + p +"<<<<<<<<<<");
-					connection.query(
-						'UPDATE amazon.hc360 SET email = ?, phone = ? WHERE link = ?',
-						values, function(error, res) {
-						if (error) {
-							console.log("update Error: " + error.message);
-							return;
-						}
-					});
-				}
-			});
-}
-
 function update(id, desc, producer, addr, left, link) {
 	if (!dbReady)
 		return;
-
-	var values = [ desc, e, p, producer, addr, left, link ];
-	console.log(">>>>>>>>>> update |email:"+e + " |phone:" + p + " |left:" +left+ " |producer:"+producer+" |addr:"+addr +"<<<<<<<<<<");
+	var email = (/[^a-z]*([0-9a-z]*([-.\w]*[0-9a-z])*@([0-9a-z]+\.)+[a-z]{2,9}).*/gi).exec(desc);
+	var phone = (/[^1]*(1[3578]{1}[0-9]{9}).*/g).exec(desc);
+	
+	var values = [ desc, email, phone, producer, addr, left, link ];
+	console.log(">>>>>>>>>> update |email:"+email + " |phone:" + phone + " |left:" +left+ " |producer:"+producer+" |addr:"+addr +"<<<<<<<<<<");
 	connection.query(
 			'UPDATE hc360 SET descr = ?, email = ?, phone = ?, producer = ?, addr = ?, days = ? WHERE link = ?',
 			values, function(error, results) {
@@ -245,16 +213,14 @@ var server = app
 						fs.unlink('fetches.txt');
 					}
 										
-					/*for(var i in banks) {
+					for(var i in banks) {
 						var url = URL.create(banks[i]);
 						us.addRedirectUrl(url);
 					}
 					
-					us.loopRedirect();*/
-
-					//var d = select();
+					us.loopRedirect();
 					
-					extract();
+					/*var d = select();*/
 
 				});
 
