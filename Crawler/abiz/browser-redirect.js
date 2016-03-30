@@ -63,7 +63,7 @@ browser.on("page.created", function(){
     };
 });
 browser.options.retryTimeout = 20;
-browser.options.waitTimeout = 12000000000000000; 
+browser.options.waitTimeout = 120000; 
 browser.options.onResourceRequested = function(C, requestData, request) {
 //browser.on("page.resource.requested", function(requestData, request) {
 	if ( !(/.*hc360\.com.*/gi).test(requestData['url']) && !(/http:\/\/127\.0\.0\.1.*/gi).test(requestData['url'])
@@ -77,20 +77,13 @@ browser.options.onResourceRequested = function(C, requestData, request) {
 
 
 // for redirect page
-var xpathFetchTitle = '//h3[@class="titlelist"]/a';
-var xpathFetchPrice = '//li[@class="instr"]';
-var xpathFetchDay = '//div[@class="tileft day"]';
-var xpathRedirect = '//a[@data-useractivelogs="UserBehavior_s_nextpage"]';
+var xpathFetchTitle = '//div[@class="purchase-hd"]/a';
+var xpathFetchCompany = '//a[@class="co-name link-gray"]';
+var xpathFetchDay = '//div[@id="content"]/div[2]/div[1]/table/tbody/*tr/td[3]/div';
+var xpathAmount = '//div[@id="content"]/div[2]/div[1]/table/tbody/*tr/td[2]';
+var xpathRedirect = '//a[@class="nextPage"]';
 
 var x = require('casper').selectXPath;
-
-function captureImage() {
-	browser.thenOpen("http://s.hc360.com/?w=%C3%AB%BD%ED&mc=buyer");  
-	browser.then(function(){
-		var d = new Date();
-		this.captureSelector('captcha/'+d.getTime().toString()+'.png', 'body > div:nth-child(4) > table > tbody > tr > td:nth-child(2) > form > img');
-	});
-}
 
 browser.start();  
 console.log('enter browser redirect');
@@ -106,26 +99,33 @@ for(var j = 0 ; j < num ; j ++) {
 	    });  
 		//this.echo(this.getHTML());
 		//this.download(link, 'amazon.html');
-		var fetchTitles, fetchLinks;
+		var fetchTitles, fetchLinks = [];
 		if(browser.exists(x(xpathFetchTitle))){
 		   fetchTitles = this.getElementsAttribute(x(xpathFetchTitle), 'title');
-		   fetchLinks = this.getElementsAttribute(x(xpathFetchTitle), 'href');
-		}
-		var fetchPrices = [], fetchAmounts = [];
-		if(browser.exists(x(xpathFetchPrice))){
-		   var a = this.getElementsInfo(x(xpathFetchPrice));
+		   var a = this.getElementsAttribute(x(xpathFetchTitle), 'href');
 		   for(var i in a) {
-				var f = a[i].text;
-				var b = f.indexOf('：')+1;
-				var c = f.indexOf('\n', b);
-				var d = f.lastIndexOf('：')+1;
-				var e = f.lastIndexOf('\n');
-				fetchPrices.push(f.substring(b,c));
-				fetchAmounts.push(f.substring(d,e));
+			   var b = a[i].lastIndexOf('/')+1;
+			   var c = a[i].indexOf('.html');
+			   var d = a[i].substring(b,c);
+			   fetchLinks.push('http://www.abiz.com/inquiries/'+d+'/quote');
 		   }
 		}
-		//require('utils').dump(fetchPrices);
-		//require('utils').dump(fetchAmounts);
+		
+		var fetchComs = [];
+		if(browser.exists(x(xpathFetchCompany))){
+		   var a = this.getElementsInfo(x(xpathFetchCompany));
+		   for(var i in a) {
+				fetchComs.push(a[i].text);
+		   }
+		}
+		
+		var fetchAmounts = [];
+		if(browser.exists(x(xpathAmount))){
+		   var a = this.getElementsInfo(x(xpathAmount));
+		   for(var i in a) {
+				fetchAmounts.push(a[i].text);
+		   }
+		}
 		var fetchDays = [];
 		if(browser.exists(x(xpathFetchDay))){
 		   var a = this.getElementsInfo(x(xpathFetchDay));
@@ -136,27 +136,25 @@ for(var j = 0 ; j < num ; j ++) {
 		//require('utils').dump(fetchDays);
 		var linksRedirect = '';
 		if(browser.exists(x(xpathRedirect))){
-		   linksRedirect = this.getElementsAttribute(x(xpathRedirect), 'href');
+			linksRedirect = 'http://'+domain+this.getElementAttribute(x(xpathRedirect), 'href');
 		}
 		
 		console.log( "fetchTitles.length:"+fetchTitles.length
 					+" fetchLinks.length:"+fetchLinks.length
-					+" fetchPrices.length:"+fetchPrices.length
-					+" fetchAmounts.length:"+fetchAmounts.length
+					+" fetchComs.length:"+fetchComs.length
 					+" fetchDays.length:"+fetchDays.length );
 		var result;
-		if(fetchTitles.length == fetchAmounts.length && 
-			fetchTitles.length == fetchLinks.length && 
-			fetchTitles.length == fetchPrices.length && 
+		if( fetchTitles.length == fetchLinks.length && 
+			fetchTitles.length == fetchComs.length && 
 		   fetchTitles.length == fetchDays.length) {
 			
 			result =  {
 				'id': id[k],
 				'error': 0,
 				'fetchTitles': fetchTitles,
-				'fetchPrices': fetchPrices,
-				'fetchAmounts': fetchAmounts,
+				'fetchComs': fetchComs,
 				'fetchDays': fetchDays,
+				'fetchAmounts':fetchAmounts,
 				'fetchLinks':fetchLinks,
 				'redirectLinks':  linksRedirect,
 				'currLink': link[k]
@@ -166,7 +164,6 @@ for(var j = 0 ; j < num ; j ++) {
 			result =  {
 				'id': id[k],
 				'error': 1,
-				'redirectLinks':  linksRedirect,
 				'currLink': link[k]
 			};
 		}
