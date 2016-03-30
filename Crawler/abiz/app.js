@@ -58,16 +58,16 @@ function select() {
 			});
 }
 
-function update(id, desc, producer, addr, left, link) {
+function update(id, desc, addr, left, link) {
 	if (!dbReady)
 		return;
 	var email = (/[^a-z]*([0-9a-z]*([-.\w]*[0-9a-z])*@([0-9a-z]+\.)+[a-z]{2,9}).*/gi).exec(desc);
 	var phone = (/[^1]*(1[3578]{1}[0-9]{9}).*/g).exec(desc);
 	
-	var values = [ desc, email, phone, producer, addr, left, link ];
-	console.log(">>>>>>>>>> update |email:"+email + " |phone:" + phone + " |left:" +left+ " |producer:"+producer+" |addr:"+addr +"<<<<<<<<<<");
+	var values = [ desc, email, phone, addr, left, link ];
+	console.log(">>>>>>>>>> update |email:"+email + " |phone:" + phone + " |left:" +left+  "|addr:"+addr +"<<<<<<<<<<");
 	connection.query(
-			'UPDATE hc360 SET descr = ?, email = ?, phone = ?, producer = ?, addr = ?, days = ? WHERE link = ?',
+			'UPDATE hc360 SET descr = ?, email = ?, phone = ?, addr = ?, days = ? WHERE link = ?',
 			values, function(error, results) {
 				if (error) {
 					console.log("update Error: " + error.message);
@@ -79,13 +79,13 @@ function update(id, desc, producer, addr, left, link) {
 			});
 }
 
-function save(id, title, price, amount, days, fetchLink, currLink) {
+function save(id, title, company, amount, days, fetchLink, currLink) {
 	if (!dbReady)
 		return;
-	var values = [ id, title, price, amount, days, fetchLink, currLink ];
+	var values = [ id, title, company, amount, days, fetchLink, currLink ];
 	console.log("save:"+values);
 	connection.query(
-			'INSERT INTO hc360 SET id = ?, title = ? , price = ?, amount = ?, days = ?, link = ?, redirect = ?',
+			'INSERT INTO hc360 SET id = ?, title = ? , producer = ?, amount = ?, days = ?, link = ?, redirect = ?',
 			values, function(error, results) {
 				if (error) {
 					console.log("save Error: " + error.message);
@@ -102,7 +102,7 @@ app.get('/', function (req, res) {
 	res.send('Hello World!');
 });
 
-
+var ACOUNTER = 0, ACOUNTLIMIT = 50;
 app.post('/redirect', upload.array(), function(req, res) {
 	/*
 	 * fs.readFile( __dirname + "/" + "users.json", 'utf8', function (err, data) {
@@ -133,7 +133,8 @@ app.post('/redirect', upload.array(), function(req, res) {
 	for ( var i = 0 ; i < data.fetchLinks.length ; i ++ ) {
 		var fetch = URL.create(data.fetchLinks[i]);
 		us.addFetchUrl(fetch);
-		save(fetch.getId(), data.fetchTitles[i], data.fetchPrices[i], data.fetchAmounts[i], data.fetchDays[i], data.fetchLinks[i], data.currLink);
+		save(fetch.getId(), data.fetchTitles[i], data.fetchComs[i], data.fetchAmounts[i], data.fetchDays[i], data.fetchLinks[i], data.currLink);
+		COUNTER ++;
 	}
 
 	for ( var i in data.redirectLinks) {
