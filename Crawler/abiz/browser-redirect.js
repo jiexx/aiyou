@@ -66,7 +66,7 @@ browser.options.retryTimeout = 20;
 browser.options.waitTimeout = 120000; 
 browser.options.onResourceRequested = function(C, requestData, request) {
 //browser.on("page.resource.requested", function(requestData, request) {
-	if ( !(/.*hc360\.com.*/gi).test(requestData['url']) && !(/http:\/\/127\.0\.0\.1.*/gi).test(requestData['url'])
+	if ( !(/.*abiz\.com\..*/gi).test(requestData['url']) && !(/http:\/\/127\.0\.0\.1.*/gi).test(requestData['url'])
 	/*|| (/.*\.css/gi).test(requestData['url']) || requestData['Content-Type'] == 'text/javascript'*/ ) {
 		//console.log('redirect Skipping JS file: ' + requestData['url']);
 		request.abort();
