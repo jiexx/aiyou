@@ -133,7 +133,7 @@ var x = require('casper').selectXPath;
 
 browser.start();
 
-console.log('enter browser step :');
+console.log('enter browser step 报价:');
 for(var j = 0 ; j < num ; j ++) {
 	(function(arg){
 		var k = arg;

@@ -4,6 +4,16 @@ var bodyParser = require('body-parser');
 var multer = require('multer'); // v1.0.5
 var upload = multer(); // for parsing multipart/form-data
 //var iconv = require('iconv-lite');
+var app = express();
+var router = express.Router();
+var fs = require("fs");
+var dv = require('dv');
+
+eval(fs.readFileSync('url.js') + '');
+eval(fs.readFileSync('urlset.js') + '');
+eval(fs.readFileSync('reg.js') + '');
+var us = UrlSet.create();
+var rus = RegUserSet.create();
 
 var connection = mysql.createConnection({
 	host : '127.0.0.1',
@@ -23,17 +33,11 @@ connection.connect(function(error, results) {
 			connection.end();
 			return;
 		}
+		//rus.save(connection, 'amazon.reg');
+		rus.loadFromDBAndNext(connection, 'amazon.reg');
 		dbReady = true;
 	});
 });
-var app = express();
-var router = express.Router();
-var fs = require("fs");
-
-eval(fs.readFileSync('url.js') + '');
-eval(fs.readFileSync('urlset.js') + '');
-
-var us = UrlSet.create();
 
 function select() {
 	var values = null;
@@ -61,13 +65,11 @@ function select() {
 function update(id, desc, addr, left, link) {
 	if (!dbReady)
 		return;
-	var email = (/[^a-z]*([0-9a-z]*([-.\w]*[0-9a-z])*@([0-9a-z]+\.)+[a-z]{2,9}).*/gi).exec(desc);
-	var phone = (/[^1]*(1[3578]{1}[0-9]{9}).*/g).exec(desc);
 	
 	var values = [ desc, email, phone, addr, left, link ];
 	console.log(">>>>>>>>>> update |email:"+email + " |phone:" + phone + " |left:" +left+  "|addr:"+addr +"<<<<<<<<<<");
 	connection.query(
-			'UPDATE hc360 SET descr = ?, email = ?, phone = ?, addr = ?, days = ? WHERE link = ?',
+			'UPDATE abiz SET descr = ?, email = ?, phone = ?, addr = ?, days = ? WHERE link = ?',
 			values, function(error, results) {
 				if (error) {
 					console.log("update Error: " + error.message);
@@ -85,7 +87,7 @@ function save(id, title, company, amount, days, fetchLink, currLink) {
 	var values = [ id, title, company, amount, days, fetchLink, currLink ];
 	console.log("save:"+values);
 	connection.query(
-			'INSERT INTO hc360 SET id = ?, title = ? , producer = ?, amount = ?, days = ?, link = ?, redirect = ?',
+			'INSERT INTO abiz SET id = ?, title = ? , producer = ?, amount = ?, days = ?, link = ?, redirect = ?',
 			values, function(error, results) {
 				if (error) {
 					console.log("save Error: " + error.message);
@@ -194,13 +196,40 @@ app.get('/resumedetail', upload.array(), function(req, res) {
 	us.loopFetch();
 })
 
-var banks = 
-[
-"http://s.hc360.com/?w=%C3%AB%BD%ED&mc=buyer"
-];
+function ocr(filename) {
+	var image = new dv.Image('png', fs.readFileSync(filename));
+	
+	var i = filename.indexOf('/')+1;
+	var mask = image.threshold(108).toGray().rankFilter(2, 2, 0.5);
+
+	fs.writeFile('mask'+filename.substring(i), mask.toBuffer('png'));
+
+	var tesseract = new dv.Tesseract('eng', mask);
+
+	console.log('-------------');
+	var res = tesseract.findText('plain');
+	res = res.replace(/[^0-9a-zA-Z]/g, '');
+	console.log(res);
+	return res;
+}
+app.post('/registe', upload.array(), function(req, res) {
+	var data = req.body;
+	console.log('[app] [REST/ocr] '+JSON.stringify(data));
+	var str = 'OK.';
+	if(data.ocr == 0){
+		rus.updateOne(data.id);
+		//rus.next();
+	}
+	else if(data.ocr == 1){
+		str = 'OK.['+ocr(data.fileCode)+']';
+		
+	}
+	res.send(str);
+})
+
 var server = app
 		.listen(
-				8081,
+				8082,
 				function() {
 
 					var host = server.address().address;
@@ -213,15 +242,17 @@ var server = app
 					if(fs.exists('fetches.txt')) {
 						fs.unlink('fetches.txt');
 					}
+					
+					//rus.load('500acpwd.csv', 'http://www.abiz.com/reg/step1/afternew');
 										
-					for(var i in banks) {
+					/*for(var i in banks) {
 						var url = URL.create(banks[i]);
 						us.addRedirectUrl(url);
 					}
 					
 					us.loopRedirect();
 					
-					/*var d = select();*/
+					var d = select();*/
 
 				});
 
