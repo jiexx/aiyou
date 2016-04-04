@@ -1,0 +1,2 @@
+drop table amazon.cnchina;
+create table amazon.cnchina(id varchar(64), title varchar(256), price varchar(128), publishtime varchar(128), descr text, email varchar(512), phone varchar(512), producer varchar(128), addr varchar(128), days varchar(128), link varchar(256), redirect varchar(256));
