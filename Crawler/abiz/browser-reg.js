@@ -10,7 +10,7 @@ var browser = require('casper').create({
         //userAgent: 'Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.21 (KHTML, like Gecko) Chrome/25.0.1349.2 Safari/537.21'
         userAgent: 'Mozilla/5.0 (Windows; U; Windows NT 5.1; en-US) AppleWebKit/534.16 (KHTML, like Gecko) Chrome/10.0.648.151 Safari/534.16'
     },
-    //logLevel: "debug",              // Only "info" level messages will be logged
+    logLevel: "debug",              // Only "info" level messages will be logged
     verbose: true  
 });
 var browser2 = require('casper').create({
@@ -100,7 +100,7 @@ var x = require('casper').selectXPath;
 //casperjs browser-step.js "0000" "http://www.abiz.com/inquiries/IxJrcEgUUnzP/quote"
 function test() {
 	browser2.start();
-	browser2.thenOpen('http://127.0.0.1:8081/registe', {
+	browser2.thenOpen('http://127.0.0.1:8082/registe', {
 		headers: {
 			'Content-Type': 'application/json; charset=utf-8'
 		},
@@ -121,11 +121,33 @@ function registe(codeHref) {
 	var done = false, value = '';
 	console.log(JSON.stringify(bb));
 	browser.capture('code/CODE_'+DATA.id+'.png', { top: bb.top, left: bb.left+5, width: bb.width-5, height: bb.height},{format: 'png',quality: 100});
+	browser.then(function(){
+		console.log("POST browser2 open. ");
+		browser2.start();
+		browser2.thenOpen('http://127.0.0.1:8082/registe', {
+			headers: {
+				'Content-Type': 'application/json; charset=utf-8'
+			},
+			method: 'POST',
+			data: {
+						'ocr': 1,
+						'fileCode': 'code/CODE_'+DATA.id+'.png',
+					},
+		}, function(response){
+			console.log("POST browser2 has been sent. "+ browser2.page.content );
+			if(response.status == 200 && browser2.page.content.indexOf("OK.")){
+				done = true;
+				value = (/[^\[]*\[([^\]]*)\].*/g).exec(browser2.page.content);
+			}
+		});
+		browser2.run();
+	});
 	browser.waitFor(function check() {
+		console.log(' DOING: '+done);
 		return done;
 	}, function() {
 		console.log("POST browser2 fetch receive. "+value.toString());
-		if(value != null && value[1] != null) {
+		if(value != '' && value[1] != null) {
 			xselForm['input#validateNumber'] = value[1];
 			console.log('enter browser input fill:'+JSON.stringify(xselForm));
 			browser.fillSelectors('form#form', xselForm, true);
@@ -162,7 +184,7 @@ function registe(codeHref) {
 						console.log(' browser submit success:');
 						var cookies = JSON.stringify(phantom.cookies);
 						fs.write('cookie/'+DATA.id+'.cookie', cookies, 'w');
-						browser.thenOpen('http://127.0.0.1:8081/registe', {
+						browser.thenOpen('http://127.0.0.1:8082/registe', {
 							headers: {
 								'Content-Type': 'application/json; charset=utf-8'
 							},
@@ -188,25 +210,6 @@ phantom.cookies = JSON.parse(data);*/
 			});
 		}
 	});
-	console.log("POST browser2 open. ");
-	browser2.start();
-	browser2.thenOpen('http://127.0.0.1:8081/registe', {
-		headers: {
-			'Content-Type': 'application/json; charset=utf-8'
-		},
-		method: 'POST',
-		data: {
-			    	'ocr': 1,
-			        'fileCode': 'code/CODE_'+DATA.id+'.png',
-			    },
-	}, function(response){
-		console.log("POST browser2 has been sent. "+ browser2.page.content );
-		if(response.status == 200 && browser2.page.content.indexOf("OK.")){
-			done = true;
-			value = (/[^\[]*\[([^\]]*)\].*/g).exec(browser2.page.content);
-		}
-	});
-	browser2.run();
 }
 browser.start();
 

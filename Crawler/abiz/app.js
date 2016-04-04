@@ -34,7 +34,7 @@ connection.connect(function(error, results) {
 			return;
 		}
 		//rus.save(connection, 'amazon.reg');
-		rus.loadFromDBAndNext(connection, 'amazon.reg');
+		rus.loadFromDBAndNext(connection, 'amazon.reg', 'http://www.abiz.com/reg/step1/afternew');
 		dbReady = true;
 	});
 });
@@ -217,7 +217,7 @@ app.post('/registe', upload.array(), function(req, res) {
 	console.log('[app] [REST/ocr] '+JSON.stringify(data));
 	var str = 'OK.';
 	if(data.ocr == 0){
-		rus.updateOne(data.id);
+		rus.updateOne(connection, 'amazon.reg', data.id);
 		//rus.next();
 	}
 	else if(data.ocr == 1){

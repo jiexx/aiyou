@@ -94,8 +94,9 @@ var RegUserSet =  {
 		this.link = url;
 	},
 	
-	loadFromDBAndNext: function(connection, table) {
+	loadFromDBAndNext: function(connection, table, url) {
 		var _this = this;
+		this.link = url;
 		connection.query(
 			'SELECT * FROM '+table+' WHERE registed=0; ', function(error, results, fields) {
 				if (error) {
@@ -107,7 +108,7 @@ var RegUserSet =  {
 				for ( var i = 0 ; i < results.length ; i ++ ) {
 					var usr = User.create('browser-reg.js', results[i].id, results[i].email, results[i].loginname, results[i].password, results[i].company, results[i].username, results[i].phone);
 					if(usr != null) {
-						this.users.push(usr);
+						_this.users.push(usr);
 					}
 				}
 				_this.next();
@@ -123,6 +124,8 @@ var RegUserSet =  {
 					if (error) {
 						console.log("update Error: " + error.message);
 						return;
+					}
+				});
 	},
 	
 	_saveOne: function(connection, table, i) {
