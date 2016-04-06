@@ -13,10 +13,6 @@ var browser = require('casper').create({
     logLevel: "debug",              // Only "info" level messages will be logged
     verbose: true  
 });
-var browser2 = require('casper').create({
-	logLevel: "debug",
-	verbose: true
-});
 
 phantom.outputEncoding = "utf-8";
 phantom.cookiesEnabled = true;
@@ -68,18 +64,86 @@ browser.options.onResourceRequested = function(C, requestData, request) {
 	
 };
 
-browser2.on("resource.requested", function(requestData, networkRequest){
-	console.log("----"+requestData['url']);
-  if(!(/http:\/\/127\.0\.0\.1.*/gi).test(requestData['url']) ){
-    console.log("----I can ignore this------");
-    request.abort();
-  }
-});
+var Tab = {
+	ocr: function(id) {
+		var _this = this;
+		_this.done = false;
+		_this.tab.thenOpen('http://127.0.0.1:8082/registe', {
+			headers: {
+				'Content-Type': 'application/json; charset=utf-8'
+			},
+			method: 'POST',
+			data: {
+				'ocr': 1,
+				'fileCode': 'code/CODE_'+id+'.png',
+			},
+		}, function(response){
+			console.log("POST browser2 ocr has been sent. "+ _this.tab.page.content );
+			if(response.status == 200 && _this.tab.page.content.indexOf("OK.")){
+				var value = (/[^\[]*\[([^\]]*)\].*/g).exec(_this.tab.page.content);
+				if(value != '' && value[1] != null) {
+					_this.ocrVal = value[1];
+				}
+				_this.done = true;
+			}
+		});
+		_this.tab.run(function() {
+			console.log('So the browser2 ocr done.');
+		});
+	},
+	
+	update: function(id, callback) {
+		var _this = this;
+		_this.done = false;
+		_this.tab.thenOpen('http://127.0.0.1:8082/registe', {
+			headers: {
+				'Content-Type': 'application/json; charset=utf-8'
+			},
+			method: 'POST',
+			data: {
+				'ocr': 0,
+				'id': id,
+				'fileCode': '',
+			},
+		}, function(response){
+			console.log("POST browser2 update has been sent. "+ _this.tab.page.content );
+			if(response.status == 200 && _this.tab.page.content.indexOf("OK.")){
+				_this.done = true;
+				_this.tab.exit();
+				if(callback != null)
+					callback();
+			}
+		});
+		_this.tab.run(function() {
+			console.log('So the browser2 update done.');
+		});
+	},
+	
+	create: function() {
+		function F() {};
+		F.prototype = Tab;
+		var f = new F();
+		f.ocrVal = '';
+		f.done = false;
+		f.tab = require('casper').create({
+				logLevel: "debug",
+				verbose: true
+			});
+		f.tab.on('error', function(msg,backtrace) {
+			this.echo("--->> ERROR browser 2 :"+msg+" stack:"+JSON.stringify(backtrace));
+		});
+		f.tab.start();
+		return f;
+	}
+	
+};
+
+var BROWSER2 = Tab.create();
 
 
 // for redirect page
-var xselCom = 'input.rdo[name="comIdentity"][value="'+DATA.type+'"]';
-var xselGender = 'input.rdo[name="userGender"][value="'+DATA.gender+'"]';
+var xselCom = 'input[name="comIdentity"][value="'+DATA.type+'"]';
+var xselGender = 'input[name="userGender"][value="'+DATA.gender+'"]';
 var xselCode = 'img#validation-code';
 var xselTip = 'div#errorDiv p#titleTip';
 var xselTipSuc = 'div.tip-nor.tip-succ div.tip-hd';
@@ -98,122 +162,77 @@ var xselForm = {
 
 var x = require('casper').selectXPath;
 //casperjs browser-step.js "0000" "http://www.abiz.com/inquiries/IxJrcEgUUnzP/quote"
-function test() {
-	browser2.start();
-	browser2.thenOpen('http://127.0.0.1:8082/registe', {
-		headers: {
-			'Content-Type': 'application/json; charset=utf-8'
-		},
-		method: 'POST',
-		data: {
-			    	'ocr': 1,
-			        'fileCode': 'code/CODE_'+DATA.id+'.png',
-			    },
-	}, function(response){
-		console.log("POST browser2 has been sent. "+ response.status + '  ' + browser2.page.content );
-	});
-	browser2.run()
-}
 
 function registe(codeHref) {
 	console.log('browser codeHref:'+codeHref);
 	var bb = browser.getElementBounds(xselCode);
-	var done = false, value = '';
 	console.log(JSON.stringify(bb));
 	browser.capture('code/CODE_'+DATA.id+'.png', { top: bb.top, left: bb.left+5, width: bb.width-5, height: bb.height},{format: 'png',quality: 100});
+	console.log('DONE :'+BROWSER2.done);
 	browser.then(function(){
-		console.log("POST browser2 open. ");
-		browser2.start();
-		browser2.thenOpen('http://127.0.0.1:8082/registe', {
-			headers: {
-				'Content-Type': 'application/json; charset=utf-8'
-			},
-			method: 'POST',
-			data: {
-						'ocr': 1,
-						'fileCode': 'code/CODE_'+DATA.id+'.png',
-					},
-		}, function(response){
-			console.log("POST browser2 has been sent. "+ browser2.page.content );
-			if(response.status == 200 && browser2.page.content.indexOf("OK.")){
-				done = true;
-				value = (/[^\[]*\[([^\]]*)\].*/g).exec(browser2.page.content);
-			}
-		});
-		browser2.run();
+		BROWSER2.ocr(DATA.id);
 	});
+	console.log('DONE :'+BROWSER2.done);
 	browser.waitFor(function check() {
-		console.log(' DOING: '+done);
-		return done;
+		console.log('DONE :'+BROWSER2.done);
+		return BROWSER2.done;
 	}, function() {
-		console.log("POST browser2 fetch receive. "+value.toString());
-		if(value != '' && value[1] != null) {
-			xselForm['input#validateNumber'] = value[1];
-			console.log('enter browser input fill:'+JSON.stringify(xselForm));
-			browser.fillSelectors('form#form', xselForm, true);
-			browser.click(xselCom);
-			browser.click(xselGender);
-			browser.evaluate(function(){  
-				document.querySelector('form#form').submit();
-			});
-			browser.then(function() {
-				console.log(" browser submit" + browser.getCurrentUrl());
-				browser.waitFor(function check() {
-					return browser.evaluate(function(xselTip, xselTipSuc) {
-						console.log(' browser xselTip:'+document.querySelectorAll(xselTip).length+
-							' xselTipSuc:'+document.querySelectorAll(xselTipSuc).length);
-						return document.querySelectorAll(xselTip).length > 0 || document.querySelectorAll(xselTipSuc).length > 0;
-					},xselTip, xselTipSuc);
-				}, function() {
-					if(browser.exists(xselTip)){
-						console.log(' browser submit failed:');
-						browser.click(xselRefresh);
-						browser.waitFor(function check() {
-							return browser.evaluate(function(xselCode, codeHref) {
-								//var str = document.body;
-								console.log(' xselCode:'+document.querySelectorAll(xselCode).length+
-								' href:'+(document.querySelector(xselCode).href != codeHref));
-								return document.querySelectorAll(xselCode).length > 0 && document.querySelector(xselCode).href != codeHref
-							},xselCode, codeHref);
-						}, function() {
-							var href = browser.getElementAttribute(xselCode, 'src');
-							registe(href);
-						});
-					}
-					else if(browser.exists(xselTipSuc)) {
-						console.log(' browser submit success:');
-						var cookies = JSON.stringify(phantom.cookies);
-						fs.write('cookie/'+DATA.id+'.cookie', cookies, 'w');
-						browser.thenOpen('http://127.0.0.1:8082/registe', {
-							headers: {
-								'Content-Type': 'application/json; charset=utf-8'
-							},
-							method: 'POST',
-							data: {
-										'ocr': 0,
-										'id': DATA.id,
-										'fileCode': '',
-									},
-						}, function(response){
-							console.log("POST browser2 fetch exit has been sent. "+ response.status );
-							if(response.status == 200 && browser2.page.content.indexOf("OK.")){
-								browser.exit(); 
-								browser2.exit();
-							}
-						});
+		xselForm['input#validateNumber'] = BROWSER2.ocrVal;
+		console.log('enter browser input fill:'+JSON.stringify(xselForm));
+		browser.fillSelectors('form#form', xselForm, false);
+		browser.click(xselCom);
+		browser.click(xselGender);
+		browser.evaluate(function(){  
+			document.querySelector('form#form').submit();
+		});
+		browser.then(function() {
+			console.log(" browser submit " + browser.getCurrentUrl());
+			browser.waitFor(function check() {
+				return browser.evaluate(function(xselTip, xselTipSuc) {
+					console.log(' browser xselTip:'+document.querySelectorAll(xselTip).length+
+						' xselTipSuc:'+document.querySelectorAll(xselTipSuc).length);
+					return document.querySelectorAll(xselTip).length > 0 || document.querySelectorAll(xselTipSuc).length > 0;
+				},xselTip, xselTipSuc);
+			}, function() {
+				if(browser.exists(xselTip)){
+					console.log(' browser submit failed:');
+					browser.click(xselRefresh);
+					browser.waitFor(function check() {
+						return browser.evaluate(function(xselCode, codeHref) {
+							//var str = document.body;
+							console.log(' xselCode:'+document.querySelectorAll(xselCode).length+
+							' href:'+(document.querySelector(xselCode).href != codeHref));
+							return document.querySelectorAll(xselCode).length > 0 && document.querySelector(xselCode).href != codeHref
+						},xselCode, codeHref);
+					}, function() {
+						var href = browser.getElementAttribute(xselCode, 'src');
+						registe(href);
+					});
+				}
+				else if(browser.exists(xselTipSuc)) {
+					console.log(' browser submit success:');
+					var cookies = JSON.stringify(phantom.cookies);
+					fs.write('cookie/'+DATA.id+'.cookie', cookies, 'w');
+					BROWSER2.update(DATA.id, function(){
+						browser.exit();
+					});
 /*var fs = require('fs');
 var data = fs.read(cookieFilename);
 phantom.cookies = JSON.parse(data);*/
-					}
-					
-				});
+				}
+				
 			});
-		}
+			browser.run(function() {
+				this.echo('So the browser done.');
+			});
+		});
+	});
+	browser.run(function() {
+		this.echo('So the browser done.');
 	});
 }
 browser.start();
 
-console.log("POST browser2 open. ");
 console.log('enter browser step regitste:'+DATA.link);
 browser.thenOpen(DATA.link);  
 browser.waitFor(function check() {
@@ -229,4 +248,6 @@ browser.waitFor(function check() {
 });
 
 
-browser.run();
+browser.run(function() {
+	this.echo('So the browser done.');
+});
