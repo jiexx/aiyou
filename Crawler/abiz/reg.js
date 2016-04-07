@@ -86,7 +86,7 @@ var RegUserSet =  {
 			var phone = small[2];
 			var loginname = small[3];
 			var password = small[4];
-			var usr = User.create('browser-reg.js', i, loginname+'qq.com', loginname, password, company, username, phone);
+			var usr = User.create('browser-reg.js', i, loginname+'@qq.com', loginname, password, company, username, phone);
 			if(usr != null) {
 				this.users.push(usr);
 			}
