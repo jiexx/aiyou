@@ -86,7 +86,7 @@ var RegUserSet =  {
 			var phone = small[2];
 			var loginname = small[3];
 			var password = small[4];
-			var usr = User.create('browser-reg.js', i, loginname+'qq.com', loginname, password, company, username, phone);
+			var usr = User.create('browser-reg.js', i, loginname+'@qq.com', loginname, password, company, username, phone);
 			if(usr != null) {
 				this.users.push(usr);
 			}
@@ -98,7 +98,7 @@ var RegUserSet =  {
 		var _this = this;
 		this.link = url;
 		connection.query(
-			'SELECT * FROM '+table+' WHERE registed=0; ', function(error, results, fields) {
+			'SELECT * FROM '+table+' WHERE registed=0 LIMIT 0, 1; ', function(error, results, fields) {
 				if (error) {
 					console.log("select Error: " + error.message);
 					connection.end();
@@ -115,11 +115,11 @@ var RegUserSet =  {
 			});
 	},
 	
-	updateOne: function(connection, table, id) {
+	updateOne: function(connection, table, id, ocr) {
 		var values = [id ];
 		console.log(">>>>>>>>>> update |id:"+id +"<<<<<<<<<<");
 		connection.query(
-				'UPDATE abiz SET registed = 1 WHERE id = ?',
+				'UPDATE '+table+' SET registed = '+ocr+' WHERE id = ?',
 				values, function(error, results) {
 					if (error) {
 						console.log("update Error: " + error.message);

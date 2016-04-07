@@ -50,7 +50,7 @@ browser.on("page.created", function(){
     	this.echo("--->> onResourceTimeout: "+request);
     };
 });
-browser.options.retryTimeout = 200;
+browser.options.retryTimeout = 60;
 browser.options.waitTimeout = 240000; 
 browser.options.onResourceRequested = function(C, requestData, request) {
 //browser.on("page.resource.requested", function(requestData, request) {
@@ -92,7 +92,15 @@ var Tab = {
 		});
 	},
 	
-	update: function(id, callback) {
+	updateSuc : function(id, callback) {
+		this._update(id, 0, callback)
+	},
+	
+	updateErr : function(id, callback) {
+		this._update(id, 2, callback)
+	},
+	
+	_update: function(id, ocr, callback) {
 		var _this = this;
 		_this.done = false;
 		_this.tab.thenOpen('http://127.0.0.1:8082/registe', {
@@ -101,7 +109,7 @@ var Tab = {
 			},
 			method: 'POST',
 			data: {
-				'ocr': 0,
+				'ocr': ocr,
 				'id': id,
 				'fileCode': '',
 			},
@@ -114,9 +122,9 @@ var Tab = {
 					callback();
 			}
 		});
-		_this.tab.run(function() {
+		/*_this.tab.run(function() {
 			console.log('So the browser2 update done.');
-		});
+		});*/
 	},
 	
 	create: function() {
@@ -126,7 +134,7 @@ var Tab = {
 		f.ocrVal = '';
 		f.done = false;
 		f.tab = require('casper').create({
-				logLevel: "debug",
+				//logLevel: "debug",
 				verbose: true
 			});
 		f.tab.on('error', function(msg,backtrace) {
@@ -140,12 +148,18 @@ var Tab = {
 
 var BROWSER2 = Tab.create();
 
+browser.on('timeout', function ()  {
+	BROWSER2.updateErr(DATA.id, function(){
+						browser.exit();
+					});
+});
 
 // for redirect page
 var xselCom = 'input[name="comIdentity"][value="'+DATA.type+'"]';
 var xselGender = 'input[name="userGender"][value="'+DATA.gender+'"]';
 var xselCode = 'img#validation-code';
-var xselTip = 'div#errorDiv p#titleTip';
+var xselTipErr = 'div#errorDiv p#titleTip';
+var xselWrong = 'div.wrong';
 var xselTipSuc = 'div.tip-nor.tip-succ div.tip-hd';
 var xselRefresh = 'a.js-change-validation-code';
 var xselForm = {
@@ -163,16 +177,52 @@ var xselForm = {
 var x = require('casper').selectXPath;
 //casperjs browser-step.js "0000" "http://www.abiz.com/inquiries/IxJrcEgUUnzP/quote"
 
+function submit() {
+	browser.waitFor(function check2() {
+		console.log(' ----------pop ');
+		return browser.evaluate(function(xselTipErr, xselTipSuc, xselWrong) {
+			console.log(' ----------pop ****');
+			console.log(' browser xselTipErr:'+document.querySelectorAll(xselTipErr).length+
+				' xselTipSuc:'+document.querySelectorAll(xselTipSuc).length);
+			return document.querySelectorAll(xselTipErr).length > 0 || document.querySelectorAll(xselTipSuc).length > 0 ||document.querySelectorAll(xselWrong).length > 0;
+		},xselTipErr, xselTipSuc, xselWrong);
+	}, function() {
+		this.echo('So the browser xselTip.');
+		if(browser.exists(xselTipSuc)) {
+			console.log(' browser submit success:');
+			var cookies = JSON.stringify(phantom.cookies);
+			fs.write('cookie/'+DATA.id+'.cookie', cookies, 'w');
+			BROWSER2.updateSuc(DATA.id, function(){
+				browser.exit();
+			});
+/*var fs = require('fs');
+var data = fs.read(cookieFilename);
+phantom.cookies = JSON.parse(data);*/
+		}else {
+			BROWSER2.updateErr(DATA.id, function(){
+				browser.exit();
+			});
+		}
+		
+	}, function() {
+	}, 30000);
+	/*browser.run(function() {
+		this.echo('So the browser done.');
+	});*/
+	require('utils').dump(browser.steps.map(function(step) {
+		return ">>>>** "+step.toString();
+	}));
+	
+}
+
 function registe(codeHref) {
 	console.log('browser codeHref:'+codeHref);
 	var bb = browser.getElementBounds(xselCode);
 	console.log(JSON.stringify(bb));
 	browser.capture('code/CODE_'+DATA.id+'.png', { top: bb.top, left: bb.left+5, width: bb.width-5, height: bb.height},{format: 'png',quality: 100});
-	console.log('DONE :'+BROWSER2.done);
 	browser.then(function(){
 		BROWSER2.ocr(DATA.id);
 	});
-	console.log('DONE :'+BROWSER2.done);
 	browser.waitFor(function check() {
 		console.log('DONE :'+BROWSER2.done);
 		return BROWSER2.done;
@@ -182,54 +232,15 @@ function registe(codeHref) {
 		browser.fillSelectors('form#form', xselForm, false);
 		browser.click(xselCom);
 		browser.click(xselGender);
-		browser.evaluate(function(){  
-			document.querySelector('form#form').submit();
-		});
-		browser.then(function() {
-			console.log(" browser submit " + browser.getCurrentUrl());
-			browser.waitFor(function check() {
-				return browser.evaluate(function(xselTip, xselTipSuc) {
-					console.log(' browser xselTip:'+document.querySelectorAll(xselTip).length+
-						' xselTipSuc:'+document.querySelectorAll(xselTipSuc).length);
-					return document.querySelectorAll(xselTip).length > 0 || document.querySelectorAll(xselTipSuc).length > 0;
-				},xselTip, xselTipSuc);
-			}, function() {
-				if(browser.exists(xselTip)){
-					console.log(' browser submit failed:');
-					browser.click(xselRefresh);
-					browser.waitFor(function check() {
-						return browser.evaluate(function(xselCode, codeHref) {
-							//var str = document.body;
-							console.log(' xselCode:'+document.querySelectorAll(xselCode).length+
-							' href:'+(document.querySelector(xselCode).href != codeHref));
-							return document.querySelectorAll(xselCode).length > 0 && document.querySelector(xselCode).href != codeHref
-						},xselCode, codeHref);
-					}, function() {
-						var href = browser.getElementAttribute(xselCode, 'src');
-						registe(href);
-					});
-				}
-				else if(browser.exists(xselTipSuc)) {
-					console.log(' browser submit success:');
-					var cookies = JSON.stringify(phantom.cookies);
-					fs.write('cookie/'+DATA.id+'.cookie', cookies, 'w');
-					BROWSER2.update(DATA.id, function(){
-						browser.exit();
-					});
-/*var fs = require('fs');
-var data = fs.read(cookieFilename);
-phantom.cookies = JSON.parse(data);*/
-				}
-				
-			});
-			browser.run(function() {
-				this.echo('So the browser done.');
-			});
+		browser.click('button#submit-button');
+		console.log(" browser submit " + browser.getCurrentUrl());
+		browser.then(function(){
+			submit();
 		});
 	});
-	browser.run(function() {
-		this.echo('So the browser done.');
-	});
+	require('utils').dump(browser.steps.map(function(step) {
+		return ">>>>* "+step.toString();
+	}));
 }
 browser.start();
 

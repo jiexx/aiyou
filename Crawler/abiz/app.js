@@ -216,7 +216,7 @@ app.post('/registe', upload.array(), function(req, res) {
 	var data = req.body;
 	console.log('[app] [REST/ocr] '+JSON.stringify(data));
 	var str = 'OK.';
-	if(data.ocr == 0){
+	if(data.ocr != 1){
 		rus.updateOne(connection, 'amazon.reg', data.id);
 		//rus.next();
 	}
