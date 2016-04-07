@@ -147,6 +147,7 @@ var xselGender = 'input[name="userGender"][value="'+DATA.gender+'"]';
 var xselCode = 'img#validation-code';
 var xselTip = 'div#errorDiv p#titleTip';
 var xselTipSuc = 'div.tip-nor.tip-succ div.tip-hd';
+var xselWrong = 'div.wrong';
 var xselRefresh = 'a.js-change-validation-code';
 var xselForm = {
 				'input#userEmail': DATA.email,
@@ -190,8 +191,8 @@ function registe(codeHref) {
 			browser.waitFor(function check() {
 				return browser.evaluate(function(xselTip, xselTipSuc) {
 					console.log(' browser xselTip:'+document.querySelectorAll(xselTip).length+
-						' xselTipSuc:'+document.querySelectorAll(xselTipSuc).length);
-					return document.querySelectorAll(xselTip).length > 0 || document.querySelectorAll(xselTipSuc).length > 0;
+						' xselTipSuc:'+document.querySelectorAll(xselTipSuc).length+' xselWrong:'+document.querySelectorAll(xselWrong).length);
+					return document.querySelectorAll(xselTip).length > 0 || document.querySelectorAll(xselTipSuc).length > 0 || document.querySelectorAll(xselWrong).length > 0 ;
 				},xselTip, xselTipSuc);
 			}, function() {
 				if(browser.exists(xselTip)){
