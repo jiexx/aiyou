@@ -161,6 +161,7 @@ var xselCode = 'img#validation-code';
 var xselTipErr = 'div#errorDiv p#titleTip';
 var xselWrong = 'div.wrong';
 var xselTipSuc = 'div.tip-nor.tip-succ div.tip-hd';
+var xselWrong = 'div.wrong';
 var xselRefresh = 'a.js-change-validation-code';
 var xselForm = {
 				'input#userEmail': DATA.email,
