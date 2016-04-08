@@ -116,10 +116,10 @@ var RegUserSet =  {
 	},
 	
 	updateOne: function(connection, table, id, ocr) {
-		var values = [id ];
+		var values = [ocr, id ];
 		console.log(">>>>>>>>>> update |id:"+id +"<<<<<<<<<<");
 		connection.query(
-				'UPDATE '+table+' SET registed = '+ocr+' WHERE id = ?',
+				'UPDATE '+table+' SET registed =  ? WHERE id = ?',
 				values, function(error, results) {
 					if (error) {
 						console.log("update Error: " + error.message);

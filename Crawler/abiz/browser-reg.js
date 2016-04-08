@@ -54,12 +54,12 @@ browser.options.retryTimeout = 60;
 browser.options.waitTimeout = 240000; 
 browser.options.onResourceRequested = function(C, requestData, request) {
 //browser.on("page.resource.requested", function(requestData, request) {
-	if ( !(/.*\.abiz\..*/gi).test(requestData['url']) && !(/http:\/\/127\.0\.0\.1.*/gi).test(requestData['url']) 
+	if ( !(/.*\.abiz\..*/gi).test(requestData['url']) && !(/.*made-in-china\.com.*/gi).test(requestData['url']) && !(/http:\/\/127\.0\.0\.1.*/gi).test(requestData['url']) 
 			){
-		//console.log(' Skipping file: ' + requestData['url']);
+		console.log(' Skipping file: ' + requestData['url']);
 		request.abort();
 	}else {
-		//console.log(' Down file: ' + requestData['url']);
+		console.log(' Down file: ' + requestData['url']);
 	}
 	
 };
@@ -122,9 +122,9 @@ var Tab = {
 					callback();
 			}
 		});
-		/*_this.tab.run(function() {
+		_this.tab.run(function() {
 			console.log('So the browser2 update done.');
-		});*/
+		});
 	},
 	
 	create: function() {
@@ -149,6 +149,7 @@ var Tab = {
 var BROWSER2 = Tab.create();
 
 browser.on('timeout', function ()  {
+	browser.capture('err/capture_'+DATA.id+'.png');
 	BROWSER2.updateErr(DATA.id, function(){
 						browser.exit();
 					});
@@ -160,14 +161,15 @@ var xselGender = 'input[name="userGender"][value="'+DATA.gender+'"]';
 var xselCode = 'img#validation-code';
 var xselTipErr = 'div#errorDiv p#titleTip';
 var xselWrong = 'div.wrong';
+var xselWrong2 = 'div.username-recmd';
 var xselTipSuc = 'div.tip-nor.tip-succ div.tip-hd';
 var xselWrong = 'div.wrong';
 var xselRefresh = 'a.js-change-validation-code';
 var xselForm = {
 				'input#userEmail': DATA.email,
 				'input#logUserName': DATA.loginname,
-				'input#logPassword': DATA.pwd,
-				'input#confirmPassword': DATA.pwd,
+				'input#logPassword': DATA.password,
+				'input#confirmPassword': DATA.password,
 				'input#comName':DATA.company,
 				'input#userName': DATA.username,
 				'select#comTelephoneCountryCode': '86',
@@ -180,13 +182,13 @@ var x = require('casper').selectXPath;
 
 function submit() {
 	browser.waitFor(function check2() {
-		console.log(' ----------pop ');
-		return browser.evaluate(function(xselTipErr, xselTipSuc, xselWrong) {
-			console.log(' ----------pop ****');
-			console.log(' browser xselTipErr:'+document.querySelectorAll(xselTipErr).length+
-				' xselTipSuc:'+document.querySelectorAll(xselTipSuc).length);
-			return document.querySelectorAll(xselTipErr).length > 0 || document.querySelectorAll(xselTipSuc).length > 0 ||document.querySelectorAll(xselWrong).length > 0;
-		},xselTipErr, xselTipSuc, xselWrong);
+		//console.log(' ----------pop ');
+		//console.log(' browser xselTipErr*:'+browser.exists(xselTipErr)+' xselTipSuc:'+browser.exists(xselTipSuc)+' xselWrong:'+browser.exists(xselWrong)+' xselWrong2:'+browser.exists(xselWrong2));
+		return browser.evaluate(function(xselTipErr, xselTipSuc, xselWrong, xselWrong2) {
+			//console.log(' ----------pop ****');
+			//console.log(' browser xselTipErr:'+document.querySelectorAll(xselTipErr).length+' xselTipSuc:'+document.querySelectorAll(xselTipSuc).length)+' xselWrong'+document.querySelectorAll(xselWrong).length;
+			return document.querySelectorAll(xselTipErr).length > 0 || document.querySelectorAll(xselTipSuc).length > 0 ||document.querySelectorAll(xselWrong).length > 0 ||document.querySelectorAll(xselWrong2).length > 0;
+		},xselTipErr, xselTipSuc, xselWrong, xselWrong2);
 	}, function() {
 		this.echo('So the browser xselTip.');
 		if(browser.exists(xselTipSuc)) {
@@ -200,11 +202,11 @@ function submit() {
 var data = fs.read(cookieFilename);
 phantom.cookies = JSON.parse(data);*/
 		}else {
+			browser.capture('err/capture_'+DATA.id+'.png');
 			BROWSER2.updateErr(DATA.id, function(){
 				browser.exit();
 			});
 		}
-		
 	}, function() {
 	}, 30000);
 	/*browser.run(function() {
@@ -236,6 +238,7 @@ function registe(codeHref) {
 		browser.click('button#submit-button');
 		console.log(" browser submit " + browser.getCurrentUrl());
 		browser.then(function(){
+			browser.capture('tet.png');
 			submit();
 		});
 	});
