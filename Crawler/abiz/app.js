@@ -34,7 +34,7 @@ connection.connect(function(error, results) {
 			return;
 		}
 		//rus.save(connection, 'amazon.reg');
-		rus.loadFromDBAndNext(connection, 'amazon.reg', 'http://www.abiz.com/reg/step1/afternew');
+		rus.loadFromDBAndNext(connection, 'amazon.reg', 'http://www.abiz.com/reg/step1/afternew', 'https://www.abiz.com/session/new');
 		dbReady = true;
 	});
 });
@@ -216,8 +216,12 @@ app.post('/registe', upload.array(), function(req, res) {
 	var data = req.body;
 	console.log('[app] [REST/ocr] '+JSON.stringify(data));
 	var str = 'OK.';
-	if(data.ocr != 1){
-		rus.updateOne(connection, 'amazon.reg', data.id, data.ocr);
+	if(data.ocr == 3){
+		rus.updateOne(connection, 'amazon.reg', data.id, 1, decodeURIComponent(decodeURIComponent(data.cookie)));
+		//rus.next();
+	}
+	else if(data.ocr == 2){
+		rus.updateOne(connection, 'amazon.reg', data.id, 0, null);
 		//rus.next();
 	}
 	else if(data.ocr == 1){
@@ -243,7 +247,7 @@ var server = app
 						fs.unlink('fetches.txt');
 					}
 					
-					//rus.load('500acpwd.csv', 'http://www.abiz.com/reg/step1/afternew');
+					//rus.load('500acpwd.csv', 'http://www.abiz.com/reg/step1/afternew', 'https://www.abiz.com/session/new');
 										
 					/*for(var i in banks) {
 						var url = URL.create(banks[i]);

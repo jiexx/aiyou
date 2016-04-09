@@ -10,14 +10,14 @@ var User = {
 		this.phone = '';
 	},
 	
-	_registe: function( url) {
+	_registe: function( url, login) {
 		var args=[];
 		var _this = this;
 		var g = Math.floor(Math.random()*10) > 5 ? 1 : 0;
 		var t = Math.floor(Math.random()*10) > 5 ? 1 : 0;
 		var r = JSON.stringify({
 			id : _this.id,
-			type: t,
+			type: 1,
 			gender: g,
 			email : _this.email,
 			loginname : _this.loginname,
@@ -26,6 +26,7 @@ var User = {
 			username : _this.username,
 			phone : _this.phone,
 			link : url,
+			loginlink: login
 		});
 		r = encodeURIComponent(r);
 		r = encodeURIComponent(r);
@@ -54,13 +55,17 @@ var User = {
 		proc.on('exit', function(data) {
 			//var str = iconv.decode(data,'GBK');
 			console.log('[BROWSER] EXIT '+_this.which+' pid: '+pid +' '+  data );
+			if(_this.parent != null) {
+				_this.parent.exitAndNext();
+			}
 		});
 	},
 	
-	create: function(which, id, email, loginname, password, company, username, phone) {
+	create: function(parent, which, id, email, loginname, password, company, username, phone) {
 		function F() {};
 		F.prototype = User;
 		var f = new F();
+		f.parent = parent;
 		f.which = which;
 		f.id = id;
 		f.email = email;
@@ -75,7 +80,7 @@ var User = {
 
 var RegUserSet =  {
 	
-	load: function(file, url) {
+	load: function(file, url, login) {
 		var fs = require("fs");
 		var str = fs.readFileSync(file).toString();
 		var big = str.split(',');
@@ -86,17 +91,27 @@ var RegUserSet =  {
 			var phone = small[2];
 			var loginname = small[3];
 			var password = small[4];
-			var usr = User.create('browser-reg.js', i, loginname+'@qq.com', loginname, password, company, username, phone);
+			var usr = User.create(this, 'browser-reg.js', i, loginname+'@qq.com', loginname, password, company, username, phone);
 			if(usr != null) {
 				this.users.push(usr);
 			}
 		}
 		this.link = url;
+		this.login = login;
 	},
 	
-	loadFromDBAndNext: function(connection, table, url) {
+	exitAndNext: function() {
+		console.log('exitAndNext:'+this.conn+' '+this.table+' '+ this.link+' '+this.login);
+		if(this.conn != null && this.table != '' && this.link != '' && this.login != null )
+			this.loadFromDBAndNext(this.conn, this.table, this.link, this.login);
+	},
+	
+	loadFromDBAndNext: function(connection, table, url, login) {
 		var _this = this;
 		this.link = url;
+		this.login = login;
+		this.conn = connection;
+		this.table = table;
 		connection.query(
 			'SELECT * FROM '+table+' WHERE registed=0 LIMIT 0, 1; ', function(error, results, fields) {
 				if (error) {
@@ -105,21 +120,24 @@ var RegUserSet =  {
 					return;
 				}
 				
-				for ( var i = 0 ; i < results.length ; i ++ ) {
-					var usr = User.create('browser-reg.js', results[i].id, results[i].email, results[i].loginname, results[i].password, results[i].company, results[i].username, results[i].phone);
+				/*for ( var i = 0 ; i < results.length ; i ++ ) {
+					var usr = User.create(_this, 'browser-reg.js', results[i].id, results[i].email, results[i].loginname, results[i].password, results[i].company, results[i].username, results[i].phone);
 					if(usr != null) {
 						_this.users.push(usr);
 					}
 				}
-				_this.next();
+				_this.next();*/
+				var i = 0;
+				var usr = User.create(_this, 'browser-reg.js', results[i].id, results[i].email, results[i].loginname, results[i].password, results[i].company, results[i].username, results[i].phone);
+				usr._registe(_this.link, _this.login);
 			});
 	},
 	
-	updateOne: function(connection, table, id, ocr) {
-		var values = [ocr, id ];
+	updateOne: function(connection, table, id, ocr, cookie) {
+		var values = [ocr, cookie, id];
 		console.log(">>>>>>>>>> update |id:"+id +"<<<<<<<<<<");
 		connection.query(
-				'UPDATE '+table+' SET registed =  ? WHERE id = ?',
+				'UPDATE '+table+' SET registed =  ?, cookie = ? WHERE id = ?',
 				values, function(error, results) {
 					if (error) {
 						console.log("update Error: " + error.message);
@@ -162,7 +180,7 @@ var RegUserSet =  {
 		if(this.curr >= this.users.length)
 			return;
 		var usr = this._get();
-		usr._registe(this.link);
+		usr._registe(this.link, this.login);
 		this.curr ++;
 	},
 	
@@ -177,6 +195,9 @@ var RegUserSet =  {
 		f.users = [];
 		f.curr = 0;
 		f.link = '';
+		f.login = '';
+		f.conn = null;
+		f.table = '';
 		return f;
 	}
 };

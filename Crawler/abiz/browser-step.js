@@ -10,7 +10,7 @@ var browser = require('casper').create({
         //userAgent: 'Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.21 (KHTML, like Gecko) Chrome/25.0.1349.2 Safari/537.21'
         userAgent: 'Mozilla/5.0 (Windows; U; Windows NT 5.1; en-US) AppleWebKit/534.16 (KHTML, like Gecko) Chrome/10.0.648.151 Safari/534.16'
     },
-    logLevel: "debug",              // Only "info" level messages will be logged
+    //logLevel: "debug",              // Only "info" level messages will be logged
     verbose: true  
 });
 
@@ -99,10 +99,10 @@ browser.options.onResourceRequested = function(C, requestData, request) {
 //browser.on("page.resource.requested", function(requestData, request) {
 	if ( !(/.*\.abiz\..*/gi).test(requestData['url']) && !(/http:\/\/127\.0\.0\.1.*/gi).test(requestData['url']) 
 			){
-		console.log(' Skipping file: ' + requestData['url']);
+		//console.log(' Skipping file: ' + requestData['url']);
 		request.abort();
 	}else {
-		console.log(' Down file: ' + requestData['url']);
+		//console.log(' Down file: ' + requestData['url']);
 	}
 	
 };

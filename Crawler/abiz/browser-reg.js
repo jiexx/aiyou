@@ -10,7 +10,7 @@ var browser = require('casper').create({
         //userAgent: 'Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.21 (KHTML, like Gecko) Chrome/25.0.1349.2 Safari/537.21'
         userAgent: 'Mozilla/5.0 (Windows; U; Windows NT 5.1; en-US) AppleWebKit/534.16 (KHTML, like Gecko) Chrome/10.0.648.151 Safari/534.16'
     },
-    logLevel: "debug",              // Only "info" level messages will be logged
+    //logLevel: "debug",              // Only "info" level messages will be logged
     verbose: true  
 });
 
@@ -54,14 +54,14 @@ browser.options.retryTimeout = 60;
 browser.options.waitTimeout = 240000; 
 browser.options.onResourceRequested = function(C, requestData, request) {
 //browser.on("page.resource.requested", function(requestData, request) {
-	if ( !(/.*\.abiz\..*/gi).test(requestData['url']) && !(/.*made-in-china\.com.*/gi).test(requestData['url']) && !(/http:\/\/127\.0\.0\.1.*/gi).test(requestData['url']) 
+	if ( !(/.*valley\.com.*/gi).test(requestData['url']) && !(/.*\.abiz\..*/gi).test(requestData['url']) && !(/.*made-in-china\.com.*/gi).test(requestData['url']) && !(/http:\/\/127\.0\.0\.1.*/gi).test(requestData['url']) 
 			){
-		console.log(' Skipping file: ' + requestData['url']);
+		//console.log(' Skipping file: ' + requestData['url']);
 		request.abort();
 	}else {
-		console.log(' Down file: ' + requestData['url']);
+		//console.log(' Down file: ' + requestData['url']);
 	}
-	
+	//console.log(' browser curr*:'+ browser.getCurrentUrl());
 };
 
 var Tab = {
@@ -92,15 +92,19 @@ var Tab = {
 		});
 	},
 	
-	updateSuc : function(id, callback) {
-		this._update(id, 0, callback)
+	updateSucWithoutQuit : function(id, cookie ) {
+		this._update(id, 3, null, cookie, false)
+	},
+	
+	updateSuc : function(id, cookie, callback ) {
+		this._update(id, 3, callback, cookie, true)
 	},
 	
 	updateErr : function(id, callback) {
-		this._update(id, 2, callback)
+		this._update(id, 2, callback, null, true)
 	},
 	
-	_update: function(id, ocr, callback) {
+	_update: function(id, ocr, callback, cookie, quit) {
 		var _this = this;
 		_this.done = false;
 		_this.tab.thenOpen('http://127.0.0.1:8082/registe', {
@@ -112,14 +116,19 @@ var Tab = {
 				'ocr': ocr,
 				'id': id,
 				'fileCode': '',
+				'cookie': encodeURIComponent(encodeURIComponent(cookie))
 			},
 		}, function(response){
 			console.log("POST browser2 update has been sent. "+ _this.tab.page.content );
 			if(response.status == 200 && _this.tab.page.content.indexOf("OK.")){
 				_this.done = true;
-				_this.tab.exit();
-				if(callback != null)
+				
+				if(callback != null) {
 					callback();
+				}
+				if(quit) {
+					_this.tab.exit();
+				}
 			}
 		});
 		_this.tab.run(function() {
@@ -149,6 +158,7 @@ var Tab = {
 var BROWSER2 = Tab.create();
 
 browser.on('timeout', function ()  {
+	console.log('do browser timeout');
 	browser.capture('err/capture_'+DATA.id+'.png');
 	BROWSER2.updateErr(DATA.id, function(){
 						browser.exit();
@@ -164,6 +174,7 @@ var xselWrong = 'div.wrong';
 var xselWrong2 = 'div.username-recmd';
 var xselTipSuc = 'div.tip-nor.tip-succ div.tip-hd';
 var xselWrong = 'div.wrong';
+var xselEmailExist = 'a.backToLogin';
 var xselRefresh = 'a.js-change-validation-code';
 var xselForm = {
 				'input#userEmail': DATA.email,
@@ -180,6 +191,47 @@ var xselForm = {
 var x = require('casper').selectXPath;
 //casperjs browser-step.js "0000" "http://www.abiz.com/inquiries/IxJrcEgUUnzP/quote"
 
+var xselLoginBtn = 'button#loginButton';
+var loginform = {
+					'input#logonUserName': DATA.loginname,
+					'input#logonPassword': DATA.password
+};
+var xselRem = 'input#remember_me';
+function login() {
+	console.log('login -----:'+DATA.loginlink);
+	browser.thenOpen(DATA.loginlink);
+	browser.waitFor(function check() {
+			console.log('login -----:'+browser.exists(xselLoginBtn)+' '+browser.getCurrentUrl());
+			return this.evaluate(function(xselLoginBtn) {
+				return document.querySelectorAll(xselLoginBtn).length > 0
+		},xselLoginBtn);
+	}, function() {
+		browser.fillSelectors('form#form', loginform, false);
+		browser.click(xselRem);
+		browser.click(xselLoginBtn);
+		var t= 0;
+		browser.waitFor(function check() {
+			//console.log('login -----:'+browser.exists('a.top-username')+' '+browser.getCurrentUrl());
+			//browser.capture('ttt'+(t++)+'.png');
+			return this.evaluate(function() {
+				return document.querySelectorAll('a.top-username').length > 0
+			});
+		}, function() {
+			var cookies = JSON.stringify(phantom.cookies);
+			console.log('login -----:'+cookies);
+			fs.write('cookie/'+DATA.id+'.cookie', cookies, 'w');
+			BROWSER2.updateSuc(DATA.id, cookies, function(){
+				browser.exit();
+			});
+		});
+	}, function() {
+		this.exit();
+	}, 120000);
+	browser.run(function() {
+		this.echo('So the browser done. ***');
+	});
+}
+
 function submit() {
 	browser.waitFor(function check2() {
 		//console.log(' ----------pop ');
@@ -190,25 +242,35 @@ function submit() {
 			return document.querySelectorAll(xselTipErr).length > 0 || document.querySelectorAll(xselTipSuc).length > 0 ||document.querySelectorAll(xselWrong).length > 0 ||document.querySelectorAll(xselWrong2).length > 0;
 		},xselTipErr, xselTipSuc, xselWrong, xselWrong2);
 	}, function() {
-		this.echo('So the browser xselTip.');
+		this.echo('So the browser submit.');
+		console.log(' browser submit* xselTipErr:'+browser.exists(xselTipErr)+' xselTipSuc:'+browser.exists(xselTipSuc)+' xselWrong:'+browser.exists(xselWrong)+' xselWrong2:'+browser.exists(xselWrong2));
 		if(browser.exists(xselTipSuc)) {
 			console.log(' browser submit success:');
 			var cookies = JSON.stringify(phantom.cookies);
 			fs.write('cookie/'+DATA.id+'.cookie', cookies, 'w');
-			BROWSER2.updateSuc(DATA.id, function(){
+			BROWSER2.updateSuc(DATA.id, cookies, function(){
 				browser.exit();
 			});
 /*var fs = require('fs');
 var data = fs.read(cookieFilename);
 phantom.cookies = JSON.parse(data);*/
-		}else {
+		}else if(browser.exists(xselEmailExist) && browser.exists(xselWrong)) {
+			BROWSER2.updateSucWithoutQuit(DATA.id, '');
+			login();
+		}
+		else {
 			browser.capture('err/capture_'+DATA.id+'.png');
 			BROWSER2.updateErr(DATA.id, function(){
 				browser.exit();
 			});
 		}
 	}, function() {
-	}, 30000);
+		console.log('do browser timeout*');
+		browser.capture('err/capture_'+DATA.id+'.png');
+		BROWSER2.updateErr(DATA.id, function(){
+							browser.exit();
+						});
+	}, 180000);
 	/*browser.run(function() {
 		this.echo('So the browser done.');
 	});*/
@@ -238,7 +300,6 @@ function registe(codeHref) {
 		browser.click('button#submit-button');
 		console.log(" browser submit " + browser.getCurrentUrl());
 		browser.then(function(){
-			browser.capture('tet.png');
 			submit();
 		});
 	});

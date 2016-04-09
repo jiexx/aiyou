@@ -1,2 +1,2 @@
 drop table amazon.reg;
-create table amazon.reg(id varchar(64), email varchar(512), phone varchar(512), loginname varchar(128), password varchar(128), company varchar(128), username varchar(256), registed int default 0);
+create table amazon.reg(id varchar(64), email varchar(512), phone varchar(512), loginname varchar(128), password varchar(128), company varchar(128), username varchar(256), registed int default 0, cookie text, used int);
