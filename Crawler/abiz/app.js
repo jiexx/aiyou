@@ -33,6 +33,7 @@ connection.connect(function(error, results) {
 			connection.end();
 			return;
 		}
+		//us.loadCookies(connection, 'SELECT cookie FROM amazon.reg WHERE cookie <>""', cookie);
 		//rus.save(connection, 'amazon.reg');
 		rus.loadFromDBAndNext(connection, 'amazon.reg', 'http://www.abiz.com/reg/step1/afternew', 'https://www.abiz.com/session/new');
 		dbReady = true;
@@ -42,7 +43,7 @@ connection.connect(function(error, results) {
 function select() {
 	var values = null;
 	connection.query(
-			'SELECT id, link,descr FROM amazon.hc360 WHERE descr IS NULL; ', function(error, results, fields) {
+			'SELECT id, link,descr FROM amazon.abiz WHERE descr IS NULL; ', function(error, results, fields) {
 				if (error) {
 					console.log("select Error: " + error.message);
 					connection.end();

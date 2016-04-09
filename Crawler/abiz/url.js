@@ -5,17 +5,27 @@ var URL = {
 	id : '',
 	proc : null,
 	time : 0,
+	cookie : null,
 
 	getURLParameter: function(name) {
 		return decodeURI(
 			(RegExp(name + '=' + '(.+?)(&|$)').exec(this.link)||[,null])[1]
 		);
 	},
+	
+	setCookie: function(cookie) {
+		this.cookie = cookie;
+	},
+	
+	getCookie: function() {
+		return this.cookie;
+	},
 
 	URL : function (link) {
 		this.link = link;
 		this.id =  crypto.createHash('md5').update(link).digest('hex');
 		this.time = (new Date()).getTime();
+		this.cookie = '';
 	},
 	
 	escape: function() {

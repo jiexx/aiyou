@@ -61,6 +61,12 @@ var Queue = {
 			if(url != null && this.isNoVisit(url.getId()) && (++num) < this.PARAMAX){
 				args.push(url.getId());
 				args.push(url.getLink());
+				
+				var cookie = url.getCookie();
+				if(cookie != null && cookie.length > 0) {
+					args.push(cookie);
+				}
+				
 				this._visiting(url.getId());// for repeated visit issue.
 			}
 		}
@@ -192,11 +198,15 @@ var Queue = {
 }
 
 var UrlSet =  {
+	COOKIEMAX: 50,
 	queueRedirects: null,
 	queueFetchs: null,
 	
 	addFetchUrl: function(url) {
+		var i = this.cookieAlloc % this.COOKIEMAX;
+		url.setCookie(this.cookies[i]);
 		this.queueFetchs.add(url);
+		this.cookieAlloc ++;
 	},
 	
 	addRedirectUrl: function(url) {
@@ -227,7 +237,23 @@ var UrlSet =  {
 		this.queueRedirects.loop();
 	},
 	
-	create: function() {
+	loadCookies: function(connection, sql, field) {
+		var _this = this;
+		connection.query(
+			sql, function(error, results, fields) {
+				if (error) {
+					console.log("loadCookies Error: " + error.message);
+					connection.end();
+					return;
+				}				
+				for ( var i = 0 ; i < results.length ; i ++ ) {
+					_this.cookies.push(encodeURIComponent(encodeURIComponent(results[i][filed])));
+					cosole.log(results[i][filed]);
+				}
+			});
+	},
+	
+	create: function(conn, sql) {
 		function F() {};
 		F.prototype = UrlSet;
 		var f = new F();
@@ -235,7 +261,9 @@ var UrlSet =  {
 		f.queueRedirects = Queue.create('browser-redirect.js', 3, 32, function(){
 			f.queueFetchs.loop();
 		});*/
-		f.queueFetchs = Queue.create('browser-fetch.js', 3, 32, null);
+		f.cookies = [];
+		f.cookieAlloc = 0;
+		f.queueFetchs = Queue.create('browser-step.js', 3, 32, null);
 		f.queueRedirects = Queue.create('browser-redirect.js', 3, 32, null);
 		return f;
 	}

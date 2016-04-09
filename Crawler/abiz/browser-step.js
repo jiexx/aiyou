@@ -16,42 +16,7 @@ var browser = require('casper').create({
 
 phantom.outputEncoding = "GBK";
 phantom.cookiesEnabled = true;
-phantom.addCookie({
-	'name': '_abiz_session',
-	'value': 'eyJ1c2VybmFtZSI6IumZiOWHpOWohyIsIm1pY191c2VybmFtZSI6ImVsbGExNTgiLCJfY3NyZiI6IlRtK0QwbFgzOUZ6ZkhPUXEzOC9RRnc9PSIsIl9hX2siOiJlbGxhMTU4IiwidGFnIjoiMDc5NjRmYWYtYzg3Zi00YzgzLThiNmItMWVhN2JhYjkzOWI5IiwiX2FfcG5fIjoiYWJpeiIsImdlbmRlciI6IuWls+WjqyIsInRtX2ZsYWdfZm9yX2NtcyI6IjEiLCJtZW1iZXJJZGVudGl0eSI6IjAwMDEwIiwid2ViVG1fZmxhZ19mb3JfY21zIjoiMSIsInNob3dyb29tX3VzZXJuYW1lIjoiZWxsYTE1OCJ9--HMERu02Cres24oYHqiHR0cFZEdE=',
-	'domain': '.abiz.com',
-	'path': '/'
-});
-phantom.addCookie({
-	'name': 'Hm_lvt_2a5404afa4139eb47a34deacf850d09f',
-	'value': '1459171063,1459250706,1459250735,1459250742',
-	'domain': '.abiz.com',
-	'path': '/'
-});
-phantom.addCookie({
-	'name': 'Hm_lpvt_2a5404afa4139eb47a34deacf850d09f',
-	'value': '1459254169',
-	'domain': '.abiz.com',
-	'path': '/'
-});
-phantom.addCookie({
-	'name': '_ga',
-	'value': 'GA1.2.1813069929.1459097671',
-	'domain': '.abiz.com',
-	'path': '/'
-});
-phantom.addCookie({
-	'name': '_dc_gtm_UA-34187825-1',
-	'value': '1',
-	'domain': '.abiz.com',
-	'path': '/'
-});
-phantom.addCookie({
-	'name': 'logonTimes',
-	'value': '1',
-	'domain': '.abiz.com',
-	'path': '/'
-});
+
 
 
 if (browser.cli.args.length == 0) {
@@ -59,14 +24,16 @@ if (browser.cli.args.length == 0) {
 	browser.exit();
 }
 
-var num = (browser.cli.args.length / 2); 
+var num = (browser.cli.args.length / 3); 
 var counter = num;
 //console.log( 'fetch num of links:'+num );
 var id = [];
 var link = [];
+var cookie = [];
 for(var i = 0 ; i < num ; i ++) {
-	id[i] = browser.cli.get(2*i);
-	link[i] = browser.cli.get(2*i+1);
+	id[i] = browser.cli.get(3*i);
+	link[i] = browser.cli.get(3*i+1);
+	cookie[i] = browser.cli.get(3*i+2);
 	//console.log("args id["+i+"]:"+browser.cli.get(i)+" link["+i+"]: "+browser.cli.get(i+1));
 }
 var fs = require('fs');
@@ -137,7 +104,7 @@ console.log('enter browser step 报价:');
 for(var j = 0 ; j < num ; j ++) {
 	(function(arg){
 		var k = arg;
-		
+		phantom.cookies = JSON.parse(decodeURIComponent(decodeURIComponent(cookie[k])));
 		browser.thenOpen(link[k]);  
 		browser.waitFor(function check() {
 			return this.evaluate(function(xselButton) {
