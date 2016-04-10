@@ -63,14 +63,14 @@ function select() {
 			});
 }
 
-function update(id, desc, addr, left, link) {
+function update(id, contact, link) {
 	if (!dbReady)
 		return;
 	
-	var values = [ desc, email, phone, addr, left, link ];
+	var values = [ contact, link ];
 	console.log(">>>>>>>>>> update |email:"+email + " |phone:" + phone + " |left:" +left+  "|addr:"+addr +"<<<<<<<<<<");
 	connection.query(
-			'UPDATE abiz SET descr = ?, email = ?, phone = ?, addr = ?, days = ? WHERE link = ?',
+			'UPDATE abiz SET descr = ? WHERE link = ?',
 			values, function(error, results) {
 				if (error) {
 					console.log("update Error: " + error.message);
@@ -163,16 +163,10 @@ app.post('/detail', upload.array(), function(req, res) {
 	
 	us.visitedFetchUrl(data.id);
 	
-	if(data.desc.length == 0) {
-		data.desc = 'ERR_DESC';
-	}else if(data.company.length == 0){
-		data.company = 'ERR_PRODUCER';
-	}else if(data.addr.length == 0){
-		data.addr = 'ERR_ADDR';
-	}else if(data.left.length == 0){
-		data.left = 'ERR_LEFT';
+	if(data.contact.length == 0) {
+		data.contact = 'ERR_CONTACT';
 	}
-	update(data.id, data.desc, data.company, data.addr, data.left, data.link );
+	update(data.id, data.contact, data.link );
 
 	res.send('OK.');
 	
