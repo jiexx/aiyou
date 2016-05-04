@@ -8,29 +8,30 @@ var Slot = {
 	},
 },
 var Transition = {
-	create: function(petri, app, stub, inputs, outputs) {
+	create: function(petri, app, upload, stub, inputs, outputs) {
 		function _() {};
 		__extends(_, Transition);
 		var _this = new _();
 		_this.stub = stub;
 		_this.inputs = [];
 		_this.outputs = [];
-		_this.inSlot(inputs);
-		_this.outSlot(outputs);
-		app.get(stub, function(req, res) {
-			var i = _this.fire(req, res);
-			if(i > -1) {
-				petri.tokenHas(_this.outputs[i].place);
+		_this._inSlot(inputs);
+		_this._outSlot(outputs);
+		app.get(stub, upload.array(), function(req, res) {
+			petri.req = req;
+			petri.res = res;
+			if(_this.fire() > -1) {
+				petri._tokenHas(_this.outputs[i].place);
 			}
 		});
 		return _this;
 	},
-	inSlot: function(inputs) {
+	_inSlot: function(inputs) {
 		for(var i in inputs) {
 			this.inputs[i] = Slot.create(inputs[i]);
 		}
 	},
-	outSlot: function(outputs) {
+	_outSlot: function(outputs) {
 		for(var o in outputs) {
 			this.outputs[o] = Slot.create(outputs[o]);
 		}
@@ -42,10 +43,9 @@ var Transition = {
 		}
 		return -1;
 	},
-	fire: function(req, res) {
+	fire: function() {
 		for(var i in this.outputs) {
-			if(this.outputs[i].test(req)) {
-				this.outputs[i].place.enter(req, res);
+			if(this.outputs[i].test()) {
 				return i;
 			}
 		}

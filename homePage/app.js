@@ -1,32 +1,31 @@
-var express = require('express');
-var mysql = require('mysql');
-var bodyParser = require('body-parser');
-var multer = require('multer'); // v1.0.5
-var FdfsClient = require('fdfs');
-var fs = require("fs");
+eval(fs.readFileSync('def.js') + '');
 
-var upload = multer({ dest: 'uploads/' }); 
-var app = express();
-//app.use(bodyParser.json()); // for parsing application/json
-app.use(bodyParser.urlencoded({ extended: true })); // for parsing application/x-www-form-urlencoded
-app.set('view engine', 'ejs');
-app.set('view options', {
-    layout: false
-});
-eval(fs.readFileSync('url.js') + '');
-eval(fs.readFileSync('urlset.js') + '');
+var pn = Petri.create('company', app, upload);
 
-app.get('/lessons', upload.array(), function(req, res) {
-	
-	var data = select();
-	var result = [];
-	for(var i in data) {
-		var t = convert(data[i].LessonType);
-		console.log(t);
-		result.push({day:data[i].day,id:data[i].id,type:t});
+var p1 = pn.Place('data');
+var p2 = pn.Place('data_more');
+var p3 = pn.Place('data_detail');
+var p4 = pn.Place('login');
+var p5 = pn.Place('register');
+
+var t1 = pn.Trasition('/data_more', [p1], [p1, p4]);
+var t2 = pn.Trasition('/data_detail', [p1], [p3, p4]);
+var t3 = pn.Trasition('/register', [p4], [p5, p4]);
+var t4 = pn.Trasition('/login', [p5], [p4, p5]);
+
+t1.outputs[0].test = function() {
+	if (!pn.req.session.user_id) {
+		return false;
 	}
-	
-	res.render('list', {
-		items : result
-	});
-})
+	var data = pn.req.body;
+	data.num
+	return true;
+}
+
+t2.outputs[0].test = function() {
+	if (!pn.req.session.user_id) {
+		return false;
+	}
+	return true;
+}
+

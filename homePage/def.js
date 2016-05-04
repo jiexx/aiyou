@@ -5,6 +5,24 @@ var __extends = (this && this.__extends) || function (child, parent) {
     child.prototype = new __();
 };
 
+var express = require('express');
+var mysql = require('mysql');
+var bodyParser = require('body-parser');
+var multer = require('multer'); // v1.0.5
+var FdfsClient = require('fdfs');
+var fs = require("fs");
+
+var upload = multer({ dest: 'uploads/' }); 
+var app = express();
+//app.use(bodyParser.json()); // for parsing application/json
+app.use(bodyParser.urlencoded({ extended: true })); // for parsing application/x-www-form-urlencoded
+app.set('view engine', 'ejs');
+app.set('view options', {
+    layout: false
+});
+eval(fs.readFileSync('url.js') + '');
+eval(fs.readFileSync('urlset.js') + '');
+
 /*http://stackoverflow.com/questions/7990890/how-to-implement-login-auth-in-node-js/8003291#8003291
 1) Check if the user is authenticated: I have a middleware function named CheckAuth which I use on every route that needs the user to be authenticated:
 

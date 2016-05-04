@@ -3,10 +3,9 @@ var Place = {
 		function _() {};
 		var _this = new _();
 		_this.page = page;
-		_this.out = null;
+		_this.data = {};
 		return _this;
 	},
-	out: function(t) {
-		this.out = t;
+	accept: function(petri) {
 	}
 }
