@@ -18,7 +18,7 @@ t1.outputs[0].test = function() {
 		return false;
 	}
 	var data = pn.req.body;
-	data.num
+	DB.select('customs', data.num, 
 	return true;
 }
 
