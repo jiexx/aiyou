@@ -3,7 +3,8 @@ var Slot = {
 		function _() {};
 		var _this = new _();
 		_this.place = place;
-		_this.test = function(req) {return true;};
+		_this.onFire = function(func) {func();};
+		_this.test = function() {return true;};
 		return _this;
 	},
 },
@@ -20,8 +21,11 @@ var Transition = {
 		app.get(stub, upload.array(), function(req, res) {
 			petri.req = req;
 			petri.res = res;
-			if(_this.fire() > -1) {
-				petri._tokenHas(_this.outputs[i].place);
+			var i = _this.fire();
+			if(i > -1) {
+				_this.outputs[i].onFire(function(){
+					petri._tokenHas(_this.outputs[i].place);
+				});
 			}
 		});
 		return _this;
@@ -38,7 +42,7 @@ var Transition = {
 	},
 	enable: function(req) {
 		for(var i in this.inputs) {
-			if(this.inputs[i].test(req))
+			if(this.inputs[i].test())
 				return i;
 		}
 		return -1;
