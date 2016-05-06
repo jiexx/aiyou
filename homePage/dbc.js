@@ -13,7 +13,8 @@ var DB = {
 					console.log("select Error: " + error.message);
 					return;
 				}
-				handle(results);
+				var data = {cnt:num, res:results};
+				handle(data);
 			});
 	},
 }

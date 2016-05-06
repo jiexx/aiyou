@@ -10,19 +10,34 @@ var p5 = pn.Place('register');
 
 var t1 = pn.Trasition('/data_more', [p1], [p1, p4]);
 var t2 = pn.Trasition('/data_detail', [p1], [p3, p4]);
-var t3 = pn.Trasition('/register', [p4], [p5, p4]);
-var t4 = pn.Trasition('/login', [p5], [p4, p5]);
+var t3 = pn.Trasition('/register', [p4], [p5]);
+var t4 = pn.Trasition('/login', [p5], [p4]);
+var t5 = pn.Trasition('/login_commit', [p4], [p1, p3, p4]);
 
-t1.outputs[0].test = function() {
+var before = null;
+
+t1.outputs[0].onFire = function(finish) {
 	if (!pn.req.session.user_id) {
+		before = {place:p1};
 		return false;
 	}
 	var data = pn.req.body;
-	DB.select('customs', data.num, 
+	DB.select('customs', data.num, finish);
 	return true;
 }
 
-t2.outputs[0].test = function() {
+t2.outputs[0].onFire = function(finish) {
+	var data = pn.req.body;
+	if (!pn.req.session.user_id) {
+		before = {place:p1, id:data.id};
+		return false;
+	}
+	DB.select('custom_detail', data.id, finish);
+	return true;
+}
+
+t5.outputs[0].onFire = function(finish) {
+	var data = pn.req.body;
 	if (!pn.req.session.user_id) {
 		return false;
 	}

@@ -1,10 +1,18 @@
 var Slot = {
-	create: function(place) {
+	create: function(place, petri) {
 		function _() {};
 		var _this = new _();
 		_this.place = place;
-		_this.onFire = function(func) {func();};
-		_this.test = function() {return true;};
+		_this.onFire = function(_this.finish){
+			_this.finish({});
+			return true;
+		};
+		_this.finish = function(data){
+			petri._tokenHas(place, data);
+		};
+		_this.fire = function() {
+			return onFire(_this.finish);
+		};
 		return _this;
 	},
 },
@@ -17,15 +25,13 @@ var Transition = {
 		_this.inputs = [];
 		_this.outputs = [];
 		_this._inSlot(inputs);
-		_this._outSlot(outputs);
+		_this._outSlot(outputs, petri);
 		app.get(stub, upload.array(), function(req, res) {
 			petri.req = req;
 			petri.res = res;
-			var i = _this.fire();
-			if(i > -1) {
-				_this.outputs[i].onFire(function(){
-					petri._tokenHas(_this.outputs[i].place);
-				});
+			for(var i in _this.outputs) {
+				if(_this.outputs[i].fire()) 
+					break;
 			}
 		});
 		return _this;
@@ -35,24 +41,9 @@ var Transition = {
 			this.inputs[i] = Slot.create(inputs[i]);
 		}
 	},
-	_outSlot: function(outputs) {
+	_outSlot: function(outputs, petri) {
 		for(var o in outputs) {
-			this.outputs[o] = Slot.create(outputs[o]);
+			this.outputs[o] = Slot.create(outputs[o], petri);
 		}
 	},
-	enable: function(req) {
-		for(var i in this.inputs) {
-			if(this.inputs[i].test())
-				return i;
-		}
-		return -1;
-	},
-	fire: function() {
-		for(var i in this.outputs) {
-			if(this.outputs[i].test()) {
-				return i;
-			}
-		}
-		return -1;
-	}
 }

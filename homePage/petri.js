@@ -20,9 +20,9 @@ var Petri = {
 		this.transitions[stub] = Transition.create(this, this.app, this.upload, stub, inputs, outputs);
 		return this.transitions[stub];
 	},
-	_tokenHas: function(place) {
+	_tokenHas: function(place, data) {
 		this.token = place;
 		place.accept(this);
-		this.res.render(place.page, place.data);
+		this.res.render(place.page, data);
 	}
 }
