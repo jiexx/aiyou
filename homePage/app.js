@@ -29,7 +29,7 @@ t1.outputs[0].onFire = function(finish) {
 t2.outputs[0].onFire = function(finish) {
 	var data = pn.req.body;
 	if (!pn.req.session.user_id) {
-		before = {place:p1, id:data.id};
+		before = {place:p2, id:data.id};
 		return false;
 	}
 	DB.select('custom_detail', data.id, finish);
@@ -38,9 +38,12 @@ t2.outputs[0].onFire = function(finish) {
 
 t5.outputs[0].onFire = function(finish) {
 	var data = pn.req.body;
-	if (!pn.req.session.user_id) {
-		return false;
+	if (data.user === '123' && data.password === '123') {
+		pn.req.session.user_id = 1;
+		if(before != null && before.place
+		DB.select('customs', 1, finish);
+		return true;
 	}
-	return true;
+	return false;
 }
 
