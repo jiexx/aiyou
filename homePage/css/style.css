@@ -1,0 +1,200 @@
+
+/*******************************************/
+body{
+	font-family: 'Microsoft YaHei',arial,Verdana;
+}
+#home-bar {
+  background-color: #90d7ea;
+  background-size: cover;
+  background-repeat: no-repeat;
+  background-position: center left;
+  margin-bottom: 15em;
+  float: left;
+  width: 100%;
+  height: 400px;
+  display: table;
+  position: relative;
+  z-index: 20;
+  color: #ffffff;
+}
+@media screen and (max-width: 768px) {
+  #home-bar {
+    background-position: center center;
+  }
+}
+#home-bar:after {
+  content: '';
+  position: absolute;
+  left: 0;
+  bottom: -50px;
+  overflow: visible;
+  width: 100%;
+  height: 550px;
+  background: #90d7ea;
+  z-index: -1;
+  -webkit-transform: skewY(-3deg);
+  -moz-transform: skewY(-3deg);
+  -ms-transform: skewY(-3deg);
+  -o-transform: skewY(-3deg);
+  transform: skewY(-3deg);
+  background-color: #90d7ea;
+  background-size: cover;
+  background-repeat: no-repeat;
+  background-position: center center;
+  background-image: url(../images/hero6.jpg);
+}
+#home-bar .home-bar-wrap {
+  padding-top: 10em;
+  display: table;
+  height: 200px;
+  width: 100%;
+}
+@media screen and (max-width: 768px) {
+  #home-bar .home-bar-wrap {
+    padding-top: 2em;
+  }
+}
+#home-bar .home-bar-wrap .home-bar-intro {
+  vertical-align: middle;
+  text-align: center;
+  color: #ffffff;
+}
+#home-bar .home-bar-wrap .home-bar-intro a {
+  color: rgba(255, 255, 255, 0.7);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.3);
+}
+#home-bar .home-bar-wrap .home-bar-intro a:hover {
+  color: white;
+  border-bottom: 1px solid white;
+}
+#home-bar .home-bar-wrap .home-bar-intro > h1 {
+  font-size: 40px;
+  font-weight: normal;
+  color: #ffffff;
+  text-shadow: 2px 2px 1px rgba(0, 0, 0, 0.08);
+}
+@media screen and (max-width: 768px) {
+  #home-bar .home-bar-wrap .home-bar-intro > h1 {
+    font-size: 30px;
+  }
+}
+#home-bar .home-bar-wrap .home-bar-intro > h2 {
+  letter-spacing: 4px;
+  line-height: 1.5;
+  font-size: 16px;
+  text-transform: uppercase;
+  padding-bottom: 20px;
+  position: relative;
+  color: #ffffff;
+  text-shadow: 2px 2px 1px rgba(0, 0, 0, 0.08);
+}
+@media screen and (max-width: 768px) {
+  #home-bar .home-bar-wrap .home-bar-intro > h2 {
+    letter-spacing: 3px;
+  }
+}
+#container {
+	padding: 25em;
+}
+@media screen and (max-width: 1428px) {
+  #container {
+    padding: 10em;
+  }
+}
+@media screen and (max-width: 768px) {
+  #container {
+    padding: 5em;
+  }
+}
+.btn {
+  border-bottom: none !important;
+  text-transform: uppercase;
+  letter-spacing: 2px;
+  margin-bottom: 10px;
+  -webkit-border-radius: 5px;
+  -moz-border-radius: 5px;
+  -ms-border-radius: 5px;
+  -o-border-radius: 5px;
+  border-radius: 5px;
+  padding-left: 20px;
+  padding-right: 20px;
+  padding-top: 5px;
+  padding-bottom: 5px;
+  margin-right: 10px;
+}
+.btn:hover, .btn:focus, .btn:active {
+  box-shadow: none;
+  outline: none !important;
+  border-color: transparent;
+}
+.btn-outline {
+  border: 2px solid #eaeaea !important;
+  background: transparent;
+  color: #2a2e37;
+  text-decoration:none;
+}
+.btn-outline:hover, .btn-outline:active, .btn-outline:focus {
+  border: 2px solid #f86942 !important;
+  background: #f86942 !important;
+  color: #ffffff;
+}
+
+#home-bar-features .home-bar-feature {
+  margin-bottom: 30px;
+}
+#home-bar-features .home-bar-feature .heading {
+  font-size: 20px;
+  margin: 0;
+  font-weight: normal;
+  color: #2e2e2e;
+}
+#home-bar-features .home-bar-feature-icon {
+  margin: 0 auto 2em auto;
+  text-align: center;
+  border-radius: 30px;
+  -webkit-border-radius: 50%;
+  -moz-border-radius: 50%;
+  -ms-border-radius: 50%;
+  -o-border-radius: 50%;
+  border-radius: 50%;
+}
+.text-center {
+  text-align: center;
+}
+.col-sm-6 {
+  float: left;
+  width: 33.33333%;
+}
+h3, .h3 {
+  font-size: 20px;
+  line-height: 32px;
+}
+p, .p {
+  color: #8f8f8f;
+}
+.visible-sm-block {
+  display: block !important;
+}
+.clearfix:before, .clearfix:after {
+  content: " ";
+  display: table;
+}
+.clearfix:after {
+  clear: both;
+}
+
+.copy-right{
+	text-align:center;
+	background:#2D2D2D;
+	padding:0.8em 0;
+	position:relative;
+	bottom:0px;
+}
+.copy-right p{
+	font-family: Arial, helvetica, helve, sans-serif;
+	color: #FFF;
+	font-size: 0.2em;
+	line-height: 1.8em;
+	margin: 0 auto;
+}
+/*# sourceMappingURL=style.css.map */
