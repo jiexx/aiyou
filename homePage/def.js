@@ -20,8 +20,10 @@ app.set('view engine', 'ejs');
 app.set('view options', {
     layout: false
 });
-eval(fs.readFileSync('url.js') + '');
-eval(fs.readFileSync('urlset.js') + '');
+eval(fs.readFileSync('petri.js') + '');
+eval(fs.readFileSync('transition.js') + '');
+eval(fs.readFileSync('place.js') + '');
+eval(fs.readFileSync('dbc.js') + '');
 
 /*http://stackoverflow.com/questions/7990890/how-to-implement-login-auth-in-node-js/8003291#8003291
 1) Check if the user is authenticated: I have a middleware function named CheckAuth which I use on every route that needs the user to be authenticated:

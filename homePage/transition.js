@@ -8,7 +8,7 @@ var Slot = {
 			return true;
 		};
 		_this.finish = function(data){
-			petri._tokenHas(place, data);
+			petri._tokenHas(_this.place, data);
 		};
 		_this.fire = function() {
 			return onFire(_this.finish);
