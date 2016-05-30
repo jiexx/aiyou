@@ -1,0 +1,130 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>每日一课</title>
+
+        <!-- head -->
+    <meta charset="utf-8">
+    
+	<!-- daypilot libraries -->
+    <script type="text/javascript">
+	var index = 0;
+	function template1() {
+		var newNode = document.createElement("div"); 
+		newNode.innerHTML = 
+		"<div>" +
+			 "<hr>" +
+			 "<input type=\"text\" name=\"title_"+index+"\" placeholder=\"标题\"/><br><br>" +
+			 "<input type=\"text\" name=\"subtitle_"+index+"\" placeholder=\"副标题\"/><br><br>" +
+			 "<textarea id=\"content_"+index+"\" placeholder=\"内容\"></textarea><br>" +
+			 "<input type=\"hidden\" value=\"1"+index+"\" name=\"a[]\">"+
+		  "</div>";
+		var list = document.getElementById("docker");
+		list.appendChild(newNode);
+		index ++;
+	};
+	function template2() {
+		var newNode = document.createElement("div"); 
+		newNode.innerHTML = 
+		"<div>" +
+			  "<hr>" +
+			   "<input type=\"text\" name=\"title_"+index+"\" placeholder=\"标题\"/><br><br>" +
+			  "<textarea id=\"content_"+index+"\" placeholder=\"内容\"></textarea><br>" +
+			  "<small>选择音频</small><input type=\"file\" name=\"audio\"/><br>" +
+			  "<input type=\"hidden\" value=\"2"+index+"\" name=\"a[]\">"+
+		  "</div>";
+		var list = document.getElementById("docker");
+		list.appendChild(newNode);
+		index ++;
+	};
+	function template3() {
+		var newNode = document.createElement("div"); 
+		newNode.innerHTML = 
+		"<div>" +
+			  "<hr>" +
+			  "<small>选择音频</small><input type=\"file\" name=\"audio_thumb\"/><br>" +
+			  "<small>选择图片</small><input type=\"file\" name=\"thumbnail\"/><br>" +
+			  "<input type=\"hidden\" value=\"3"+index+"\" name=\"a[]\">"+
+		"</div>";
+		var list = document.getElementById("docker");
+		list.appendChild(newNode);
+		index ++;
+	};
+	function template4() {
+		var newNode = document.createElement("div"); 
+		newNode.innerHTML = 
+		"<div>" +
+			  "<hr>" +
+			  "<small>选择视频</small><input type=\"file\" name=\"video\"/><br>" +
+			  "<input type=\"hidden\" value=\"4"+index+"\" name=\"a[]\">"+
+		  "</div>";
+		var list = document.getElementById("docker");
+		list.appendChild(newNode);
+		index ++;
+	};
+	
+	</script>
+	<style type="text/css">
+     textarea{
+		width:30%;
+     }
+	 input[type="text"] {
+		width: 30%;
+	 }
+	 input[type="submit"] {
+		width: 90%;
+	 }
+
+   </style>
+
+
+	<!-- /head -->
+       
+</head>
+	<body>
+		<div><a href="/lessons">每日一课清单</a>&nbsp;&nbsp;&nbsp;&nbsp;<a href="/add">每日一课添加</a></div>
+		<hr>
+		<form id="lesson" method="post" enctype="multipart/form-data" action="/lessondaily">
+		  <div id="docker"/>
+		  <!--iv name="template1">
+			  <hr>
+			  <input type="text" name="title" placeholder="标题"/><br><br>
+			  <textarea id="content" placeholder="内容"></textarea><br>
+		  </div>
+		  <div name="template2">
+			  <hr>
+			  <textarea id="title" placeholder="内容"></textarea><br>
+			  <small>选择音频</small><input type="file" name="audio"/><br>
+		  </div>
+		  <div name="template3">
+			  <hr>
+			  <small>选择音频</small><input type="file" name="audio"/><br>
+			  <small>选择图片</small><input type="file" name="thumbnail"/><br>
+		  </div>
+		  <div name="template4">
+			  <hr>
+			  <small>选择视频</small><input type="file" name="video"/><br>
+		  </div-->	
+		  <input type="submit"/><br><hr>
+		  <input type="text" name="date" placeholder="课程时间 yyyy-MM-dd"/>
+			<input type="text" name="type" placeholder="课程类型"/>
+		  <hr>
+		  <small>选择栏目：</small>
+			<select name="clazz" form="lesson">
+				<option value="1" selected="selected">每日一课</option>
+				<option value="2">儿童故事</option>
+				<option value="3">古诗国学</option>
+				<option value="4">字词成语</option>
+			</select>
+			<hr>
+			<small>选择风格：</small><button type="button" onclick="template1()">标题+副标题+内容</button>
+			<button type="button" onclick="template2()">内容+音频</button>
+			<button type="button" onclick="template3()">图片+音频</button>
+			<button type="button" onclick="template4()">视频</button>
+			<div>
+			<br>
+			</div>
+		</form>
+
+	</body>
+</html>

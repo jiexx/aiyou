@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>每日一课</title>
+
+        <!-- head -->
+    <meta charset="utf-8">
+    
+	<!-- daypilot libraries -->
+    <script type="text/javascript">
+
+	
+	</script>
+	<style type="text/css">
+     small{
+		width:50%;
+     }
+	 input[type="text"] {
+		width: 20%;
+	 }
+	 a{
+		float:right
+	 }
+   </style>
+
+
+	<!-- /head -->
+       
+</head>
+	<body>
+		  <div><a href="/lessons">每日一课清单</a>&nbsp;&nbsp;&nbsp;&nbsp;<a href="/add">每日一课添加</a></div>
+		  <hr>
+		  <ul>
+		  <% items.forEach(function(item){ %> 
+			  <li><small><%= item.type %></small><small><%= item.day %></small><a href="delete?id=<%= item.id %>">删除</a></li> 
+			  <hr>			  
+		  <% }) %>  
+		  </ul>
+		  <hr>
+
+	</body>
+</html>
