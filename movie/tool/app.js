@@ -38,7 +38,7 @@ var us = UrlSet.create();
 function select() {
 	var values = null;
 	connection.query(
-			'SELECT id, link,descr FROM amazon.toocle WHERE descr IS NULL; ', function(error, results, fields) {
+			'SELECT id, redirect FROM amazon.xunleitai WHERE download IS NULL; ', function(error, results, fields) {
 				if (error) {
 					console.log("select Error: " + error.message);
 					connection.end();
@@ -92,14 +92,14 @@ function extract() {
 			});
 }
 
-function update(id, desc, name, link) {
+function update(id, downloads, image, name, type, publish, area, directors, actors) {
 	if (!dbReady)
 		return;
 
-	var values = [ desc, name, link ];
-	console.log(">>>>>>>>>> update |desc:"+desc + "<<<<<<<<<<");
+	var values = [ downloads, image, name, type, publish, area, directors, actors, id ];
+	console.log(">>>>>>>>>> update |downloads:"+downloads + "<<<<<<<<<<");
 	connection.query(
-			'UPDATE toocle SET descr = ?, contactname = ? WHERE link = ?',
+			'UPDATE xunleitai SET download = ?, image = ?, title = ?, type = ?, publishtime = ?, area = ?, director = ?, actor = ? WHERE id = ?',
 			values, function(error, results) {
 				if (error) {
 					console.log("update Error: " + error.message);
@@ -111,13 +111,13 @@ function update(id, desc, name, link) {
 			});
 }
 
-function save(id, title, company, amount, days, fetchLink, currLink) {
+function save(id, fetchLink, currLink) {
 	if (!dbReady)
 		return;
-	var values = [ id, title, company, amount, days, fetchLink, currLink ];
+	var values = [ id, fetchLink, currLink ];
 	console.log("save:"+values);
 	connection.query(
-			'INSERT INTO xunleitai SET id = ?, title = ? , producer = ?, amount = ?, days = ?, link = ?, redirect = ?',
+			'INSERT INTO xunleitai SET id = ?, link = ?, redirect = ?',
 			values, function(error, results) {
 				if (error) {
 					console.log("save Error: " + error.message);
@@ -126,8 +126,8 @@ function save(id, title, company, amount, days, fetchLink, currLink) {
 				}
 			});
 }
-app.use(bodyParser.json()); // for parsing application/json
-app.use(bodyParser.urlencoded({ extended: true })); // for parsing application/x-www-form-urlencoded
+app.use(bodyParser.json({limit: '50mb'})); // for parsing application/json
+app.use(bodyParser.urlencoded({limit: '50mb', extended: true })); // for parsing application/x-www-form-urlencoded
 
 app.get('/', function (req, res) {
 	console.log('Hello World!');
@@ -160,12 +160,12 @@ app.post('/redirect', upload.array(), function(req, res) {
 		return;
 	}
 	us.visitedRedirectUrl(data.id);
-	fs.appendFile('redirects.txt', 'SUCCESS       '+data.redirectLinks.toString()+'\n', 'utf-8', function (err) {});
+	fs.appendFile('redirects.txt', 'SUCCESS       '+data.fetchLinks+'\n', 'utf-8', function (err) {});
 	
 	for ( var i = 0 ; i < data.fetchLinks.length ; i ++ ) {
 		var fetch = URL.create(data.fetchLinks[i]);
 		us.addFetchUrl(fetch);
-		save(fetch.getId(), data.fetchTitles[i], data.fetchCompanys[i], data.fetchAmounts[i], data.fetchDays[i], data.fetchLinks[i], data.currLink);
+		save(fetch.getId(), data.fetchLinks[i], data.currLink);
 	}
 
 	for ( var i in data.redirectLinks) {
@@ -192,12 +192,7 @@ app.post('/detail', upload.array(), function(req, res) {
 	
 	us.visitedFetchUrl(data.id);
 	
-	if(data.desc.length == 0) {
-		data.desc = 'ERR_DESC';
-	}else if(data.name.length == 0){
-		data.name = 'ERR_PRODUCER';
-	}
-	update(data.id, data.desc, data.name, data.link );
+	update(data.id, data.down, data.img, data.name, data.type, data.pub, data.area, data.dir, data.act);
 
 	res.send('OK.');
 	if(us.getCountOfFetchs() > 0) {
@@ -225,7 +220,7 @@ app.get('/resumedetail', upload.array(), function(req, res) {
 
 var banks = 
 [
-"http://b.toocle.com/product/products------1.html"
+"http://www.xunleitai.com/top/all.html"
 ];
 var server = app
 		.listen(
@@ -243,13 +238,13 @@ var server = app
 						fs.unlink('fetches.txt');
 					}
 										
-					/*for(var i in banks) {
+					for(var i in banks) {
 						var url = URL.create(banks[i]);
 						us.addRedirectUrl(url);
 					}
 					
-					us.loopRedirect();*/
-					select();
+					us.loopRedirect();
+					/*select();*/
 
 					//var d = select();
 					

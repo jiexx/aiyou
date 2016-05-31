@@ -69,10 +69,10 @@ browser.options.onResourceRequested = function(C, requestData, request) {
 //browser.on("page.resource.requested", function(requestData, request) {
 	if ( !(/.*\.xunleitai\.com.*/gi).test(requestData['url']) && !(/http:\/\/127\.0\.0\.1.*/gi).test(requestData['url'])
 	/*|| (/.*\.css/gi).test(requestData['url']) || requestData['Content-Type'] == 'text/javascript'*/ ) {
-		console.log('redirect Skipping JS file: ' + requestData['url']);
+		//console.log('redirect Skipping JS file: ' + requestData['url']);
 		request.abort();
 	}else {
-		console.log('redirect Down JS file: ' + requestData['url']);
+		//console.log('redirect Down JS file: ' + requestData['url']);
 	}
 };
 
@@ -140,12 +140,12 @@ for(var j = 0 ; j < num ; j ++) {
 			};
 		}
 		var r = JSON.stringify(result);
-		console.log(JSON.stringify(result));
+		//console.log(JSON.stringify(result));
 		r = encodeURI(r);
 		r = encodeURI(r);
 		
 		
-		/*browser.thenOpen('http://127.0.0.1:8081/redirect', {
+		browser.thenOpen('http://127.0.0.1:8081/redirect', {
 			headers: {
 				'Content-Type': 'application/json; charset=utf-8'
 			},
@@ -161,7 +161,7 @@ for(var j = 0 ; j < num ; j ++) {
 					browser.exit();  
 				}
 			}
-		});*/
+		});
 	});
 	})(j);
 }
