@@ -9,7 +9,7 @@ var upload = multer({ dest: 'uploads/' });
 var connection = mysql.createConnection({
 	host : '127.0.0.1',
 	user : 'root',
-	password : '123456',
+	password : '1234',
 });
 var dbReady = false;
 connection.connect(function(error, results) {
@@ -30,19 +30,37 @@ connection.connect(function(error, results) {
 var app = express();
 var router = express.Router();
 var fs = require("fs");
-
+app.use(bodyParser.urlencoded({ extended: true }));
+app.engine('.html', require('ejs').__express);
+app.set('view engine', 'html');
+app.set('view options', {layout: false});
+app.set('views', __dirname + '');
+app.use('/css', express.static(__dirname + '/css'));
+app.use('/js', express.static(__dirname + '/js'));
+app.use('/images', express.static(__dirname + '/images'));
 
 app.get('/', upload.array(), function(req, res) {
 	var page = req.body.page;
 	
-	connection.query('SELECT title, image, publishtime FROM amazon.xunleitai; ', function(error, results, fields) {
+	connection.query('SELECT id, title, image, publishtime FROM amazon.xunleitai; ', function(error, results, fields) {
 		if (error) {
 			console.log("select Error: " + error.message);
 			connection.end();
 			return;
 		}
-		res.render('list', {
-			items : results
+		var count = 1, item = [], data = [];
+		for(var i in results) {
+			if(count <= 4){
+				item.push(results[i]);
+				count ++;
+			}else{
+				data.push(item);
+				item = [];
+				count = 1;
+			}
+		}
+		res.render('home', {
+			items : data
 		});
 	});
 })

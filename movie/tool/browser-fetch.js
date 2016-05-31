@@ -172,7 +172,8 @@ for(var j = 0 ; j < num ; j ++) {
 		
 		var result =  {
 			'id': id[k],
-			'down': fetchDownloads,
+			'downtxt':fetchDownloads,
+			'down': fetchDownloadLinks,
 			'img':fetchImage,
 			'name':fetchName,
 			'type':fetchType,

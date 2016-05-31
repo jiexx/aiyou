@@ -92,14 +92,14 @@ function extract() {
 			});
 }
 
-function update(id, downloads, image, name, type, publish, area, directors, actors) {
+function update(id, downtxt, downloads, image, name, type, publish, area, directors, actors) {
 	if (!dbReady)
 		return;
 
-	var values = [ downloads, image, name, type, publish, area, directors, actors, id ];
-	console.log(">>>>>>>>>> update |downloads:"+downloads + "<<<<<<<<<<");
+	var values = [ downloads+'', downtxt+'', image, name+'', type, publish, area, directors+'', actors+'', id ];
+	console.log(">>>>>>>>>> update |values:"+values + "<<<<<<<<<<");
 	connection.query(
-			'UPDATE xunleitai SET download = ?, image = ?, title = ?, type = ?, publishtime = ?, area = ?, director = ?, actor = ? WHERE id = ?',
+			'UPDATE xunleitai SET download = ?, downtxt = ?, image = ?, title = ?, type = ?, publishtime = ?, area = ?, director = ?, actor = ? WHERE id = ?',
 			values, function(error, results) {
 				if (error) {
 					console.log("update Error: " + error.message);
@@ -192,7 +192,7 @@ app.post('/detail', upload.array(), function(req, res) {
 	
 	us.visitedFetchUrl(data.id);
 	
-	update(data.id, data.down, data.img, data.name, data.type, data.pub, data.area, data.dir, data.act);
+	update(data.id, data.downtxt, data.down, data.img, data.name, data.type, data.pub, data.area, data.dir, data.act);
 
 	res.send('OK.');
 	if(us.getCountOfFetchs() > 0) {
