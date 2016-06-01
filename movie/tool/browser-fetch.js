@@ -33,6 +33,7 @@ for(var i = 0 ; i < num ; i ++) {
 }
 
 var fs = require('fs');
+var req = require('request');
 
 browser.on('error', function(msg,backtrace) {
 	var d = new Date();
@@ -73,7 +74,14 @@ browser.options.onResourceRequested = function(C, requestData, request) {
 		console.log('redirect Down JS file: ' + requestData['url']);
 	}
 };
+function download(uri, filename, callback){
+	req.head(uri, function(err, res, body){
+		console.log('content-type:', res.headers['content-type']);
+		console.log('content-length:', res.headers['content-length']);
 
+		req(uri).pipe(fs.createWriteStream(filename)).on('end', callback);
+	});
+};
 
 // for redirect page
 var xpathDownload = '//div[@class="pandl-con"]//a';

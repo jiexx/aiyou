@@ -29,6 +29,7 @@ connection.connect(function(error, results) {
 var app = express();
 var router = express.Router();
 var fs = require("fs");
+var request = require('request');
 
 eval(fs.readFileSync('url.js') + '');
 eval(fs.readFileSync('urlset.js') + '');
@@ -184,6 +185,15 @@ app.post('/redirect', upload.array(), function(req, res) {
 
 })
 
+function download(uri, filename, callback){
+	request.head(uri, function(err, res, body){
+		console.log('content-type:', res.headers['content-type']);
+		console.log('content-length:', res.headers['content-length']);
+
+		request(uri).pipe(fs.createWriteStream(filename)).on('close', callback);
+	});
+};
+
 app.post('/detail', upload.array(), function(req, res) {
 	
 	//console.log(">>>>>>>>>>>>>>"+decodeURI(decodeURI(req.body.encode)));
@@ -191,8 +201,12 @@ app.post('/detail', upload.array(), function(req, res) {
 	console.log('[app] [REST/detail] '+data.id);
 	
 	us.visitedFetchUrl(data.id);
-	
-	update(data.id, data.downtxt, data.down, data.img, data.name, data.type, data.pub, data.area, data.dir, data.act);
+	if(data.img) {
+		download(data.img, __dirname+'/'+'img/'+data.id+data.img.substr(data.img.lastIndexOf('.')), function(){
+			console.log('done');
+		});
+	}
+	update(data.id, data.downtxt, data.down, __dirname+'/'+'img/'+data.id+data.img.substr(data.img.lastIndexOf('.')), data.name, data.type, data.pub, data.area, data.dir, data.act);
 
 	res.send('OK.');
 	if(us.getCountOfFetchs() > 0) {
@@ -236,6 +250,9 @@ var server = app
 					}
 					if(fs.exists('fetches.txt')) {
 						fs.unlink('fetches.txt');
+					}
+					if (!fs.existsSync('img')) {
+						fs.mkdirSync('img');
 					}
 										
 					for(var i in banks) {
