@@ -187,10 +187,16 @@ app.post('/redirect', upload.array(), function(req, res) {
 
 function download(uri, filename, callback){
 	request.head(uri, function(err, res, body){
-		console.log('content-type:', res.headers['content-type']);
-		console.log('content-length:', res.headers['content-length']);
-
-		request(uri).pipe(fs.createWriteStream(filename)).on('close', callback);
+		if(res) {
+			console.log('content-type:', res.headers['content-type']);
+			console.log('content-length:', res.headers['content-length']);
+			var writestrm = request(uri).pipe(fs.createWriteStream(filename));
+			writestrm.on('error', function(){
+				fs.appendFile('img.txt', 'ERR_LINKS_IMG '+uri+'\n', 'utf-8', function (err) {});
+			});
+			writestrm.on('end', callback);
+		}
+		fs.appendFile('img.txt', 'ERR_LINKS_IMG '+uri+'\n', 'utf-8', function (err) {});
 	});
 };
 
@@ -250,6 +256,9 @@ var server = app
 					}
 					if(fs.exists('fetches.txt')) {
 						fs.unlink('fetches.txt');
+					}
+					if(fs.exists('img.txt')) {
+						fs.unlink('img.txt');
 					}
 					if (!fs.existsSync('img')) {
 						fs.mkdirSync('img');
