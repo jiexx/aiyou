@@ -1,0 +1,9 @@
+Cannot init XMLHttpRequest object!
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head>
+<meta http-equiv="Content-Type" content="text/html; charset=gb2312">
+<title>所有影片_迅雷台电影网</title>
+<link href="/template/xunleitai/images/style.css" rel="stylesheet">
+<script>var sitePath=''</script>
+<script src="/js/common.js"></script>
+<script src="/js/function.js"></script></head></html>

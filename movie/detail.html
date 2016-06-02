@@ -57,7 +57,9 @@ Smartphone Compatible web template, free webdesigns for Nokia, Samsung, LG, Sony
                         	<p class="movie_option"><strong>上映: </strong><%= item[0].publishtime %></p>
                         	<p class="movie_option"><strong>导演: </strong><%= item[0].director %></p>
                         	<p class="movie_option"><strong>演员: </strong><%= item[0].actor %></p>
-                            <div class="down_btn"><a class="btn1" href="<%= item[0].download %>"><span> </span><span class="bd"></span>下载密码</a></div>
+							<% down.forEach(function(item){ %> 
+								<div class="down_btn"><a class="btn1" href="<%= item.link %>"><span> </span><span class="bd"></span></a><span><%= item.pwd %></span></div>
+							<% }) %>  
                          </div>
                         <div class="clearfix"> </div>
                         <p class="m_4">There are many variations of passages of Lorem Ipsum available, but the majority have suffered alteration in some form, by injected humour, or randomised words which don't look even slightly believable. If you are going to use a passage of Lorem Ipsum, you need to be sure there isn't anything embarrassing hidden in the middle of text. All the Lorem Ipsum generators on the Internet tend to repeat predefined chunks as necessary, making this the first true generator on the Internet.</p>
