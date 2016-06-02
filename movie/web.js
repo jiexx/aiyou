@@ -26,6 +26,12 @@ connection.connect(function(error, results) {
 		}
 		dbReady = true;
 	});
+	connection.on("close", function (err) {
+        console.log("SQL CONNECTION CLOSED.");
+    });
+    connection.on("error", function (err) {
+        console.log("SQL CONNECTION ERROR: " + err);
+    });
 });
 var app = express();
 var router = express.Router();
@@ -41,27 +47,46 @@ app.use('/images', express.static(__dirname + '/images'));
 app.use('/img', express.static(__dirname + '/img'));
 
 app.get('/', upload.array(), function(req, res) {
-	var page = req.body.page;
-	
-	connection.query('SELECT id, title, image, publishtime FROM amazon.xunleitai; ', function(error, results, fields) {
+	res.render('home', {
+		HOST : 'http://127.0.0.1:8080'
+	});
+});
+
+app.get('/detail', function(req, res) {
+	var id = req.query.id;
+	console.log('id:'+JSON.stringify(req.query.id));
+	connection.query('SELECT * FROM amazon.xunleitai WHERE id = ?; ', [id], function(error, results, fields) {
 		if (error) {
 			console.log("select Error: " + error.message);
 			connection.end();
 			return;
 		}
-		var count = 1, item = [], data = [];
-		for(var i in results) {
-			if(count <= 4){
-				item.push(results[i]);
-				count ++;
-			}else{
-				data.push(item);
-				item = [];
-				count = 1;
-			}
+		console.log(''+JSON.stringify(results));
+		res.render('detail', {
+			item : results
+		});
+	});
+})
+
+app.get('/waterfall', upload.array(), function(req, res) {
+	var page = req.body.page;
+	console.log('page:'+page);
+	var start, end;
+	if(page){
+		start = page*16;
+		end = (page+1)*16;
+	}else {
+		start = 0;
+		end = 16;
+	}
+	connection.query('SELECT id, title, image, publishtime FROM amazon.xunleitai LIMIT ?, ?; ', [start, end], function(error, results, fields) {
+		if (error) {
+			console.log("select Error: " + error.message);
+			connection.end();
+			return;
 		}
-		res.render('home', {
-			items : data
+		res.render('waterfall', {
+			items : results
 		});
 	});
 })

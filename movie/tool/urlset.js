@@ -151,21 +151,18 @@ var Queue = {
 	},
 	
 	loop: function() {
+		console.log(this.statistics());
 		if(this.getNum(this.procs).HAS < this.PROCMAX && this.getNum(this.urls).HAS > 0 ) {
-			
-			console.log(this.statistics());
 			
 			this.open();
 		}
 		else if(this.getNum(this.procs).HAS >= this.PROCMAX) {
 			var _this = this;
 			setTimeout(function(){
-				
+				console.log('[BROWSER] TIMEOUT TRY');
 				_this.loop();
 				
 			},this.TIMEOUT);
-		}else {
-			console.log(this.statistics());
 		}
 	},
 	

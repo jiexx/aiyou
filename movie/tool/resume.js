@@ -113,7 +113,7 @@ app.post('/detail', upload.array(), function(req, res) {
 			console.log('done');
 		});
 	}
-	update(data.id, data.downtxt, data.down, __dirname+'/'+'img/'+data.id+data.img.substr(data.img.lastIndexOf('.')), data.name, data.type, data.pub, data.area, data.dir, data.act);
+	update(data.id, data.downtxt, data.down, 'img/'+data.id+data.img.substr(data.img.lastIndexOf('.')), data.name, data.type, data.pub, data.area, data.dir, data.act);
 
 	res.send('OK.');
 	if(us.getCountOfFetchs() > 0) {

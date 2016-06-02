@@ -1,0 +1,9 @@
+<% items.forEach(function(data){ %> 
+	<div class="item">
+		<a href="./detail?id=<%= data.id%>">
+			<img src="<%= data.image%>" class="img-responsive" alt=""/>
+			<p><i class="icon5"> </i>-</p>
+			<p><%= data.title %></p>
+		</a>
+	</div>
+<% }) %>  

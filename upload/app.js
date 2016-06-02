@@ -42,6 +42,12 @@ connection.connect(function(error, results) {
 		}
 		dbReady = true;
 	});
+	connection.on("close", function (err) {
+        console.log("SQL CONNECTION CLOSED.");
+    });
+    connection.on("error", function (err) {
+        console.log("SQL CONNECTION ERROR: " + err);
+    });
 });
 function counter(arr) {
 	var cn = 0;
