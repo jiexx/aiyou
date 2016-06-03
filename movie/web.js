@@ -91,12 +91,21 @@ app.get('/detail', function(req, res) {
 app.get('/waterfall', upload.array(), function(req, res) {
 	var page = parseInt(req.query.page)-1;//req.body.page;
 	
-	var start, offset = 4;
-	if(page){
+	var start, offset = 8;
+	switch(page){
+	case 0:
+		start = Math.ceil(Math.random()*900);
+		break;
+	case 1:
+		start = Math.ceil(Math.random()*900);
+		break;
+	case 2:
+		start = Math.ceil(Math.random()*900);
+		break;
+	default:
 		start = page*offset;
-	}else {
-		start = 0;
 	}
+	
 	connection.query('SELECT id, SUBSTRING_INDEX(title,"迅雷下载",1) as title, image, publishtime FROM amazon.xunleitai LIMIT ?, ?; ', [start, offset], function(error, results, fields) {
 		if (error) {
 			console.log("waterfall Error: " + error.message);
