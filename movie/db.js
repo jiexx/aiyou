@@ -1,0 +1,48 @@
+var mysql = require('mysql');
+var pool  = mysql.createPool({
+	host : '127.0.0.1',
+	user : 'root',
+	password : '1234',
+});
+
+function exec(conn, sql, params, callback) {
+	conn.query(sql, params, function(err, results) {
+		conn.release(); // always put connection back in pool after last query
+		if(err) { 
+			console.log(err); 
+			callback(true); 
+			return; 
+		}
+		callback(false, results);
+	});
+}
+
+exports.getWaterfalls = function(page, callback) {
+	pool.getConnection(function(err, connection) {
+		if(err) { 
+			console.log(err); 
+			callback(true); 
+			return;
+		}
+		var start, offset = 4;
+		if(page){
+			start = page*offset;
+		}else {
+			start = 0;
+		}
+		var sql = "SELECT id, SUBSTRING_INDEX(title,'Ñ¸À×ÏÂÔØ',1) as title, image, publishtime FROM amazon.xunleitai LIMIT ?, ?; ";
+		exec(connection, sql, [start, offset], callback);
+	});
+};
+
+exports.getDetail = function(id, callback) {
+	pool.getConnection(function(err, connection) {
+		if(err) { 
+			console.log(err); 
+			callback(true); 
+			return;
+		}
+		var sql = "SELECT * FROM amazon.xunleitai WHERE id = ?; ";
+		exec(connection, sql, [id], callback);
+	});
+};
