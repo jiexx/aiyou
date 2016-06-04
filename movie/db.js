@@ -25,10 +25,18 @@ exports.getWaterfalls = function(page, callback) {
 			return;
 		}
 		var start, offset = 4;
-		if(page){
+		switch(page){
+		case 0:
+			start = Math.ceil(Math.random()*900);
+			break;
+		case 1:
+			start = Math.ceil(Math.random()*900);
+			break;
+		case 2:
+			start = Math.ceil(Math.random()*900);
+			break;
+		default:
 			start = page*offset;
-		}else {
-			start = 0;
 		}
 		var sql = "SELECT id, SUBSTRING_INDEX(title,'Ñ¸À×ÏÂÔØ',1) as title, image, publishtime FROM amazon.xunleitai LIMIT ?, ?; ";
 		exec(connection, sql, [start, offset], callback);
