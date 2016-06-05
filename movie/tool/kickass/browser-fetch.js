@@ -65,7 +65,7 @@ browser.on("page.created", function(){
 browser.options.retryTimeout = 20;
 browser.options.waitTimeout = 20000; 
 browser.options.onResourceRequested = function(C, requestData, request) {
-	if ( !(/.*\.xunleitai\.com.*/gi).test(requestData['url']) && !(/http:\/\/127\.0\.0\.1.*/gi).test(requestData['url'])
+	if ( !(/.*\.bttiantang\.com.*/gi).test(requestData['url']) && !(/http:\/\/127\.0\.0\.1.*/gi).test(requestData['url'])
 	/*|| (/.*\.css/gi).test(requestData['url']) || requestData['Content-Type'] == 'text/javascript'*/ ) {
 		console.log('redirect Skipping JS file: ' + requestData['url']);
 		request.abort();
@@ -75,14 +75,14 @@ browser.options.onResourceRequested = function(C, requestData, request) {
 };
 
 // for redirect page
-var xpathDownload = '//div[@class="pandl-con"]//a';
-var xpathImage = '//div[@class="mor_info_con"]/p/img';
-var xpathName = '//div[@class="lit_info_mid"]/h1/a';
-var xpathType = '//div[@class="lit_info_mid"]/p[1]/a';
-var xpathPublish = '//div[@class="lit_info_mid"]/p[2]/a';
-var xpathArea = '//div[@class="lit_info_mid"]/p[3]/a';
-var xpathDirector = '//div[@class="lit_info_mid"]/p[5]/a';
-var xpathActor = '//p[@class="lit_info_actor"]//a';
+var xpathDownload = '//div[@class="tinfo"]//a';
+var xpathImage = '//div[@class="moviedteail_img"]/a/img';
+var xpathName = '//div[@class="moviedteail_tt"]';
+var xpathType = '//div[@class="moviedteail_list"]/li[2]/a';
+var xpathPublish = '//div[@class="moviedteail_list"]/li[4]/a';
+var xpathArea = '//div[@class="moviedteail_list"]/li[3]/a';
+var xpathDirector = '//div[@class="moviedteail_list"]/li[5]/a';
+var xpathActor = '//div[@class="moviedteail_list"]/li[7]/a';
 
 var x = require('casper').selectXPath;
 
@@ -100,9 +100,9 @@ for(var j = 0 ; j < num ; j ++) {
 	
 	browser.waitFor(function check() {
 		    return this.evaluate(function() {
-		        var a = document.querySelectorAll('div.copyright').length > 0;
+		        var a = document.querySelectorAll('p.announcement').length > 0;
 				//console.log(document.body.innerHTML);
-				console.log(a);
+				//console.log(a);
 		        return a; 
 		    });
 	}, function() {
@@ -190,7 +190,7 @@ for(var j = 0 ; j < num ; j ++) {
 		
 		
 		this.echo("fetch POST request will send.");
-		browser.thenOpen('http://127.0.0.1:8081/detail', {
+		/*browser.thenOpen('http://127.0.0.1:8081/detail', {
 			headers: {
 				'Content-Type': 'application/json; charset=utf-8'
 			},
@@ -205,7 +205,7 @@ for(var j = 0 ; j < num ; j ++) {
 					browser.exit();  
 				}
 			}
-		});
+		});*/
 	});
 	})(j);
 }

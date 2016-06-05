@@ -3,6 +3,7 @@ var bodyParser = require('body-parser');
 var multer = require('multer'); // v1.0.5
 var fs = require("fs");
 var db = require("./db");
+var comm = require("./comm");
 
 var upload = multer({ dest: 'uploads/' }); 
 
@@ -19,7 +20,6 @@ app.use('/js', express.static(__dirname + '/js'));
 app.use('/images', express.static(__dirname + '/images'));
 app.use('/img', express.static(__dirname + '/img'));
 
-var __HOST = '127.0.0.1';
 
 app.use(function(req, res, next) {
     res.header("Access-Control-Allow-Origin", "*");
@@ -28,14 +28,18 @@ app.use(function(req, res, next) {
 });
 
 app.get('/', upload.array(), function(req, res) {
-	console.log('[HOME]:'+req.ip);
-	res.render('home', {
-		HOST : 'http://' + __HOST
-	});
+	comm.log('[HOME]:'+req.ip);
+	db.getType(function(error, results){
+		res.render('home', {
+			HOST : 'http://' + comm.conf.WEB.HOST,
+			items : results
+		});
+	})
+	
 });
 
 app.get('/detail', function(req, res) {
-	console.log('[HOME]:'+req.ip);
+	comm.log('[DETAIL]:'+req.ip);
 	var id = req.query.id;
 	db.getDetail(id, function(error, results){
 		if(!error) {
@@ -46,8 +50,11 @@ app.get('/detail', function(req, res) {
 				for(var i in a) {
 					var big = (/[^【]*【([^】]*)】.*/gi).exec(b[i]);
 					var pwd = (/[^密码]*密码[^A-Za-z0-9]*([A-Za-z0-9]*)/gi).exec(b[i]);
-
-					download.push({'link':a[i], 'pwd': '大小:' + big[1] + ' 密码:' + pwd[1]});
+					if(big && big[1] && pwd && pwd[1] ){
+						download.push({'link':a[i], 'pwd': '大小:' + big[1] + ' 密码:' + pwd[1]});
+					}else{
+						download.push({'link':a[i], 'pwd': ''});
+					}
 				}
 			}
 			res.render('detail', {
@@ -59,13 +66,17 @@ app.get('/detail', function(req, res) {
 })
 
 app.get('/waterfall', upload.array(), function(req, res) {
-	var page = parseInt(req.query.page)-1;//req.body.page;
+	var pg = parseInt(req.query.page)-1;//req.body.page;
+	var t = req.query.type;
+	var s = req.query.search;
 	
-	db.getWaterfalls(page, function(error, results){
-		if(!error) {
+	db.getWaterfalls({page:pg,type:t,search:s}, function(error, results){
+		if(!error && results.length > 0) {
 			res.render('waterfall', {
 				items : results
 			});
+		}else {
+			res.end('');
 		}
 	});
 })
@@ -75,5 +86,5 @@ var server = app.listen(
 	function() {
 		var host = server.address().address;
 		var port = server.address().port;
-		console.log("RUNNING http://%s:%s", host, port);
+		comm.log("RUNNING http://"+host+':'+port);
 	});

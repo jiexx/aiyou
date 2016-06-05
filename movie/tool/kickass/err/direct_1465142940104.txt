@@ -1,0 +1,731 @@
+ReferenceError: Can't find variable: $
+
+<!DOCTYPE html><html xmlns="http://www.w3.org/1999/xhtml" dir="auto"><head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+    <meta http-equiv="Content-Style-Type" content="text/css">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Choose from more than 10000 movies available for download. Movies available in HD, DVDRip, DivX, XviD formats.
+">
+    <meta name="robots" content="noindex" rel="listing">
+    <title>Download Movie Torrents - Kickass Torrents</title>
+    <link rel="stylesheet" type="text/css" href="//kastatic.com/all-4465742.css" charset="utf-8">
+    <link rel="shortcut icon" href="//kastatic.com/images/favicon.ico">
+    
+
+    <link rel="apple-touch-icon" href="//kastatic.com/images/apple-touch-icon.png">
+
+    <!--[if IE 7]>
+    <link href="//kastatic.com/css/ie7-4465742.css" rel="stylesheet" type="text/css"/>
+    <![endif]-->
+
+    <!--[if IE 8]>
+    <link href="//kastatic.com/css/ie8.css" rel="stylesheet" type="text/css"/>
+    <![endif]-->
+
+    <!--[if lt IE 9]>
+    <script src="//kastatic.com/js/html5.min-4465742.js" type="text/javascript"></script>
+    <![endif]-->
+
+    <!--[if gte IE 9]>
+    <link href="//kastatic.com/css/ie9-4465742.css" rel="stylesheet" type="text/css"/>
+    <![endif]-->
+    <script src="//a.kickass.to/sc-4465742.js" async=""></script><script type="text/javascript">
+        +function(S,p,a,r,e,C,l,i,c,k)
+        { S[r]=S[r]||[];S[e]||(S[e]=function(){
+        S[r].push(Array.prototype.slice.call(arguments)) });
+        i=p.createElement(a);c=p.getElementsByTagName(a)[0];
+        i.src=C;i.async=true;c.parentNode.insertBefore(i,c)}
+        (window,document,'script','_scq','sc', '//a.kickass.to/sc-4465742.js');
+
+        sc('setHost', 'a.kickass.to');
+        sc('setAccount', '_b894d6cb1e370fb9ad89f8d6d99eeb33');
+    
+        var katUser = {};
+        var kat = {
+            release_id: '4465742',
+            detect_lang: 0,
+            spare_click: 1,
+            mobile: false
+        };
+    </script>
+    <script src="//kastatic.com/js/all-4465742.js" type="text/javascript"></script>
+    <script src="//kastatic.com/js/jquery.ui.touch-punch-4465742.js" type="text/javascript"></script>
+    <link rel="alternate" type="application/rss+xml" title="Subscribe to RSS feed" href="http://kat.cr/movies/?rss=1">
+        <meta name="verify-v1" content="YccN/iP28SifHNEFY6u92i0ou3tAegQAIk2OyOJLp1s=">
+    <meta name="y_key" content="f0b40c3f5fee758f">
+    <meta name="google-site-verification" content="C1rNEC4fJIvFoyyccMV2PbuqX3P-SFtlD2MNZ9D2uy0">
+    <link rel="search" type="application/opensearchdescription+xml" title="KickassTorrents Torrent Search" href="/opensearch.xml">
+    <meta property="fb:app_id" content="123694587642603">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+</head>
+<body class="mainBody">
+<div id="wrapper">
+    <div id="wrapperInner">
+<div data-sc-slot="_60318cd4e8d28f6fb76fe34e9bd9c498"></div>
+<div data-sc-slot="_39ecb76dd457e5ac33776fdf11500d56"></div>
+            
+    <div id="logindiv"></div>
+    <header>
+	<nav id="menu">
+		<a href="/full/" id="logo"></a>
+		<a href="#" id="showHideSearch"><i class="ka ka-zoom"></i></a>
+		<div id="torrentSearch">
+			<form action="/usearch/" method="get" id="searchform" accept-charset="utf-8" onsubmit="return doSearch(this.q.value);">
+				<input id="contentSearch" class="input-big" type="text" name="q" value="" autocomplete="off" placeholder="Search query"><div id="searchTool"><a title="Advanced search" href="/advanced/" class="ajaxLink"><i class="ka ka-settings"></i></a><button title="search" type="submit" value="" onfocus="this.blur();" onclick="this.blur();"><i class="ka ka-search"></i></button></div>
+			</form>
+		</div>
+        <div data-sc-slot="_277923e5f9d753c5b0630c28e641790c"></div>
+		<ul id="navigation">
+			
+			<li> <a href="/browse/"> <i class="ka ka-torrent"></i><span class="menuItem">browse</span></a>
+				<ul class="dropdown dp-middle dropdown-msg upper">
+										
+						<li class="topMsg"><a href="/new/"><i class="ka ka16 ka-torrent"></i>latest</a></li>
+										<li class="topMsg"><a href="/movies/"><i class="ka ka16 ka-movie lower"></i>Movies</a></li>
+					<li class="topMsg"><a href="/tv/"><i class="ka ka16 ka-movie lower"></i>TV</a></li>
+					<li class="topMsg"><a href="/music/"><i class="ka ka16 ka-music-note lower"></i>Music</a></li>
+					<li class="topMsg"><a href="/games/"><i class="ka ka16 ka-settings lower"></i>Games</a></li>
+					<li class="topMsg"><a href="/books/"><i class="ka ka16 ka-bookmark"></i>Books</a></li>
+					<li class="topMsg"><a href="/applications/"><i class="ka ka16 ka-settings lower"></i>Apps</a></li>
+					<li class="topMsg"><a href="/anime/"><i class="ka ka16 ka-movie lower"></i>Anime</a></li>
+					<li class="topMsg"><a href="/other/"><i class="ka ka16 ka-torrent"></i>Other</a></li>
+											<li class="topMsg"><a href="/xxx/"><i class="ka ka16 ka-delete"></i>XXX</a></li>
+									</ul>
+			</li>
+			
+			<li><a data-nop="" href="/community/"> <i class="ka ka-community"></i><span class="menuItem">Community</span></a>
+			</li><li><a data-nop="" href="/blog/"><i class="ka ka-rss lower"></i><span class="menuItem">Blog</span></a></li>
+			<li><a data-nop="" href="/faq/"><i class="ka ka-faq lower"></i><span class="menuItem">FAQ</span></a></li>
+			
+			
+			<li> <a data-nop="" href="/auth/login/" class="ajaxLink"><i class="ka ka-user"></i><span class="menuItem">Register / Sign In</span></a></li>
+		</ul>
+	</nav>
+</header>
+
+<div class="pusher"></div>
+<div class="mainpart">
+    
+
+<table width="100%" cellspacing="0" cellpadding="0" class="doublecelltable" id="mainSearchTable">
+	<tbody><tr>
+		<td width="100%">
+							<div class="spareBlock hzSpare">
+    <div class="legend">Advertising (<a href="/auth/login/register/" class="ajaxLink removeAdv" title="Login or register to remove advertising">remove</a>)</div>
+    <div data-sc-slot="_b77c3599a877a4e9d6097b83ec9f23bb" data-sc-params="{ 'searchQuery': '' }"></div>
+</div>
+
+									            								    
+			
+	        
+			<div><h2>								    				    Movies torrents
+				    							<span>  results 9951-9975 from 10000</span>  <a data-nop="" class="ka ka16 ka-rss normalText rsssign ka-red" target="_blank" href="http://kat.cr/movies/?rss=1" title="rss"></a></h2>
+
+
+	<table cellpadding="0" cellspacing="0" class="data" style="width: 100%">
+		<tbody><tr class="firstr">
+			<th class="width100perc nopad">torrent name</th>
+        						<th class="center"><a href="/movies/?field=size&amp;sorder=desc" rel="nofollow">size</a></th>
+						<th class="center"><span class="files"><a href="/movies/?field=files_count&amp;sorder=desc" rel="nofollow">files</a></span></th>
+						<th class="center"><span><a href="/movies/?field=time_add&amp;sorder=desc" rel="nofollow">age</a></span></th>
+						<th class="center"><span class="seed"><a href="/movies/?field=seeders&amp;sorder=desc" rel="nofollow">seed</a></span></th>
+						<th class="lasttd nobr center"><a href="/movies/?field=leechers&amp;sorder=desc" rel="nofollow">leech</a></th>
+</tr>
+						<tr class="odd" id="torrent_movies_torrents11699836">
+            <td>
+            <div class="iaconbox center floatright">
+                <a rel="11699836,0" class="icommentjs kaButton smallButton rightButton" href="/pitbull-music-videos-collection-2011-2015-hdtvrip-1080p-t11699836.html#comment">3 <i class="ka ka-comment"></i></a>				<a class="icon16" href="/pitbull-music-videos-collection-2011-2015-hdtvrip-1080p-t11699836.html" title="Verified Torrent"><i class="ka ka16 ka-verify ka-green"></i></a>                                <div data-sc-replace="" data-sc-slot="_ae58c272c09a10c792c6b17d55c20208" class="none" data-sc-params="{ 'name': 'Pitbull%20-%20Music%20Videos%20Collection%20%282011-2015%29%20HDTVRip%5B1080p%5D', 'extension': 'mp4', 'magnet': 'magnet:?xt=urn:btih:338CD52DD68AD3BE60D14C7772E6F58B5C581040&amp;dn=pitbull+music+videos+collection+2011+2015+hdtvrip+1080p&amp;tr=udp%3A%2F%2Ftracker.publicbt.com%2Fannounce&amp;tr=udp%3A%2F%2Fglotorrents.pw%3A6969%2Fannounce&amp;tr=udp%3A%2F%2Ftracker.openbittorrent.com%3A80%2Fannounce&amp;tr=udp%3A%2F%2Ftracker.opentrackr.org%3A1337%2Fannounce' }"></div>
+                <a data-nop="" title="Torrent magnet link" href="magnet:?xt=urn:btih:338CD52DD68AD3BE60D14C7772E6F58B5C581040&amp;dn=pitbull+music+videos+collection+2011+2015+hdtvrip+1080p&amp;tr=udp%3A%2F%2Ftracker.publicbt.com%2Fannounce&amp;tr=udp%3A%2F%2Fglotorrents.pw%3A6969%2Fannounce&amp;tr=udp%3A%2F%2Ftracker.openbittorrent.com%3A80%2Fannounce&amp;tr=udp%3A%2F%2Ftracker.opentrackr.org%3A1337%2Fannounce" class="icon16"><i class="ka ka16 ka-magnet"></i></a>
+                <a data-download="" title="Download torrent file" href="//torcache.net/torrent/338CD52DD68AD3BE60D14C7772E6F58B5C581040.torrent?title=[kat.cr]pitbull.music.videos.collection.2011.2015.hdtvrip.1080p" class="icon16"><i class="ka ka16 ka-arrow-down"></i></a>
+            </div>
+            <div class="torrentname">
+                <a href="/pitbull-music-videos-collection-2011-2015-hdtvrip-1080p-t11699836.html" class="torType filmType"></a>
+                <a href="/pitbull-music-videos-collection-2011-2015-hdtvrip-1080p-t11699836.html" class="normalgrey font12px plain bold"></a>
+            <div class="markeredBlock torType filmType">
+                <a href="/pitbull-music-videos-collection-2011-2015-hdtvrip-1080p-t11699836.html" class="cellMainLink">Pitbull - Music Videos Collection (2011-2015) HDTVRip[1080p]</a>
+
+                                                <span class="font11px lightgrey block">
+                                Posted by <i title="Verified Uploader" class="ka ka-verify" style="font-size: 16px;color:orange;"></i> <a class="plain" href="/user/The.NOOG/">The.NOOG</a> in <span id="cat_11699836"><strong><a href="/movies/">Movies</a> &gt; <a href="/music-videos/">Music videos</a></strong></span>                	                </span>
+            	            </div>
+            </div></td>
+									<td class="nobr center">2.89 <span>GB</span></td>
+			<td class="center">23</td>
+			<td class="center" title="04 Dec 2015, 20:39">6&nbsp;months</td>
+			<td class="green center">17</td>
+			<td class="red lasttd center">17</td>
+			</tr>
+						<tr class="even" id="torrent_movies_torrents11731661">
+            <td>
+            <div class="iaconbox center floatright">
+                				<a class="icon16" href="/città-di-carta-2015-italian-ac3-bdrip-xvid-rdf-mt-avi-t11731661.html" title="Verified Torrent"><i class="ka ka16 ka-verify ka-green"></i></a>                                <div data-sc-replace="" data-sc-slot="_ae58c272c09a10c792c6b17d55c20208" class="none" data-sc-params="{ 'name': 'Citt%C3%A0%20Di%20Carta%202015%20ITALiAN%20AC3%20BDRip%20XviD-RDF%5BMT%5D%20avi', 'extension': 'avi', 'magnet': 'magnet:?xt=urn:btih:321D4E61DA977632F33A9EA93585BCE0A1750C38&amp;dn=citt%C3%A0+di+carta+2015+italian+ac3+bdrip+xvid+rdf+mt+avi&amp;tr=udp%3A%2F%2Ftracker.publicbt.com%2Fannounce&amp;tr=udp%3A%2F%2Fglotorrents.pw%3A6969%2Fannounce&amp;tr=udp%3A%2F%2Ftracker.openbittorrent.com%3A80%2Fannounce&amp;tr=udp%3A%2F%2Ftracker.opentrackr.org%3A1337%2Fannounce' }"></div>
+                <a data-nop="" title="Torrent magnet link" href="magnet:?xt=urn:btih:321D4E61DA977632F33A9EA93585BCE0A1750C38&amp;dn=citt%C3%A0+di+carta+2015+italian+ac3+bdrip+xvid+rdf+mt+avi&amp;tr=udp%3A%2F%2Ftracker.publicbt.com%2Fannounce&amp;tr=udp%3A%2F%2Fglotorrents.pw%3A6969%2Fannounce&amp;tr=udp%3A%2F%2Ftracker.openbittorrent.com%3A80%2Fannounce&amp;tr=udp%3A%2F%2Ftracker.opentrackr.org%3A1337%2Fannounce" class="icon16"><i class="ka ka16 ka-magnet"></i></a>
+                <a data-download="" title="Download torrent file" href="//torcache.net/torrent/321D4E61DA977632F33A9EA93585BCE0A1750C38.torrent?title=[kat.cr]citt%C3%A0.di.carta.2015.italian.ac3.bdrip.xvid.rdf.mt.avi" class="icon16"><i class="ka ka16 ka-arrow-down"></i></a>
+            </div>
+            <div class="torrentname">
+                <a href="/città-di-carta-2015-italian-ac3-bdrip-xvid-rdf-mt-avi-t11731661.html" class="torType filmType"></a>
+                <a href="/città-di-carta-2015-italian-ac3-bdrip-xvid-rdf-mt-avi-t11731661.html" class="normalgrey font12px plain bold"></a>
+            <div class="markeredBlock torType filmType">
+                <a href="/città-di-carta-2015-italian-ac3-bdrip-xvid-rdf-mt-avi-t11731661.html" class="cellMainLink">Città Di Carta 2015 ITALiAN AC3 BDRip XviD-RDF[MT] avi</a>
+
+                                                <span class="font11px lightgrey block">
+                                Posted by <i title="Verified Uploader" class="ka ka-verify" style="font-size: 16px;color:orange;"></i> <a class="plain" href="/user/Survival/">Survival</a> in <span id="cat_11731661"><strong><a href="/movies/">Movies</a> &gt; <a href="/dubbed-movies/">Dubbed Movies</a></strong></span>                	                </span>
+            	            </div>
+            </div></td>
+									<td class="nobr center">1.75 <span>GB</span></td>
+			<td class="center">1</td>
+			<td class="center" title="10 Dec 2015, 07:43">5&nbsp;months</td>
+			<td class="green center">25</td>
+			<td class="red lasttd center">1</td>
+			</tr>
+						<tr class="odd" id="torrent_movies_torrents11747786">
+            <td>
+            <div class="iaconbox center floatright">
+                <a rel="11747786,0" class="icommentjs kaButton smallButton rightButton" href="/vampire-hunter-d-1985-720p-bluray-x264-aac-etrg-t11747786.html#comment">8 <i class="ka ka-comment"></i></a>				<a class="icon16" href="/vampire-hunter-d-1985-720p-bluray-x264-aac-etrg-t11747786.html" title="Verified Torrent"><i class="ka ka16 ka-verify ka-green"></i></a>                                <div data-sc-replace="" data-sc-slot="_ae58c272c09a10c792c6b17d55c20208" class="none" data-sc-params="{ 'name': 'Vampire%20Hunter%20D%201985%20720p%20BluRay%20x264%20AAC-ETRG', 'extension': 'mp4', 'magnet': 'magnet:?xt=urn:btih:DD640DE44A92734318E065CF1A332C91D57D4DF4&amp;dn=vampire+hunter+d+1985+720p+bluray+x264+aac+etrg&amp;tr=udp%3A%2F%2Ftracker.publicbt.com%2Fannounce&amp;tr=udp%3A%2F%2Fglotorrents.pw%3A6969%2Fannounce&amp;tr=udp%3A%2F%2Ftracker.openbittorrent.com%3A80%2Fannounce&amp;tr=udp%3A%2F%2Ftracker.opentrackr.org%3A1337%2Fannounce' }"></div>
+                <a data-nop="" title="Torrent magnet link" href="magnet:?xt=urn:btih:DD640DE44A92734318E065CF1A332C91D57D4DF4&amp;dn=vampire+hunter+d+1985+720p+bluray+x264+aac+etrg&amp;tr=udp%3A%2F%2Ftracker.publicbt.com%2Fannounce&amp;tr=udp%3A%2F%2Fglotorrents.pw%3A6969%2Fannounce&amp;tr=udp%3A%2F%2Ftracker.openbittorrent.com%3A80%2Fannounce&amp;tr=udp%3A%2F%2Ftracker.opentrackr.org%3A1337%2Fannounce" class="icon16"><i class="ka ka16 ka-magnet"></i></a>
+                <a data-download="" title="Download torrent file" href="//torcache.net/torrent/DD640DE44A92734318E065CF1A332C91D57D4DF4.torrent?title=[kat.cr]vampire.hunter.d.1985.720p.bluray.x264.aac.etrg" class="icon16"><i class="ka ka16 ka-arrow-down"></i></a>
+            </div>
+            <div class="torrentname">
+                <a href="/vampire-hunter-d-1985-720p-bluray-x264-aac-etrg-t11747786.html" class="torType filmType"></a>
+                <a href="/vampire-hunter-d-1985-720p-bluray-x264-aac-etrg-t11747786.html" class="normalgrey font12px plain bold"></a>
+            <div class="markeredBlock torType filmType">
+                <a href="/vampire-hunter-d-1985-720p-bluray-x264-aac-etrg-t11747786.html" class="cellMainLink">Vampire Hunter D 1985 720p BluRay x264 AAC-ETRG</a>
+
+                                                <span class="font11px lightgrey block">
+                                Posted by <i title="Elite Uploader" class="ka ka-star ka-vul2" style="font-size: 16px;color:orange;"></i> <a class="plain" href="/user/megaradon/">megaradon</a> in <span id="cat_11747786"><strong><a href="/movies/">Movies</a> &gt; <a href="/animation/">Animation</a></strong></span>                	                </span>
+            	            </div>
+            </div></td>
+									<td class="nobr center">642.85 <span>MB</span></td>
+			<td class="center">2</td>
+			<td class="center" title="13 Dec 2015, 07:24">5&nbsp;months</td>
+			<td class="green center">25</td>
+			<td class="red lasttd center">1</td>
+			</tr>
+						<tr class="even" id="torrent_movies_torrents11759842">
+            <td>
+            <div class="iaconbox center floatright">
+                <a rel="11759842,0" class="icommentjs kaButton smallButton rightButton" href="/paranormal-activity-the-ghost-dimension-2015-unrated-720p-webrip-x264-aac-etrg-t11759842.html#comment">34 <i class="ka ka-comment"></i></a>				<a class="icon16" href="/paranormal-activity-the-ghost-dimension-2015-unrated-720p-webrip-x264-aac-etrg-t11759842.html" title="Verified Torrent"><i class="ka ka16 ka-verify ka-green"></i></a>                                <div data-sc-replace="" data-sc-slot="_ae58c272c09a10c792c6b17d55c20208" class="none" data-sc-params="{ 'name': 'Paranormal%20Activity%20The%20Ghost%20Dimension%202015%20UNRATED%20720p%20WEBRip%20x264%20AAC-ETRG', 'extension': 'mp4', 'magnet': 'magnet:?xt=urn:btih:97CBB111EBCCBC8B8FB33F5B2F8F8CCB4ABCFCD6&amp;dn=paranormal+activity+the+ghost+dimension+2015+unrated+720p+webrip+x264+aac+etrg&amp;tr=udp%3A%2F%2Ftracker.publicbt.com%2Fannounce&amp;tr=udp%3A%2F%2Fglotorrents.pw%3A6969%2Fannounce&amp;tr=udp%3A%2F%2Ftracker.openbittorrent.com%3A80%2Fannounce&amp;tr=udp%3A%2F%2Ftracker.opentrackr.org%3A1337%2Fannounce' }"></div>
+                <a data-nop="" title="Torrent magnet link" href="magnet:?xt=urn:btih:97CBB111EBCCBC8B8FB33F5B2F8F8CCB4ABCFCD6&amp;dn=paranormal+activity+the+ghost+dimension+2015+unrated+720p+webrip+x264+aac+etrg&amp;tr=udp%3A%2F%2Ftracker.publicbt.com%2Fannounce&amp;tr=udp%3A%2F%2Fglotorrents.pw%3A6969%2Fannounce&amp;tr=udp%3A%2F%2Ftracker.openbittorrent.com%3A80%2Fannounce&amp;tr=udp%3A%2F%2Ftracker.opentrackr.org%3A1337%2Fannounce" class="icon16"><i class="ka ka16 ka-magnet"></i></a>
+                <a data-download="" title="Download torrent file" href="//torcache.net/torrent/97CBB111EBCCBC8B8FB33F5B2F8F8CCB4ABCFCD6.torrent?title=[kat.cr]paranormal.activity.the.ghost.dimension.2015.unrated.720p.webrip.x264.aac.etrg" class="icon16"><i class="ka ka16 ka-arrow-down"></i></a>
+            </div>
+            <div class="torrentname">
+                <a href="/paranormal-activity-the-ghost-dimension-2015-unrated-720p-webrip-x264-aac-etrg-t11759842.html" class="torType filmType"></a>
+                <a href="/paranormal-activity-the-ghost-dimension-2015-unrated-720p-webrip-x264-aac-etrg-t11759842.html" class="normalgrey font12px plain bold"></a>
+            <div class="markeredBlock torType filmType">
+                <a href="/paranormal-activity-the-ghost-dimension-2015-unrated-720p-webrip-x264-aac-etrg-t11759842.html" class="cellMainLink">Paranormal Activity The Ghost Dimension 2015 UNRATED 720p WEBRip x264 AAC-ETRG</a>
+
+                                                <span class="font11px lightgrey block">
+                                Posted by <i title="Elite Uploader" class="ka ka-star ka-vul2" style="font-size: 16px;color:orange;"></i> <a class="plain" href="/user/megaradon/">megaradon</a> in <span id="cat_11759842"><strong><a href="/movies/">Movies</a></strong></span>                	                </span>
+            	            </div>
+            </div></td>
+									<td class="nobr center">769.12 <span>MB</span></td>
+			<td class="center">3</td>
+			<td class="center" title="15 Dec 2015, 13:27">5&nbsp;months</td>
+			<td class="green center">22</td>
+			<td class="red lasttd center">7</td>
+			</tr>
+						<tr class="odd" id="torrent_movies_torrents11761993">
+            <td>
+            <div class="iaconbox center floatright">
+                <a rel="11761993,0" class="icommentjs kaButton smallButton rightButton" href="/star-wars-episode-v-the-empire-strikes-back-1980-720p-bluray-x264-nezu-t11761993.html#comment">9 <i class="ka ka-comment"></i></a>				<a class="icon16" href="/star-wars-episode-v-the-empire-strikes-back-1980-720p-bluray-x264-nezu-t11761993.html" title="Verified Torrent"><i class="ka ka16 ka-verify ka-green"></i></a>                                <div data-sc-replace="" data-sc-slot="_ae58c272c09a10c792c6b17d55c20208" class="none" data-sc-params="{ 'name': 'Star%20Wars%20Episode%20V%20The%20Empire%20Strikes%20Back%201980%20720p%20BluRay%20x264-NeZu', 'extension': 'mkv', 'magnet': 'magnet:?xt=urn:btih:C4A85932C751F49FFA6A118F1D0C5D3F8594D47A&amp;dn=star+wars+episode+v+the+empire+strikes+back+1980+720p+bluray+x264+nezu&amp;tr=udp%3A%2F%2Ftracker.publicbt.com%2Fannounce&amp;tr=udp%3A%2F%2Fglotorrents.pw%3A6969%2Fannounce&amp;tr=udp%3A%2F%2Ftracker.openbittorrent.com%3A80%2Fannounce&amp;tr=udp%3A%2F%2Ftracker.opentrackr.org%3A1337%2Fannounce' }"></div>
+                <a data-nop="" title="Torrent magnet link" href="magnet:?xt=urn:btih:C4A85932C751F49FFA6A118F1D0C5D3F8594D47A&amp;dn=star+wars+episode+v+the+empire+strikes+back+1980+720p+bluray+x264+nezu&amp;tr=udp%3A%2F%2Ftracker.publicbt.com%2Fannounce&amp;tr=udp%3A%2F%2Fglotorrents.pw%3A6969%2Fannounce&amp;tr=udp%3A%2F%2Ftracker.openbittorrent.com%3A80%2Fannounce&amp;tr=udp%3A%2F%2Ftracker.opentrackr.org%3A1337%2Fannounce" class="icon16"><i class="ka ka16 ka-magnet"></i></a>
+                <a data-download="" title="Download torrent file" href="//torcache.net/torrent/C4A85932C751F49FFA6A118F1D0C5D3F8594D47A.torrent?title=[kat.cr]star.wars.episode.v.the.empire.strikes.back.1980.720p.bluray.x264.nezu" class="icon16"><i class="ka ka16 ka-arrow-down"></i></a>
+            </div>
+            <div class="torrentname">
+                <a href="/star-wars-episode-v-the-empire-strikes-back-1980-720p-bluray-x264-nezu-t11761993.html" class="torType filmType"></a>
+                <a href="/star-wars-episode-v-the-empire-strikes-back-1980-720p-bluray-x264-nezu-t11761993.html" class="normalgrey font12px plain bold"></a>
+            <div class="markeredBlock torType filmType">
+                <a href="/star-wars-episode-v-the-empire-strikes-back-1980-720p-bluray-x264-nezu-t11761993.html" class="cellMainLink">Star Wars Episode V The Empire Strikes Back 1980 720p BluRay x264-NeZu</a>
+
+                                                <span class="font11px lightgrey block">
+                                Posted by <i title="Verified Uploader" class="ka ka-verify" style="font-size: 16px;color:orange;"></i> <a class="plain" href="/user/NeZu/">NeZu</a> in <span id="cat_11761993"><strong><a href="/movies/">Movies</a> &gt; <a href="/highres-movies/">Highres Movies</a></strong></span>                	                </span>
+            	            </div>
+            </div></td>
+									<td class="nobr center">1.24 <span>GB</span></td>
+			<td class="center">6</td>
+			<td class="center" title="15 Dec 2015, 22:39">5&nbsp;months</td>
+			<td class="green center">23</td>
+			<td class="red lasttd center">5</td>
+			</tr>
+						<tr class="even" id="torrent_movies_torrents11778294">
+            <td>
+            <div class="iaconbox center floatright">
+                <a rel="11778294,0" class="icommentjs kaButton smallButton rightButton" href="/a-perfect-day-2015-dvdrip-550mb-shaanig-t11778294.html#comment">11 <i class="ka ka-comment"></i></a>				<a class="icon16" href="/a-perfect-day-2015-dvdrip-550mb-shaanig-t11778294.html" title="Verified Torrent"><i class="ka ka16 ka-verify ka-green"></i></a>                                <div data-sc-replace="" data-sc-slot="_ae58c272c09a10c792c6b17d55c20208" class="none" data-sc-params="{ 'name': 'A%20Perfect%20Day%20%282015%29%20DVDRiP%20-%20550MB%20-%20ShAaNiG', 'extension': 'mkv', 'magnet': 'magnet:?xt=urn:btih:9B69DCA5631F09CEC5659B2DF899C6B6EEFE34BF&amp;dn=a+perfect+day+2015+dvdrip+550mb+shaanig&amp;tr=udp%3A%2F%2Ftracker.publicbt.com%2Fannounce&amp;tr=udp%3A%2F%2Fglotorrents.pw%3A6969%2Fannounce&amp;tr=udp%3A%2F%2Ftracker.openbittorrent.com%3A80%2Fannounce&amp;tr=udp%3A%2F%2Ftracker.opentrackr.org%3A1337%2Fannounce' }"></div>
+                <a data-nop="" title="Torrent magnet link" href="magnet:?xt=urn:btih:9B69DCA5631F09CEC5659B2DF899C6B6EEFE34BF&amp;dn=a+perfect+day+2015+dvdrip+550mb+shaanig&amp;tr=udp%3A%2F%2Ftracker.publicbt.com%2Fannounce&amp;tr=udp%3A%2F%2Fglotorrents.pw%3A6969%2Fannounce&amp;tr=udp%3A%2F%2Ftracker.openbittorrent.com%3A80%2Fannounce&amp;tr=udp%3A%2F%2Ftracker.opentrackr.org%3A1337%2Fannounce" class="icon16"><i class="ka ka16 ka-magnet"></i></a>
+                <a data-download="" title="Download torrent file" href="//torcache.net/torrent/9B69DCA5631F09CEC5659B2DF899C6B6EEFE34BF.torrent?title=[kat.cr]a.perfect.day.2015.dvdrip.550mb.shaanig" class="icon16"><i class="ka ka16 ka-arrow-down"></i></a>
+            </div>
+            <div class="torrentname">
+                <a href="/a-perfect-day-2015-dvdrip-550mb-shaanig-t11778294.html" class="torType filmType"></a>
+                <a href="/a-perfect-day-2015-dvdrip-550mb-shaanig-t11778294.html" class="normalgrey font12px plain bold"></a>
+            <div class="markeredBlock torType filmType">
+                <a href="/a-perfect-day-2015-dvdrip-550mb-shaanig-t11778294.html" class="cellMainLink">A Perfect Day (2015) DVDRiP - 550MB - ShAaNiG</a>
+
+                                                <span class="font11px lightgrey block">
+                                Posted by <i title="Elite Uploader" class="ka ka-star ka-vul2" style="font-size: 16px;color:orange;"></i> <a class="plain" href="/user/ShAaNiG/">ShAaNiG</a> in <span id="cat_11778294"><strong><a href="/movies/">Movies</a></strong></span>                	                </span>
+            	            </div>
+            </div></td>
+									<td class="nobr center">550.48 <span>MB</span></td>
+			<td class="center">1</td>
+			<td class="center" title="18 Dec 2015, 22:26">5&nbsp;months</td>
+			<td class="green center">25</td>
+			<td class="red lasttd center">1</td>
+			</tr>
+						<tr class="odd" id="torrent_movies_torrents11781549">
+            <td>
+            <div class="iaconbox center floatright">
+                <a rel="11781549,0" class="icommentjs kaButton smallButton rightButton" href="/wolf-totem-2015-720p-brrip-1gb-mkvcage-t11781549.html#comment">4 <i class="ka ka-comment"></i></a>				<a class="icon16" href="/wolf-totem-2015-720p-brrip-1gb-mkvcage-t11781549.html" title="Verified Torrent"><i class="ka ka16 ka-verify ka-green"></i></a>                                <div data-sc-replace="" data-sc-slot="_ae58c272c09a10c792c6b17d55c20208" class="none" data-sc-params="{ 'name': 'Wolf%20Totem%20%282015%29%20720p%20BRRip%201GB%20-%20MkvCage', 'extension': 'mkv', 'magnet': 'magnet:?xt=urn:btih:052E967512487A04B59A24FF5A72D633D18C6C55&amp;dn=wolf+totem+2015+720p+brrip+1gb+mkvcage&amp;tr=udp%3A%2F%2Ftracker.publicbt.com%2Fannounce&amp;tr=udp%3A%2F%2Fglotorrents.pw%3A6969%2Fannounce&amp;tr=udp%3A%2F%2Ftracker.openbittorrent.com%3A80%2Fannounce&amp;tr=udp%3A%2F%2Ftracker.opentrackr.org%3A1337%2Fannounce' }"></div>
+                <a data-nop="" title="Torrent magnet link" href="magnet:?xt=urn:btih:052E967512487A04B59A24FF5A72D633D18C6C55&amp;dn=wolf+totem+2015+720p+brrip+1gb+mkvcage&amp;tr=udp%3A%2F%2Ftracker.publicbt.com%2Fannounce&amp;tr=udp%3A%2F%2Fglotorrents.pw%3A6969%2Fannounce&amp;tr=udp%3A%2F%2Ftracker.openbittorrent.com%3A80%2Fannounce&amp;tr=udp%3A%2F%2Ftracker.opentrackr.org%3A1337%2Fannounce" class="icon16"><i class="ka ka16 ka-magnet"></i></a>
+                <a data-download="" title="Download torrent file" href="//torcache.net/torrent/052E967512487A04B59A24FF5A72D633D18C6C55.torrent?title=[kat.cr]wolf.totem.2015.720p.brrip.1gb.mkvcage" class="icon16"><i class="ka ka16 ka-arrow-down"></i></a>
+            </div>
+            <div class="torrentname">
+                <a href="/wolf-totem-2015-720p-brrip-1gb-mkvcage-t11781549.html" class="torType filmType"></a>
+                <a href="/wolf-totem-2015-720p-brrip-1gb-mkvcage-t11781549.html" class="normalgrey font12px plain bold"></a>
+            <div class="markeredBlock torType filmType">
+                <a href="/wolf-totem-2015-720p-brrip-1gb-mkvcage-t11781549.html" class="cellMainLink">Wolf Totem (2015) 720p BRRip 1GB - MkvCage</a>
+
+                                                <span class="font11px lightgrey block">
+                                Posted by <i title="Verified Uploader" class="ka ka-verify" style="font-size: 16px;color:orange;"></i> <a class="plain" href="/user/MkvCage/">MkvCage</a> in <span id="cat_11781549"><strong><a href="/movies/">Movies</a> &gt; <a href="/highres-movies/">Highres Movies</a></strong></span>                	                </span>
+            	            </div>
+            </div></td>
+									<td class="nobr center">1.02 <span>GB</span></td>
+			<td class="center">1</td>
+			<td class="center" title="19 Dec 2015, 14:28">5&nbsp;months</td>
+			<td class="green center">24</td>
+			<td class="red lasttd center">3</td>
+			</tr>
+						<tr class="even" id="torrent_movies_torrents11793951">
+            <td>
+            <div class="iaconbox center floatright">
+                <a rel="11793951,0" class="icommentjs kaButton smallButton rightButton" href="/the-martian-2015-720p-web-dl-xvid-ac3-rarbg-t11793951.html#comment">13 <i class="ka ka-comment"></i></a>				<a class="icon16" href="/the-martian-2015-720p-web-dl-xvid-ac3-rarbg-t11793951.html" title="Verified Torrent"><i class="ka ka16 ka-verify ka-green"></i></a>                                <div data-sc-replace="" data-sc-slot="_ae58c272c09a10c792c6b17d55c20208" class="none" data-sc-params="{ 'name': 'The%20Martian%202015%20720p%20WEB-DL%20XviD%20AC3-RARBG', 'extension': 'avi', 'magnet': 'magnet:?xt=urn:btih:EA13BA29849DE525923D48A93D692EEBDBD0B068&amp;dn=the+martian+2015+720p+web+dl+xvid+ac3+rarbg&amp;tr=udp%3A%2F%2Ftracker.publicbt.com%2Fannounce&amp;tr=udp%3A%2F%2Fglotorrents.pw%3A6969%2Fannounce&amp;tr=udp%3A%2F%2Ftracker.openbittorrent.com%3A80%2Fannounce&amp;tr=udp%3A%2F%2Ftracker.opentrackr.org%3A1337%2Fannounce' }"></div>
+                <a data-nop="" title="Torrent magnet link" href="magnet:?xt=urn:btih:EA13BA29849DE525923D48A93D692EEBDBD0B068&amp;dn=the+martian+2015+720p+web+dl+xvid+ac3+rarbg&amp;tr=udp%3A%2F%2Ftracker.publicbt.com%2Fannounce&amp;tr=udp%3A%2F%2Fglotorrents.pw%3A6969%2Fannounce&amp;tr=udp%3A%2F%2Ftracker.openbittorrent.com%3A80%2Fannounce&amp;tr=udp%3A%2F%2Ftracker.opentrackr.org%3A1337%2Fannounce" class="icon16"><i class="ka ka16 ka-magnet"></i></a>
+                <a data-download="" title="Download torrent file" href="//torcache.net/torrent/EA13BA29849DE525923D48A93D692EEBDBD0B068.torrent?title=[kat.cr]the.martian.2015.720p.web.dl.xvid.ac3.rarbg" class="icon16"><i class="ka ka16 ka-arrow-down"></i></a>
+            </div>
+            <div class="torrentname">
+                <a href="/the-martian-2015-720p-web-dl-xvid-ac3-rarbg-t11793951.html" class="torType filmType"></a>
+                <a href="/the-martian-2015-720p-web-dl-xvid-ac3-rarbg-t11793951.html" class="normalgrey font12px plain bold"></a>
+            <div class="markeredBlock torType filmType">
+                <a href="/the-martian-2015-720p-web-dl-xvid-ac3-rarbg-t11793951.html" class="cellMainLink">The Martian 2015 720p WEB-DL XviD AC3-RARBG</a>
+
+                                                <span class="font11px lightgrey block">
+                                Posted by <i title="Verified Uploader" class="ka ka-verify" style="font-size: 16px;color:orange;"></i> <a class="plain" href="/user/z0n321/">z0n321</a> in <span id="cat_11793951"><strong><a href="/movies/">Movies</a></strong></span>                	                </span>
+            	            </div>
+            </div></td>
+									<td class="nobr center">4.14 <span>GB</span></td>
+			<td class="center">5</td>
+			<td class="center" title="22 Dec 2015, 02:03">5&nbsp;months</td>
+			<td class="green center">22</td>
+			<td class="red lasttd center">7</td>
+			</tr>
+						<tr class="odd" id="torrent_movies_torrents11804151">
+            <td>
+            <div class="iaconbox center floatright">
+                <a rel="11804151,0" class="icommentjs kaButton smallButton rightButton" href="/love-forecast-2015-korean-1080p-brrip-x264-aac-eng-sub-ddl-t11804151.html#comment">1 <i class="ka ka-comment"></i></a>				<a class="icon16" href="/love-forecast-2015-korean-1080p-brrip-x264-aac-eng-sub-ddl-t11804151.html" title="Verified Torrent"><i class="ka ka16 ka-verify ka-green"></i></a>                                <div data-sc-replace="" data-sc-slot="_ae58c272c09a10c792c6b17d55c20208" class="none" data-sc-params="{ 'name': 'Love%20Forecast%202015%20Korean%201080p%20BRRIP%20x264%20AAC%20ENG%20SUB-DDL', 'extension': 'mp4', 'magnet': 'magnet:?xt=urn:btih:697523211551C5E246B2F259A85C483EF2E206AC&amp;dn=love+forecast+2015+korean+1080p+brrip+x264+aac+eng+sub+ddl&amp;tr=udp%3A%2F%2Ftracker.publicbt.com%2Fannounce&amp;tr=udp%3A%2F%2Fglotorrents.pw%3A6969%2Fannounce&amp;tr=udp%3A%2F%2Ftracker.openbittorrent.com%3A80%2Fannounce&amp;tr=udp%3A%2F%2Ftracker.opentrackr.org%3A1337%2Fannounce' }"></div>
+                <a data-nop="" title="Torrent magnet link" href="magnet:?xt=urn:btih:697523211551C5E246B2F259A85C483EF2E206AC&amp;dn=love+forecast+2015+korean+1080p+brrip+x264+aac+eng+sub+ddl&amp;tr=udp%3A%2F%2Ftracker.publicbt.com%2Fannounce&amp;tr=udp%3A%2F%2Fglotorrents.pw%3A6969%2Fannounce&amp;tr=udp%3A%2F%2Ftracker.openbittorrent.com%3A80%2Fannounce&amp;tr=udp%3A%2F%2Ftracker.opentrackr.org%3A1337%2Fannounce" class="icon16"><i class="ka ka16 ka-magnet"></i></a>
+                <a data-download="" title="Download torrent file" href="//torcache.net/torrent/697523211551C5E246B2F259A85C483EF2E206AC.torrent?title=[kat.cr]love.forecast.2015.korean.1080p.brrip.x264.aac.eng.sub.ddl" class="icon16"><i class="ka ka16 ka-arrow-down"></i></a>
+            </div>
+            <div class="torrentname">
+                <a href="/love-forecast-2015-korean-1080p-brrip-x264-aac-eng-sub-ddl-t11804151.html" class="torType filmType"></a>
+                <a href="/love-forecast-2015-korean-1080p-brrip-x264-aac-eng-sub-ddl-t11804151.html" class="normalgrey font12px plain bold"></a>
+            <div class="markeredBlock torType filmType">
+                <a href="/love-forecast-2015-korean-1080p-brrip-x264-aac-eng-sub-ddl-t11804151.html" class="cellMainLink">Love Forecast 2015 Korean 1080p BRRIP x264 AAC ENG SUB-DDL</a>
+
+                                                <span class="font11px lightgrey block">
+                                Posted by <i title="Verified Uploader" class="ka ka-verify" style="font-size: 16px;color:orange;"></i> <a class="plain" href="/user/DDL/">DDL</a> in <span id="cat_11804151"><strong><a href="/movies/">Movies</a> &gt; <a href="/asian/">Asian</a></strong></span>                	                </span>
+            	            </div>
+            </div></td>
+									<td class="nobr center">1.87 <span>GB</span></td>
+			<td class="center">3</td>
+			<td class="center" title="24 Dec 2015, 06:43">5&nbsp;months</td>
+			<td class="green center">22</td>
+			<td class="red lasttd center">7</td>
+			</tr>
+						<tr class="even" id="torrent_movies_torrents11816574">
+            <td>
+            <div class="iaconbox center floatright">
+                <a rel="11816574,0" class="icommentjs kaButton smallButton rightButton" href="/war-horse-2011-1080p-bluray-h264-aac-rarbg-t11816574.html#comment">3 <i class="ka ka-comment"></i></a>				<a class="icon16" href="/war-horse-2011-1080p-bluray-h264-aac-rarbg-t11816574.html" title="Verified Torrent"><i class="ka ka16 ka-verify ka-green"></i></a>                                <div data-sc-replace="" data-sc-slot="_ae58c272c09a10c792c6b17d55c20208" class="none" data-sc-params="{ 'name': 'War%20Horse%202011%201080p%20BluRay%20H264%20AAC-RARBG', 'extension': 'mp4', 'magnet': 'magnet:?xt=urn:btih:6474419C95D39E8D4991F8A074E6E3F19FFE6647&amp;dn=war+horse+2011+1080p+bluray+h264+aac+rarbg&amp;tr=udp%3A%2F%2Ftracker.publicbt.com%2Fannounce&amp;tr=udp%3A%2F%2Fglotorrents.pw%3A6969%2Fannounce&amp;tr=udp%3A%2F%2Ftracker.openbittorrent.com%3A80%2Fannounce&amp;tr=udp%3A%2F%2Ftracker.opentrackr.org%3A1337%2Fannounce' }"></div>
+                <a data-nop="" title="Torrent magnet link" href="magnet:?xt=urn:btih:6474419C95D39E8D4991F8A074E6E3F19FFE6647&amp;dn=war+horse+2011+1080p+bluray+h264+aac+rarbg&amp;tr=udp%3A%2F%2Ftracker.publicbt.com%2Fannounce&amp;tr=udp%3A%2F%2Fglotorrents.pw%3A6969%2Fannounce&amp;tr=udp%3A%2F%2Ftracker.openbittorrent.com%3A80%2Fannounce&amp;tr=udp%3A%2F%2Ftracker.opentrackr.org%3A1337%2Fannounce" class="icon16"><i class="ka ka16 ka-magnet"></i></a>
+                <a data-download="" title="Download torrent file" href="//torcache.net/torrent/6474419C95D39E8D4991F8A074E6E3F19FFE6647.torrent?title=[kat.cr]war.horse.2011.1080p.bluray.h264.aac.rarbg" class="icon16"><i class="ka ka16 ka-arrow-down"></i></a>
+            </div>
+            <div class="torrentname">
+                <a href="/war-horse-2011-1080p-bluray-h264-aac-rarbg-t11816574.html" class="torType filmType"></a>
+                <a href="/war-horse-2011-1080p-bluray-h264-aac-rarbg-t11816574.html" class="normalgrey font12px plain bold"></a>
+            <div class="markeredBlock torType filmType">
+                <a href="/war-horse-2011-1080p-bluray-h264-aac-rarbg-t11816574.html" class="cellMainLink">War Horse 2011 1080p BluRay H264 AAC-RARBG</a>
+
+                                                <span class="font11px lightgrey block">
+                                Posted by <i title="Verified Uploader" class="ka ka-verify" style="font-size: 16px;color:orange;"></i> <a class="plain" href="/user/z0n321/">z0n321</a> in <span id="cat_11816574"><strong><a href="/movies/">Movies</a> &gt; <a href="/highres-movies/">Highres Movies</a></strong></span>                	                </span>
+            	            </div>
+            </div></td>
+									<td class="nobr center">2.8 <span>GB</span></td>
+			<td class="center">4</td>
+			<td class="center" title="27 Dec 2015, 00:19">5&nbsp;months</td>
+			<td class="green center">24</td>
+			<td class="red lasttd center">3</td>
+			</tr>
+						<tr class="odd" id="torrent_movies_torrents11818405">
+            <td>
+            <div class="iaconbox center floatright">
+                <a rel="11818405,0" class="icommentjs kaButton smallButton rightButton" href="/marco-polo-one-hundred-eyes-2015-1080p-nf-webrip-dd5-1-x264-pia-t11818405.html#comment">13 <i class="ka ka-comment"></i></a>				<a class="icon16" href="/marco-polo-one-hundred-eyes-2015-1080p-nf-webrip-dd5-1-x264-pia-t11818405.html" title="Verified Torrent"><i class="ka ka16 ka-verify ka-green"></i></a>                                <div data-sc-replace="" data-sc-slot="_ae58c272c09a10c792c6b17d55c20208" class="none" data-sc-params="{ 'name': 'Marco%20Polo%3A%20One%20Hundred%20Eyes%20%282015%29%201080p%20NF%20WEBRip%20DD5.1%20x264-PiA', 'extension': 'mkv', 'magnet': 'magnet:?xt=urn:btih:D63BF00761DDEA84C83FF4920B47BF0826F04EA5&amp;dn=marco+polo+one+hundred+eyes+2015+1080p+nf+webrip+dd5+1+x264+pia&amp;tr=udp%3A%2F%2Ftracker.publicbt.com%2Fannounce&amp;tr=udp%3A%2F%2Fglotorrents.pw%3A6969%2Fannounce&amp;tr=udp%3A%2F%2Ftracker.openbittorrent.com%3A80%2Fannounce&amp;tr=udp%3A%2F%2Ftracker.opentrackr.org%3A1337%2Fannounce' }"></div>
+                <a data-nop="" title="Torrent magnet link" href="magnet:?xt=urn:btih:D63BF00761DDEA84C83FF4920B47BF0826F04EA5&amp;dn=marco+polo+one+hundred+eyes+2015+1080p+nf+webrip+dd5+1+x264+pia&amp;tr=udp%3A%2F%2Ftracker.publicbt.com%2Fannounce&amp;tr=udp%3A%2F%2Fglotorrents.pw%3A6969%2Fannounce&amp;tr=udp%3A%2F%2Ftracker.openbittorrent.com%3A80%2Fannounce&amp;tr=udp%3A%2F%2Ftracker.opentrackr.org%3A1337%2Fannounce" class="icon16"><i class="ka ka16 ka-magnet"></i></a>
+                <a data-download="" title="Download torrent file" href="//torcache.net/torrent/D63BF00761DDEA84C83FF4920B47BF0826F04EA5.torrent?title=[kat.cr]marco.polo.one.hundred.eyes.2015.1080p.nf.webrip.dd5.1.x264.pia" class="icon16"><i class="ka ka16 ka-arrow-down"></i></a>
+            </div>
+            <div class="torrentname">
+                <a href="/marco-polo-one-hundred-eyes-2015-1080p-nf-webrip-dd5-1-x264-pia-t11818405.html" class="torType filmType"></a>
+                <a href="/marco-polo-one-hundred-eyes-2015-1080p-nf-webrip-dd5-1-x264-pia-t11818405.html" class="normalgrey font12px plain bold"></a>
+            <div class="markeredBlock torType filmType">
+                <a href="/marco-polo-one-hundred-eyes-2015-1080p-nf-webrip-dd5-1-x264-pia-t11818405.html" class="cellMainLink">Marco Polo: One Hundred Eyes (2015) 1080p NF WEBRip DD5.1 x264-PiA</a>
+
+                                                <span class="font11px lightgrey block">
+                                Posted by <i title="Verified Uploader" class="ka ka-verify" style="font-size: 16px;color:orange;"></i> <a class="plain" href="/user/LazyRips/">LazyRips</a> in <span id="cat_11818405"><strong><a href="/movies/">Movies</a></strong></span>                	                </span>
+            	            </div>
+            </div></td>
+									<td class="nobr center">1.22 <span>GB</span></td>
+			<td class="center">1</td>
+			<td class="center" title="27 Dec 2015, 11:22">5&nbsp;months</td>
+			<td class="green center">25</td>
+			<td class="red lasttd center">1</td>
+			</tr>
+						<tr class="even" id="torrent_movies_torrents11824164">
+            <td>
+            <div class="iaconbox center floatright">
+                <a rel="11824164,0" class="icommentjs kaButton smallButton rightButton" href="/the-beauty-inside-2015-korean-720p-bluray-x264-ac3-ddl-t11824164.html#comment">4 <i class="ka ka-comment"></i></a>				<a class="icon16" href="/the-beauty-inside-2015-korean-720p-bluray-x264-ac3-ddl-t11824164.html" title="Verified Torrent"><i class="ka ka16 ka-verify ka-green"></i></a>                                <div data-sc-replace="" data-sc-slot="_ae58c272c09a10c792c6b17d55c20208" class="none" data-sc-params="{ 'name': 'The%20Beauty%20Inside%202015%20Korean%20720p%20BluRay%20x264%20AC3-DDL', 'extension': 'mkv', 'magnet': 'magnet:?xt=urn:btih:7CD6610EB597F466A13C072E016B1B1F755E5BF6&amp;dn=the+beauty+inside+2015+korean+720p+bluray+x264+ac3+ddl&amp;tr=udp%3A%2F%2Ftracker.publicbt.com%2Fannounce&amp;tr=udp%3A%2F%2Fglotorrents.pw%3A6969%2Fannounce&amp;tr=udp%3A%2F%2Ftracker.openbittorrent.com%3A80%2Fannounce&amp;tr=udp%3A%2F%2Ftracker.opentrackr.org%3A1337%2Fannounce' }"></div>
+                <a data-nop="" title="Torrent magnet link" href="magnet:?xt=urn:btih:7CD6610EB597F466A13C072E016B1B1F755E5BF6&amp;dn=the+beauty+inside+2015+korean+720p+bluray+x264+ac3+ddl&amp;tr=udp%3A%2F%2Ftracker.publicbt.com%2Fannounce&amp;tr=udp%3A%2F%2Fglotorrents.pw%3A6969%2Fannounce&amp;tr=udp%3A%2F%2Ftracker.openbittorrent.com%3A80%2Fannounce&amp;tr=udp%3A%2F%2Ftracker.opentrackr.org%3A1337%2Fannounce" class="icon16"><i class="ka ka16 ka-magnet"></i></a>
+                <a data-download="" title="Download torrent file" href="//torcache.net/torrent/7CD6610EB597F466A13C072E016B1B1F755E5BF6.torrent?title=[kat.cr]the.beauty.inside.2015.korean.720p.bluray.x264.ac3.ddl" class="icon16"><i class="ka ka16 ka-arrow-down"></i></a>
+            </div>
+            <div class="torrentname">
+                <a href="/the-beauty-inside-2015-korean-720p-bluray-x264-ac3-ddl-t11824164.html" class="torType filmType"></a>
+                <a href="/the-beauty-inside-2015-korean-720p-bluray-x264-ac3-ddl-t11824164.html" class="normalgrey font12px plain bold"></a>
+            <div class="markeredBlock torType filmType">
+                <a href="/the-beauty-inside-2015-korean-720p-bluray-x264-ac3-ddl-t11824164.html" class="cellMainLink">The Beauty Inside 2015 Korean 720p BluRay x264 AC3-DDL</a>
+
+                                                <span class="font11px lightgrey block">
+                                Posted by <i title="Verified Uploader" class="ka ka-verify" style="font-size: 16px;color:orange;"></i> <a class="plain" href="/user/DDL/">DDL</a> in <span id="cat_11824164"><strong><a href="/movies/">Movies</a> &gt; <a href="/asian/">Asian</a></strong></span>                	                </span>
+            	            </div>
+            </div></td>
+									<td class="nobr center">3.27 <span>GB</span></td>
+			<td class="center">2</td>
+			<td class="center" title="28 Dec 2015, 17:34">5&nbsp;months</td>
+			<td class="green center">21</td>
+			<td class="red lasttd center">9</td>
+			</tr>
+						<tr class="odd" id="torrent_movies_torrents11826199">
+            <td>
+            <div class="iaconbox center floatright">
+                <a rel="11826199,0" class="icommentjs kaButton smallButton rightButton" href="/jamon-jamon-1992-720p-brrip-850mb-18-mkvcage-t11826199.html#comment">5 <i class="ka ka-comment"></i></a>				<a class="icon16" href="/jamon-jamon-1992-720p-brrip-850mb-18-mkvcage-t11826199.html" title="Verified Torrent"><i class="ka ka16 ka-verify ka-green"></i></a>                                <div data-sc-replace="" data-sc-slot="_ae58c272c09a10c792c6b17d55c20208" class="none" data-sc-params="{ 'name': 'Jamon%20Jamon%20%281992%29%20720p%20BRRip%20850MB%20%5B18%2B%5D%20-%20MkvCage', 'extension': 'mkv', 'magnet': 'magnet:?xt=urn:btih:9DE8B45826F0FC4DFFA8D14B7D48077F832EEC87&amp;dn=jamon+jamon+1992+720p+brrip+850mb+18+mkvcage&amp;tr=udp%3A%2F%2Ftracker.publicbt.com%2Fannounce&amp;tr=udp%3A%2F%2Fglotorrents.pw%3A6969%2Fannounce&amp;tr=udp%3A%2F%2Ftracker.openbittorrent.com%3A80%2Fannounce&amp;tr=udp%3A%2F%2Ftracker.opentrackr.org%3A1337%2Fannounce' }"></div>
+                <a data-nop="" title="Torrent magnet link" href="magnet:?xt=urn:btih:9DE8B45826F0FC4DFFA8D14B7D48077F832EEC87&amp;dn=jamon+jamon+1992+720p+brrip+850mb+18+mkvcage&amp;tr=udp%3A%2F%2Ftracker.publicbt.com%2Fannounce&amp;tr=udp%3A%2F%2Fglotorrents.pw%3A6969%2Fannounce&amp;tr=udp%3A%2F%2Ftracker.openbittorrent.com%3A80%2Fannounce&amp;tr=udp%3A%2F%2Ftracker.opentrackr.org%3A1337%2Fannounce" class="icon16"><i class="ka ka16 ka-magnet"></i></a>
+                <a data-download="" title="Download torrent file" href="//torcache.net/torrent/9DE8B45826F0FC4DFFA8D14B7D48077F832EEC87.torrent?title=[kat.cr]jamon.jamon.1992.720p.brrip.850mb.18.mkvcage" class="icon16"><i class="ka ka16 ka-arrow-down"></i></a>
+            </div>
+            <div class="torrentname">
+                <a href="/jamon-jamon-1992-720p-brrip-850mb-18-mkvcage-t11826199.html" class="torType filmType"></a>
+                <a href="/jamon-jamon-1992-720p-brrip-850mb-18-mkvcage-t11826199.html" class="normalgrey font12px plain bold"></a>
+            <div class="markeredBlock torType filmType">
+                <a href="/jamon-jamon-1992-720p-brrip-850mb-18-mkvcage-t11826199.html" class="cellMainLink">Jamon Jamon (1992) 720p BRRip 850MB [18+] - MkvCage</a>
+
+                                                <span class="font11px lightgrey block">
+                                Posted by <i title="Verified Uploader" class="ka ka-verify" style="font-size: 16px;color:orange;"></i> <a class="plain" href="/user/MkvCage/">MkvCage</a> in <span id="cat_11826199"><strong><a href="/movies/">Movies</a> &gt; <a href="/highres-movies/">Highres Movies</a></strong></span>                	                </span>
+            	            </div>
+            </div></td>
+									<td class="nobr center">852.44 <span>MB</span></td>
+			<td class="center">1</td>
+			<td class="center" title="29 Dec 2015, 04:38">5&nbsp;months</td>
+			<td class="green center">23</td>
+			<td class="red lasttd center">5</td>
+			</tr>
+						<tr class="even" id="torrent_movies_torrents11840890">
+            <td>
+            <div class="iaconbox center floatright">
+                <a rel="11840890,0" class="icommentjs kaButton smallButton rightButton" href="/queen-of-earth-2015-limited-dvdrip-xvid-etrg-t11840890.html#comment">4 <i class="ka ka-comment"></i></a>				<a class="icon16" href="/queen-of-earth-2015-limited-dvdrip-xvid-etrg-t11840890.html" title="Verified Torrent"><i class="ka ka16 ka-verify ka-green"></i></a>                                <div data-sc-replace="" data-sc-slot="_ae58c272c09a10c792c6b17d55c20208" class="none" data-sc-params="{ 'name': 'Queen%20of%20Earth%202015%20LiMiTED%20DVDRip%20XviD-ETRG', 'extension': 'avi', 'magnet': 'magnet:?xt=urn:btih:7CB9E7632EC75DEE7CD34A76C103A49621E43536&amp;dn=queen+of+earth+2015+limited+dvdrip+xvid+etrg&amp;tr=udp%3A%2F%2Ftracker.publicbt.com%2Fannounce&amp;tr=udp%3A%2F%2Fglotorrents.pw%3A6969%2Fannounce&amp;tr=udp%3A%2F%2Ftracker.openbittorrent.com%3A80%2Fannounce&amp;tr=udp%3A%2F%2Ftracker.opentrackr.org%3A1337%2Fannounce' }"></div>
+                <a data-nop="" title="Torrent magnet link" href="magnet:?xt=urn:btih:7CB9E7632EC75DEE7CD34A76C103A49621E43536&amp;dn=queen+of+earth+2015+limited+dvdrip+xvid+etrg&amp;tr=udp%3A%2F%2Ftracker.publicbt.com%2Fannounce&amp;tr=udp%3A%2F%2Fglotorrents.pw%3A6969%2Fannounce&amp;tr=udp%3A%2F%2Ftracker.openbittorrent.com%3A80%2Fannounce&amp;tr=udp%3A%2F%2Ftracker.opentrackr.org%3A1337%2Fannounce" class="icon16"><i class="ka ka16 ka-magnet"></i></a>
+                <a data-download="" title="Download torrent file" href="//torcache.net/torrent/7CB9E7632EC75DEE7CD34A76C103A49621E43536.torrent?title=[kat.cr]queen.of.earth.2015.limited.dvdrip.xvid.etrg" class="icon16"><i class="ka ka16 ka-arrow-down"></i></a>
+            </div>
+            <div class="torrentname">
+                <a href="/queen-of-earth-2015-limited-dvdrip-xvid-etrg-t11840890.html" class="torType filmType"></a>
+                <a href="/queen-of-earth-2015-limited-dvdrip-xvid-etrg-t11840890.html" class="normalgrey font12px plain bold"></a>
+            <div class="markeredBlock torType filmType">
+                <a href="/queen-of-earth-2015-limited-dvdrip-xvid-etrg-t11840890.html" class="cellMainLink">Queen of Earth 2015 LiMiTED DVDRip XviD-ETRG</a>
+
+                                                <span class="font11px lightgrey block">
+                                Posted by <i title="Verified Uploader" class="ka ka-verify" style="font-size: 16px;color:orange;"></i> <a class="plain" href="/user/SaM/">SaM</a> in <span id="cat_11840890"><strong><a href="/movies/">Movies</a></strong></span>                	                </span>
+            	            </div>
+            </div></td>
+									<td class="nobr center">708.6 <span>MB</span></td>
+			<td class="center">7</td>
+			<td class="center" title="01 Jan 2016, 13:26">5&nbsp;months</td>
+			<td class="green center">23</td>
+			<td class="red lasttd center">5</td>
+			</tr>
+						<tr class="odd" id="torrent_movies_torrents11884782">
+            <td>
+            <div class="iaconbox center floatright">
+                <a rel="11884782,0" class="icommentjs kaButton smallButton rightButton" href="/aladdin-the-return-of-jafar-1994-720p-bluray-x264-dual-audio-hindi-2-0-english-dd-5-1-loki-m2tv-t11884782.html#comment">7 <i class="ka ka-comment"></i></a>				<a class="icon16" href="/aladdin-the-return-of-jafar-1994-720p-bluray-x264-dual-audio-hindi-2-0-english-dd-5-1-loki-m2tv-t11884782.html" title="Verified Torrent"><i class="ka ka16 ka-verify ka-green"></i></a>                                <div data-sc-replace="" data-sc-slot="_ae58c272c09a10c792c6b17d55c20208" class="none" data-sc-params="{ 'name': 'Aladdin%20-%20The%20Return%20Of%20Jafar%20%281994%29%20720p%20BluRay%20x264%20%5BDual%20Audio%5D%20%5BHindi%202.0%20-%20English%20DD%205.1%20%5D%20-%20LOKI%20-%20M2Tv', 'extension': 'mkv', 'magnet': 'magnet:?xt=urn:btih:555B6EC4052BA68B37F91C5AA875B5FF3CC0FDF1&amp;dn=aladdin+the+return+of+jafar+1994+720p+bluray+x264+dual+audio+hindi+2+0+english+dd+5+1+loki+m2tv&amp;tr=udp%3A%2F%2Ftracker.publicbt.com%2Fannounce&amp;tr=udp%3A%2F%2Fglotorrents.pw%3A6969%2Fannounce&amp;tr=udp%3A%2F%2Ftracker.openbittorrent.com%3A80%2Fannounce&amp;tr=udp%3A%2F%2Ftracker.opentrackr.org%3A1337%2Fannounce' }"></div>
+                <a data-nop="" title="Torrent magnet link" href="magnet:?xt=urn:btih:555B6EC4052BA68B37F91C5AA875B5FF3CC0FDF1&amp;dn=aladdin+the+return+of+jafar+1994+720p+bluray+x264+dual+audio+hindi+2+0+english+dd+5+1+loki+m2tv&amp;tr=udp%3A%2F%2Ftracker.publicbt.com%2Fannounce&amp;tr=udp%3A%2F%2Fglotorrents.pw%3A6969%2Fannounce&amp;tr=udp%3A%2F%2Ftracker.openbittorrent.com%3A80%2Fannounce&amp;tr=udp%3A%2F%2Ftracker.opentrackr.org%3A1337%2Fannounce" class="icon16"><i class="ka ka16 ka-magnet"></i></a>
+                <a data-download="" title="Download torrent file" href="//torcache.net/torrent/555B6EC4052BA68B37F91C5AA875B5FF3CC0FDF1.torrent?title=[kat.cr]aladdin.the.return.of.jafar.1994.720p.bluray.x264.dual.audio.hindi.2.0.english.dd.5.1.loki.m2tv" class="icon16"><i class="ka ka16 ka-arrow-down"></i></a>
+            </div>
+            <div class="torrentname">
+                <a href="/aladdin-the-return-of-jafar-1994-720p-bluray-x264-dual-audio-hindi-2-0-english-dd-5-1-loki-m2tv-t11884782.html" class="torType filmType"></a>
+                <a href="/aladdin-the-return-of-jafar-1994-720p-bluray-x264-dual-audio-hindi-2-0-english-dd-5-1-loki-m2tv-t11884782.html" class="normalgrey font12px plain bold"></a>
+            <div class="markeredBlock torType filmType">
+                <a href="/aladdin-the-return-of-jafar-1994-720p-bluray-x264-dual-audio-hindi-2-0-english-dd-5-1-loki-m2tv-t11884782.html" class="cellMainLink">Aladdin - The Return Of Jafar (1994) 720p BluRay x264 [Dual Audio] [Hindi 2.0 - English DD 5.1 ] - LOKI - M2Tv</a>
+
+                                                <span class="font11px lightgrey block">
+                                Posted by <i title="Verified Uploader" class="ka ka-verify" style="font-size: 16px;color:orange;"></i> <a class="plain" href="/user/LOKI-Torrents/">LOKI-Torrents</a> in <span id="cat_11884782"><strong><a href="/movies/">Movies</a> &gt; <a href="/animation/">Animation</a></strong></span>                	                </span>
+            	            </div>
+            </div></td>
+									<td class="nobr center">851.97 <span>MB</span></td>
+			<td class="center">5</td>
+			<td class="center" title="10 Jan 2016, 18:19">4&nbsp;months</td>
+			<td class="green center">20</td>
+			<td class="red lasttd center">11</td>
+			</tr>
+						<tr class="even" id="torrent_movies_torrents11898542">
+            <td>
+            <div class="iaconbox center floatright">
+                <a rel="11898542,0" class="icommentjs kaButton smallButton rightButton" href="/18-kama-sutra-a-tale-of-love-1996-english-720p-bdrip-x264-aac-team-ictv-t11898542.html#comment">13 <i class="ka ka-comment"></i></a>				<a class="icon16" href="/18-kama-sutra-a-tale-of-love-1996-english-720p-bdrip-x264-aac-team-ictv-t11898542.html" title="Verified Torrent"><i class="ka ka16 ka-verify ka-green"></i></a>                                <div data-sc-replace="" data-sc-slot="_ae58c272c09a10c792c6b17d55c20208" class="none" data-sc-params="{ 'name': '%5B18%2B%5D%20Kama%20Sutra%20-%20A%20Tale%20of%20Love%20%281996%29%20ENGLISH%20-%20720p%20-%20BDRip%20-%20x264%20-%20AAC%20-%20Team%20IcTv', 'extension': 'mkv', 'magnet': 'magnet:?xt=urn:btih:F1A033B03BA9827E1830E6158F2215104D51B216&amp;dn=18+kama+sutra+a+tale+of+love+1996+english+720p+bdrip+x264+aac+team+ictv&amp;tr=udp%3A%2F%2Ftracker.publicbt.com%2Fannounce&amp;tr=udp%3A%2F%2Fglotorrents.pw%3A6969%2Fannounce&amp;tr=udp%3A%2F%2Ftracker.openbittorrent.com%3A80%2Fannounce&amp;tr=udp%3A%2F%2Ftracker.opentrackr.org%3A1337%2Fannounce' }"></div>
+                <a data-nop="" title="Torrent magnet link" href="magnet:?xt=urn:btih:F1A033B03BA9827E1830E6158F2215104D51B216&amp;dn=18+kama+sutra+a+tale+of+love+1996+english+720p+bdrip+x264+aac+team+ictv&amp;tr=udp%3A%2F%2Ftracker.publicbt.com%2Fannounce&amp;tr=udp%3A%2F%2Fglotorrents.pw%3A6969%2Fannounce&amp;tr=udp%3A%2F%2Ftracker.openbittorrent.com%3A80%2Fannounce&amp;tr=udp%3A%2F%2Ftracker.opentrackr.org%3A1337%2Fannounce" class="icon16"><i class="ka ka16 ka-magnet"></i></a>
+                <a data-download="" title="Download torrent file" href="//torcache.net/torrent/F1A033B03BA9827E1830E6158F2215104D51B216.torrent?title=[kat.cr]18.kama.sutra.a.tale.of.love.1996.english.720p.bdrip.x264.aac.team.ictv" class="icon16"><i class="ka ka16 ka-arrow-down"></i></a>
+            </div>
+            <div class="torrentname">
+                <a href="/18-kama-sutra-a-tale-of-love-1996-english-720p-bdrip-x264-aac-team-ictv-t11898542.html" class="torType filmType"></a>
+                <a href="/18-kama-sutra-a-tale-of-love-1996-english-720p-bdrip-x264-aac-team-ictv-t11898542.html" class="normalgrey font12px plain bold"></a>
+            <div class="markeredBlock torType filmType">
+                <a href="/18-kama-sutra-a-tale-of-love-1996-english-720p-bdrip-x264-aac-team-ictv-t11898542.html" class="cellMainLink">[18+] Kama Sutra - A Tale of Love (1996) ENGLISH - 720p - BDRip - x264 - AAC - Team IcTv</a>
+
+                                                <span class="font11px lightgrey block">
+                                Posted by <i title="Verified Uploader" class="ka ka-verify" style="font-size: 16px;color:orange;"></i> <a class="plain" href="/user/Simmoncelli/">Simmoncelli</a> in <span id="cat_11898542"><strong><a href="/movies/">Movies</a> &gt; <a href="/bollywood/">Bollywood</a></strong></span>                	                </span>
+            	            </div>
+            </div></td>
+									<td class="nobr center">922.15 <span>MB</span></td>
+			<td class="center">5</td>
+			<td class="center" title="13 Jan 2016, 12:15">4&nbsp;months</td>
+			<td class="green center">21</td>
+			<td class="red lasttd center">9</td>
+			</tr>
+						<tr class="odd" id="torrent_movies_torrents11920497">
+            <td>
+            <div class="iaconbox center floatright">
+                				<a class="icon16" href="/bridge-of-spies-2016-5-1-ch-dublado-1080p-by-luanharper-t11920497.html" title="Verified Torrent"><i class="ka ka16 ka-verify ka-green"></i></a>                                <div data-sc-replace="" data-sc-slot="_ae58c272c09a10c792c6b17d55c20208" class="none" data-sc-params="{ 'name': 'Bridge%20of%20Spies%202016%205.1%20CH%20Dublado%201080p%20By-LuanHarper', 'extension': 'mp4', 'magnet': 'magnet:?xt=urn:btih:B907AAFBB978D10246BCBFADC8B3264CB54D13D7&amp;dn=bridge+of+spies+2016+5+1+ch+dublado+1080p+by+luanharper&amp;tr=udp%3A%2F%2Ftracker.publicbt.com%2Fannounce&amp;tr=udp%3A%2F%2Fglotorrents.pw%3A6969%2Fannounce&amp;tr=udp%3A%2F%2Ftracker.openbittorrent.com%3A80%2Fannounce&amp;tr=udp%3A%2F%2Ftracker.opentrackr.org%3A1337%2Fannounce' }"></div>
+                <a data-nop="" title="Torrent magnet link" href="magnet:?xt=urn:btih:B907AAFBB978D10246BCBFADC8B3264CB54D13D7&amp;dn=bridge+of+spies+2016+5+1+ch+dublado+1080p+by+luanharper&amp;tr=udp%3A%2F%2Ftracker.publicbt.com%2Fannounce&amp;tr=udp%3A%2F%2Fglotorrents.pw%3A6969%2Fannounce&amp;tr=udp%3A%2F%2Ftracker.openbittorrent.com%3A80%2Fannounce&amp;tr=udp%3A%2F%2Ftracker.opentrackr.org%3A1337%2Fannounce" class="icon16"><i class="ka ka16 ka-magnet"></i></a>
+                <a data-download="" title="Download torrent file" href="//torcache.net/torrent/B907AAFBB978D10246BCBFADC8B3264CB54D13D7.torrent?title=[kat.cr]bridge.of.spies.2016.5.1.ch.dublado.1080p.by.luanharper" class="icon16"><i class="ka ka16 ka-arrow-down"></i></a>
+            </div>
+            <div class="torrentname">
+                <a href="/bridge-of-spies-2016-5-1-ch-dublado-1080p-by-luanharper-t11920497.html" class="torType filmType"></a>
+                <a href="/bridge-of-spies-2016-5-1-ch-dublado-1080p-by-luanharper-t11920497.html" class="normalgrey font12px plain bold"></a>
+            <div class="markeredBlock torType filmType">
+                <a href="/bridge-of-spies-2016-5-1-ch-dublado-1080p-by-luanharper-t11920497.html" class="cellMainLink">Bridge of Spies 2016 5.1 CH Dublado 1080p By-LuanHarper</a>
+
+                                                <span class="font11px lightgrey block">
+                                Posted by <i title="Verified Uploader" class="ka ka-verify" style="font-size: 16px;color:orange;"></i> <a class="plain" href="/user/LuanHarper/">LuanHarper</a> in <span id="cat_11920497"><strong><a href="/movies/">Movies</a> &gt; <a href="/dubbed-movies/">Dubbed Movies</a></strong></span>                	                </span>
+            	            </div>
+            </div></td>
+									<td class="nobr center">2.88 <span>GB</span></td>
+			<td class="center">4</td>
+			<td class="center" title="17 Jan 2016, 15:00">4&nbsp;months</td>
+			<td class="green center">22</td>
+			<td class="red lasttd center">7</td>
+			</tr>
+						<tr class="even" id="torrent_movies_torrents11932142">
+            <td>
+            <div class="iaconbox center floatright">
+                <a rel="11932142,0" class="icommentjs kaButton smallButton rightButton" href="/the-veil-2016-720p-web-dl-x264-ac3-etrg-t11932142.html#comment">11 <i class="ka ka-comment"></i></a>				<a class="icon16" href="/the-veil-2016-720p-web-dl-x264-ac3-etrg-t11932142.html" title="Verified Torrent"><i class="ka ka16 ka-verify ka-green"></i></a>                                <div data-sc-replace="" data-sc-slot="_ae58c272c09a10c792c6b17d55c20208" class="none" data-sc-params="{ 'name': 'The%20Veil.2016.720p.WEB-DL.x264.AC3-ETRG', 'extension': 'mkv', 'magnet': 'magnet:?xt=urn:btih:5BE822E28F2C56AC408B8A44177B7672B08619C8&amp;dn=the+veil+2016+720p+web+dl+x264+ac3+etrg&amp;tr=udp%3A%2F%2Ftracker.publicbt.com%2Fannounce&amp;tr=udp%3A%2F%2Fglotorrents.pw%3A6969%2Fannounce&amp;tr=udp%3A%2F%2Ftracker.openbittorrent.com%3A80%2Fannounce&amp;tr=udp%3A%2F%2Ftracker.opentrackr.org%3A1337%2Fannounce' }"></div>
+                <a data-nop="" title="Torrent magnet link" href="magnet:?xt=urn:btih:5BE822E28F2C56AC408B8A44177B7672B08619C8&amp;dn=the+veil+2016+720p+web+dl+x264+ac3+etrg&amp;tr=udp%3A%2F%2Ftracker.publicbt.com%2Fannounce&amp;tr=udp%3A%2F%2Fglotorrents.pw%3A6969%2Fannounce&amp;tr=udp%3A%2F%2Ftracker.openbittorrent.com%3A80%2Fannounce&amp;tr=udp%3A%2F%2Ftracker.opentrackr.org%3A1337%2Fannounce" class="icon16"><i class="ka ka16 ka-magnet"></i></a>
+                <a data-download="" title="Download torrent file" href="//torcache.net/torrent/5BE822E28F2C56AC408B8A44177B7672B08619C8.torrent?title=[kat.cr]the.veil.2016.720p.web.dl.x264.ac3.etrg" class="icon16"><i class="ka ka16 ka-arrow-down"></i></a>
+            </div>
+            <div class="torrentname">
+                <a href="/the-veil-2016-720p-web-dl-x264-ac3-etrg-t11932142.html" class="torType filmType"></a>
+                <a href="/the-veil-2016-720p-web-dl-x264-ac3-etrg-t11932142.html" class="normalgrey font12px plain bold"></a>
+            <div class="markeredBlock torType filmType">
+                <a href="/the-veil-2016-720p-web-dl-x264-ac3-etrg-t11932142.html" class="cellMainLink">The Veil.2016.720p.WEB-DL.x264.AC3-ETRG</a>
+
+                                                <span class="font11px lightgrey block">
+                                Posted by <i title="Elite Uploader" class="ka ka-star ka-vul2" style="font-size: 16px;color:orange;"></i> <a class="plain" href="/user/juggs/">juggs</a> in <span id="cat_11932142"><strong><a href="/movies/">Movies</a></strong></span>                	                </span>
+            	            </div>
+            </div></td>
+									<td class="nobr center">2.91 <span>GB</span></td>
+			<td class="center">3</td>
+			<td class="center" title="19 Jan 2016, 23:42">4&nbsp;months</td>
+			<td class="green center">24</td>
+			<td class="red lasttd center">3</td>
+			</tr>
+						<tr class="odd" id="torrent_movies_torrents11946618">
+            <td>
+            <div class="iaconbox center floatright">
+                <a rel="11946618,0" class="icommentjs kaButton smallButton rightButton" href="/lendas-do-crime-2016-1080p-bluray-5-1-x264-legenda-fixa-bludv-t11946618.html#comment">4 <i class="ka ka-comment"></i></a>				<a class="icon16" href="/lendas-do-crime-2016-1080p-bluray-5-1-x264-legenda-fixa-bludv-t11946618.html" title="Verified Torrent"><i class="ka ka16 ka-verify ka-green"></i></a>                                <div data-sc-replace="" data-sc-slot="_ae58c272c09a10c792c6b17d55c20208" class="none" data-sc-params="{ 'name': 'Lendas%20do%20Crime%202016%201080p%20BluRay%205.1%20x264%20Legenda%20Fixa%20BLUDV', 'extension': 'mkv', 'magnet': 'magnet:?xt=urn:btih:A6ADC1469969260990E00B3E25CEEADCD1064C4E&amp;dn=lendas+do+crime+2016+1080p+bluray+5+1+x264+legenda+fixa+bludv&amp;tr=udp%3A%2F%2Ftracker.publicbt.com%2Fannounce&amp;tr=udp%3A%2F%2Fglotorrents.pw%3A6969%2Fannounce&amp;tr=udp%3A%2F%2Ftracker.openbittorrent.com%3A80%2Fannounce&amp;tr=udp%3A%2F%2Ftracker.opentrackr.org%3A1337%2Fannounce' }"></div>
+                <a data-nop="" title="Torrent magnet link" href="magnet:?xt=urn:btih:A6ADC1469969260990E00B3E25CEEADCD1064C4E&amp;dn=lendas+do+crime+2016+1080p+bluray+5+1+x264+legenda+fixa+bludv&amp;tr=udp%3A%2F%2Ftracker.publicbt.com%2Fannounce&amp;tr=udp%3A%2F%2Fglotorrents.pw%3A6969%2Fannounce&amp;tr=udp%3A%2F%2Ftracker.openbittorrent.com%3A80%2Fannounce&amp;tr=udp%3A%2F%2Ftracker.opentrackr.org%3A1337%2Fannounce" class="icon16"><i class="ka ka16 ka-magnet"></i></a>
+                <a data-download="" title="Download torrent file" href="//torcache.net/torrent/A6ADC1469969260990E00B3E25CEEADCD1064C4E.torrent?title=[kat.cr]lendas.do.crime.2016.1080p.bluray.5.1.x264.legenda.fixa.bludv" class="icon16"><i class="ka ka16 ka-arrow-down"></i></a>
+            </div>
+            <div class="torrentname">
+                <a href="/lendas-do-crime-2016-1080p-bluray-5-1-x264-legenda-fixa-bludv-t11946618.html" class="torType filmType"></a>
+                <a href="/lendas-do-crime-2016-1080p-bluray-5-1-x264-legenda-fixa-bludv-t11946618.html" class="normalgrey font12px plain bold"></a>
+            <div class="markeredBlock torType filmType">
+                <a href="/lendas-do-crime-2016-1080p-bluray-5-1-x264-legenda-fixa-bludv-t11946618.html" class="cellMainLink">Lendas do Crime 2016 1080p BluRay 5.1 x264 Legenda Fixa BLUDV</a>
+
+                                                <span class="font11px lightgrey block">
+                                Posted by <i title="Verified Uploader" class="ka ka-verify" style="font-size: 16px;color:orange;"></i> <a class="plain" href="/user/BLUDV/">BLUDV</a> in <span id="cat_11946618"><strong><a href="/movies/">Movies</a> &gt; <a href="/highres-movies/">Highres Movies</a></strong></span>                	                </span>
+            	            </div>
+            </div></td>
+									<td class="nobr center">2.34 <span>GB</span></td>
+			<td class="center">3</td>
+			<td class="center" title="22 Jan 2016, 13:19">4&nbsp;months</td>
+			<td class="green center">25</td>
+			<td class="red lasttd center">1</td>
+			</tr>
+						<tr class="even" id="torrent_movies_torrents11952462">
+            <td>
+            <div class="iaconbox center floatright">
+                <a rel="11952462,0" class="icommentjs kaButton smallButton rightButton" href="/martyrs-2015-1080p-bluray-x264-ac3-jyk-t11952462.html#comment">6 <i class="ka ka-comment"></i></a>				<a class="icon16" href="/martyrs-2015-1080p-bluray-x264-ac3-jyk-t11952462.html" title="Verified Torrent"><i class="ka ka16 ka-verify ka-green"></i></a>                                <div data-sc-replace="" data-sc-slot="_ae58c272c09a10c792c6b17d55c20208" class="none" data-sc-params="{ 'name': 'Martyrs%202015%201080p%20BluRay%20x264%20AC3-JYK', 'extension': 'mkv', 'magnet': 'magnet:?xt=urn:btih:A07318C0BB88BFEB3C3D68AB92D34DE9D1FB429F&amp;dn=martyrs+2015+1080p+bluray+x264+ac3+jyk&amp;tr=udp%3A%2F%2Ftracker.publicbt.com%2Fannounce&amp;tr=udp%3A%2F%2Fglotorrents.pw%3A6969%2Fannounce&amp;tr=udp%3A%2F%2Ftracker.openbittorrent.com%3A80%2Fannounce&amp;tr=udp%3A%2F%2Ftracker.opentrackr.org%3A1337%2Fannounce' }"></div>
+                <a data-nop="" title="Torrent magnet link" href="magnet:?xt=urn:btih:A07318C0BB88BFEB3C3D68AB92D34DE9D1FB429F&amp;dn=martyrs+2015+1080p+bluray+x264+ac3+jyk&amp;tr=udp%3A%2F%2Ftracker.publicbt.com%2Fannounce&amp;tr=udp%3A%2F%2Fglotorrents.pw%3A6969%2Fannounce&amp;tr=udp%3A%2F%2Ftracker.openbittorrent.com%3A80%2Fannounce&amp;tr=udp%3A%2F%2Ftracker.opentrackr.org%3A1337%2Fannounce" class="icon16"><i class="ka ka16 ka-magnet"></i></a>
+                <a data-download="" title="Download torrent file" href="//torcache.net/torrent/A07318C0BB88BFEB3C3D68AB92D34DE9D1FB429F.torrent?title=[kat.cr]martyrs.2015.1080p.bluray.x264.ac3.jyk" class="icon16"><i class="ka ka16 ka-arrow-down"></i></a>
+            </div>
+            <div class="torrentname">
+                <a href="/martyrs-2015-1080p-bluray-x264-ac3-jyk-t11952462.html" class="torType filmType"></a>
+                <a href="/martyrs-2015-1080p-bluray-x264-ac3-jyk-t11952462.html" class="normalgrey font12px plain bold"></a>
+            <div class="markeredBlock torType filmType">
+                <a href="/martyrs-2015-1080p-bluray-x264-ac3-jyk-t11952462.html" class="cellMainLink">Martyrs 2015 1080p BluRay x264 AC3-JYK</a>
+
+                                                <span class="font11px lightgrey block">
+                                Posted by <i title="Elite Uploader" class="ka ka-star ka-vul2" style="font-size: 16px;color:orange;"></i> <a class="plain" href="/user/condors/">condors</a> in <span id="cat_11952462"><strong><a href="/movies/">Movies</a> &gt; <a href="/highres-movies/">Highres Movies</a></strong></span>                	                </span>
+            	            </div>
+            </div></td>
+									<td class="nobr center">2.11 <span>GB</span></td>
+			<td class="center">4</td>
+			<td class="center" title="23 Jan 2016, 13:38">4&nbsp;months</td>
+			<td class="green center">24</td>
+			<td class="red lasttd center">3</td>
+			</tr>
+						<tr class="odd" id="torrent_movies_torrents11955463">
+            <td>
+            <div class="iaconbox center floatright">
+                <a rel="11955463,0" class="icommentjs kaButton smallButton rightButton" href="/dallas-buyers-club-2013-720p-bluray-h264-aac-rarbg-t11955463.html#comment">3 <i class="ka ka-comment"></i></a>				<a class="icon16" href="/dallas-buyers-club-2013-720p-bluray-h264-aac-rarbg-t11955463.html" title="Verified Torrent"><i class="ka ka16 ka-verify ka-green"></i></a>                                <div data-sc-replace="" data-sc-slot="_ae58c272c09a10c792c6b17d55c20208" class="none" data-sc-params="{ 'name': 'Dallas%20Buyers%20Club%202013%20720p%20BluRay%20H264%20AAC-RARBG', 'extension': 'mp4', 'magnet': 'magnet:?xt=urn:btih:E49249E732F81A70ADBF6750AAD43103926385CF&amp;dn=dallas+buyers+club+2013+720p+bluray+h264+aac+rarbg&amp;tr=udp%3A%2F%2Ftracker.publicbt.com%2Fannounce&amp;tr=udp%3A%2F%2Fglotorrents.pw%3A6969%2Fannounce&amp;tr=udp%3A%2F%2Ftracker.openbittorrent.com%3A80%2Fannounce&amp;tr=udp%3A%2F%2Ftracker.opentrackr.org%3A1337%2Fannounce' }"></div>
+                <a data-nop="" title="Torrent magnet link" href="magnet:?xt=urn:btih:E49249E732F81A70ADBF6750AAD43103926385CF&amp;dn=dallas+buyers+club+2013+720p+bluray+h264+aac+rarbg&amp;tr=udp%3A%2F%2Ftracker.publicbt.com%2Fannounce&amp;tr=udp%3A%2F%2Fglotorrents.pw%3A6969%2Fannounce&amp;tr=udp%3A%2F%2Ftracker.openbittorrent.com%3A80%2Fannounce&amp;tr=udp%3A%2F%2Ftracker.opentrackr.org%3A1337%2Fannounce" class="icon16"><i class="ka ka16 ka-magnet"></i></a>
+                <a data-download="" title="Download torrent file" href="//torcache.net/torrent/E49249E732F81A70ADBF6750AAD43103926385CF.torrent?title=[kat.cr]dallas.buyers.club.2013.720p.bluray.h264.aac.rarbg" class="icon16"><i class="ka ka16 ka-arrow-down"></i></a>
+            </div>
+            <div class="torrentname">
+                <a href="/dallas-buyers-club-2013-720p-bluray-h264-aac-rarbg-t11955463.html" class="torType filmType"></a>
+                <a href="/dallas-buyers-club-2013-720p-bluray-h264-aac-rarbg-t11955463.html" class="normalgrey font12px plain bold"></a>
+            <div class="markeredBlock torType filmType">
+                <a href="/dallas-buyers-club-2013-720p-bluray-h264-aac-rarbg-t11955463.html" class="cellMainLink">Dallas Buyers Club 2013 720p BluRay H264 AAC-RARBG</a>
+
+                                                <span class="font11px lightgrey block">
+                                Posted by <i title="Verified Uploader" class="ka ka-verify" style="font-size: 16px;color:orange;"></i> <a class="plain" href="/user/z0n321/">z0n321</a> in <span id="cat_11955463"><strong><a href="/movies/">Movies</a> &gt; <a href="/highres-movies/">Highres Movies</a></strong></span>                	                </span>
+            	            </div>
+            </div></td>
+									<td class="nobr center">1.42 <span>GB</span></td>
+			<td class="center">4</td>
+			<td class="center" title="24 Jan 2016, 04:15">4&nbsp;months</td>
+			<td class="green center">22</td>
+			<td class="red lasttd center">7</td>
+			</tr>
+						<tr class="even" id="torrent_movies_torrents11977529">
+            <td>
+            <div class="iaconbox center floatright">
+                				<a class="icon16" href="/crimson-peak-2015-bdrip-x264-sparks-rarbg-t11977529.html" title="Verified Torrent"><i class="ka ka16 ka-verify ka-green"></i></a>                                <div data-sc-replace="" data-sc-slot="_ae58c272c09a10c792c6b17d55c20208" class="none" data-sc-params="{ 'name': 'Crimson%20Peak%202015%20BDRip%20x264-SPARKS%5Brarbg%5D', 'extension': 'mkv', 'magnet': 'magnet:?xt=urn:btih:024E48FAD330333803358693A92675C865C7A238&amp;dn=crimson+peak+2015+bdrip+x264+sparks+rarbg&amp;tr=udp%3A%2F%2Ftracker.publicbt.com%2Fannounce&amp;tr=udp%3A%2F%2Fglotorrents.pw%3A6969%2Fannounce&amp;tr=udp%3A%2F%2Ftracker.openbittorrent.com%3A80%2Fannounce&amp;tr=udp%3A%2F%2Ftracker.opentrackr.org%3A1337%2Fannounce' }"></div>
+                <a data-nop="" title="Torrent magnet link" href="magnet:?xt=urn:btih:024E48FAD330333803358693A92675C865C7A238&amp;dn=crimson+peak+2015+bdrip+x264+sparks+rarbg&amp;tr=udp%3A%2F%2Ftracker.publicbt.com%2Fannounce&amp;tr=udp%3A%2F%2Fglotorrents.pw%3A6969%2Fannounce&amp;tr=udp%3A%2F%2Ftracker.openbittorrent.com%3A80%2Fannounce&amp;tr=udp%3A%2F%2Ftracker.opentrackr.org%3A1337%2Fannounce" class="icon16"><i class="ka ka16 ka-magnet"></i></a>
+                <a data-download="" title="Download torrent file" href="//torcache.net/torrent/024E48FAD330333803358693A92675C865C7A238.torrent?title=[kat.cr]crimson.peak.2015.bdrip.x264.sparks.rarbg" class="icon16"><i class="ka ka16 ka-arrow-down"></i></a>
+            </div>
+            <div class="torrentname">
+                <a href="/crimson-peak-2015-bdrip-x264-sparks-rarbg-t11977529.html" class="torType filmType"></a>
+                <a href="/crimson-peak-2015-bdrip-x264-sparks-rarbg-t11977529.html" class="normalgrey font12px plain bold"></a>
+            <div class="markeredBlock torType filmType">
+                <a href="/crimson-peak-2015-bdrip-x264-sparks-rarbg-t11977529.html" class="cellMainLink">Crimson Peak 2015 BDRip x264-SPARKS[rarbg]</a>
+
+                                                <span class="font11px lightgrey block">
+                                Posted by <i title="Verified Uploader" class="ka ka-verify" style="font-size: 16px;color:orange;"></i> <a class="plain" href="/user/rwdy/">rwdy</a> in <span id="cat_11977529"><strong><a href="/movies/">Movies</a></strong></span>                	                </span>
+            	            </div>
+            </div></td>
+									<td class="nobr center">937.25 <span>MB</span></td>
+			<td class="center">6</td>
+			<td class="center" title="28 Jan 2016, 02:48">4&nbsp;months</td>
+			<td class="green center">21</td>
+			<td class="red lasttd center">9</td>
+			</tr>
+						<tr class="odd" id="torrent_movies_torrents12004446">
+            <td>
+            <div class="iaconbox center floatright">
+                <a rel="12004446,0" class="icommentjs kaButton smallButton rightButton" href="/jean-luc-godard-s-vivre-sa-vie-1962-1080p-bdrip-x265-hevc-restored-edition-fre-eng-subs-brshnkv-t12004446.html#comment">18 <i class="ka ka-comment"></i></a>				<a class="icon16" href="/jean-luc-godard-s-vivre-sa-vie-1962-1080p-bdrip-x265-hevc-restored-edition-fre-eng-subs-brshnkv-t12004446.html" title="Verified Torrent"><i class="ka ka16 ka-verify ka-green"></i></a>                                <div data-sc-replace="" data-sc-slot="_ae58c272c09a10c792c6b17d55c20208" class="none" data-sc-params="{ 'name': 'Jean-Luc%20Godard%27s%20Vivre%20sa%20vie%20%281962%29%20-%201080p%20BDRip%20x265%20HEVC%20Restored%20Edition%20-%20FRE%20%28ENG%20SUBS%29%20%5BBRSHNKV%5D', 'extension': 'mp4', 'magnet': 'magnet:?xt=urn:btih:48BF90199677CD2221BC4CFA4000602BEDFF4FF3&amp;dn=jean+luc+godard+s+vivre+sa+vie+1962+1080p+bdrip+x265+hevc+restored+edition+fre+eng+subs+brshnkv&amp;tr=udp%3A%2F%2Ftracker.publicbt.com%2Fannounce&amp;tr=udp%3A%2F%2Fglotorrents.pw%3A6969%2Fannounce&amp;tr=udp%3A%2F%2Ftracker.openbittorrent.com%3A80%2Fannounce&amp;tr=udp%3A%2F%2Ftracker.opentrackr.org%3A1337%2Fannounce' }"></div>
+                <a data-nop="" title="Torrent magnet link" href="magnet:?xt=urn:btih:48BF90199677CD2221BC4CFA4000602BEDFF4FF3&amp;dn=jean+luc+godard+s+vivre+sa+vie+1962+1080p+bdrip+x265+hevc+restored+edition+fre+eng+subs+brshnkv&amp;tr=udp%3A%2F%2Ftracker.publicbt.com%2Fannounce&amp;tr=udp%3A%2F%2Fglotorrents.pw%3A6969%2Fannounce&amp;tr=udp%3A%2F%2Ftracker.openbittorrent.com%3A80%2Fannounce&amp;tr=udp%3A%2F%2Ftracker.opentrackr.org%3A1337%2Fannounce" class="icon16"><i class="ka ka16 ka-magnet"></i></a>
+                <a data-download="" title="Download torrent file" href="//torcache.net/torrent/48BF90199677CD2221BC4CFA4000602BEDFF4FF3.torrent?title=[kat.cr]jean.luc.godard.s.vivre.sa.vie.1962.1080p.bdrip.x265.hevc.restored.edition.fre.eng.subs.brshnkv" class="icon16"><i class="ka ka16 ka-arrow-down"></i></a>
+            </div>
+            <div class="torrentname">
+                <a href="/jean-luc-godard-s-vivre-sa-vie-1962-1080p-bdrip-x265-hevc-restored-edition-fre-eng-subs-brshnkv-t12004446.html" class="torType filmType"></a>
+                <a href="/jean-luc-godard-s-vivre-sa-vie-1962-1080p-bdrip-x265-hevc-restored-edition-fre-eng-subs-brshnkv-t12004446.html" class="normalgrey font12px plain bold"></a>
+            <div class="markeredBlock torType filmType">
+                <a href="/jean-luc-godard-s-vivre-sa-vie-1962-1080p-bdrip-x265-hevc-restored-edition-fre-eng-subs-brshnkv-t12004446.html" class="cellMainLink">Jean-Luc Godard's Vivre sa vie (1962) - 1080p BDRip x265 HEVC Restored Edition - FRE (ENG SUBS) [BRSHNKV]</a>
+
+                                                <span class="font11px lightgrey block">
+                                Posted by <i title="Elite Uploader" class="ka ka-star ka-vul2" style="font-size: 16px;color:orange;"></i> <a class="plain" href="/user/Barishnikov/">Barishnikov</a> in <span id="cat_12004446"><strong><a href="/movies/">Movies</a></strong></span>                	                </span>
+            	            </div>
+            </div></td>
+									<td class="nobr center">944.42 <span>MB</span></td>
+			<td class="center">1</td>
+			<td class="center" title="01 Feb 2016, 17:20">4&nbsp;months</td>
+			<td class="green center">25</td>
+			<td class="red lasttd center">1</td>
+			</tr>
+						<tr class="even" id="torrent_movies_torrents12037448">
+            <td>
+            <div class="iaconbox center floatright">
+                <a rel="12037448,0" class="icommentjs kaButton smallButton rightButton" href="/o-bom-dinossauro-2016-5-1-ch-legedando-fixo-1080p-by-luanharper-t12037448.html#comment">3 <i class="ka ka-comment"></i></a>				<a class="icon16" href="/o-bom-dinossauro-2016-5-1-ch-legedando-fixo-1080p-by-luanharper-t12037448.html" title="Verified Torrent"><i class="ka ka16 ka-verify ka-green"></i></a>                                <div data-sc-replace="" data-sc-slot="_ae58c272c09a10c792c6b17d55c20208" class="none" data-sc-params="{ 'name': 'O%20Bom%20Dinossauro%202016%205.1%20CH%20Legedando%20Fixo%201080p%20By-LuanHarper', 'extension': 'mp4', 'magnet': 'magnet:?xt=urn:btih:BDC7DA6C2CF17B34D94C609D39B4444E7DBCBEBC&amp;dn=o+bom+dinossauro+2016+5+1+ch+legedando+fixo+1080p+by+luanharper&amp;tr=udp%3A%2F%2Ftracker.publicbt.com%2Fannounce&amp;tr=udp%3A%2F%2Fglotorrents.pw%3A6969%2Fannounce&amp;tr=udp%3A%2F%2Ftracker.openbittorrent.com%3A80%2Fannounce&amp;tr=udp%3A%2F%2Ftracker.opentrackr.org%3A1337%2Fannounce' }"></div>
+                <a data-nop="" title="Torrent magnet link" href="magnet:?xt=urn:btih:BDC7DA6C2CF17B34D94C609D39B4444E7DBCBEBC&amp;dn=o+bom+dinossauro+2016+5+1+ch+legedando+fixo+1080p+by+luanharper&amp;tr=udp%3A%2F%2Ftracker.publicbt.com%2Fannounce&amp;tr=udp%3A%2F%2Fglotorrents.pw%3A6969%2Fannounce&amp;tr=udp%3A%2F%2Ftracker.openbittorrent.com%3A80%2Fannounce&amp;tr=udp%3A%2F%2Ftracker.opentrackr.org%3A1337%2Fannounce" class="icon16"><i class="ka ka16 ka-magnet"></i></a>
+                <a data-download="" title="Download torrent file" href="//torcache.net/torrent/BDC7DA6C2CF17B34D94C609D39B4444E7DBCBEBC.torrent?title=[kat.cr]o.bom.dinossauro.2016.5.1.ch.legedando.fixo.1080p.by.luanharper" class="icon16"><i class="ka ka16 ka-arrow-down"></i></a>
+            </div>
+            <div class="torrentname">
+                <a href="/o-bom-dinossauro-2016-5-1-ch-legedando-fixo-1080p-by-luanharper-t12037448.html" class="torType filmType"></a>
+                <a href="/o-bom-dinossauro-2016-5-1-ch-legedando-fixo-1080p-by-luanharper-t12037448.html" class="normalgrey font12px plain bold"></a>
+            <div class="markeredBlock torType filmType">
+                <a href="/o-bom-dinossauro-2016-5-1-ch-legedando-fixo-1080p-by-luanharper-t12037448.html" class="cellMainLink">O Bom Dinossauro 2016 5.1 CH Legedando Fixo 1080p By-LuanHarper</a>
+
+                                                <span class="font11px lightgrey block">
+                                Posted by <i title="Verified Uploader" class="ka ka-verify" style="font-size: 16px;color:orange;"></i> <a class="plain" href="/user/LuanHarper/">LuanHarper</a> in <span id="cat_12037448"><strong><a href="/movies/">Movies</a> &gt; <a href="/animation/">Animation</a></strong></span>                	                </span>
+            	            </div>
+            </div></td>
+									<td class="nobr center">1.98 <span>GB</span></td>
+			<td class="center">3</td>
+			<td class="center" title="07 Feb 2016, 15:04">3&nbsp;months</td>
+			<td class="green center">24</td>
+			<td class="red lasttd center">3</td>
+			</tr>
+						<tr class="odd" id="torrent_movies_torrents12042487">
+            <td>
+            <div class="iaconbox center floatright">
+                <a rel="12042487,0" class="icommentjs kaButton smallButton rightButton" href="/kidney-biriyani-2015-malayalam-hdrip-x264-700mb-mkv-t12042487.html#comment">10 <i class="ka ka-comment"></i></a>				<a class="icon16" href="/kidney-biriyani-2015-malayalam-hdrip-x264-700mb-mkv-t12042487.html" title="Verified Torrent"><i class="ka ka16 ka-verify ka-green"></i></a>                                <div data-sc-replace="" data-sc-slot="_ae58c272c09a10c792c6b17d55c20208" class="none" data-sc-params="{ 'name': 'Kidney%20Biriyani%20%5B2015%5D%20Malayalam%20HDRip%20x264%20700MB.mkv', 'extension': 'mkv', 'magnet': 'magnet:?xt=urn:btih:63BDE210D9933A6A29D9FC098898ED42FE7A620B&amp;dn=kidney+biriyani+2015+malayalam+hdrip+x264+700mb+mkv&amp;tr=udp%3A%2F%2Ftracker.publicbt.com%2Fannounce&amp;tr=udp%3A%2F%2Fglotorrents.pw%3A6969%2Fannounce&amp;tr=udp%3A%2F%2Ftracker.openbittorrent.com%3A80%2Fannounce&amp;tr=udp%3A%2F%2Ftracker.opentrackr.org%3A1337%2Fannounce' }"></div>
+                <a data-nop="" title="Torrent magnet link" href="magnet:?xt=urn:btih:63BDE210D9933A6A29D9FC098898ED42FE7A620B&amp;dn=kidney+biriyani+2015+malayalam+hdrip+x264+700mb+mkv&amp;tr=udp%3A%2F%2Ftracker.publicbt.com%2Fannounce&amp;tr=udp%3A%2F%2Fglotorrents.pw%3A6969%2Fannounce&amp;tr=udp%3A%2F%2Ftracker.openbittorrent.com%3A80%2Fannounce&amp;tr=udp%3A%2F%2Ftracker.opentrackr.org%3A1337%2Fannounce" class="icon16"><i class="ka ka16 ka-magnet"></i></a>
+                <a data-download="" title="Download torrent file" href="//torcache.net/torrent/63BDE210D9933A6A29D9FC098898ED42FE7A620B.torrent?title=[kat.cr]kidney.biriyani.2015.malayalam.hdrip.x264.700mb.mkv" class="icon16"><i class="ka ka16 ka-arrow-down"></i></a>
+            </div>
+            <div class="torrentname">
+                <a href="/kidney-biriyani-2015-malayalam-hdrip-x264-700mb-mkv-t12042487.html" class="torType filmType"></a>
+                <a href="/kidney-biriyani-2015-malayalam-hdrip-x264-700mb-mkv-t12042487.html" class="normalgrey font12px plain bold"></a>
+            <div class="markeredBlock torType filmType">
+                <a href="/kidney-biriyani-2015-malayalam-hdrip-x264-700mb-mkv-t12042487.html" class="cellMainLink">Kidney Biriyani [2015] Malayalam HDRip x264 700MB.mkv</a>
+
+                                                <span class="font11px lightgrey block">
+                                Posted by <i title="Verified Uploader" class="ka ka-verify" style="font-size: 16px;color:orange;"></i> <a class="plain" href="/user/TeamRockers/">TeamRockers</a> in <span id="cat_12042487"><strong><a href="/movies/">Movies</a> &gt; <a href="/asian/">Asian</a></strong></span>                	                </span>
+            	            </div>
+            </div></td>
+									<td class="nobr center">699.03 <span>MB</span></td>
+			<td class="center">1</td>
+			<td class="center" title="08 Feb 2016, 14:32">3&nbsp;months</td>
+			<td class="green center">25</td>
+			<td class="red lasttd center">1</td>
+			</tr>
+			</tbody></table>
+	<div class="pages botmarg5px floatright" baseurl="/movies/">
+<a class="turnoverButton siteButton bigButton kaTurnoverButton pagespecify_js" title="Go to a specific page"><i class="ka ka-zoom"></i></a><a href="/movies/" class="siteButton bigButton turnoverButton">1</a><a class="turnoverButton siteButton blank nohov"></a><a rel="nofollow" href="/movies/395/" class="turnoverButton siteButton bigButton">395</a><a rel="nofollow" href="/movies/396/" class="turnoverButton siteButton bigButton">396</a><a rel="nofollow" href="/movies/397/" class="turnoverButton siteButton bigButton">397</a><a rel="nofollow" href="/movies/398/" class="turnoverButton siteButton bigButton">398</a><a class="turnoverButton siteButton bigButton active">399</a><a rel="nofollow" href="/movies/400/" class="turnoverButton siteButton bigButton">400</a>	<script type="text/javascript">
+		$(function() {
+			if ($('.pages .nohov').length==0)
+				$('.pages .kaTurnoverButton').hide();
+		});
+		$('.pagespecify_js').unbind('click').on('click', function() {
+			var pageNum = prompt('Enter page number');
+			if (!isNaN(pageNum) && parseInt(pageNum)>0) {
+				var url = $(this).parent().attr('baseurl'); var last = $(this).parent().find('a[href]').last();
+				var paramStyle = /\/\?page=/.test(last.attr('href')) ? 2 : (/\/\?.*\&page=/.test(last.attr('href')) ? 1 : 0);
+				var url_to = paramStyle==0||paramStyle==2 ? (url.substring(0, url.lastIndexOf('/'))+'/'+(paramStyle==2?'?page='+pageNum+url.substring(url.lastIndexOf('/')+1).replace(/^\?([^\=]+=)/, '&$1'):pageNum+url.substring(url.lastIndexOf('/')))) : url+'&page='+pageNum;
+				console.log(url_to);
+				if (last.is('.ajaxLink')) { // if last button is .ajaxLink then it implies it's being fancyboxed, or at least the destination page(s) should be fancyboxed. 
+					$('<a href="'+url_to+'"'+(last.is('[rel="nofollow"]')?' rel="nofollow"':'')+'></a>').fancybox().click();
+				}else{
+					location.href = url_to;
+				}
+			}
+		});
+	</script></div></div></td></tr></tbody></table></div></div></div></body></html>

@@ -1,15 +1,17 @@
 var mysql = require('mysql');
+var comm = require("./comm");
+
 var pool  = mysql.createPool({
-	host : '127.0.0.1',
-	user : 'root',
-	password : '1234',
+	host : comm.conf.DB.HOST,
+	user : comm.conf.DB.user,
+	password : comm.conf.DB.password,
 });
 
 function exec(conn, sql, params, callback) {
 	conn.query(sql, params, function(err, results) {
 		conn.release(); // always put connection back in pool after last query
 		if(err) { 
-			console.log(err); 
+			comm.log(err); 
 			callback(true); 
 			return; 
 		}
@@ -17,15 +19,15 @@ function exec(conn, sql, params, callback) {
 	});
 }
 
-exports.getWaterfalls = function(page, callback) {
+exports.getWaterfalls = function(opt, callback) {
 	pool.getConnection(function(err, connection) {
 		if(err) { 
-			console.log(err); 
+			comm.log(err); 
 			callback(true); 
 			return;
 		}
-		var start, offset = 4;
-		switch(page){
+		var start, offset = 16, type = opt.type, search = opt.search;
+		switch(opt.page){
 		case 0:
 			start = Math.ceil(Math.random()*900);
 			break;
@@ -36,21 +38,44 @@ exports.getWaterfalls = function(page, callback) {
 			start = Math.ceil(Math.random()*900);
 			break;
 		default:
-			start = page*offset;
+			start = opt.page*offset;
 		}
-		var sql = "SELECT id, SUBSTRING_INDEX(title,'Ѹ������',1) as title, image, publishtime FROM amazon.xunleitai LIMIT ?, ?; ";
-		exec(connection, sql, [start, offset], callback);
+		if(type && type != '类型'){
+			start = 0;
+			var sql = "SELECT id, SUBSTRING_INDEX(title,'迅雷下载',1) as title, image, publishtime FROM amazon.xunleitai WHERE type = ? LIMIT ?, ?; ";
+			exec(connection, sql, [type, start, offset], callback);
+		}else if(search){
+			start = 0;
+			var sql = "SELECT id, SUBSTRING_INDEX(title,'迅雷下载',1) as title, image, publishtime FROM amazon.xunleitai WHERE title LIKE '%"+search+"%' LIMIT ?, ?; ";
+			exec(connection, sql, [ start, offset], callback);
+		}else{
+			var sql = "SELECT id, SUBSTRING_INDEX(title,'迅雷下载',1) as title, image, publishtime FROM amazon.xunleitai LIMIT ?, ?; ";
+			exec(connection, sql, [start, offset], callback);
+		}
+		//console.log(sql + ' ' + start + ' ' +offset +' search:'+search+ ' type:'+type);
 	});
 };
 
 exports.getDetail = function(id, callback) {
 	pool.getConnection(function(err, connection) {
 		if(err) { 
-			console.log(err); 
+			comm.log(err); 
 			callback(true); 
 			return;
 		}
 		var sql = "SELECT * FROM amazon.xunleitai WHERE id = ?; ";
 		exec(connection, sql, [id], callback);
+	});
+};
+
+exports.getType = function(callback) {
+	pool.getConnection(function(err, connection) {
+		if(err) { 
+			comm.log(err); 
+			callback(true); 
+			return;
+		}
+		var sql = "SELECT distinct(type) FROM amazon.xunleitai WHERE type is not null AND  type <>''; ";
+		exec(connection, sql, [], callback);
 	});
 };

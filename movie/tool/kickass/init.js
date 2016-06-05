@@ -208,9 +208,9 @@ app.post('/detail', upload.array(), function(req, res) {
 	
 	us.visitedFetchUrl(data.id);
 	if(data.img) {
-		download(data.img, __dirname+'/'+'img/'+data.id+data.img.substr(data.img.lastIndexOf('.')), function(){
-			console.log('done');
-		});
+		//download(data.img, __dirname+'/'+'img/'+data.id+data.img.substr(data.img.lastIndexOf('.')), function(){
+		//	console.log('done');
+		//});
 	}
 	update(data.id, data.downtxt, data.down, 'img/'+data.id+data.img.substr(data.img.lastIndexOf('.')), data.name, data.type, data.pub, data.area, data.dir, data.act);
 

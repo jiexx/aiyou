@@ -38,7 +38,7 @@
             params: {}, // params,{type: "popular", tags: "travel", format: "json"} => "type=popular&tags=travel&format=json"
             headers: {}, // headers variable that gets passed to jQuery.ajax()
 
-            loadingMsg: '<div style="text-align:center;padding:10px 0; color:#999;"><img src="data:image/gif;base64,R0lGODlhEAALAPQAAP///zMzM+Li4tra2u7u7jk5OTMzM1hYWJubm4CAgMjIyE9PT29vb6KiooODg8vLy1JSUjc3N3Jycuvr6+Dg4Pb29mBgYOPj4/X19cXFxbOzs9XV1fHx8TMzMzMzMzMzMyH5BAkLAAAAIf4aQ3JlYXRlZCB3aXRoIGFqYXhsb2FkLmluZm8AIf8LTkVUU0NBUEUyLjADAQAAACwAAAAAEAALAAAFLSAgjmRpnqSgCuLKAq5AEIM4zDVw03ve27ifDgfkEYe04kDIDC5zrtYKRa2WQgAh+QQJCwAAACwAAAAAEAALAAAFJGBhGAVgnqhpHIeRvsDawqns0qeN5+y967tYLyicBYE7EYkYAgAh+QQJCwAAACwAAAAAEAALAAAFNiAgjothLOOIJAkiGgxjpGKiKMkbz7SN6zIawJcDwIK9W/HISxGBzdHTuBNOmcJVCyoUlk7CEAAh+QQJCwAAACwAAAAAEAALAAAFNSAgjqQIRRFUAo3jNGIkSdHqPI8Tz3V55zuaDacDyIQ+YrBH+hWPzJFzOQQaeavWi7oqnVIhACH5BAkLAAAALAAAAAAQAAsAAAUyICCOZGme1rJY5kRRk7hI0mJSVUXJtF3iOl7tltsBZsNfUegjAY3I5sgFY55KqdX1GgIAIfkECQsAAAAsAAAAABAACwAABTcgII5kaZ4kcV2EqLJipmnZhWGXaOOitm2aXQ4g7P2Ct2ER4AMul00kj5g0Al8tADY2y6C+4FIIACH5BAkLAAAALAAAAAAQAAsAAAUvICCOZGme5ERRk6iy7qpyHCVStA3gNa/7txxwlwv2isSacYUc+l4tADQGQ1mvpBAAIfkECQsAAAAsAAAAABAACwAABS8gII5kaZ7kRFGTqLLuqnIcJVK0DeA1r/u3HHCXC/aKxJpxhRz6Xi0ANAZDWa+kEAA7" alt=""><br />Loading...</div>', // loading html
+            loadingMsg: '<div style="text-align:center;padding:10px 0; color:#999;"><img src="data:image/gif;base64,R0lGODlhEAALAPQAAP///zMzM+Li4tra2u7u7jk5OTMzM1hYWJubm4CAgMjIyE9PT29vb6KiooODg8vLy1JSUjc3N3Jycuvr6+Dg4Pb29mBgYOPj4/X19cXFxbOzs9XV1fHx8TMzMzMzMzMzMyH5BAkLAAAAIf4aQ3JlYXRlZCB3aXRoIGFqYXhsb2FkLmluZm8AIf8LTkVUU0NBUEUyLjADAQAAACwAAAAAEAALAAAFLSAgjmRpnqSgCuLKAq5AEIM4zDVw03ve27ifDgfkEYe04kDIDC5zrtYKRa2WQgAh+QQJCwAAACwAAAAAEAALAAAFJGBhGAVgnqhpHIeRvsDawqns0qeN5+y967tYLyicBYE7EYkYAgAh+QQJCwAAACwAAAAAEAALAAAFNiAgjothLOOIJAkiGgxjpGKiKMkbz7SN6zIawJcDwIK9W/HISxGBzdHTuBNOmcJVCyoUlk7CEAAh+QQJCwAAACwAAAAAEAALAAAFNSAgjqQIRRFUAo3jNGIkSdHqPI8Tz3V55zuaDacDyIQ+YrBH+hWPzJFzOQQaeavWi7oqnVIhACH5BAkLAAAALAAAAAAQAAsAAAUyICCOZGme1rJY5kRRk7hI0mJSVUXJtF3iOl7tltsBZsNfUegjAY3I5sgFY55KqdX1GgIAIfkECQsAAAAsAAAAABAACwAABTcgII5kaZ4kcV2EqLJipmnZhWGXaOOitm2aXQ4g7P2Ct2ER4AMul00kj5g0Al8tADY2y6C+4FIIACH5BAkLAAAALAAAAAAQAAsAAAUvICCOZGme5ERRk6iy7qpyHCVStA3gNa/7txxwlwv2isSacYUc+l4tADQGQ1mvpBAAIfkECQsAAAAsAAAAABAACwAABS8gII5kaZ7kRFGTqLLuqnIcJVK0DeA1r/u3HHCXC/aKxJpxhRz6Xi0ANAZDWa+kEAA7" alt=""><br />服务器很小,努力加载,<a href="mailto:aaa@bbb.com?subject=捐赠">捐赠</a>可以使我们做得更好...</div>', // loading html
 
             state: {
                 isDuringAjax: false,
@@ -79,7 +79,7 @@
                  * @param {String} xhr , "end" "error"
                  */
                 loadingError: function($message, xhr) {
-                    $message.html('Data load faild, please try again later.');
+                    $message.html('服务器很小,有时会有错误,<a href="mailto:aaa@bbb.com?subject=捐赠">捐赠</a>可以使我们做得更好...');
                 },
 
                 /*
@@ -185,7 +185,10 @@
             $('body').css({
                 overflow: 'auto'
             });
-
+			if(this.$loading)
+				this.$loading.remove();
+			if(this.$message)
+				this.$message.remove();
 
             this.$element.css(this.options.containerStyle).addClass(prefix + '-container');
             this.$element.after('<div id="' + prefix + '-loading">' +options.loadingMsg+ '</div><div id="' + prefix + '-message" style="text-align:center;color:#999;"></div>');
@@ -485,6 +488,14 @@
          * @param {Function} callback
          */
         _handleResponse: function(data, callback) {
+			if (data == null || data.length == 0) {
+				this.$element.empty();
+				this.$element.html('<div style="text-align:center;color:#999;">没找到...</div>');
+				this.$loading.remove();
+				this.$message.remove();
+				return;
+			}
+				
             var self = this,
                 options = this.options,
                 content = $.trim(options.callbacks.renderData(data, options.dataType)),
@@ -495,6 +506,11 @@
                self.append($content, callback);
                self.options.callbacks.loadingFinished(self.$loading, self.options.state.isBeyondMaxPage);
             } else {
+				/*$images = $content.find('img').add( $content.filter('img') );
+				this._isImgLoaded($images, function() {
+                    self.append($content, callback);
+                    self.options.callbacks.loadingFinished(self.$loading, self.options.state.isBeyondMaxPage);
+                });*/
                 $content.imagesLoaded(function() {
                     self.append($content, callback);
                     self.options.callbacks.loadingFinished(self.$loading, self.options.state.isBeyondMaxPage);
@@ -503,6 +519,23 @@
 
 
         },
+		
+		_isImgLoaded: function(images, callback) {
+			var loaded = 0;
+			images.each(function(){
+				if(this.height > 0) {
+					loaded ++;
+				}
+			});
+			if(loaded != images.length) {
+				var _this = this;
+				var timer = setTimeout(function(){
+					_this._isImgLoaded(images, callback);
+				},100);
+			}else {
+				callback();
+			}
+		},
 
         /*
          * reponse error

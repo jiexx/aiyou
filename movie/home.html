@@ -14,31 +14,53 @@ Smartphone Compatible web template, free webdesigns for Nokia, Samsung, LG, Sony
 <!-- start plugins -->
 <script type="text/javascript" src="js/jquery-1.11.1.min.js"></script>
 <script src="js/responsiveslides.min.js"></script>
-<script src="js/waterfall.min.js"></script>
+<script src="js/waterfall.mini.js"></script>
 <script>
     $(function () {
-      $("#slider").responsiveSlides({
-      	auto: true,
-      	nav: true,
-      	speed: 500,
-        namespace: "callbacks",
-        pager: true,
-      });
-    });
-	var update = function(type) {
-		$('#container').waterfall({
-			itemCls: 'item',
-			colWidth: 222,  
-			gutterWidth: 15,
-			gutterHeight: 15,
-			checkImagesLoaded: false,
-			dataType: 'html',
-			path: function(page) {
-				console.log(page);
-				return '<%= HOST %>/waterfall?page=' + page + '&type' + type;
+		$("#slider").responsiveSlides({
+			auto: true,
+			nav: true,
+			speed: 500,
+			namespace: "callbacks",
+			pager: true,
+		});
+		  
+		$("#typer").change(function(){
+			var val=$("#typer").val();
+			$('#container').empty();
+			$('#container').waterfall('resume');
+			$('#container').waterfall('option', {
+				state: {curPage: 1},
+				path: function(page) {
+					console.log(page);
+					return '<%= HOST %>/waterfall?page=' + page + '&type=' + val;
+				}
+			});
+		});
+		$("#find").keyup(function(){
+			var val=$("#find").val();
+			if( val.length > 1 ) {
+				$('#container').empty();
+				$.ajax({
+					url: '<%= HOST %>/waterfall?page=1&search=' + val,
+					dataType: 'html',
+					success: function(data) {
+						$('#container').append(data);
+						$('#container').waterfall('reLayout',function(){
+							var timer = setTimeout(function() {
+								$('#container').waterfall('reLayout');
+							}, 100);
+						});
+						$('#container').waterfall('pause');
+					},
+					error: function(jqXHR) {
+						$('#container').html('网络错误...');
+					}
+				});
+				
 			}
 		});
-	};
+    });
 
 </script>
 </head>
@@ -72,45 +94,19 @@ Smartphone Compatible web template, free webdesigns for Nokia, Samsung, LG, Sony
       </div>
       <div class="content">
       	<div class="box_1">
-			<div class="button">
-			  <a href="#" class="hvr-shutter-out-horizontal">全部</a>
-			</div>
-			<% items.forEach(function(data){ %> 
-			<div class="button">
-			  <a href="#" class="hvr-shutter-out-horizontal" onclick=""><%= data.type %></a>
-			</div>
-			<% }) %>  
-      	 <div class="search">
-		    <form>
-				<input type="text" value="查找..." onFocus="this.value='';" onBlur="if (this.value == '') {this.value ='';}">
-				<input type="submit" value="">
-		    </form>
-		</div>
+			<form class="form-search well" method="GET">
+				<select id="typer" name="type" class="selectpicker show-tick"  data-size="5">
+				<option>类型</option>
+				<% items.forEach(function(data){ %> 
+				<option><%= data.type %></option>
+				<% }) %>  
+				</select>
+				<input id="find" type="text" placeholder="查找..." class="search" onFocus="this.value='';" onBlur="if (this.value == '') {this.value ='';}">
+			</form>
 		<div class="clearfix"> </div>
 		</div>
 		<div class="box_2">
 			<div class="content_right">
-			<!--% items.forEach(function(item){ %> 
-				<div >
-					< % item.forEach(function(data){ %> 
-					<div class="col-md-3">
-						<a href="./detail?id=< %= data.id%>">
-							<div class="grid_2">
-								<img src="< %= data.image%>" class="img-responsive" alt=""/>
-								<div class="caption1">
-									<ul class="list_5">
-										<li><i class="icon5"> </i><p>*</p></li>
-									</ul>
-									<p class="m_3">< %= data.title %></p>
-								</div>
-							</div>
-						</a>
-					</div>
-					< % }) %>  
-					<div class="clearfix"> </div>
-				</div>
-			< % }) %>  
-			-->
 				<div id="container"></div>
 			</div>
 			<div class="clearfix"> </div>
@@ -123,16 +119,20 @@ Smartphone Compatible web template, free webdesigns for Nokia, Samsung, LG, Sony
 <script>
 $('#container').waterfall({
     itemCls: 'item',
-    colWidth: 222,  
-    gutterWidth: 15,
+    colWidth: 200,  
+    gutterWidth: 10,
     gutterHeight: 15,
-    checkImagesLoaded: false,
+    checkImagesLoaded: true,
     dataType: 'html',
+	state: {curPage: 1},
     path: function(page) {
 		console.log(page);
         return '<%= HOST %>/waterfall?page=' + page;
     }
 });
+$('#container').waterfall('resume');
+
+
 </script>	
 </body>
 </html>

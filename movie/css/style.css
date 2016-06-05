@@ -544,13 +544,18 @@ i.icon3{
 .content{
 	background:#edeff0;
 	padding:2em;
+	padding-bottom: 100px;
+}
+.box_1 {
+	padding-right: 28px;
+	padding-left: 20px;
 }
 .search {
+background: url('../images/search.png')no-repeat  120px ;
 border-top: none;
 border-left: none;
 border-right: none;
 border-bottom: 1px solid #CACACA;
-background: none;
 position: relative;
 margin-bottom: 2em;
 float:right;
@@ -1610,6 +1615,7 @@ ul.list_1 li {
 }
 .content {
 	padding: 1em;
+	padding-bottom: 100px;
 }
 h2.m_3 {
 	font-size: 22px;

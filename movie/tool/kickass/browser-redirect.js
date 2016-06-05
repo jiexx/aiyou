@@ -67,18 +67,19 @@ browser.options.retryTimeout = 20;
 browser.options.waitTimeout = 120000; 
 browser.options.onResourceRequested = function(C, requestData, request) {
 //browser.on("page.resource.requested", function(requestData, request) {
-	if ( !(/.*\.xunleitai\.com.*/gi).test(requestData['url']) && !(/http:\/\/127\.0\.0\.1.*/gi).test(requestData['url'])
-	/*|| (/.*\.css/gi).test(requestData['url']) || requestData['Content-Type'] == 'text/javascript'*/ ) {
-		//console.log('redirect Skipping JS file: ' + requestData['url']);
+	if ( !(/.*kat\.cr.*/gi).test(requestData['url']) && !(/http:\/\/127\.0\.0\.1.*/gi).test(requestData['url'])
+	&&!(/.*all-4465742\.js.*/gi).test(requestData['url']) /*|| requestData['Content-Type'] == 'text/javascript'*/ ) {
+		console.log('redirect Skipping JS file: ' + requestData['url']);
 		request.abort();
 	}else {
-		//console.log('redirect Down JS file: ' + requestData['url']);
+		console.log('redirect Down JS file: ' + requestData['url']);
 	}
 };
 
 
 // for redirect page
-var xpathFetchTitle = '//div[@class="boxer"]//a';
+var xpathFetchTitle = '//div[@class="markeredBlock torType filmType"]/a';
+var xpathRedirect = '//a[@class="turnoverButton siteButton bigButton active"]/following-sibling::a[1]';
 
 var x = require('casper').selectXPath;
 
@@ -92,14 +93,14 @@ for(var j = 0 ; j < num ; j ++) {
 	//setInterval(captureImage(), 6000);
 	browser.waitFor(function check() {
 		    return this.evaluate(function() {
-		        var a = document.querySelectorAll('div.copyright').length > 0;
+		        var a = document.querySelectorAll('footer.lightgrey').length > 0;
 				//console.log(document.body.innerHTML);
 				//console.log(a);
 		        return a; 
 		    });
 	}, function() {
 		var domain = this.evaluate(function getLinks() {
-			return document.domain;
+			return document.URL.substring(0,document.URL.lastIndexOf('/'));
 	    });  
 		//this.echo(this.getHTML());
 		//this.download(link, 'test.html');
@@ -108,44 +109,51 @@ for(var j = 0 ; j < num ; j ++) {
 			var a = this.getElementsInfo(x(xpathFetchTitle));
 			for(var i in a) {
 				fetchTitles.push(a[i].text);
-		    }
-		    var a = this.getElementsAttribute(x(xpathFetchTitle), 'href');
+		   }
+		   var b = this.getElementsAttribute(x(xpathFetchTitle), 'href'); 
+		   for(var i in b) {
+				fetchLinks.push(domain+b[i]);
+		   }
+		}
+
+		//require('utils').dump(this.getElementsInfo(x(xpathRedirect)));
+		var linksRedirect = [];
+		if(browser.exists(x(xpathRedirect))){
+			var a = this.getElementsAttribute(x(xpathRedirect), 'href');
 			for(var i in a) {
-				fetchLinks.push("http://"+domain+a[i]);
+				linksRedirect.push(domain+a[i]);
 			}
 		}
-		//require('utils').dump(fetchPrices);
-		//require('utils').dump(fetchAmounts);
-		console.log( domain);
+		
 		console.log( "fetchTitles.length:"+fetchTitles.length
 					+" fetchLinks.length:"+fetchLinks.length);
 		var result;
-		if(	fetchTitles.length == fetchLinks.length) {
+		if(fetchTitles.length == fetchLinks.length) {
 			
 			result =  {
 				'id': id[k],
 				'error': 0,
 				'fetchTitles': fetchTitles,
 				'fetchLinks':fetchLinks,
-				'currLink': link[k],
-				'redirectLinks': null
+				'redirectLinks':  linksRedirect,
+				'currLink': link[k]
 			};
 			
 		}else {
 			result =  {
 				'id': id[k],
 				'error': 1,
-				'currLink': link[k],
-				'redirectLinks': null
+				'redirectLinks':  linksRedirect,
+				'currLink': link[k]
 			};
 		}
 		var r = JSON.stringify(result);
-		//console.log(JSON.stringify(result));
+		console.log(JSON.stringify(result));
 		r = encodeURI(r);
 		r = encodeURI(r);
 		
 		
-		browser.thenOpen('http://127.0.0.1:8081/redirect', {
+		/*browser.thenOpen('http://127.0.0.1:8081/redirect', {
 			headers: {
 				'Content-Type': 'application/json; charset=utf-8'
 			},
@@ -161,7 +169,7 @@ for(var j = 0 ; j < num ; j ++) {
 					browser.exit();  
 				}
 			}
-		});
+		});*/
 	});
 	})(j);
 }
