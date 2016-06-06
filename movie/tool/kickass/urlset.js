@@ -66,7 +66,7 @@ var Queue = {
 		}
 		var exec = require('child_process');
 		
-		var proc = exec.spawn('casperjs', args);
+		var proc = exec.spawn('casperjs --ssl-protocol=any ', args);
 		console.log(args.toString());
 		this.procs.push(proc);
 		

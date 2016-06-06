@@ -65,8 +65,8 @@ browser.on("page.created", function(){
 browser.options.retryTimeout = 20;
 browser.options.waitTimeout = 20000; 
 browser.options.onResourceRequested = function(C, requestData, request) {
-	if ( !(/.*\.bttiantang\.com.*/gi).test(requestData['url']) && !(/http:\/\/127\.0\.0\.1.*/gi).test(requestData['url'])
-	/*|| (/.*\.css/gi).test(requestData['url']) || requestData['Content-Type'] == 'text/javascript'*/ ) {
+	if ( !(/.*kat\.cr.*/gi).test(requestData['url']) && !(/http:\/\/127\.0\.0\.1.*/gi).test(requestData['url'])
+	&&!(/.*all-4465742\.js.*/gi).test(requestData['url']) /*|| requestData['Content-Type'] == 'text/javascript'*/ ) {
 		console.log('redirect Skipping JS file: ' + requestData['url']);
 		request.abort();
 	}else {
@@ -75,23 +75,22 @@ browser.options.onResourceRequested = function(C, requestData, request) {
 };
 
 // for redirect page
-var xpathDownload = '//div[@class="tinfo"]//a';
-var xpathImage = '//div[@class="moviedteail_img"]/a/img';
-var xpathName = '//div[@class="moviedteail_tt"]';
-var xpathType = '//div[@class="moviedteail_list"]/li[2]/a';
-var xpathPublish = '//div[@class="moviedteail_list"]/li[4]/a';
-var xpathArea = '//div[@class="moviedteail_list"]/li[3]/a';
-var xpathDirector = '//div[@class="moviedteail_list"]/li[5]/a';
-var xpathActor = '//div[@class="moviedteail_list"]/li[7]/a';
+var xpathDownload = '//div[@title="Download torrent file"]//a';
+var xpathMagnet = '//div[@title="Torrent magnet link"]//a';
+var xpathImage = '//a[@class="movieCover"]/img';
+var xpathName = '//ul[@class="block overauto botmarg0"]/li[1]/a';
+var xpathType = '//ul[@class="block overauto botmarg0"]/li[7]/a';
+var xpathPublish = '//div[@class="dataList"]/ul[2]/li[2]';
+var xpathArea = '//li[@class="data_lang"]/span';
+var xpathDirector = '//div[@class="dataList"]/ul[2]/li[4]/span/a';
+var xpathActor = '//div[@class="floatleft width100perc botmarg10px"][1]/span/a';
+var xpathQulity = '//ul[@class="block overauto botmarg0"]/li[2]/span';
 
 var x = require('casper').selectXPath;
 
 browser.start();  
 console.log('enter browser fetch');
 for(var j = 0 ; j < num ; j ++) {
-	if(link[j].indexOf('http://') != 0) {
-		continue;
-	}
 	(function(arg){ 
 	var k = arg;
 	
@@ -100,7 +99,7 @@ for(var j = 0 ; j < num ; j ++) {
 	
 	browser.waitFor(function check() {
 		    return this.evaluate(function() {
-		        var a = document.querySelectorAll('p.announcement').length > 0;
+		        var a = document.querySelectorAll('footer.lightgrey').length > 0;
 				//console.log(document.body.innerHTML);
 				//console.log(a);
 		        return a; 
@@ -109,15 +108,26 @@ for(var j = 0 ; j < num ; j ++) {
 		//console.log('fetch '+this.page.childFramesName().toString());
 		
 		
-		var fetchDownloads = [], fetchDownloadLinks = [];
+		var fetchDownloads = [], fetchDownloadLinks = [], fetchMagnets = [], fetchMagnetLinks = [];
 		if(browser.exists(x(xpathDownload))){
 			var a = this.getElementsInfo(x(xpathDownload));
 			for(var i in a) {
 				fetchDownloads.push(a[i].text);
 		    }
-		    var a = this.getElementsAttribute(x(xpathDownload), 'href');
+		    var b = this.getElementsAttribute(x(xpathDownload), 'href');
 			for(var i in a) {
 				fetchDownloadLinks.push(a[i]);
+			}
+		}
+		
+		if(browser.exists(x(xpathMagnet))){
+			var a = this.getElementsInfo(x(xpathMagnet));
+			for(var i in a) {
+				fetchMagnets.push(a[i].text);
+		    }
+		    var b = this.getElementsAttribute(x(xpathMagnet), 'href');
+			for(var i in b) {
+				fetchMagnetLinks.push(b[i]);
 			}
 		}
 		
@@ -166,6 +176,12 @@ for(var j = 0 ; j < num ; j ++) {
 			for(var i in a) {
 				fetchActors.push(a[i].text);
 			}
+		}
+		
+		var fetchQulity = '';
+		if(browser.exists(x(xpathActor))){
+		    var a = this.getElementsInfo(x(xpathQulity));
+			fetchQulity = a[0].text;
 		}
 		
 		

@@ -5,3 +5,7 @@ create table amazon.client(ip varchar(24));
 create table amazon.xunleitai(id varchar(64), clazz varchar(8), quality varchar(16), title varchar(256), download text, downtxt text, image varchar(256), publishtime varchar(128), type varchar(64), area varchar(64), director varchar(256), actor varchar(256), comment text, link varchar(256), redirect varchar(256));
 
 casperjs --ssl-protocol=any  browser-redirect.js 0 "https://kat.cr/movies/399"
+casperjs --ssl-protocol=any  browser-fetch.js 0 "https://kat.cr/atl-2006-dvdrip-xvid-lrc-t3268.html"
+
+http://stackoverflow.com/questions/16627376/nodejs-asset-management
+
