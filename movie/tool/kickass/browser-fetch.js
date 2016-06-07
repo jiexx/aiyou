@@ -75,8 +75,8 @@ browser.options.onResourceRequested = function(C, requestData, request) {
 };
 
 // for redirect page
-var xpathDownload = '//div[@title="Download torrent file"]//a';
-var xpathMagnet = '//div[@title="Torrent magnet link"]//a';
+var xpathDownload = '//a[@title="Download torrent file"]';
+var xpathMagnet = '//a[@title="Torrent magnet link"]';
 var xpathImage = '//a[@class="movieCover"]/img';
 var xpathName = '//ul[@class="block overauto botmarg0"]/li[1]/a';
 var xpathType = '//ul[@class="block overauto botmarg0"]/li[7]/a';
@@ -106,7 +106,9 @@ for(var j = 0 ; j < num ; j ++) {
 		    });
 	}, function() {
 		//console.log('fetch '+this.page.childFramesName().toString());
-		
+		var domain = this.evaluate(function getLinks() {
+			return document.URL.substring(0,document.URL.lastIndexOf('/'));
+	    });  
 		
 		var fetchDownloads = [], fetchDownloadLinks = [], fetchMagnets = [], fetchMagnetLinks = [];
 		if(browser.exists(x(xpathDownload))){
@@ -115,8 +117,8 @@ for(var j = 0 ; j < num ; j ++) {
 				fetchDownloads.push(a[i].text);
 		    }
 		    var b = this.getElementsAttribute(x(xpathDownload), 'href');
-			for(var i in a) {
-				fetchDownloadLinks.push(a[i]);
+			for(var i in b) {
+				fetchDownloadLinks.push('http:'+b[i]);
 			}
 		}
 		
@@ -134,7 +136,7 @@ for(var j = 0 ; j < num ; j ++) {
 		var fetchImage = '';
 		if(browser.exists(x(xpathImage))){
 		    var a = this.getElementsAttribute(x(xpathImage), 'src');
-			fetchImage = a[0] ;
+			fetchImage = 'http:'+a[0] ;
 		}
 		
 		var fetchName = '';
@@ -187,7 +189,7 @@ for(var j = 0 ; j < num ; j ++) {
 		
 		var result =  {
 			'id': id[k],
-			'downtxt':fetchDownloads,
+			'magnet':fetchMagnetLinks,
 			'down': fetchDownloadLinks,
 			'img':fetchImage,
 			'name':fetchName,

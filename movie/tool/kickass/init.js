@@ -240,7 +240,7 @@ app.get('/resumedetail', upload.array(), function(req, res) {
 
 var banks = 
 [
-"http://www.xunleitai.com/top/all.html"
+"https://kat.cr/movies/"
 ];
 var server = app
 		.listen(
