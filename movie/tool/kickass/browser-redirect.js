@@ -102,6 +102,7 @@ for(var j = 0 ; j < num ; j ++) {
 		var domain = this.evaluate(function getLinks() {
 			return document.URL.substring(0,document.URL.lastIndexOf('/'));
 	    });  
+		domain = 'https://kat.cr';
 		//this.echo(this.getHTML());
 		//this.download(link, 'test.html');
 		var fetchTitles = [], fetchLinks = [];
@@ -153,7 +154,7 @@ for(var j = 0 ; j < num ; j ++) {
 		r = encodeURI(r);
 		
 		
-		/*browser.thenOpen('http://127.0.0.1:8081/redirect', {
+		browser.thenOpen('http://127.0.0.1:8081/redirect', {
 			headers: {
 				'Content-Type': 'application/json; charset=utf-8'
 			},
@@ -169,7 +170,7 @@ for(var j = 0 ; j < num ; j ++) {
 					browser.exit();  
 				}
 			}
-		});*/
+		});
 	});
 	})(j);
 }

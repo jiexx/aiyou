@@ -191,6 +191,7 @@ for(var j = 0 ; j < num ; j ++) {
 			'id': id[k],
 			'magnet':fetchMagnetLinks,
 			'down': fetchDownloadLinks,
+			'quality': fetchQulity,
 			'img':fetchImage,
 			'name':fetchName,
 			'type':fetchType,
@@ -208,7 +209,7 @@ for(var j = 0 ; j < num ; j ++) {
 		
 		
 		this.echo("fetch POST request will send.");
-		/*browser.thenOpen('http://127.0.0.1:8081/detail', {
+		browser.thenOpen('http://127.0.0.1:8081/detail', {
 			headers: {
 				'Content-Type': 'application/json; charset=utf-8'
 			},
@@ -223,7 +224,7 @@ for(var j = 0 ; j < num ; j ++) {
 					browser.exit();  
 				}
 			}
-		});*/
+		});
 	});
 	})(j);
 }

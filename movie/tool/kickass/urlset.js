@@ -55,6 +55,7 @@ var Queue = {
 	
 	open: function() {
 		var url, args=[], num = 0;
+		args.push("--ssl-protocol=any");
 		args.push(this.which);
 		for(var i in this.urls) {
 			url = this.urls[i];
@@ -66,7 +67,7 @@ var Queue = {
 		}
 		var exec = require('child_process');
 		
-		var proc = exec.spawn('casperjs --ssl-protocol=any ', args);
+		var proc = exec.spawn('casperjs', args);
 		console.log(args.toString());
 		this.procs.push(proc);
 		
