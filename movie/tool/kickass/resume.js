@@ -59,14 +59,14 @@ function select() {
 			});
 }
 
-function update(id, downtxt, downloads, image, name, type, publish, area, directors, actors) {
+function update(id, magnet, qulity, downloads, image, name, type, publish, area, directors, actors) {
 	if (!dbReady)
 		return;
 
-	var values = [ downloads+'', downtxt+'', image, name+'', type, publish, area, directors+'', actors+'', id ];
+	var values = [ downloads+'', magnet+'', qulity, image, name+'', type, publish, area, directors+'', actors+'', id ];
 	console.log(">>>>>>>>>> update |values:"+values + "<<<<<<<<<<");
 	connection.query(
-			'UPDATE xunleitai SET download = ?, downtxt = ?, image = ?, title = ?, type = ?, publishtime = ?, area = ?, director = ?, actor = ? WHERE id = ?',
+			'UPDATE xunleitai SET download = ?, downtxt = ?, qulity = ?, image = ?, title = ?, type = ?, publishtime = ?, area = ?, director = ?, actor = ? WHERE id = ?',
 			values, function(error, results) {
 				if (error) {
 					console.log("update Error: " + error.message);
