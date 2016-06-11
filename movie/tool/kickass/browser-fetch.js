@@ -118,7 +118,7 @@ for(var j = 0 ; j < num ; j ++) {
 		    }
 		    var b = this.getElementsAttribute(x(xpathDownload), 'href');
 			for(var i in b) {
-				fetchDownloadLinks.push('http:'+b[i]);
+				fetchDownloadLinks.push('https:'+b[i]);
 			}
 		}
 		
@@ -136,7 +136,7 @@ for(var j = 0 ; j < num ; j ++) {
 		var fetchImage = '';
 		if(browser.exists(x(xpathImage))){
 		    var a = this.getElementsAttribute(x(xpathImage), 'src');
-			fetchImage = 'http:'+a[0] ;
+			fetchImage = 'https:'+a[0] ;
 		}
 		
 		var fetchName = '';
@@ -203,7 +203,7 @@ for(var j = 0 ; j < num ; j ++) {
 		};
 		//console.log('fetch '+fetchCompany);
 		var r = JSON.stringify(result);
-		console.log('fetch '+r);
+		console.log('fetch--------- '+r);
 		r = encodeURI(r);
 		r = encodeURI(r);
 		

@@ -39,7 +39,7 @@ var us = UrlSet.create();
 function select() {
 	var values = null;
 	connection.query(
-			'SELECT id, link FROM amazon.xunleitai WHERE title IS NULL; ', function(error, results, fields) {
+			'SELECT * FROM amazon.xunleitai where download is  null or trim(download)=""; ', function(error, results, fields) {
 				if (error) {
 					console.log("select Error: " + error.message);
 					connection.end();
@@ -66,7 +66,7 @@ function update(id, magnet, qulity, downloads, image, name, type, publish, area,
 	var values = [ downloads+'', magnet+'', qulity, image, name+'', type, publish, area, directors+'', actors+'', id ];
 	console.log(">>>>>>>>>> update |values:"+values + "<<<<<<<<<<");
 	connection.query(
-			'UPDATE xunleitai SET download = ?, downtxt = ?, qulity = ?, image = ?, title = ?, type = ?, publishtime = ?, area = ?, director = ?, actor = ? WHERE id = ?',
+			'UPDATE xunleitai SET clazz = "kickass", download = ?, downtxt = ?, quality = ?, image = ?, title = ?, type = ?, publishtime = ?, area = ?, director = ?, actor = ? WHERE id = ?',
 			values, function(error, results) {
 				if (error) {
 					console.log("update Error: " + error.message);
@@ -97,7 +97,7 @@ function download(uri, filename, callback){
 			});
 			writestrm.on('end', callback);
 		}
-		fs.appendFile('img.txt', 'ERR_LINKS_IMG '+uri+'\n', 'utf-8', function (err) {});
+		fs.appendFile('img.txt', 'SUC_LINKS_IMG '+uri+'\n', 'utf-8', function (err) {console.log('DOWN IMG ERR:  '+err)});
 	});
 };
 
@@ -113,7 +113,7 @@ app.post('/detail', upload.array(), function(req, res) {
 			console.log('done');
 		});
 	}
-	update(data.id, data.downtxt, data.down, 'img/'+data.id+data.img.substr(data.img.lastIndexOf('.')), data.name, data.type, data.pub, data.area, data.dir, data.act);
+	update(data.id, data.magnet, data.quality, data.down, 'img/'+data.id+data.img.substr(data.img.lastIndexOf('.')), data.name, data.type, data.pub, data.area, data.dir, data.act);
 
 	res.send('OK.');
 	if(us.getCountOfFetchs() > 0) {
@@ -130,10 +130,22 @@ var server = app
 					var port = server.address().port;
 
 					console.log("RUNNING http://%s:%s", host, port);
+					if(fs.exists('img.txt')) {
+						fs.unlink('img.txt');
+					}
+					if (!fs.existsSync('img')) {
+						fs.mkdirSync('img');
+					}
+					if (!fs.existsSync('bt')) {
+						fs.mkdirSync('bt');
+					}
 					
 					var d = select();
 				});
-
+server.on('error', function(err) { 
+	console.log('SERVER ERR:  '+err);
+});
+	
 				
 process.on('SIGINT', function() {
     console.log('Naughty SIGINT-handler');

@@ -30,8 +30,8 @@ app.use(function(req, res, next) {
 	var pathname = url.parse(req.url).pathname;
 	var realPath = path.join(__dirname, pathname);
 	var ext = path.extname(realPath);
-	var contentType = comm.cache_mime[ext];
 	ext = ext ? ext.slice(1) : null;
+	var contentType = comm.cache_mime[ext+''];
 	if(contentType) {
 		fs.exists(realPath, function (exist) {
 			if(exist){
@@ -39,7 +39,7 @@ app.use(function(req, res, next) {
 				expires.setTime(expires.getTime() + 3600000);
 				res.setHeader("Content-Type", contentType);
 				res.setHeader("Expires", expires.toUTCString());
-				res.setHeader("Cache-Control", "max-age=" + 3600000);
+				res.setHeader("Cache-Control", "max-age=" + 36000000);
 				var file = cache.get(pathname);
 				if(file) {
 					comm.log('HIT '+pathname);

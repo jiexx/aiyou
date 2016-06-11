@@ -93,15 +93,14 @@ function extract() {
 			});
 }
 
-function update(id, magnet, qulity, downloads, image, 
-				name, type, publish, area, directors, actors) {
+function update(id, magnet, qulity, downloads, image, name, type, publish, area, directors, actors) {
 	if (!dbReady)
 		return;
 
 	var values = [ downloads+'', magnet+'', qulity, image, name+'', type, publish, area, directors+'', actors+'', id ];
 	console.log(">>>>>>>>>> update |values:"+values + "<<<<<<<<<<");
 	connection.query(
-			'UPDATE xunleitai SET clazz=\'kickass\', download = ?, downtxt = ?, qulity = ?, image = ?, title = ?, type = ?, publishtime = ?, area = ?, director = ?, actor = ? WHERE id = ?',
+			'UPDATE xunleitai SET clazz = "kickass", download = ?, downtxt = ?, quality = ?, image = ?, title = ?, type = ?, publishtime = ?, area = ?, director = ?, actor = ? WHERE id = ?',
 			values, function(error, results) {
 				if (error) {
 					console.log("update Error: " + error.message);
@@ -185,7 +184,6 @@ app.post('/redirect', upload.array(), function(req, res) {
 	
 
 })
-
 function download(uri, filename, callback){
 	request.head(uri, function(err, res, body){
 		if(res) {
@@ -196,8 +194,10 @@ function download(uri, filename, callback){
 				fs.appendFile('img.txt', 'ERR_LINKS_IMG '+uri+'\n', 'utf-8', function (err) {});
 			});
 			writestrm.on('end', callback);
+		}else {
+			fs.appendFile('img.txt', 'SUC_LINKS_IMG '+uri+'\n', 'utf-8', function (err) {console.log('DOWN IMG ERR:  '+err+' ' +uri)});
 		}
-		fs.appendFile('img.txt', 'ERR_LINKS_IMG '+uri+'\n', 'utf-8', function (err) {});
+		
 	});
 };
 
@@ -209,17 +209,17 @@ app.post('/detail', upload.array(), function(req, res) {
 	
 	us.visitedFetchUrl(data.id);
 	if(data.img) {
-		//download(data.img, __dirname+'/'+'img/'+data.id+data.img.substr(data.img.lastIndexOf('.')), function(){
-		//	console.log('done');
-		//});
+		download(data.img, __dirname+'/'+'img/'+data.id+data.img.substr(data.img.lastIndexOf('.')), function(){
+			console.log('done');
+		});
 	}
-	update(data.id, data.downtxt, data.down, data.qulity, 'img/'+data.id+data.img.substr(data.img.lastIndexOf('.')), data.name, data.type, data.pub, data.area, data.dir, data.act);
+	update(data.id, data.magnet, data.quality, data.down, 'img/'+data.id+data.img.substr(data.img.lastIndexOf('.')), data.name, data.type, data.pub, data.area, data.dir, data.act);
 
 	res.send('OK.');
 	if(us.getCountOfFetchs() > 0) {
 		us.loopFetch();
 	}
-})
+});
 
 app.get('/resumedetail', upload.array(), function(req, res) {
 	
@@ -278,7 +278,9 @@ var server = app
 					/*extract();*/
 
 				});
-
+server.on('error', function(err) { 
+	console.log('SERVER ERR:  '+err);
+});
 				
 process.on('SIGINT', function() {
     console.log('Naughty SIGINT-handler');
@@ -296,5 +298,5 @@ process.on('SIGINT', function() {
 process.on('uncaughtException', function(err) {
     console.log(err);
     //server.kill();
-    process.kill();
+    //process.kill();
 });

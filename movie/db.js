@@ -41,7 +41,7 @@ exports.getWaterfalls = function(opt, callback) {
 			start = opt.page*offset;
 		}
 		if(type && type != '类型'){
-			start = 0;
+			start = opt.page*offset;
 			var sql = "SELECT id, SUBSTRING_INDEX(title,'迅雷下载',1) as title, image, publishtime FROM amazon.xunleitai WHERE type = ? LIMIT ?, ?; ";
 			exec(connection, sql, [type, start, offset], callback);
 		}else if(search){

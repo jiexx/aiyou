@@ -16,7 +16,7 @@ Smartphone Compatible web template, free webdesigns for Nokia, Samsung, LG, Sony
 <script src="js/responsiveslides.min.js"></script>
 <script src="js/waterfall.mini.js"></script>
 <script>
-    $(function () {
+    $(document).ready(function(){
 		$("#slider").responsiveSlides({
 			auto: true,
 			nav: true,
@@ -37,9 +37,9 @@ Smartphone Compatible web template, free webdesigns for Nokia, Samsung, LG, Sony
 				}
 			});
 		});
-		$("#find").keyup(function(){
+		$("#find").bind('keypress',function(e){
 			var val=$("#find").val();
-			if( val.length > 1 ) {
+			if(e.keyCode == 13) {
 				$('#container').empty();
 				$.ajax({
 					url: '<%= HOST %>/waterfall?page=1&search=' + val,
@@ -57,7 +57,6 @@ Smartphone Compatible web template, free webdesigns for Nokia, Samsung, LG, Sony
 						$('#container').html('网络错误...');
 					}
 				});
-				
 			}
 		});
     });
@@ -94,14 +93,14 @@ Smartphone Compatible web template, free webdesigns for Nokia, Samsung, LG, Sony
       </div>
       <div class="content">
       	<div class="box_1">
-			<form class="form-search well" method="GET">
+			<form class="form-search well" method="GET"  action="" onsubmit="return false;">
 				<select id="typer" name="type" class="selectpicker show-tick"  data-size="5">
 				<option>类型</option>
 				<% items.forEach(function(data){ %> 
 				<option><%= data.type %></option>
 				<% }) %>  
 				</select>
-				<input id="find" type="text" placeholder="查找..." class="search" onFocus="this.value='';" onBlur="if (this.value == '') {this.value ='';}">
+				<input id="find" type="text" placeholder="查找..." class="search"   >
 			</form>
 		<div class="clearfix"> </div>
 		</div>
