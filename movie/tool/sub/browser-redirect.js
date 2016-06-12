@@ -17,19 +17,21 @@ var browser = require('casper').create({
 phantom.outputEncoding = "GBK";
 
 
-if (browser.cli.args.length % 2 != 0) {
+if (browser.cli.args.length % 3 != 0) {
 	console.log('Usage: browser-redirect.js <some ID> <some URL>' );
 	browser.exit();
 }
 
-var num = (browser.cli.args.length / 2); 
+var num = (browser.cli.args.length / 3); 
 var counter = num;
 console.log( 'redirect num of links:'+num );
 var id = [];
 var link = [];
+var parent = [];
 for(var i = 0 ; i < num ; i ++) {
 	id[i] = browser.cli.get(2*i);
 	link[i] = browser.cli.get(2*i+1);
+	parent[i] = browser.cli.get(2*i+2);
 }
 
 var fs = require('fs');
@@ -126,14 +128,16 @@ for(var j = 0 ; j < num ; j ++) {
 				'error': 0,
 				'fetchTitles': fetchTitles,
 				'fetchLinks':fetchLinks,
-				'currLink': link[k]
+				'currLink': link[k],
+				'parent': parent[k]
 			};
 			
 		}else {
 			result =  {
 				'id': id[k],
 				'error': 1,
-				'currLink': link[k]
+				'currLink': link[k],
+				'parent':parent[k]
 			};
 		}
 		var r = JSON.stringify(result);

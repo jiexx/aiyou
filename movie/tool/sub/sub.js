@@ -17,7 +17,7 @@ connection.connect(function(error, results) {
 		return;
 	}
 	console.log('Connected to MySQL');
-	connection.query('USE amazon', function(error, results) {
+	connection.query('update amazon.xunleitai set sub = ""; ', function(error, results) {
 		if (error) {
 			console.log('ClientConnectionReady Error: ' + error.message);
 			connection.end();
@@ -61,11 +61,11 @@ function selectSubRows(){
 					fs.mkdirSync('sub/'+row.id);
 				}
 				if(row.title) {
-					rows.push({link:row.link, uri:'http://www.subhd.com/search/'+row.title});
+					rows.push({id:row.id, link:row.link, uri:'http://www.subhd.com/search/'+row.title});
 				}
 			}
 			if (rows.length > 0) {
-				us.addRedirectUrl(URL.create(rows[0].link));
+				us.addRedirectUrl(URL.createByParent(rows[0].uri, rows[0].id));
 				rows.splice(0,1);
 			}
 			us.loopRedirect();
@@ -86,18 +86,19 @@ function download(uri, filename, callback){
 		if(res) {
 			console.log('content-type:', res.headers['content-type']);
 			console.log('content-length:', res.headers['content-length']);
-			request(uri, function (error, response, body) {
+			/*request(uri, function (error, response, body) {
 				console.log('####'+error+' '+body.length);
 				if(error){
 					fs.appendFile('sub.txt', 'ERR_LINKS_IMG '+uri+'\n', 'utf-8', function (err) {});
 				}else {
 					fs.writeFileSync(filename, body);
 				}
-			});
-			/*writestrm.on('error', function(){
+			});*/
+			var writestrm = request(uri).pipe(fs.createWriteStream(filename));
+			writestrm.on('error', function(){
 				fs.appendFile('sub.txt', 'ERR_LINKS_IMG '+uri+'\n', 'utf-8', function (err) {});
 			});
-			writestrm.on('finish', callback);*/
+			writestrm.on('finish', callback);
 		}
 		fs.appendFile('sub.txt', 'SUC_LINKS_IMG '+uri+'\n', 'utf-8', function (err) {console.log('DOWN SUB :  '+err)});
 	});
@@ -113,13 +114,13 @@ app.post('/detail', upload.array(), function(req, res) {
 	if(data.sub) {
 		download(data.sub, __dirname+'/'+'sub/'+data.parent+'/'+data.sub.substr(data.sub.lastIndexOf('/')), function(){
 			console.log('done');
+			if(us.getCountOfFetchs() > 0) {
+				us.loopFetch();
+			}
 		});
 	}
 	
 	res.send('OK.');
-	if(us.getCountOfFetchs() > 0) {
-		us.loopFetch();
-	}
 });
 
 app.post('/redirect', upload.array(), function(req, res) {
@@ -132,7 +133,7 @@ app.post('/redirect', upload.array(), function(req, res) {
 		fs.appendFile('redirects.txt', 'ERR_LINKS_SUB '+data.currLink.toString()+'\n', 'utf-8', function (err) {});
 		
 		if (rows.length > 0) {
-			us.addRedirectUrl(URL.create(rows[0].link));
+			us.addRedirectUrl(URL.createByParent(rows[0].uri, rows[0].id));
 			rows.splice(0,1);
 		}
 	
@@ -146,12 +147,12 @@ app.post('/redirect', upload.array(), function(req, res) {
 	fs.appendFile('redirects.txt', 'SUCCESS       '+data.fetchLinks+'\n', 'utf-8', function (err) {});
 	
 	for ( var i = 0 ; i < data.fetchLinks.length ; i ++ ) {
-		var fetch = URL.createByParent(data.fetchLinks[i], data.id);
+		var fetch = URL.createByParent(data.fetchLinks[i], data.parent);
 		us.addFetchUrl(fetch);
 	}
 
 	if (rows.length > 0) {
-		us.addRedirectUrl(URL.create(rows[0].link));
+		us.addRedirectUrl(URL.createByParent(rows[0].uri, rows[0].id));
 		rows.splice(0,1);
 	}
 	
