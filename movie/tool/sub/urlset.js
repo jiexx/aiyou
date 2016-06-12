@@ -62,6 +62,9 @@ var Queue = {
 			if(url != null && this.isNoVisit(url.getId()) && (++num) < this.PARAMAX){
 				args.push(url.getId());
 				args.push(url.getLink());
+				if(url.getParent()){
+					args.push(url.getParent());
+				}
 				this._visiting(url.getId());// for repeated visit issue.
 			}
 		}

@@ -15,20 +15,21 @@ var browser = require('casper').create({
 });
 phantom.outputEncoding = "GBK";
 
-
-if (browser.cli.args.length % 2 != 0) {
+if (browser.cli.args.length % 3 != 0) {
 	console.log('Usage: browser-redirect.js <some ID> <some URL>' );
 	browser.exit();
 }
 
-var num = (browser.cli.args.length / 2); 
+var num = (browser.cli.args.length / 3); 
 var counter = num;
 //console.log( 'fetch num of links:'+num );
 var id = [];
 var link = [];
+var parent = [];
 for(var i = 0 ; i < num ; i ++) {
-	id[i] = browser.cli.get(2*i);
-	link[i] = browser.cli.get(2*i+1);
+	id[i] = browser.cli.get(3*i);
+	link[i] = browser.cli.get(3*i+1);
+	parent[i] = browser.cli.get(3*i+2);
 	//console.log("args id["+i+"]:"+browser.cli.get(i)+" link["+i+"]: "+browser.cli.get(i+1));
 }
 
@@ -132,7 +133,8 @@ for(var j = 0 ; j < num ; j ++) {
 					'id': id[k],
 					'sub': fetchDownloadLinks,
 					'name':fetchName,
-					'link':link[k]
+					'link':link[k],
+					'parent':parent[k]
 				};
 				//console.log('fetch '+fetchCompany);
 				var r = JSON.stringify(result);
@@ -142,7 +144,7 @@ for(var j = 0 ; j < num ; j ++) {
 				
 				
 				this.echo("fetch POST request will send.");
-				browser.thenOpen('http://127.0.0.1:8081/detail', {
+				browser.thenOpen('http://127.0.0.1:8082/detail', {
 					headers: {
 						'Content-Type': 'application/json; charset=utf-8'
 					},

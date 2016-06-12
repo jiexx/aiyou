@@ -3,6 +3,7 @@ var crypto = require('crypto');
 var URL = {
 	link : '',
 	id : '',
+	parent : null,
 	proc : null,
 	time : 0,
 
@@ -67,12 +68,24 @@ var URL = {
 	getLink : function () {
 		return this.link;
 	},
+	
+	getParent : function () {
+		return this.parent;
+	},
 
 	create : function (link) {
 		function F() {};
 		F.prototype = URL;
 		var f = new F();
 		f.URL(link);
+		return f;
+	},
+	createByParent : function (link, parent) {
+		function F() {};
+		F.prototype = URL;
+		var f = new F();
+		f.URL(link);
+		f.parent = parent;
 		return f;
 	}
 };
