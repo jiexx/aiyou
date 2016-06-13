@@ -28,9 +28,24 @@ var down = function(url, filename, cb) {
 
 var down2 = function(url, filename, cb) {
   var file = fs.createWriteStream(filename);
-  var request = https.get({
-	  path: url,
-	}, function(response) {
+  var options = {
+		headers:{
+			"Accept":"text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8",
+			"Accept-Language":"en-US,en;q=0.8",
+			"Cache-Control":"no-cache",
+			"Connection":"keep-alive",
+			"Cookie":'bid="Hpsg9Z7SGXA"; ll="108296"; viewed="11229103_1477932"; gr_user_id=b6ebe87f-cbae-4b65-8d9a-af0dd505dae0; _pk_ref.100001.4cf6=%5B%22%22%2C%22%22%2C1465625000%2C%22http%3A%2F%2Fwww.subhd.com%2Fa%2F313384%22%5D; _pk_id.100001.4cf6=84931053ded43215.1462889423.8.1465625197.1465616347.; __utma=30149280.1852834160.1452963338.1465616347.1465625001.13; __utmc=30149280; __utmz=30149280.1465616347.12.11.utmcsr=subhd.com|utmccn=(referral)|utmcmd=referral|utmcct=/a/313384; __utma=223695111.646540277.1463759481.1465616347.1465625001.6; __utmc=223695111; __utmz=223695111.1465616347.5.4.utmcsr=subhd.com|utmccn=(referral)|utmcmd=referral|utmcct=/a/313384',
+			"User-Agent":"Mozilla/5.0 (Windows NT 6.1; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/51.0.2704.84 Safari/537.36"
+		},
+		hostname:"img3.doubanio.com",
+		agent:false,
+		path: url,
+		method: 'GET',
+		agentOptions: {
+			secureProtocol: 'SSLv3_method'
+		}
+	};
+  var request = https.get(options, function(response) {
 		response.pipe(file);
 		file.on('finish', function() {
 		  file.close(cb);
@@ -89,9 +104,9 @@ function download(uri, filename, callback){
 			var result = JSON.parse(data);
 			if(result[0] && result[0].img) {
 				var img = result[0].img;
-				var real = 'https://img3.doubanio.com/view/photo/photo/public/'+img.substring(img.lastIndexOf('/')+1);
+				var real = /*'https://img3.doubanio.com*/'/view/photo/photo/public/'+img.substring(img.lastIndexOf('/')+1);
 				var mime = '.jpg';//img.substr(img.lastIndexOf('.'));
-				down(real, filename+mime, callback);
+				down2(real, filename+mime, callback);
 			}
 			else{
 				callback();
