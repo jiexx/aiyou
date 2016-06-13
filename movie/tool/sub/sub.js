@@ -40,7 +40,7 @@ var rows = [];
 function selectSubRows(){
 	console.log('downSub');
 	connection.query(
-		'SELECT id, title, link FROM amazon.xunleitai where clazz="kickass" limit 0, 1; ', function(error, results, fields) {
+		'SELECT id, title, link FROM amazon.xunleitai where clazz="kickass" ; ', function(error, results, fields) {
 			if (error) {
 				console.log("select Error: " + error.message);
 				connection.end();
@@ -61,7 +61,7 @@ function selectSubRows(){
 					fs.mkdirSync('sub/'+row.id);
 				}
 				if(row.title) {
-					rows.push({id:row.id, link:row.link, uri:'http://www.subhd.com/search/'+row.title});
+					rows.push({id:row.id, link:row.link, uri:'http://www.subhd.com/search/'+encodeURI(row.title)});
 				}
 			}
 			if (rows.length > 0) {
@@ -112,7 +112,14 @@ app.post('/detail', upload.array(), function(req, res) {
 	
 	us.visitedFetchUrl(data.id);
 	if(data.sub) {
-		download(data.sub, __dirname+'/'+'sub/'+data.parent+'/'+data.sub.substr(data.sub.lastIndexOf('/')), function(){
+		var suffile = data.sub.substr(data.sub.lastIndexOf('/'));
+		download(data.sub, __dirname+'/'+'sub/'+data.parent+'/'+suffile, function(){
+			connection.query('update amazon.xunleitai set sub = concat(sub,";'+suffile+'"); ', function(error, results) {
+				if (error) {
+					console.log('ClientConnectionReady Error: ' + error.message);
+					return;
+				}
+			});
 			console.log('done');
 			if(us.getCountOfFetchs() > 0) {
 				us.loopFetch();
