@@ -2,6 +2,7 @@ var express = require('express');
 var mysql = require('mysql');
 var https = require('https');
 var im = require('lwip');
+var path = require('path');
 var constants = require('constants')
 //var iconv = require('iconv-lite');
 
@@ -117,12 +118,12 @@ function download(item, filename, callback){
 					var img = result[0].img;
 					var val = [result[0].title,item.id];
 					connection.query('update '+db_table+' set subtitle=? where id=? ; ', val, function(err, results, fields) {
-						console.log('update '+result[0].title);
+						console.log('update '+result[0].title +' '+item.id);
 					});
 					var real = /*'https://img3.doubanio.com*/'/view/photo/photo/public/'+img.substring(img.lastIndexOf('/')+1);
 					var mime = '.jpg';//img.substr(img.lastIndexOf('.'));
 					console.log('image: '+'https://img3.doubanio.com/view/photo/photo/public/'+img.substring(img.lastIndexOf('/')+1));
-					down2(real, filename+mime, callback);
+					down2(real, filename, callback);
 				}
 				else{
 					callback();
@@ -141,9 +142,9 @@ function getURLParameter(uri, name) {
 
 function imgDownload(set, i){
 	console.log(' rows:'+JSON.stringify(set[i]));
-	var imgFile = __dirname+'/'+'img/'+set[i].id+'.jpg';
+	var imgFile = __dirname+'/img/'+set[i].id+'.jpg';
 	download(set[i], imgFile, function(){
-		console.log('callback '+set[i].uri);
+		console.log('callback '+imgFile);
 		if (fs.existsSync(imgFile)) {
 			console.log('image down file:'+imgFile);
 			im.open(imgFile, function(err, image){
@@ -155,6 +156,7 @@ function imgDownload(set, i){
 				image.batch()
 				.resize(200, h)
 				.writeFile(__dirname+'\\'+'thumb\\'+set[i].id+'.jpg',function(err, image){
+					console.log('update '+db_table+' set clazz="ka" where id="'+set[i].id+'" ; ');
 					connection.query('update '+db_table+' set clazz="ka" where id="'+set[i].id+'" ; ', function(err, results, fields) {
 						if (!err) console.log('resized done:'+__dirname+'\\'+'thumb\\'+set[i].id+'.jpg ');
 						else console.log('resized err:'+__dirname+'\\'+'thumb\\'+set[i].id+'.jpg '+err);
