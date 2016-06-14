@@ -12,7 +12,7 @@ var connection = mysql.createConnection({
 	password : '1234',
 });
 var dbReady = false;
-var db_table = 'amazon.movie';
+var db_table = 'amazon.xunleitai';
 
 var fs = require("fs");
 var request = require('request');
@@ -177,7 +177,7 @@ function imgDownload(set, i){
 			});*/
 		}
 		if(i >= 1) {
-			setTimeout(function(){imgDownload(set, i-1);},5);
+			setTimeout(function(){imgDownload(set, i-1);},Math.floor(Math.random()*3000));
 		}else {
 			console.log('FINISHED');
 		}
@@ -233,4 +233,7 @@ connection.connect(function(error, results) {
 });
 process.on('uncaughtException', function (err) {
     console.log('uncaughtException:'+err);
+	if(err.indexOf('socket hang up')>=0){
+		imgDownload(rows, rows.length-1);
+	}
 }); 

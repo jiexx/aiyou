@@ -21,13 +21,14 @@ app.set('views', __dirname + '');
 app.use('/css', express.static(__dirname + '/css'));
 app.use('/js', express.static(__dirname + '/js'));
 app.use('/images', express.static(__dirname + '/images'));
-//app.use('/img', express.static(__dirname + '/img'));
+app.use('/img', express.static(__dirname + '/img'));
+app.use('/thumb', express.static(__dirname + '/thumb'));
 
 app.use(function(req, res, next) {
     res.header("Access-Control-Allow-Origin", "*");
     res.header("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept");
 
-	var pathname = url.parse(req.url).pathname;
+	/*var pathname = url.parse(req.url).pathname;
 	var realPath = path.join(__dirname, pathname);
 	var ext = path.extname(realPath);
 	ext = ext ? ext.slice(1) : null;
@@ -64,7 +65,8 @@ app.use(function(req, res, next) {
 		});
 	}else {
 		next();
-	}
+	}*/
+	next();
 });
 
 app.get('/', upload.array(), function(req, res) {
