@@ -40,7 +40,7 @@ var rows = [];
 function selectSubRows(){
 	console.log('downSub');
 	connection.query(
-		'SELECT id, title, link FROM amazon.xunleitai where clazz="kickass" ; ', function(error, results, fields) {
+		'SELECT id, title, link FROM amazon.xunleitai where clazz <>"kickass" ; ', function(error, results, fields) {
 			if (error) {
 				console.log("select Error: " + error.message);
 				connection.end();
@@ -114,6 +114,7 @@ app.post('/detail', upload.array(), function(req, res) {
 	if(data.sub) {
 		var suffile = data.sub.substr(data.sub.lastIndexOf('/'));
 		download(data.sub, __dirname+'/'+'sub/'+data.parent+'/'+suffile, function(){
+			console.log('update amazon.xunleitai set sub = concat(sub,";'+suffile+'"); ');
 			connection.query('update amazon.xunleitai set sub = concat(sub,";'+suffile+'"); ', function(error, results) {
 				if (error) {
 					console.log('ClientConnectionReady Error: ' + error.message);

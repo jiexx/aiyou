@@ -233,6 +233,7 @@ connection.connect(function(error, results) {
 });
 process.on('uncaughtException', function (err) {
     console.log('uncaughtException:'+err);
+	err = ''+err;
 	if(err.indexOf('socket hang up')>=0){
 		imgDownload(rows, rows.length-1);
 	}
