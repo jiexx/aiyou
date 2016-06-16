@@ -40,7 +40,7 @@ var rows = [];
 function selectSubRows(){
 	console.log('downSub');
 	connection.query(
-		'SELECT id, title, link FROM amazon.xunleitai where clazz <>"kickass" ; ', function(error, results, fields) {
+		'SELECT id, subtitle, link FROM amazon.xunleitai where clazz <>"kickass" and (subtitle is not null or subtitle <> ""); ', function(error, results, fields) {
 			if (error) {
 				console.log("select Error: " + error.message);
 				connection.end();
@@ -57,11 +57,9 @@ function selectSubRows(){
 			
 			for(var a in results) {
 				var row = results[a];
-				if (!fs.existsSync('sub/'+row.id)) {
-					fs.mkdirSync('sub/'+row.id);
-				}
-				if(row.title) {
-					rows.push({id:row.id, link:row.link, uri:'http://www.subhd.com/search/'+encodeURI(row.title)});
+				
+				if(row.subtitle) {
+					rows.push({id:row.id, link:row.link, uri:'http://www.subhd.com/search/'+encodeURI(row.subtitle)});
 				}
 			}
 			if (rows.length > 0) {
@@ -82,7 +80,7 @@ app.get('/', function (req, res) {
 
 function download(uri, filename, callback){
 	request.head(uri, function(err, res, body){
-		console.log('uri:', uri);
+		console.log('----------------------------------------   >>   uri:'+ decodeURI(uri));
 		if(res) {
 			console.log('content-type:', res.headers['content-type']);
 			console.log('content-length:', res.headers['content-length']);
@@ -95,12 +93,12 @@ function download(uri, filename, callback){
 				}
 			});*/
 			var writestrm = request(uri).pipe(fs.createWriteStream(filename));
-			writestrm.on('error', function(){
+			writestrm.on('error', function(err){
+				console.log('----------------------------------------   >>'+err);
 				fs.appendFile('sub.txt', 'ERR_LINKS_IMG '+uri+'\n', 'utf-8', function (err) {});
 			});
 			writestrm.on('finish', callback);
 		}
-		fs.appendFile('sub.txt', 'SUC_LINKS_IMG '+uri+'\n', 'utf-8', function (err) {console.log('DOWN SUB :  '+err)});
 	});
 };
 
@@ -108,13 +106,16 @@ app.post('/detail', upload.array(), function(req, res) {
 	
 	//console.log(">>>>>>>>>>>>>>"+decodeURI(decodeURI(req.body.encode)));
 	var data = JSON.parse(decodeURI(decodeURI(req.body.encode)));
-	console.log('[app] [REST/detail] '+__dirname+'/'+'sub/'+data.parent+'/'+data.name+data.sub.substr(data.sub.lastIndexOf('.')));
+	console.log('----------------------------------------   >>[app] [REST/detail] '+__dirname+'/'+'sub/'+data.parent+'/'+data.sub.substr(data.sub.lastIndexOf('.')));
+	console.log('----------------------------------------   >>[app] [REST/detail] suffile:'+data.sub.substr(data.sub.lastIndexOf('/')+1) );
+	console.log('----------------------------------------   >>[app] [REST/detail] parent:'+data.parent );
 	
 	us.visitedFetchUrl(data.id);
 	if(data.sub) {
-		var suffile = data.sub.substr(data.sub.lastIndexOf('/'));
+		var suffile = data.sub.substr(data.sub.lastIndexOf('/')+1);
+		console.log('----------------------------------------   >>   suffile:'+ suffile);
 		download(data.sub, __dirname+'/'+'sub/'+data.parent+'/'+suffile, function(){
-			console.log('update amazon.xunleitai set sub = concat(sub,";'+suffile+'"); ');
+			console.log('----------------------------------------   >>  update amazon.xunleitai set sub = concat(sub,";'+suffile+'"); ');
 			connection.query('update amazon.xunleitai set sub = concat(sub,";'+suffile+'"); ', function(error, results) {
 				if (error) {
 					console.log('ClientConnectionReady Error: ' + error.message);
@@ -158,6 +159,12 @@ app.post('/redirect', upload.array(), function(req, res) {
 		var fetch = URL.createByParent(data.fetchLinks[i], data.parent);
 		us.addFetchUrl(fetch);
 	}
+	console.log('----------------------------------------   >>   existsSync:'+ 'sub/'+data.id);
+	if (!fs.existsSync('sub/'+data.id)) {
+		fs.mkdirSync('sub/'+data.id);
+	}
+	
+	console.log(decodeURI(JSON.stringify(rows[0])));
 
 	if (rows.length > 0) {
 		us.addRedirectUrl(URL.createByParent(rows[0].uri, rows[0].id));
