@@ -26,9 +26,9 @@ function imgDownload(set, i){
 				fs.appendFile('img.txt', 'ERR_THUMB_IMG '+set[i]+'\n', 'utf-8', function (err) {});
 				return;
 			}
-			var h = (150.0/ image.width() ) * image.height();
+			var h = (130.0/ image.width() ) * image.height();
 			image.batch()
-			.resize(150, h)
+			.resize(130, h)
 			.writeFile(__dirname+'\\'+'thumb\\'+set[i],function(err, image){
 				console.log('done '+set[i]);
 				if(i >= 1) {

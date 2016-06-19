@@ -16,9 +16,9 @@ var browser = require('casper').create({
 });
 phantom.outputEncoding = "GBK";
 
-
+console.log('---------------------------');
 if (browser.cli.args.length % 3 != 0) {
-	console.log('Usage: browser-redirect.js <some ID> <some URL>' );
+	console.log('Usage: browser-redirect.js <some ID> <some URL> <some Parent> NOT num:'+browser.cli.get(0) );
 	browser.exit();
 }
 

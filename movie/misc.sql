@@ -7,7 +7,7 @@ drop table amazon.xunleitai;
 create table amazon.xunleitai(id varchar(64), clazz varchar(8), quality varchar(16), title varchar(256), download text, downtxt text, image varchar(256), publishtime varchar(128), type varchar(64), area varchar(64), director varchar(256), actor varchar(256), comment text, link varchar(256), redirect varchar(256), sub text, subtitle varchar(256));
 
 
-LOAD DATA LOCAL INFILE 'D:\\newwww\\kickass.csv' INTO TABLE amazon.xunleitai character set utf8 FIELDS TERMINATED BY ';' ENCLOSED BY '"' LINES TERMINATED BY '\n';
+LOAD DATA LOCAL INFILE 'D:\\project\\aiyou\\movie\\db.csv' INTO TABLE amazon.movie character set utf8 FIELDS TERMINATED BY ',' ENCLOSED BY '"' LINES TERMINATED BY '\n';
 
 alter table  amazon.movie add column clazz varchar(8);
 set sql_safe_updates = 0;

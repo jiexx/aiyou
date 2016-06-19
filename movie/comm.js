@@ -2,12 +2,13 @@ exports.conf = {
 	WEB: {
 		HOST: '127.0.0.1',
 		port: 8082,
-		remote: 'http://127.0.0.1:8081',
+		remote: 'http://127.0.0.1:8082',
 	},
 	DB: {
 		HOST: '127.0.0.1',
 		user : 'root',
 		password : '1234',
+		MOVIETABLE: 'amazon.movie',
 	}
 };
 

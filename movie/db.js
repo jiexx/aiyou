@@ -42,17 +42,17 @@ exports.getWaterfalls = function(opt, callback) {
 		}
 		if(type && type != '类型'){
 			start = opt.page*offset;
-			var sql = "SELECT id, SUBSTRING_INDEX(title,'迅雷下载',1) as title, image, publishtime FROM amazon.xunleitai WHERE type = ? LIMIT ?, ?; ";
+			var sql = "SELECT id, SUBSTRING_INDEX(title,'迅雷下载',1) as title, image, publishtime FROM "+comm.conf.DB.MOVIETABLE+" WHERE type = ? LIMIT ?, ?; ";
 			exec(connection, sql, [type, start, offset], callback);
 		}else if(search){
 			start = 0;
-			var sql = "SELECT id, SUBSTRING_INDEX(title,'迅雷下载',1) as title, image, publishtime FROM amazon.xunleitai WHERE title LIKE '%"+search+"%' LIMIT ?, ?; ";
+			var sql = "SELECT id, SUBSTRING_INDEX(title,'迅雷下载',1) as title, image, publishtime FROM "+comm.conf.DB.MOVIETABLE+" WHERE title LIKE '%"+search+"%' LIMIT ?, ?; ";
 			exec(connection, sql, [ start, offset], callback);
 		}else{
-			var sql = "SELECT id, SUBSTRING_INDEX(title,'迅雷下载',1) as title, image, publishtime FROM amazon.xunleitai LIMIT ?, ?; ";
+			var sql = "SELECT id, SUBSTRING_INDEX(title,'迅雷下载',1) as title, image, publishtime FROM "+comm.conf.DB.MOVIETABLE+" LIMIT ?, ?; ";
 			exec(connection, sql, [start, offset], callback);
 		}
-		//console.log(sql + ' ' + start + ' ' +offset +' search:'+search+ ' type:'+type);
+		//console.log(sql + ' ' + start + ' ' +offset +" search:"+search+ ' type:"+type);
 	});
 };
 
@@ -63,7 +63,7 @@ exports.getDetail = function(id, callback) {
 			callback(true); 
 			return;
 		}
-		var sql = "SELECT * FROM amazon.xunleitai WHERE id = ?; ";
+		var sql = "SELECT * FROM "+comm.conf.DB.MOVIETABLE+" WHERE id = ?; ";
 		exec(connection, sql, [id], callback);
 	});
 };
@@ -75,7 +75,7 @@ exports.getType = function(callback) {
 			callback(true); 
 			return;
 		}
-		var sql = "SELECT distinct(type) FROM amazon.xunleitai WHERE type is not null AND  type <>''; ";
+		var sql = "SELECT distinct(type) FROM "+comm.conf.DB.MOVIETABLE+" WHERE type is not null AND  type <>''; ";
 		exec(connection, sql, [], callback);
 	});
 };

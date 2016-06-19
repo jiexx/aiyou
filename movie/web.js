@@ -110,7 +110,7 @@ app.get('/waterfall', upload.array(), function(req, res) {
 	var pg = parseInt(req.query.page)-1;//req.body.page;
 	var t = req.query.type;
 	var s = req.query.search;
-	
+
 	db.getWaterfalls({page:pg,type:t,search:s}, function(error, results){
 		if(!error && results.length > 0) {
 			res.render('waterfall', {
