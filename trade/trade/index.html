@@ -1,0 +1,96 @@
+<html>
+ <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+    <title>股票模拟</title>
+    <!--https://github.com/ajoslin/angular-mobile-nav[if lte IE 8]><script language="javascript" type="text/javascript" src="../excanvas.min.js"></script><![endif]-->
+    <script language="javascript" type="text/javascript" src="./jquery.js"></script>
+    <script language="javascript" type="text/javascript" src="./jquery.flot.js"></script>
+	<script type="text/css">
+		.container {
+
+		}
+		#placeholder {
+			display:inline-block;  
+		};
+		.log {
+			display:inline-block;
+			color: red;
+		}
+	</script>
+ </head>
+    <body>
+    <h1>WSCN股票模拟</h1>
+
+	<div class="container">
+		<div id="placeholder" style="width:600px;height:300px;"></div>
+		<div class="log">
+			<div><input type="button" value="随机生成订单"></input></div>
+			<div>depth.log 买卖日志/每秒20档</div>
+			<div>trade.log 交易日志/撮合成交</div>
+			<div>order.log 订单日志</div>
+			<div>client.log 限价单日志</div>
+		</div>
+	<div>
+<script type="text/javascript">
+$(function () {
+    // we use an inline data source in the example, usually data would
+    // be fetched from a server
+    var data = [], totalPoints = 300;
+    function getRandomData() {
+        if (data.length > 0)
+            data = data.slice(1);
+
+        // do a random walk
+        while (data.length < totalPoints) {
+            var prev = data.length > 0 ? data[data.length - 1] : 50;
+            var y = prev + Math.random() * 10 - 5;
+            if (y < 0)
+                y = 0;
+            if (y > 100)
+                y = 100;
+            data.push(y);
+        }
+
+        // zip the generated y values with the x values
+        var res = [];
+        for (var i = 0; i < data.length; ++i)
+            res.push([i, data[i]])
+        return res;
+    }
+
+    // setup control widget
+    var updateInterval = 30;
+    $("#updateInterval").val(updateInterval).change(function () {
+        var v = $(this).val();
+        if (v && !isNaN(+v)) {
+            updateInterval = +v;
+            if (updateInterval < 1)
+                updateInterval = 1;
+            if (updateInterval > 2000)
+                updateInterval = 2000;
+            $(this).val("" + updateInterval);
+        }
+    });
+
+    // setup plot
+    var options = {
+        series: { shadowSize: 0 }, // drawing is faster without shadows
+        yaxis: { min: 0, max: 100 },
+        xaxis: { show: false }
+    };
+    var plot = $.plot($("#placeholder"), [ getRandomData() ], options);
+
+    function update() {
+        plot.setData([ getRandomData() ]);
+        // since the axes don't change, we don't need to call plot.setupGrid()
+        plot.draw();
+        
+        setTimeout(update, updateInterval);
+    }
+
+    update();
+});
+</script>
+
+ </body>
+</html>
