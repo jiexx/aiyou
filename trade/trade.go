@@ -62,7 +62,7 @@ func (a *Actor)TradePartial(amount int) {
 
 
 func (a *Actor)Receive(o chan Order, q chan OrderList, QUIT chan int) {
-	result := a.dones;
+	var result Order;
 	for {
 		select {
 		case order := <-o:
@@ -70,7 +70,7 @@ func (a *Actor)Receive(o chan Order, q chan OrderList, QUIT chan int) {
 			a.handle(orders, order);
 			a.mux.Unlock();
 		case q <- result:
-			result = a.dones;
+			result = a.dones[0];
 		case <-QUIT:
 			fmt.Println("Quit!")
 			return
@@ -96,14 +96,36 @@ func (a *Actor)Cancel(id unit64) boolean {
 	return result;
 }
 
+func (a *Actor)Print() [20]Order {
+	var result [20]Order;
+	lenOrders := len(a.orders);
+	a.mux.Lock();
+	if lenOrders >= 20 {
+		for i := 0 ; i < 20 ; i ++ {
+			result[i] = a.orders[i];
+		}
+	}else {
+		for i := 0 ; i < lenOrders ; i ++ {
+			result[i] = a.orders[i];
+		}
+		for i := lenOrders ; i < 20 ; i ++ {
+			result[i] = Order{};
+		}
+	}
+	a.mux.Unlock();
+	return result;
+}
+
 type Trade struct {
-	time string;
-	price float64;
-	amount int;
+	time string `json:"time"`;
+	buy_id uint64 `json:"buy_id"`;
+	sell_id uint64 `json:"sell_id"`;
+	price float64 `json:"price"`;
+	amount int `json:"amount"`;
 }
 
 type Agent struct {
-	dones Trade[];
+	dones []Trade;
 	marketPrice float64;
 	seller Actor;
 	buyer Actor;
@@ -115,15 +137,15 @@ func (a *Agent)Trade() {
 	if a.buyer.orders[0] != nil && a.seller.orders[0] != nil && a.buyer.orders[0].price >= a.seller.orders[0].price {
 		var amount =  a.buyer.orders[0].amount - a.seller.orders[0].amount;
 		if amount < 0 {
-			a.dones.append(Order{time.Now().Format("2006-01-02 15:04:05"), price, -amount});
+			a.dones.append(Order{time.Now().Format("2006-01-02 15:04:05"), a.buyer.orders[0].order_id, a.seller.orders[0].order_id, a.buyer.orders[0].price, a.buyer.orders[0].amount});
 			a.buyer.TradeOver();
 			a.seller.TradePartial(a.buyer.orders[0].amount);
 		}else if amount > 0 {
-			a.dones.append(Order{time.Now().Format("2006-01-02 15:04:05"), price, amount});
+			a.dones.append(Order{time.Now().Format("2006-01-02 15:04:05"), a.buyer.orders[0].order_id, a.seller.orders[0].order_id, a.seller.orders[0].price, a.seller.orders[0].amount});
 			a.buyer.TradePartial(a.seller.orders[0].amount);
 			a.seller.TradeOver();
 		}else {
-			a.dones.append(Order{time.Now().Format("2006-01-02 15:04:05"), price, a.buyer.orders[0].amount});
+			a.dones.append(Order{time.Now().Format("2006-01-02 15:04:05"), a.buyer.orders[0].order_id, a.seller.orders[0].order_id, a.seller.orders[0].price, a.seller.orders[0].amount});
 			a.buyer.TradeOver();
 			a.seller.TradeOver();
 		}
@@ -133,7 +155,7 @@ func (a *Agent)Trade() {
 
 func (a *Agent)Deal(q chan Trade, QUIT chan int) {
 	tick := time.Tick(100 * time.Millisecond);
-	result := a.dones;
+	var result Trade;
 	for {
 		select {
 		case <-tick:
@@ -143,7 +165,7 @@ func (a *Agent)Deal(q chan Trade, QUIT chan int) {
 			a.buyer.mux.Unlock();
 			a.seller.mux.Unlock();
 		case q <- result:
-			result = a.dones;
+			result = a.dones[0];
 		case <-QUIT:
 			fmt.Println("Quit!")
 			return
@@ -168,6 +190,11 @@ var agent Agent;
 var lock = sync.RWMutex{};
 var global_id uint64{0};
 var conn []*websocket.Conn;
+type Log struct {
+	price string `json:"marketPrice"`;
+	trade Trade `json:"trade"`;
+	order Order `json:"order"`;
+}
 func echoHandler(ws *websocket.Conn) {
 	defer func() {
 		ws.Close()
@@ -175,19 +202,41 @@ func echoHandler(ws *websocket.Conn) {
 	conn = append(conn, ws);
 	for {
 		select {
-		case o := <- agent.seller.c_query:
-			log.Println("Send:", msg)
+		case o := <- agent.c_query:
+			fmt.Println("Send:", o)
 			for i, c := range conn {
-				str := fmt.Sprint(o);
-				err := c.Write(str);
+				log := Log{price:agent.marketPrice, trade:o};
+				//str := fmt.Sprint(o);
+				//err := c.Write(str);
+				err != websocket.JSON.Send(c.ws, log);
+				if err != nil {
+					fmt.Println("Sender Closing", err);
+					conn = append(conn[:i],conn[i:]...);
+				}
+			}
+		case s := <- agent.seller.c_query:
+			fmt.Println("Send:", s);
+			for i, c := range conn {
+				log := Log{order:s};
+				err != websocket.JSON.Send(c.ws, log);
+				if err != nil {
+					fmt.Println("Sender Closing", err);
+					conn = append(conn[:i],conn[i:]...);
+				}
+			}
+		case b := <- agent.buyer.c_query:
+			fmt.Println("Send:", b);
+			for i, c := range conn {
+				log := Log{order:b};
+				err != websocket.JSON.Send(c.ws, log);
 				if err != nil {
 					fmt.Println("Sender Closing", err);
 					conn = append(conn[:i],conn[i:]...);
 				}
 			}
 		case <-agent.c_quit:
-			fmt.Println("Quit!")
-			return
+			fmt.Println("Quit!");
+			return;
 		}
 	}
 }
@@ -202,13 +251,12 @@ func main() {
         rest.Get("/order/", MakeOrder),
 		//rest.Get("/cancel/:id", CancelOrder),
 		rest.Get("/cancel", CancelOrder),
-		rest.Get("/query", QueryOrder),
     )
     if err != nil {
         log.Fatal(err)
     }
     api.SetApp(router)
-	http.Handle("/", http.FileServer(http.Dir("./trade")));
+	http.Handle("/", http.FileServer(http.Dir("./test")));
     log.Fatal(http.ListenAndServe(":8080", api.MakeHandler()))
 	
 	go func() {
@@ -224,8 +272,9 @@ type OrderRequest {
 	amount int;
 }
 type OrderResponse {
-	result boolean,
-	order_id int
+	result boolean;
+	order_id int;
+	type string;
 }
 
 func MakeOrder(w rest.ResponseWriter, r *rest.Request) {
@@ -239,16 +288,16 @@ func MakeOrder(w rest.ResponseWriter, r *rest.Request) {
     }
 	pri := order_req.price;
 	result := false;
-	if string.contains(order_req.symbol, "market") {
+	if string.contains(order_req.type, "market") {
 		pri := agent.marketPrice;
 	}
-    if string.contains(order_req.symbol, "buy") {
+    if string.contains(order_req.type, "buy") {
 		if pri <= agent.marketPrice * 1.1 {
 			o := Order{	time:time.Now().Format("2006-01-02 15:04:05"), global_id, type:order_req.type, price:pri, status:""};
 			agent.buyer.c_order <- o;
 			result = true;
 		}
-	}else if string.contains(order_req.symbol, "sell") {
+	}else if string.contains(order_req.type, "sell") {
 		if pri >= agent.marketPrice * 0.9 {
 			o := Order{	time:time.Now().Format("2006-01-02 15:04:05"), global_id, type:order_req.type, price:pri, status:""};
 			agent.seller.c_order <- o;
@@ -258,27 +307,41 @@ func MakeOrder(w rest.ResponseWriter, r *rest.Request) {
 	global_id ++;
     lock.RUnlock()
 	
-    w.WriteJson(OrderResponse{result, global_id});
+    w.WriteJson(OrderResponse{result, order_req.type, global_id});
 }
-
+type CancleRequest {
+	symbol string;
+	type string;
+	order_id int;
+}
 func CancelOrder(w rest.ResponseWriter, r *rest.Request) {
     //code := r.PathParam("code")
 
     lock.RLock()
 	
     decoder := json.NewDecoder(r.Body)
-    var order_req OrderRequest   
+    var order_req CancleRequest   
     err := decoder.Decode(&order_req)
     if err != nil {
         panic()
     }
 	result := false;
-	if string.contains(order_req.symbol, "buy") {
+	if string.contains(order_req.type, "buy") {
 		result = agent.buyer.Cancel(order_req.order_id);
-	}else if string.contains(order_req.symbol, "sell") {
+	}else if string.contains(order_req.type, "sell") {
 		result = agent.seller.Cancel(order_req.order_id);
 	}
     lock.RUnlock()
 	
-    w.WriteJson(OrderResponse{result, order_req.order_id}); 
+    w.WriteJson(OrderResponse{result, order_req.type, order_req.order_id}); 
+}
+func DepthOrder(w rest.ResponseWriter, r *rest.Request) {
+    //code := r.PathParam("code")
+	var d = []Order;
+    lock.RLock()
+	append(d, agent.buyer.Print());
+	append(d, agent.seller.Print());
+    lock.RUnlock()
+	
+    w.WriteJson(d); 
 }
