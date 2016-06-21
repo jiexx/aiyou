@@ -5,87 +5,139 @@
     <!--https://github.com/ajoslin/angular-mobile-nav[if lte IE 8]><script language="javascript" type="text/javascript" src="../excanvas.min.js"></script><![endif]-->
     <script language="javascript" type="text/javascript" src="./jquery.js"></script>
     <script language="javascript" type="text/javascript" src="./jquery.flot.js"></script>
-	<script type="text/css">
-		.container {
-
+	<style type="text/css">
+		div#placeholder {
 		}
-		#placeholder {
-			display:inline-block;  
-		};
-		.log {
-			display:inline-block;
-			color: red;
+		div#log {
+			margin-left: 2em;
+			font-size: 0.5em;
 		}
-	</script>
+	</style>
  </head>
     <body>
     <h1>WSCN股票模拟</h1>
 
-	<div class="container">
+	<div id="container">
 		<div id="placeholder" style="width:600px;height:300px;"></div>
-		<div class="log">
-			<div><input type="button" value="随机生成订单"></input></div>
-			<div>depth.log 买卖日志/每秒20档</div>
-			<div>trade.log 交易日志/撮合成交</div>
-			<div>order.log 订单日志</div>
-			<div>client.log 限价单日志</div>
+		<div id="log">
+			<div><input type="button" value="开始随机生成订单"></input>订单结果:<span id="result"></span><hr></div>
+			<div>random order.log 随机下单日志<br><textarea id="rano" rows="5" cols="80" ></textarea></div>
+			<div>random cancel.log 随机撤单日志<br><textarea id="ranc" rows="5" cols="80"></textarea></div>
+			<div>depth.log 买卖日志/每秒20档<br><textarea id="depth" rows="20" cols="80"></textarea></div>
+			<div>trade.log 交易日志/撮合成交<br><textarea id="trade" rows="5" cols="80"></textarea></div>
+			<div>order.log 订单日志<br><textarea id="order" rows="5" cols="80"></textarea></div>
+			<div>client.log 限价单日志<br><textarea id="client" rows="5" cols="80"></textarea></div>
 		</div>
 	<div>
 <script type="text/javascript">
 $(function () {
     // we use an inline data source in the example, usually data would
     // be fetched from a server
-    var data = [], totalPoints = 300;
-    function getRandomData() {
-        if (data.length > 0)
-            data = data.slice(1);
-
-        // do a random walk
-        while (data.length < totalPoints) {
-            var prev = data.length > 0 ? data[data.length - 1] : 50;
-            var y = prev + Math.random() * 10 - 5;
-            if (y < 0)
-                y = 0;
-            if (y > 100)
-                y = 100;
-            data.push(y);
-        }
-
-        // zip the generated y values with the x values
-        var res = [];
-        for (var i = 0; i < data.length; ++i)
-            res.push([i, data[i]])
-        return res;
-    }
-
+    var tmp = [], totalPoints = 300, MarketPrice;
     // setup control widget
     var updateInterval = 30;
-    $("#updateInterval").val(updateInterval).change(function () {
-        var v = $(this).val();
-        if (v && !isNaN(+v)) {
-            updateInterval = +v;
-            if (updateInterval < 1)
-                updateInterval = 1;
-            if (updateInterval > 2000)
-                updateInterval = 2000;
-            $(this).val("" + updateInterval);
-        }
-    });
 
     // setup plot
     var options = {
         series: { shadowSize: 0 }, // drawing is faster without shadows
-        yaxis: { min: 0, max: 100 },
-        xaxis: { show: false }
+        yaxis: { min: 0, max: 110 },
+        xaxis: { show: false },
     };
-    var plot = $.plot($("#placeholder"), [ getRandomData() ], options);
+    var plot = $.plot($("#placeholder"), [ MarketPrice ], options);
+	
+	function getRandomType() {
+		var i = parseInt(Math.random()*10) % 4;
+		switch(i) {
+		case 0:
+			return 'buy';
+		case 1:
+			return 'sell';
+		case 2:
+			return 'buy_market';
+		case 3:
+			return 'sell_market';
+		}
+	}
+	
+	function cancelRandom(id, type) {
+		var cancel = {symbol:'WSCN' ,type:type, order_id:id,};
+		var i = parseInt(Math.random()*10) % 4;
+		if(i != 3) return;
+		$.ajax({
+			url: "http://127.0.0.1:8080/cancel",
+			data: JSON.stringify(cancel),
+			dataType: "json",
+			success:  function(msg) {
+				$("#result").html(JSON.stringify(msg));
+			},
+		});
+	}
 
     function update() {
-        plot.setData([ getRandomData() ]);
-        // since the axes don't change, we don't need to call plot.setupGrid()
+        plot.setData([ MarketPrice ]);
         plot.draw();
         
         setTimeout(update, updateInterval);
+		
+		$("button").click(function(){
+			setInterval(function(){
+				var order = {symbol:'WSCN' ,type:getRandomType(), price:parseInt(Math.random()*100)%120,amount:parseInt(Math.random()*100),};
+				$.ajax({
+					url: "http://127.0.0.1:8080/order",
+					data: JSON.stringify(order),
+					dataType: "json",
+					success:  function(msg) {
+						$("#result").html(msg);
+						var res = JSON.parse(msg);
+						cancelRandom(res.order_id, res.type);
+					},
+				});
+			}, 250);
+			
+			setInterval(function(){
+				var order = {symbol:'WSCN' ,type:getRandomType(), price:parseInt(Math.random()*100)%120,amount:parseInt(Math.random()*100),};
+				$.ajax({
+					url: "http://127.0.0.1:8080/depth",
+					data: JSON.stringify(order),
+					dataType: "json",
+					success:  function(msg) {
+						var res = JSON.parse(msg);
+						var str ='';
+						for( int i in orders ) {
+							str += JSON.stringify(orders[i])+'\n';
+						}
+						$("#depth").html(str);
+					},
+				});
+			}, 1000);
+		});
+		
+		var ws = new WebSocket("ws://127.0.0.1:8080/echo");
+        ws.onmessage = function(e) {
+			console.log("ws receive:");
+			var log = JSON.parse(e.data);
+			if (tmp.length > 0) {
+				tmp = tmp.slice(1);
+			}
+			while (tmp.length < totalPoints) {
+				tmp.push(log.marketPrice);
+			}
+			for (var i = 0; i < tmp.length; ++i) {
+				MarketPrice.push([i, tmp[i]]);
+			}
+			if(log.trade) {
+				var trade = $("#trade").append(JSON.stringify(log.trade)+'\n');
+				trade.scrollTop(trade[0].scrollHeight - trade.height());
+			}else if(log.order) {
+				var order = $("#order").append(JSON.stringify(log.order)+'\n');
+				order.scrollTop(order[0].scrollHeight - order.height());
+				if(order.symbol == "buy" || order.symbol == "sell") {
+					var client = $("#client").append(JSON.stringify(log.order)+'\n');
+					client.scrollTop(client[0].scrollHeight - client.height());
+				}
+			}
+        };
+
     }
 
     update();
