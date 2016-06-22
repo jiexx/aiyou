@@ -20,7 +20,7 @@
 	<div id="container">
 		<div id="placeholder" style="width:600px;height:300px;"></div>
 		<div id="log">
-			<div><input type="button" value="开始随机生成订单"></input>订单结果:<span id="result"></span><hr></div>
+			<div><input id="button" type="button" value="开始随机生成订单"></input>订单结果:<span id="result"></span><hr></div>
 			<div>random order.log 随机下单日志<br><textarea id="rano" rows="5" cols="80" ></textarea></div>
 			<div>random cancel.log 随机撤单日志<br><textarea id="ranc" rows="5" cols="80"></textarea></div>
 			<div>depth.log 买卖日志/每秒20档<br><textarea id="depth" rows="20" cols="80"></textarea></div>
@@ -33,7 +33,7 @@
 $(function () {
     // we use an inline data source in the example, usually data would
     // be fetched from a server
-    var tmp = [], totalPoints = 300, MarketPrice;
+    var tmp = [], totalPoints = 300, MarketPrice=[];
     // setup control widget
     var updateInterval = 30;
 
@@ -60,7 +60,7 @@ $(function () {
 	}
 	
 	function cancelRandom(id, type) {
-		var cancel = {symbol:'WSCN' ,type:type, order_id:id,};
+		var cancel = {symbol:'WSCN' ,clazz:type, order_id:id,};
 		var i = parseInt(Math.random()*10) % 4;
 		if(i != 3) return;
 		$.ajax({
@@ -72,6 +72,38 @@ $(function () {
 			},
 		});
 	}
+	$("#button").click(function(){
+		//setInterval(function(){
+			var order = {symbol:'WSCN' ,clazz:getRandomType(), price:parseInt(Math.random()*100)%120,amount:parseInt(Math.random()*100),};
+			$.ajax({
+				url: "http://127.0.0.1:8081/order",
+				data: JSON.stringify(order),
+				dataType: "json",
+				success:  function(msg) {
+					$("#result").html(msg);
+					var res = JSON.parse(msg);
+					cancelRandom(res.order_id, res.clazz);
+				},
+			});
+		//}, 250);
+		
+		/*setInterval(function(){
+			var order = {symbol:'WSCN' ,type:getRandomType(), price:parseInt(Math.random()*100)%120,amount:parseInt(Math.random()*100),};
+			$.ajax({
+				url: "http://127.0.0.1:8080/depth",
+				data: JSON.stringify(order),
+				dataType: "json",
+				success:  function(msg) {
+					var res = JSON.parse(msg);
+					var str ='';
+					for( int i in orders ) {
+						str += JSON.stringify(orders[i])+'\n';
+					}
+					$("#depth").html(str);
+				},
+			});
+		}, 1000);*/
+	});
 
     function update() {
         plot.setData([ MarketPrice ]);
@@ -79,40 +111,7 @@ $(function () {
         
         setTimeout(update, updateInterval);
 		
-		$("button").click(function(){
-			setInterval(function(){
-				var order = {symbol:'WSCN' ,type:getRandomType(), price:parseInt(Math.random()*100)%120,amount:parseInt(Math.random()*100),};
-				$.ajax({
-					url: "http://127.0.0.1:8080/order",
-					data: JSON.stringify(order),
-					dataType: "json",
-					success:  function(msg) {
-						$("#result").html(msg);
-						var res = JSON.parse(msg);
-						cancelRandom(res.order_id, res.type);
-					},
-				});
-			}, 250);
-			
-			setInterval(function(){
-				var order = {symbol:'WSCN' ,type:getRandomType(), price:parseInt(Math.random()*100)%120,amount:parseInt(Math.random()*100),};
-				$.ajax({
-					url: "http://127.0.0.1:8080/depth",
-					data: JSON.stringify(order),
-					dataType: "json",
-					success:  function(msg) {
-						var res = JSON.parse(msg);
-						var str ='';
-						for( int i in orders ) {
-							str += JSON.stringify(orders[i])+'\n';
-						}
-						$("#depth").html(str);
-					},
-				});
-			}, 1000);
-		});
-		
-		var ws = new WebSocket("ws://127.0.0.1:8080/echo");
+		/*var ws = new WebSocket("ws://127.0.0.1:8080/echo");
         ws.onmessage = function(e) {
 			console.log("ws receive:");
 			var log = JSON.parse(e.data);
@@ -136,7 +135,7 @@ $(function () {
 					client.scrollTop(client[0].scrollHeight - client.height());
 				}
 			}
-        };
+        };*/
 
     }
 

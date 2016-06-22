@@ -2,7 +2,7 @@ package main
 
 import (
 	"encoding/json"
-    "github.com/ant0ine/go-json-rest/rest"
+    //"github.com/ant0ine/go-json-rest/rest"
     "log"
     "net/http"
 	//"io"
@@ -11,6 +11,9 @@ import (
 	"fmt"
 	"golang.org/x/net/websocket"
 	"strings"
+	"reflect"
+	//"bytes"
+
 )
 
 type Order struct {
@@ -75,10 +78,12 @@ func (a *Actor)Receive(o chan Order, q chan Order, QUIT chan int) {
 		select {
 		case order := <-o:
 			a.mux.Lock();
+			fmt.Println("Receive", order);
 			a.h.handle(order);
 			a.mux.Unlock();
 		case q <- result:
 			result = a.dones[0];
+			fmt.Println("result", result);
 		case <-QUIT:
 			fmt.Println("Quit!")
 			return
@@ -202,7 +207,6 @@ func makeAgent() Agent {
 	return a;
 }
 var agent Agent;
-var lock = sync.RWMutex{};
 var global_id uint64;
 var conn []*websocket.Conn;
 type Log struct {
@@ -218,7 +222,7 @@ func echoHandler(ws *websocket.Conn) {
 	for {
 		select {
 		case o := <- agent.c_query:
-			fmt.Println("Send:", o)
+			fmt.Println("agent Send:", o)
 			for i, c := range conn {
 				log := Log{price:agent.marketPrice, trade:o};
 				//str := fmt.Sprint(o);
@@ -230,7 +234,7 @@ func echoHandler(ws *websocket.Conn) {
 				}
 			}
 		case s := <- agent.seller.c_query:
-			fmt.Println("Send:", s);
+			fmt.Println("seller Send:", s);
 			for i, c := range conn {
 				log := Log{order:s};
 				err := websocket.JSON.Send(c, log);
@@ -240,7 +244,7 @@ func echoHandler(ws *websocket.Conn) {
 				}
 			}
 		case b := <- agent.buyer.c_query:
-			fmt.Println("Send:", b);
+			fmt.Println("buyer Send:", b);
 			for i, c := range conn {
 				log := Log{order:b};
 				err := websocket.JSON.Send(c, log);
@@ -257,34 +261,26 @@ func echoHandler(ws *websocket.Conn) {
 }
 
 func main() {
-	
 	agent = makeAgent();
 	global_id = 0;
-    api := rest.NewApi()
-    api.Use(rest.DefaultDevStack...)
-    router, err := rest.MakeRouter(
-        rest.Get("/order/", MakeOrder),
-		//rest.Get("/cancel/:id", CancelOrder),
-		rest.Get("/cancel", CancelOrder),
-    )
-    if err != nil {
-        log.Fatal(err)
-    }
-    api.SetApp(router)
-	http.Handle("/", http.FileServer(http.Dir("./test")));
-    log.Fatal(http.ListenAndServe(":8080", api.MakeHandler()))
-	
 	go func() {
 		http.Handle("/echo", websocket.Handler(echoHandler))
-		log.Fatal(http.ListenAndServe(":8081", nil));
+		fmt.Println("SockServer/echo at 8082");
+		log.Fatal(http.ListenAndServe(":8082", nil));
 	}()
-	
+    mux := http.NewServeMux()
+ 	mux.HandleFunc("/order", MakeOrder)
+	mux.HandleFunc("/cancel", CancelOrder)
+
+	fmt.Println("WebServer at 8081");
+	http.Handle("/", http.FileServer(http.Dir("./test")));
+ 	http.ListenAndServe(":8081", mux)
 }
 type OrderRequest struct{
-	symbol string;
-	clazz string;
-	price float64;
-	amount int;
+	symbol string `json:"symbol"`;
+	clazz string `json:"clazz"`;
+	price float64 `json:"price"`;
+	amount int `json:"amount"`;
 }
 type OrderResponse struct{
 	result bool `json:"result"`;
@@ -292,73 +288,88 @@ type OrderResponse struct{
 	clazz string `json:"clazz"`;
 }
 
-func MakeOrder(w rest.ResponseWriter, r *rest.Request) {
-    lock.RLock()
-	
-    decoder := json.NewDecoder(r.Body)
-    var order_req OrderRequest   
-    err := decoder.Decode(&order_req)
-    if err != nil {
-        lock.RUnlock();
-        w.WriteJson("ERR");
-    }
-	pri := order_req.price;
+func MakeOrder(w http.ResponseWriter, r *http.Request) {
 	result := false;
-	if strings.Contains(order_req.clazz, "market") {
-		pri = agent.marketPrice;
-	}
-    if strings.Contains(order_req.clazz, "buy") {
-		if pri <= agent.marketPrice * 1.1 {
-			o := Order{	time:time.Now().Format("2006-01-02 15:04:05"), order_id:global_id, clazz:order_req.clazz, price:pri, status:""};
-			agent.buyer.c_order <- o;
-			result = true;
+	var order_req OrderRequest;
+	if r.Method == "GET" {
+		jsonDataFromHttp := reflect.ValueOf(r.URL.Query()).MapKeys();
+		str := fmt.Sprint(jsonDataFromHttp[0]);
+		fmt.Println("MakeOrder====", str);
+		err := json.Unmarshal([]byte(str), &order_req)
+		fmt.Println("MakeOrder---", order_req, "---",err);
+		if err != nil {
+			fmt.Println("MakeOrder", order_req);
+			pri := order_req.price;
+			
+			if strings.Contains(order_req.clazz, "market") {
+				pri = agent.marketPrice;
+			}
+			if strings.Contains(order_req.clazz, "buy") {
+				if pri <= agent.marketPrice * 1.1 {
+					o := Order{	time:time.Now().Format("2006-01-02 15:04:05"), order_id:global_id, clazz:order_req.clazz, price:pri, status:""};
+					agent.buyer.c_order <- o;
+					result = true;
+				}
+			}else if strings.Contains(order_req.clazz, "sell") {
+				if pri >= agent.marketPrice * 0.9 {
+					o := Order{	time:time.Now().Format("2006-01-02 15:04:05"), order_id:global_id, clazz:order_req.clazz, price:pri, status:""};
+					agent.seller.c_order <- o;
+					result = true;
+				}
+			}
+			global_id ++;
 		}
-	}else if strings.Contains(order_req.clazz, "sell") {
-		if pri >= agent.marketPrice * 0.9 {
-			o := Order{	time:time.Now().Format("2006-01-02 15:04:05"), order_id:global_id, clazz:order_req.clazz, price:pri, status:""};
-			agent.seller.c_order <- o;
-			result = true;
-		}
 	}
-	global_id ++;
-    lock.RUnlock()
+	if result == true {
+		js, _ := json.Marshal(OrderResponse{result, fmt.Sprint(global_id), order_req.clazz});	
+		w.Write([]byte(js));
+	}else {
+		js, _ := json.Marshal(OrderResponse{result, "0", order_req.clazz});
+		w.Write([]byte(js));
+	}
 	
-    w.WriteJson(OrderResponse{result, fmt.Sprint(global_id), order_req.clazz});
 }
 type CancleRequest struct{
 	symbol string;
 	clazz string;
 	order_id uint64;
 }
-func CancelOrder(w rest.ResponseWriter, r *rest.Request) {
+func CancelOrder(w http.ResponseWriter, r *http.Request) {
     //code := r.PathParam("code")
-
-    lock.RLock()
-	
-    decoder := json.NewDecoder(r.Body)
-    var order_req CancleRequest   
-    err := decoder.Decode(&order_req)
-    if err != nil {
-		lock.RUnlock();
-        w.WriteJson("ERR");
-    }
 	result := false;
-	if strings.Contains(order_req.clazz, "buy") {
-		result = agent.buyer.Cancel(order_req.order_id);
-	}else if strings.Contains(order_req.clazz, "sell") {
-		result = agent.seller.Cancel(order_req.order_id);
+	var order_req CancleRequest;
+	if r.Method == "GET" {
+		decoder := json.NewDecoder(r.Body)
+		err := decoder.Decode(&order_req);
+		fmt.Println("CancelOrder---", order_req);
+		if err != nil {
+			if strings.Contains(order_req.clazz, "buy") {
+				result = agent.buyer.Cancel(order_req.order_id);
+			}else if strings.Contains(order_req.clazz, "sell") {
+				result = agent.seller.Cancel(order_req.order_id);
+			}
+		}
 	}
-    lock.RUnlock()
-	
-    w.WriteJson(OrderResponse{result, fmt.Sprint(order_req.order_id), order_req.clazz}); 
+	if result == true {
+		js, _ := json.Marshal(OrderResponse{result, fmt.Sprint(global_id), order_req.clazz});	
+		w.Write([]byte(js));
+	}else {
+		js, _ := json.Marshal(OrderResponse{result, "0", order_req.clazz});
+		w.Write([]byte(js));
+	}
 }
-func DepthOrder(w rest.ResponseWriter, r *rest.Request) {
-    //code := r.PathParam("code")
+func DepthOrder(w http.ResponseWriter, r *http.Request) {
+    result := false;
 	var d []Order;
-    lock.RLock()
-	d = append(d, agent.buyer.Print()...);
-	d = append(d, agent.seller.Print()...);
-    lock.RUnlock()
-	
-    w.WriteJson(d); 
+	if r.Method == "GET" {
+		d = append(d, agent.buyer.Print()...);
+		d = append(d, agent.seller.Print()...);
+	}
+	if result == true {
+		js, _ := json.Marshal(d);	
+		w.Write([]byte(js));
+	}else {
+		js, _ := json.Marshal(d);
+		w.Write([]byte(js));
+	}
 }
