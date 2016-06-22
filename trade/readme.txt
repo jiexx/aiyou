@@ -8,4 +8,12 @@ copy(b, a)
 7) Insert a new slice of length j at index i: a = append(a[:i], append(make([]T,j), a[i:]...)...)
 8) Insert an existing slice b at index i: a = append(a[:i], append(b,a[i:]...)...)
 9) Pop highest element from stack: x, a = a[len(a)-1], a[:len(a)-1]
-10) Push an element x on a stack: a = append(a, x)
+10) Push an element x on a stack: a = append(a, x)  
+func (this S) MarshalJSON() ([]byte, error) {  
+    return json.Marshal(map[string]interface{}{  
+        "a": this.a,  
+        "b": this.b,  
+        "c": this.c,  
+        "d": this.d,  
+    })  
+}  
