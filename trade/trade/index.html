@@ -60,7 +60,7 @@ $(function () {
 	}
 	
 	function cancelRandom(id, type) {
-		var cancel = {symbol:'WSCN' ,clazz:type, order_id:id,};
+		var cancel = {Symbol:'WSCN' ,Clazz:type, Order_id:id,};
 		var i = parseInt(Math.random()*10) % 4;
 		if(i != 3) return;
 		$.ajax({
@@ -74,15 +74,14 @@ $(function () {
 	}
 	$("#button").click(function(){
 		//setInterval(function(){
-			var order = {symbol:'WSCN' ,clazz:getRandomType(), price:parseInt(Math.random()*100)%120,amount:parseInt(Math.random()*100),};
+			var order = {Symbol:'WSCN' ,Clazz:getRandomType(), Price:parseInt(Math.random()*100)%120,Amount:parseInt(Math.random()*100),};
 			$.ajax({
 				url: "http://127.0.0.1:8081/order",
 				data: JSON.stringify(order),
 				dataType: "json",
 				success:  function(msg) {
-					$("#result").html(msg);
-					var res = JSON.parse(msg);
-					cancelRandom(res.order_id, res.clazz);
+					$("#result").html(JSON.stringify(msg));
+					//cancelRandom(msg.Order_id, msg.Clazz);
 				},
 			});
 		//}, 250);
@@ -104,6 +103,32 @@ $(function () {
 			});
 		}, 1000);*/
 	});
+	var ws = new WebSocket("ws://127.0.0.1:8082/echo");
+	ws.onmessage = function(e) {
+		console.log("ws receive:"+e.data);
+		var log = JSON.parse(e.data);
+		if(!log.MarketPrice) return;
+		if (tmp.length > 0) {
+			tmp = tmp.slice(1);
+		}
+		while (tmp.length < totalPoints) {
+			tmp.push(log.marketPrice);
+		}
+		for (var i = 0; i < tmp.length; ++i) {
+			MarketPrice.push([i, tmp[i]]);
+		}
+		if(log.trade) {
+			var trade = $("#trade").append(JSON.stringify(log.trade)+'\n');
+			trade.scrollTop(trade[0].scrollHeight - trade.height());
+		}else if(log.order) {
+			var order = $("#order").append(JSON.stringify(log.order)+'\n');
+			order.scrollTop(order[0].scrollHeight - order.height());
+			if(order.symbol == "buy" || order.symbol == "sell") {
+				var client = $("#client").append(JSON.stringify(log.order)+'\n');
+				client.scrollTop(client[0].scrollHeight - client.height());
+			}
+		}
+	};
 
     function update() {
         plot.setData([ MarketPrice ]);
@@ -111,31 +136,7 @@ $(function () {
         
         setTimeout(update, updateInterval);
 		
-		/*var ws = new WebSocket("ws://127.0.0.1:8080/echo");
-        ws.onmessage = function(e) {
-			console.log("ws receive:");
-			var log = JSON.parse(e.data);
-			if (tmp.length > 0) {
-				tmp = tmp.slice(1);
-			}
-			while (tmp.length < totalPoints) {
-				tmp.push(log.marketPrice);
-			}
-			for (var i = 0; i < tmp.length; ++i) {
-				MarketPrice.push([i, tmp[i]]);
-			}
-			if(log.trade) {
-				var trade = $("#trade").append(JSON.stringify(log.trade)+'\n');
-				trade.scrollTop(trade[0].scrollHeight - trade.height());
-			}else if(log.order) {
-				var order = $("#order").append(JSON.stringify(log.order)+'\n');
-				order.scrollTop(order[0].scrollHeight - order.height());
-				if(order.symbol == "buy" || order.symbol == "sell") {
-					var client = $("#client").append(JSON.stringify(log.order)+'\n');
-					client.scrollTop(client[0].scrollHeight - client.height());
-				}
-			}
-        };*/
+		/**/
 
     }
 
