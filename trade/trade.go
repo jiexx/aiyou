@@ -1,16 +1,22 @@
+package main
+
 import (
 	"encoding/json"
     "github.com/ant0ine/go-json-rest/rest"
     "log"
     "net/http"
-	"io"
+	//"io"
+	"sync"
+	"time"
+	"fmt"
 	"golang.org/x/net/websocket"
+	"strings"
 )
 
 type Order struct {
 	time string;
 	order_id uint64;
-	type string;
+	clazz string;
 	price float64;
 	amount int;
 	status string;
@@ -19,55 +25,57 @@ type Order struct {
 type SellOrders []Order;
 type BuyOrders []Order;
 
-func (a *BuyOrders) handle(o Order) {
+func (a BuyOrders) handle(o Order) {
 	for i := 0 ; i < len(a) ; i ++ {
 		if o.price > a[i].price {
-			a = append(a[:i], append(o,a[i:]...)...)
+			a = append(a[:i], append([]Order{o},a[i:]...)...);
+			return;
 		}
 	}
 }
 
-func (a *SellOrders) handle(o Order) {
+func (a SellOrders) handle(o Order) {
 	for i := 0 ; i < len(a) ; i ++ {
 		if o.price <= a[i].price {
-			a = append(a[:i], append(o,a[i:]...)...)
+			a = append(a[:i], append([]Order{o},a[i:]...)...);
+			return;
 		}
 	}
 }
 
-type Hander interface {
+type Handler interface {
 	handle(o Order);
 }
 
 type Actor struct {
-	Agent* agent;
+	agent *Agent;
 	orders []Order;
 	dones []Order;
-	handler Hander;
-	mux Sync.Mux;
+	h Handler;
+	mux sync.Mutex;
 	c_query chan Order;
 	c_order chan Order;
 }
 
 func (a *Actor)TradeOver() {
-	append(a.dones, Order{time.Now().Format("2006-01-02 15:04:05"), a.orders[0].order_id, a.orders[0].type, a.orders[0].price, a.orders[0].amount});
+	a.dones = append(a.dones, Order{time.Now().Format("2006-01-02 15:04:05"), a.orders[0].order_id, a.orders[0].clazz, a.orders[0].price, a.orders[0].amount, "whole"});
 	a.orders = append(a.orders[:0], a.orders[1:]...);
 }
 
 func (a *Actor)TradePartial(amount int) {
-	append(a.dones, Order{time.Now().Format("2006-01-02 15:04:05"), a.orders[0].order_id, a.orders[0].type, a.orders[0].price, amount});
+	a.dones = append(a.dones, Order{time.Now().Format("2006-01-02 15:04:05"), a.orders[0].order_id, a.orders[0].clazz, a.orders[0].price, amount, "partial"});
 	a.orders[0].amount = amount;
 }
 
 
 
-func (a *Actor)Receive(o chan Order, q chan OrderList, QUIT chan int) {
+func (a *Actor)Receive(o chan Order, q chan Order, QUIT chan int) {
 	var result Order;
 	for {
 		select {
 		case order := <-o:
 			a.mux.Lock();
-			a.handle(orders, order);
+			a.h.handle(order);
 			a.mux.Unlock();
 		case q <- result:
 			result = a.dones[0];
@@ -81,23 +89,26 @@ func (a *Actor)Receive(o chan Order, q chan OrderList, QUIT chan int) {
 	}
 }
 
-func (a *Actor)Cancel(id unit64) boolean {
-	a.mux.Lock();
-	i := 0;
+func (a *Actor)Cancel(id uint64) bool {
 	result := false;
-	for  ; i < len(a) ; i ++ {
-		if o.order_id == id {
+	ol := &a.orders;
+	i := 0;
+	a.mux.Lock();
+	for ; i < len(*ol) ; i ++ {
+		if (*ol)[i].order_id == id {
 			result = true;
 			break;
 		}
 	}
-	a.orders = append(a[:i], append(o,a[i:]...)...);
+	if result == true {
+		*ol = append((*ol)[:i], (*ol)[i+1:]...);
+	}
 	a.mux.Unlock();
 	return result;
 }
 
-func (a *Actor)Print() [20]Order {
-	var result [20]Order;
+func (a *Actor)Print() []Order {
+	var result []Order;
 	lenOrders := len(a.orders);
 	a.mux.Lock();
 	if lenOrders >= 20 {
@@ -127,29 +138,33 @@ type Trade struct {
 type Agent struct {
 	dones []Trade;
 	marketPrice float64;
-	seller Actor;
-	buyer Actor;
+	seller *Actor;
+	buyer *Actor;
 	c_query chan Trade;
 	c_quit chan int;
 }
 
 func (a *Agent)Trade() {
-	if a.buyer.orders[0] != nil && a.seller.orders[0] != nil && a.buyer.orders[0].price >= a.seller.orders[0].price {
-		var amount =  a.buyer.orders[0].amount - a.seller.orders[0].amount;
-		if amount < 0 {
-			a.dones.append(Order{time.Now().Format("2006-01-02 15:04:05"), a.buyer.orders[0].order_id, a.seller.orders[0].order_id, a.buyer.orders[0].price, a.buyer.orders[0].amount});
-			a.buyer.TradeOver();
-			a.seller.TradePartial(a.buyer.orders[0].amount);
-		}else if amount > 0 {
-			a.dones.append(Order{time.Now().Format("2006-01-02 15:04:05"), a.buyer.orders[0].order_id, a.seller.orders[0].order_id, a.seller.orders[0].price, a.seller.orders[0].amount});
-			a.buyer.TradePartial(a.seller.orders[0].amount);
-			a.seller.TradeOver();
-		}else {
-			a.dones.append(Order{time.Now().Format("2006-01-02 15:04:05"), a.buyer.orders[0].order_id, a.seller.orders[0].order_id, a.seller.orders[0].price, a.seller.orders[0].amount});
-			a.buyer.TradeOver();
-			a.seller.TradeOver();
+	if len(a.buyer.orders) > 0 && len(a.buyer.orders) > 0 {
+		bo := a.buyer.orders[0];
+		so := a.seller.orders[0];
+		if  bo.price >= so.price {
+			var amount =  bo.amount - so.amount;
+			if amount < 0 {
+				a.dones = append(a.dones, Trade{time.Now().Format("2006-01-02 15:04:05"), bo.order_id, so.order_id, bo.price, bo.amount});
+				a.buyer.TradeOver();
+				a.seller.TradePartial(a.buyer.orders[0].amount);
+			}else if amount > 0 {
+				a.dones = append(a.dones, Trade{time.Now().Format("2006-01-02 15:04:05"), bo.order_id, so.order_id, so.price, so.amount});
+				a.buyer.TradePartial(a.seller.orders[0].amount);
+				a.seller.TradeOver();
+			}else {
+				a.dones = append(a.dones, Trade{time.Now().Format("2006-01-02 15:04:05"), bo.order_id, so.order_id, so.price, so.amount});
+				a.buyer.TradeOver();
+				a.seller.TradeOver();
+			}
+			a.marketPrice = bo.price;
 		}
-		a.marketPrice = a.buyer.orders[0].price;
 	}
 }
 
@@ -177,8 +192,8 @@ func (a *Agent)Deal(q chan Trade, QUIT chan int) {
 }
 func makeAgent() Agent {
 	a := Agent{marketPrice:100.0, c_query:make(chan Trade), c_quit:make(chan int)};
-	a.seller := Actor{agent:a, handle:&SellOrders{}, c_query:make(chan OrderList), c_order:make(chan Order)};
-	a.buyer := Actor{agent:a, handle:&BuyOrders{}, c_query:make(chan OrderList), c_order:make(chan Order)};
+	a.seller = &Actor{agent:&a, h:&SellOrders{}, c_query:make(chan Order), c_order:make(chan Order)};
+	a.buyer = &Actor{agent:&a, h:&BuyOrders{}, c_query:make(chan Order), c_order:make(chan Order)};
 	
 	go a.Deal(a.c_query, a.c_quit);
 	go a.seller.Receive(a.seller.c_order, a.seller.c_query, a.c_quit);
@@ -188,10 +203,10 @@ func makeAgent() Agent {
 }
 var agent Agent;
 var lock = sync.RWMutex{};
-var global_id uint64{0};
+var global_id uint64;
 var conn []*websocket.Conn;
 type Log struct {
-	price string `json:"marketPrice"`;
+	price float64 `json:"marketPrice"`;
 	trade Trade `json:"trade"`;
 	order Order `json:"order"`;
 }
@@ -208,7 +223,7 @@ func echoHandler(ws *websocket.Conn) {
 				log := Log{price:agent.marketPrice, trade:o};
 				//str := fmt.Sprint(o);
 				//err := c.Write(str);
-				err != websocket.JSON.Send(c.ws, log);
+				err := websocket.JSON.Send(c, log);
 				if err != nil {
 					fmt.Println("Sender Closing", err);
 					conn = append(conn[:i],conn[i:]...);
@@ -218,7 +233,7 @@ func echoHandler(ws *websocket.Conn) {
 			fmt.Println("Send:", s);
 			for i, c := range conn {
 				log := Log{order:s};
-				err != websocket.JSON.Send(c.ws, log);
+				err := websocket.JSON.Send(c, log);
 				if err != nil {
 					fmt.Println("Sender Closing", err);
 					conn = append(conn[:i],conn[i:]...);
@@ -228,7 +243,7 @@ func echoHandler(ws *websocket.Conn) {
 			fmt.Println("Send:", b);
 			for i, c := range conn {
 				log := Log{order:b};
-				err != websocket.JSON.Send(c.ws, log);
+				err := websocket.JSON.Send(c, log);
 				if err != nil {
 					fmt.Println("Sender Closing", err);
 					conn = append(conn[:i],conn[i:]...);
@@ -243,8 +258,8 @@ func echoHandler(ws *websocket.Conn) {
 
 func main() {
 	
-	agent := makeAgent();
-	
+	agent = makeAgent();
+	global_id = 0;
     api := rest.NewApi()
     api.Use(rest.DefaultDevStack...)
     router, err := rest.MakeRouter(
@@ -265,16 +280,16 @@ func main() {
 	}()
 	
 }
-type OrderRequest {
+type OrderRequest struct{
 	symbol string;
-	type string;
+	clazz string;
 	price float64;
 	amount int;
 }
-type OrderResponse {
-	result boolean;
-	order_id int;
-	type string;
+type OrderResponse struct{
+	result bool `json:"result"`;
+	order_id string `json:"order_id"`;
+	clazz string `json:"clazz"`;
 }
 
 func MakeOrder(w rest.ResponseWriter, r *rest.Request) {
@@ -284,22 +299,23 @@ func MakeOrder(w rest.ResponseWriter, r *rest.Request) {
     var order_req OrderRequest   
     err := decoder.Decode(&order_req)
     if err != nil {
-        panic()
+        lock.RUnlock();
+        w.WriteJson("ERR");
     }
 	pri := order_req.price;
 	result := false;
-	if string.contains(order_req.type, "market") {
-		pri := agent.marketPrice;
+	if strings.Contains(order_req.clazz, "market") {
+		pri = agent.marketPrice;
 	}
-    if string.contains(order_req.type, "buy") {
+    if strings.Contains(order_req.clazz, "buy") {
 		if pri <= agent.marketPrice * 1.1 {
-			o := Order{	time:time.Now().Format("2006-01-02 15:04:05"), global_id, type:order_req.type, price:pri, status:""};
+			o := Order{	time:time.Now().Format("2006-01-02 15:04:05"), order_id:global_id, clazz:order_req.clazz, price:pri, status:""};
 			agent.buyer.c_order <- o;
 			result = true;
 		}
-	}else if string.contains(order_req.type, "sell") {
+	}else if strings.Contains(order_req.clazz, "sell") {
 		if pri >= agent.marketPrice * 0.9 {
-			o := Order{	time:time.Now().Format("2006-01-02 15:04:05"), global_id, type:order_req.type, price:pri, status:""};
+			o := Order{	time:time.Now().Format("2006-01-02 15:04:05"), order_id:global_id, clazz:order_req.clazz, price:pri, status:""};
 			agent.seller.c_order <- o;
 			result = true;
 		}
@@ -307,12 +323,12 @@ func MakeOrder(w rest.ResponseWriter, r *rest.Request) {
 	global_id ++;
     lock.RUnlock()
 	
-    w.WriteJson(OrderResponse{result, order_req.type, global_id});
+    w.WriteJson(OrderResponse{result, fmt.Sprint(global_id), order_req.clazz});
 }
-type CancleRequest {
+type CancleRequest struct{
 	symbol string;
-	type string;
-	order_id int;
+	clazz string;
+	order_id uint64;
 }
 func CancelOrder(w rest.ResponseWriter, r *rest.Request) {
     //code := r.PathParam("code")
@@ -323,24 +339,25 @@ func CancelOrder(w rest.ResponseWriter, r *rest.Request) {
     var order_req CancleRequest   
     err := decoder.Decode(&order_req)
     if err != nil {
-        panic()
+		lock.RUnlock();
+        w.WriteJson("ERR");
     }
 	result := false;
-	if string.contains(order_req.type, "buy") {
+	if strings.Contains(order_req.clazz, "buy") {
 		result = agent.buyer.Cancel(order_req.order_id);
-	}else if string.contains(order_req.type, "sell") {
+	}else if strings.Contains(order_req.clazz, "sell") {
 		result = agent.seller.Cancel(order_req.order_id);
 	}
     lock.RUnlock()
 	
-    w.WriteJson(OrderResponse{result, order_req.type, order_req.order_id}); 
+    w.WriteJson(OrderResponse{result, fmt.Sprint(order_req.order_id), order_req.clazz}); 
 }
 func DepthOrder(w rest.ResponseWriter, r *rest.Request) {
     //code := r.PathParam("code")
-	var d = []Order;
+	var d []Order;
     lock.RLock()
-	append(d, agent.buyer.Print());
-	append(d, agent.seller.Print());
+	d = append(d, agent.buyer.Print()...);
+	d = append(d, agent.seller.Print()...);
     lock.RUnlock()
 	
     w.WriteJson(d); 
