@@ -227,13 +227,14 @@ func (a *Agent)Trade() {
 			}
 			fmt.Println("Trade result", t);
 			a.c_query <- t;
-			a.marketPrice = bo.price;
+			a.marketPrice = so.price;
+			fmt.Println("Trade marketPrice", a.marketPrice, so.price);
 		}
 	}
 }
 
 func (a *Agent)Deal(q chan Trade, QUIT chan int) {
-	tick := time.Tick(100 * time.Millisecond);
+	tick := time.Tick(200 * time.Millisecond);
 	//result := Trade{};
 	for {
 		select {

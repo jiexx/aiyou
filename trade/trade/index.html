@@ -94,7 +94,7 @@ $(function () {
 			});
 		}, 1000);
 	$("#button").click(function(){
-		//setInterval(function(){
+		setInterval(function(){
 			var order = {Symbol:'WSCN' ,Clazz:getRandomType(), Price:parseInt(Math.random()*100)%120,Amount:parseInt(Math.random()*100),};
 			$.ajax({
 				url: "http://127.0.0.1:8081/order",
@@ -105,7 +105,7 @@ $(function () {
 					//cancelRandom(msg.Order_id, msg.Clazz);
 				},
 			});
-		//}, 250);
+		}, 250);
 	});
 	var ws = new WebSocket("ws://127.0.0.1:8082/echo");
 	ws.onmessage = function(e) {
