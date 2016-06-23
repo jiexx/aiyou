@@ -34,34 +34,58 @@ func (g Order) MarshalJSON() ([]byte, error) {
 		"status": g.status, 
     })  
 }
-type SellOrders []Order;
-type BuyOrders []Order;
+type SellOrders struct {
+	orders []Order;
+}
+type BuyOrders struct {
+	orders []Order;
+}
 
-func (a BuyOrders) handle(o Order) {
-	for i := 0 ; i < len(a) ; i ++ {
-		if o.price > a[i].price {
-			a = append(a[:i], append([]Order{o},a[i:]...)...);
+func (a *BuyOrders) handle(o Order) {
+	if len(a.orders) == 0 {
+		a.orders = append(a.orders, o);
+		fmt.Println("BuyOrders", a, a.orders);
+		return;
+	}
+	for i := 0 ; i < len(a.orders) ; i ++ {
+		if o.price > a.orders[i].price {
+			a.orders = append(a.orders[:i], append([]Order{o},a.orders[i:]...)...);
+			fmt.Println("BuyOrders", a.orders);
 			return;
 		}
 	}
 }
+func (a *BuyOrders) get() *[]Order {
+	//fmt.Println("Get BuyOrders", a.orders);
+	return &a.orders;
+}
 
-func (a SellOrders) handle(o Order) {
-	for i := 0 ; i < len(a) ; i ++ {
-		if o.price <= a[i].price {
-			a = append(a[:i], append([]Order{o},a[i:]...)...);
+func (a *SellOrders) handle(o Order) {
+	if len(a.orders) == 0 {
+		a.orders = append(a.orders, o);
+		fmt.Println("SellOrders", a, a.orders);
+		return;
+	}
+	for i := 0 ; i < len(a.orders) ; i ++ {
+		if o.price <= a.orders[i].price {
+			a.orders = append(a.orders[:i], append([]Order{o},a.orders[i:]...)...);
+			fmt.Println("SellOrders", a.orders);
 			return;
 		}
 	}
+}
+func (a *SellOrders) get() *[]Order {
+	//fmt.Println("Get SellOrders", a.orders);
+	return &a.orders;
 }
 
 type Handler interface {
 	handle(o Order);
+	get() *[]Order;
 }
 
 type Actor struct {
 	agent *Agent;
-	orders []Order;
 	dones []Order;
 	h Handler;
 	mux sync.Mutex;
@@ -70,19 +94,26 @@ type Actor struct {
 }
 
 func (a *Actor)TradeOver() {
-	a.dones = append(a.dones, Order{time.Now().Format("2006-01-02 15:04:05"), a.orders[0].order_id, a.orders[0].clazz, a.orders[0].price, a.orders[0].amount, "whole"});
-	a.orders = append(a.orders[:0], a.orders[1:]...);
+	ol := a.h.get();
+	o := Order{time.Now().Format("2006-01-02 15:04:05"), (*ol)[0].order_id, (*ol)[0].clazz, (*ol)[0].price, (*ol)[0].amount, "whole"};
+	a.dones = append(a.dones, o);
+	(*ol) = append((*ol)[:0], (*ol)[1:]...);
+	fmt.Println("TradeOver result", o);
+	//a.c_query <- o;
 }
 
 func (a *Actor)TradePartial(amount int) {
-	a.dones = append(a.dones, Order{time.Now().Format("2006-01-02 15:04:05"), a.orders[0].order_id, a.orders[0].clazz, a.orders[0].price, amount, "partial"});
-	a.orders[0].amount = amount;
+	ol := a.h.get();
+	a.dones = append(a.dones, Order{time.Now().Format("2006-01-02 15:04:05"), (*ol)[0].order_id, (*ol)[0].clazz, (*ol)[0].price, amount, "partial"});
+	(*ol)[0].amount = (*ol)[0].amount - amount;
+	fmt.Println("TradePartial result", (*ol)[0]);
+	//a.c_query <- (*ol)[0];
 }
 
 
 
 func (a *Actor)Receive(o chan Order, q chan Order, QUIT chan int) {
-	result := Order{};
+	//result := Order{};
 	for {
 		select {
 		case order := <-o:
@@ -90,12 +121,13 @@ func (a *Actor)Receive(o chan Order, q chan Order, QUIT chan int) {
 			fmt.Println("Receive", order);
 			a.h.handle(order);
 			a.mux.Unlock();
-		case q <- result:
+			a.c_query <- order;
+		/*case q <- result:
 			fmt.Println("Actor result", result);
 			if len(a.dones) > 0 {
 				fmt.Println("result", result);
 				result = a.dones[0];
-			}
+			}*/
 		case <-QUIT:
 			fmt.Println("Quit!")
 			return
@@ -108,17 +140,18 @@ func (a *Actor)Receive(o chan Order, q chan Order, QUIT chan int) {
 
 func (a *Actor)Cancel(id uint64) bool {
 	result := false;
-	ol := &a.orders;
+	ol := a.h.get();
+	count := len(*ol);
 	i := 0;
 	a.mux.Lock();
-	for ; i < len(*ol) ; i ++ {
+	for ; i < count ; i ++ {
 		if (*ol)[i].order_id == id {
 			result = true;
 			break;
 		}
 	}
 	if result == true {
-		*ol = append((*ol)[:i], (*ol)[i+1:]...);
+		(*ol) = append((*ol)[:i], (*ol)[i+1:]...);
 	}
 	a.mux.Unlock();
 	return result;
@@ -126,21 +159,16 @@ func (a *Actor)Cancel(id uint64) bool {
 
 func (a *Actor)Print() []Order {
 	var result []Order;
-	lenOrders := len(a.orders);
-	a.mux.Lock();
-	if lenOrders >= 20 {
-		for i := 0 ; i < 20 ; i ++ {
-			result[i] = a.orders[i];
-		}
+	ol := a.h.get();
+	//a.mux.Lock();
+	lenOrders := len(*ol);
+	if lenOrders >= 10 {
+		result = (*ol)[:10];
 	}else {
-		for i := 0 ; i < lenOrders ; i ++ {
-			result[i] = a.orders[i];
-		}
-		for i := lenOrders ; i < 20 ; i ++ {
-			result[i] = Order{};
-		}
+		result = (*ol)[:lenOrders];
 	}
-	a.mux.Unlock();
+	//a.mux.Unlock();
+	//fmt.Println("Print", result);
 	return result;
 }
 
@@ -170,25 +198,35 @@ type Agent struct {
 }
 
 func (a *Agent)Trade() {
-	if len(a.buyer.orders) > 0 && len(a.buyer.orders) > 0 {
-		bo := a.buyer.orders[0];
-		so := a.seller.orders[0];
+	bol := a.buyer.h.get();
+	sol := a.seller.h.get();
+	//fmt.Println("To Trade", len(*bol), len(*sol));
+	if len(*bol) > 0 && len(*sol) > 0 {
+		bo := (*bol)[0];
+		so := (*sol)[0];
+		//fmt.Println("Be Trade", bo, so);
 		if  bo.price >= so.price {
 			fmt.Println("Trading", bo, so);
 			var amount =  bo.amount - so.amount;
+			var t Trade;
 			if amount < 0 {
-				a.dones = append(a.dones, Trade{time.Now().Format("2006-01-02 15:04:05"), bo.order_id, so.order_id, bo.price, bo.amount});
+				t = Trade{time.Now().Format("2006-01-02 15:04:05"), bo.order_id, so.order_id, bo.price, bo.amount};
+				a.dones = append(a.dones, t);
 				a.buyer.TradeOver();
-				a.seller.TradePartial(a.buyer.orders[0].amount);
+				a.seller.TradePartial(bo.amount);
 			}else if amount > 0 {
-				a.dones = append(a.dones, Trade{time.Now().Format("2006-01-02 15:04:05"), bo.order_id, so.order_id, so.price, so.amount});
-				a.buyer.TradePartial(a.seller.orders[0].amount);
+				t = Trade{time.Now().Format("2006-01-02 15:04:05"), bo.order_id, so.order_id, so.price, so.amount};
+				a.dones = append(a.dones, t);
+				a.buyer.TradePartial(so.amount);
 				a.seller.TradeOver();
 			}else {
-				a.dones = append(a.dones, Trade{time.Now().Format("2006-01-02 15:04:05"), bo.order_id, so.order_id, so.price, so.amount});
+				t = Trade{time.Now().Format("2006-01-02 15:04:05"), bo.order_id, so.order_id, so.price, so.amount};
+				a.dones = append(a.dones, t);
 				a.buyer.TradeOver();
 				a.seller.TradeOver();
 			}
+			fmt.Println("Trade result", t);
+			a.c_query <- t;
 			a.marketPrice = bo.price;
 		}
 	}
@@ -196,7 +234,7 @@ func (a *Agent)Trade() {
 
 func (a *Agent)Deal(q chan Trade, QUIT chan int) {
 	tick := time.Tick(100 * time.Millisecond);
-	result := Trade{};
+	//result := Trade{};
 	for {
 		select {
 		case <-tick:
@@ -205,12 +243,12 @@ func (a *Agent)Deal(q chan Trade, QUIT chan int) {
 			a.Trade();			
 			a.buyer.mux.Unlock();
 			a.seller.mux.Unlock();
-		case q <- result:
+		/*case q <- result:
 			fmt.Println("Agent result", result);
 			if len(a.dones) > 0 {
 				fmt.Println("result", result);
 				result = a.dones[0];
-			}
+			}*/
 		case <-QUIT:
 			fmt.Println("Quit!")
 			return
@@ -235,12 +273,14 @@ var agent Agent;
 var global_id uint64;
 var conn []*websocket.Conn;
 type Log struct {
+	clazz string;
 	price float64 `json:"marketPrice"`;
 	trade Trade `json:"trade"`;
 	order Order `json:"order"`;
 }
 func (g Log) MarshalJSON() ([]byte, error) {  
     return json.Marshal(map[string]interface{}{  
+		"clazz": g.clazz,  
         "price": g.price,  
         "trade": g.trade,  
         "order": g.order,  
@@ -251,19 +291,17 @@ func echoHandler(ws *websocket.Conn) {
 		ws.Close()
 	}();
 	conn = append(conn, ws);
-	//for {
+	for {
 		select {
 		case o := <- agent.c_query:
 			fmt.Println("agent Send:", o)
 			for i, c := range conn {
-				log := Log{price:agent.marketPrice, trade:o};
-				//str := fmt.Sprint(o);
-				//err := c.Write(str);
+				log := Log{price:agent.marketPrice, trade:o, clazz:"trade log"};
 				fmt.Println("agent Send", log);
-				//err := websocket.JSON.Send(c, log);
-				b, err := json.Marshal(log)
-				fmt.Println("agent Send  ----", string(b[:]));
-				err = websocket.Message.Send(c, string(b[:]));
+				err := websocket.JSON.Send(c, log);
+				//b, err := json.Marshal(log)
+				//fmt.Println("agent Send  ----", string(b[:]));
+				//err = websocket.Message.Send(c, string(b[:]));
 				if err != nil {
 					fmt.Println("agent Closing", err);
 					conn = append(conn[:i],conn[i:]...);
@@ -272,12 +310,9 @@ func echoHandler(ws *websocket.Conn) {
 		case s := <- agent.seller.c_query:
 			fmt.Println("seller Send:", s);
 			for i, c := range conn {
-				log := Log{order:s};
+				log := Log{clazz:"sell log", order:s};
 				fmt.Println("seller Send", log);
-				//err := websocket.JSON.Send(c, log);
-				b, err := json.Marshal(log)
-				fmt.Println("agent Send  ----", string(b[:]));
-				err = websocket.Message.Send(c, string(b[:]));
+				err := websocket.JSON.Send(c, log);
 				if err != nil {
 					fmt.Println("seller Closing", err);
 					conn = append(conn[:i],conn[i:]...);
@@ -286,10 +321,9 @@ func echoHandler(ws *websocket.Conn) {
 		case b := <- agent.buyer.c_query:
 			fmt.Println("buyer Send:", b);
 			for i, c := range conn {
-				log := Log{order:b};
+				log := Log{clazz:"buy log", order:b};
 				fmt.Println("buyer Send", log);
-				//err := websocket.JSON.Send(c, log);
-				err := websocket.Message.Send(c, fmt.Sprint(log));
+				err := websocket.JSON.Send(c, log);
 				if err != nil {
 					fmt.Println("buyer Closing", err);
 					conn = append(conn[:i],conn[i:]...);
@@ -299,7 +333,7 @@ func echoHandler(ws *websocket.Conn) {
 			fmt.Println("Quit!");
 			return;
 		}
-	//}
+	}
 }
 
 func main() {
@@ -312,6 +346,7 @@ func main() {
 	}()
     mux := http.NewServeMux()
  	mux.HandleFunc("/order", MakeOrder)
+	mux.HandleFunc("/depth", DepthOrder)
 	mux.HandleFunc("/cancel", CancelOrder)
 
 	fmt.Println("WebServer at 8081");
@@ -337,7 +372,7 @@ func MakeOrder(w http.ResponseWriter, r *http.Request) {
 		jsonDataFromHttp := reflect.ValueOf(r.URL.Query()).MapKeys();
 		str := fmt.Sprint(jsonDataFromHttp[0]);
 		err := json.Unmarshal([]byte(str), &order_req)
-		if err == nil {
+		if err == nil && order_req.Amount > 0 {
 			fmt.Println("MakeOrder", order_req);
 			pri := order_req.Price;
 			
@@ -400,18 +435,21 @@ func CancelOrder(w http.ResponseWriter, r *http.Request) {
 		w.Write([]byte(js));
 	}
 }
+
 func DepthOrder(w http.ResponseWriter, r *http.Request) {
     result := false;
 	var d []Order;
 	if r.Method == "GET" {
 		d = append(d, agent.buyer.Print()...);
 		d = append(d, agent.seller.Print()...);
+		fmt.Println("Print", d);
+		result = true;
 	}
+	w.Header().Set("Access-Control-Allow-Origin", "*")
 	if result == true {
-		js, _ := json.Marshal(d);	
-		w.Write([]byte(js));
-	}else {
 		js, _ := json.Marshal(d);
 		w.Write([]byte(js));
+	}else {
+		w.Write([]byte(""));
 	}
 }
