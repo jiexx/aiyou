@@ -19,9 +19,10 @@
     <h1>WSCN股票模拟</h1>
 
 	<div id="container">
+		<span>股票实时价格</span>
 		<div id="placeholder" style="width:600px;height:300px;"></div>
 		<div id="log">
-			<div><input id="button" type="button" value="开始随机生成订单"></input>当前交易价:<span id="price"></span>订单结果:<span id="result"></span><hr></div>
+			<div><input id="button" type="button" style="background-color:green;border:0"value="开始随机生成订单"></input>当前交易价:<span id="price"></span>订单结果:<span id="result"></span><hr></div>
 			<div>random order.log 随机下单日志<br><textarea id="rano" rows="5" cols="150" ></textarea></div>
 			<div>random cancel.log 随机撤单日志<br><textarea id="ranc" rows="5" cols="150"></textarea></div>
 			<div>depth.log 买卖日志/每秒20档<br><textarea id="depth" rows="20" cols="150"></textarea></div>
@@ -34,9 +35,23 @@
 $(function () {
     // we use an inline data source in the example, usually data would
     // be fetched from a server
-    var tmp = [], totalPoints = 300, MarketPrice = [];
+    var tmp = [], totalPoints = 300, Price = 100.0;
     // setup control widget
-    var updateInterval = 30;
+    var updateInterval = 80;
+	for(var i = 0; i < totalPoints; i++) {
+		tmp.push(Price);
+	}
+	function getMarketPrice() {
+		var MarketPrice = [];
+		if(tmp.length >= totalPoints) {
+			tmp = tmp.slice(1);
+			tmp.push(Price);
+		}
+		for (var i = 0; i < tmp.length; ++i) {
+			MarketPrice.push([i, tmp[i]]);
+		}
+		return MarketPrice;
+	}
 
     // setup plot
     var options = {
@@ -44,10 +59,9 @@ $(function () {
         yaxis: { min: 0, max: 110 },
         xaxis: { show: false },
     };
-    var plot = $.plot($("#placeholder"), [ MarketPrice ], options);
 	
 	function getRandomType() {
-		var i = parseInt(Math.random()*10) % 4;
+		var i = parseInt(Math.random()*10) % 2;
 		switch(i) {
 		case 0:
 			return 'buy';
@@ -93,37 +107,45 @@ $(function () {
 				},
 			});
 		}, 1000);
+	var go = null;
 	$("#button").click(function(){
-		setInterval(function(){
-			var order = {Symbol:'WSCN' ,Clazz:getRandomType(), Price:parseInt(Math.random()*100)%120,Amount:parseInt(Math.random()*100),};
-			$.ajax({
-				url: "http://127.0.0.1:8081/order",
-				data: JSON.stringify(order),
-				dataType: "json",
-				success:  function(msg) {
-					$("#result").html(JSON.stringify(msg));
-					//cancelRandom(msg.Order_id, msg.Clazz);
-				},
-			});
-		}, 250);
+		if(!go) {
+			$("#button").val("停止随机生成订单");
+			$("#button").css("background-color","red");
+			go = setInterval(function(){
+				var pri = parseInt(Math.random()*100)%120;
+				var typ = getRandomType();
+				var order = {Symbol:'WSCN' ,Clazz:typ, Price:pri,Amount:parseInt(Math.random()*100),};
+				$.ajax({
+					url: "http://127.0.0.1:8081/order",
+					data: JSON.stringify(order),
+					dataType: "json",
+					success:  function(msg) {
+						$("#result").html(JSON.stringify(msg));
+						var rano = $("#rano").append(typ+'   '+pri+'   '+msg.result+'\n');
+						rano.scrollTop(rano[0].scrollHeight - rano.height());
+						if(!msg.result) {
+							var client = $("#client").append(JSON.stringify(msg)+'\n');
+							client.scrollTop(client[0].scrollHeight - client.height());
+						}
+						//cancelRandom(msg.Order_id, msg.Clazz);
+					},
+				});
+			}, 250);
+		}else {
+			$("#button").val("开始随机生成订单");
+			$("#button").css("background-color","green");
+			clearInterval(go);
+			go = null;
+		}
 	});
 	var ws = new WebSocket("ws://127.0.0.1:8082/echo");
 	ws.onmessage = function(e) {
 		//console.log("ws receive:"+e.data);
 		var log = JSON.parse(e.data);
 		if(log.clazz == 'trade log') {
+			Price = parseFloat(log.price);
 			$("#price").html(log.price);
-			MarketPrice = null;
-			MarketPrice = [];
-			if (tmp.length > 0) {
-				tmp = tmp.slice(1);
-			}
-			while (tmp.length < totalPoints) {
-				tmp.push(log.price);
-			}
-			for (var i = 0; i < tmp.length; ++i) {
-				MarketPrice.push([i, tmp[i]]);
-			}
 		}
 		if(log.clazz == 'trade log') {
 			var trade = $("#trade").append(JSON.stringify(log.trade)+'\n');
@@ -133,9 +155,10 @@ $(function () {
 			order.scrollTop(order[0].scrollHeight - order.height());
 		}
 	};
-
+	var plot = $.plot($("#placeholder"), [getMarketPrice()], options);
+	
     function update() {
-        plot.setData([ MarketPrice ]);
+        plot.setData([ getMarketPrice() ]);
         plot.draw();
         
         setTimeout(update, updateInterval);
