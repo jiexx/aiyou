@@ -106,17 +106,15 @@ app.post('/detail', upload.array(), function(req, res) {
 	
 	//console.log(">>>>>>>>>>>>>>"+decodeURI(decodeURI(req.body.encode)));
 	var data = JSON.parse(decodeURI(decodeURI(req.body.encode)));
-	console.log('----------------------------------------   >>[app] [REST/detail] '+__dirname+'/'+'sub/'+data.parent+'/'+data.sub.substr(data.sub.lastIndexOf('.')));
-	console.log('----------------------------------------   >>[app] [REST/detail] suffile:'+data.sub.substr(data.sub.lastIndexOf('/')+1) );
-	console.log('----------------------------------------   >>[app] [REST/detail] parent:'+data.parent );
-	
+
 	us.visitedFetchUrl(data.id);
 	if(data.sub) {
 		var suffile = data.sub.substr(data.sub.lastIndexOf('/')+1);
-		console.log('----------------------------------------   >>   suffile:'+ suffile);
+		console.log('----------------------------------------   >>   download from uri:'+data.sub+' :'+fs.existsSync('sub/'+data.parent)+' '+data.parent);
+		console.log('----------------------------------------   >>   download to:'+ __dirname+'/'+'sub/'+data.parent+'/'+suffile);
 		download(data.sub, __dirname+'/'+'sub/'+data.parent+'/'+suffile, function(){
-			console.log('----------------------------------------   >>  update amazon.xunleitai set sub = concat(sub,";'+suffile+'"); ');
-			connection.query('update amazon.xunleitai set sub = concat(sub,";'+suffile+'"); ', function(error, results) {
+			console.log('----------------------------------------   >>  update amazon.xunleitai set sub = concat("'+suffile+';", sub) where id='+data.parent+'; ');
+			connection.query('update amazon.xunleitai set sub = concat("'+suffile+';", sub) where id="'+data.parent+'"; ', function(error, results) {
 				if (error) {
 					console.log('ClientConnectionReady Error: ' + error.message);
 					return;
@@ -153,17 +151,18 @@ app.post('/redirect', upload.array(), function(req, res) {
 	}
 
 	us.visitedRedirectUrl(data.id);
-	fs.appendFile('redirects.txt', 'SUCCESS       '+data.fetchLinks+'\n', 'utf-8', function (err) {});
 	
 	for ( var i = 0 ; i < data.fetchLinks.length ; i ++ ) {
-		var fetch = URL.createByParent(data.fetchLinks[i], data.parent);
-		us.addFetchUrl(fetch);
-	}
-	console.log('----------------------------------------   >>   existsSync:'+ 'sub/'+data.id);
-	if (!fs.existsSync('sub/'+data.id)) {
-		fs.mkdirSync('sub/'+data.id);
-	}
-	
+		if (!fs.existsSync('sub/'+data.parent)) {
+			(function(i) {
+			fs.mkdir('sub/'+data.parent, function(){
+				console.log('-------------------------> mkdir: ' + 'sub/'+data.parent+ ' '+data.fetchLinks[i]);
+				var fetch = URL.createByParent(data.fetchLinks[i], data.parent);
+				us.addFetchUrl(fetch);
+			});
+			}(i));
+		}
+	}	
 	console.log(decodeURI(JSON.stringify(rows[0])));
 
 	if (rows.length > 0) {
@@ -195,9 +194,6 @@ var server = app
 					}
 					if (!fs.existsSync('sub')) {
 						fs.mkdirSync('sub');
-					}
-					if (!fs.existsSync('bt')) {
-						fs.mkdirSync('bt');
 					}
 					selectSubRows();
 				});
