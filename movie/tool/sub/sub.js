@@ -155,12 +155,20 @@ app.post('/redirect', upload.array(), function(req, res) {
 	for ( var i = 0 ; i < data.fetchLinks.length ; i ++ ) {
 		if (!fs.existsSync('sub/'+data.parent)) {
 			(function(i) {
+			connection.query('update amazon.xunleitai set subtxt = '+data.fetchTitles[i]+' where id="'+data.parent+'"; ', function(error, results) {
+				if (error) {
+					console.log('ClientConnectionReady Error: ' + error.message);
+					return;
+				}
+			});
 			fs.mkdir('sub/'+data.parent, function(){
 				fs.appendFile('mkdir.txt', 'mkdir '+JSON.stringify(data)+'\n', 'utf-8', function (err) {});
 				var fetch = URL.createByParent(data.fetchLinks[i], data.parent);
 				us.addFetchUrl(fetch);
 			});
+			
 			}(i));
+			
 		}
 	}	
 	console.log(decodeURI(JSON.stringify(rows[0])));
