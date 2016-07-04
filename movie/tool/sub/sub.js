@@ -156,7 +156,7 @@ app.post('/redirect', upload.array(), function(req, res) {
 		if (!fs.existsSync('sub/'+data.parent)) {
 			(function(i) {
 			fs.mkdir('sub/'+data.parent, function(){
-				console.log('-------------------------> mkdir: ' + 'sub/'+data.parent+ ' '+data.fetchLinks[i]);
+				fs.appendFile('mkdir.txt', 'mkdir '+JSON.stringify(data)+'\n', 'utf-8', function (err) {});
 				var fetch = URL.createByParent(data.fetchLinks[i], data.parent);
 				us.addFetchUrl(fetch);
 			});
