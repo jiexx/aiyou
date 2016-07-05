@@ -110,58 +110,91 @@ for(var j = 0 ; j < num ; j ++) {
 		    var a = this.getElementsInfo(x(xpathName));
 			fetchName = a[0].text;
 		}
+		if(browser.exists(x(xpathDownload))) {
+			browser.click(x(xpathDownload));
 		
-
-		browser.click(x(xpathDownload));
-		
-		browser.then(function() {
-			console.log(">>>>>>" + this.getCurrentUrl());
-			browser.waitFor(function check() {
-				return this.evaluate(function(xselLink) {
-					//console.log(' xselLink '+document.querySelectorAll(xselLink).length);
-					return document.querySelectorAll(xselLink).length > 0
-				},xselLink);
-			}, function() {
-				//require('utils').dump(this.getElementInfo(xselLink));
-				var fetchDownloadLinks = '';
-				if(browser.exists(xselLink)){
-					fetchDownloadLinks = this.getElementAttribute(xselLink, 'href');
-				}
-				
-				
-				var result =  {
-					'id': id[k],
-					'sub': fetchDownloadLinks,
-					'name':fetchName,
-					'link':link[k],
-					'parent':parent[k]
-				};
-				//console.log('fetch '+fetchCompany);
-				var r = JSON.stringify(result);
-				console.log('fetch--------- '+r);
-				r = encodeURI(r);
-				r = encodeURI(r);
-				
-				
-				this.echo("fetch POST request will send.");
-				browser.thenOpen('http://127.0.0.1:8082/detail', {
-					headers: {
-						'Content-Type': 'application/json; charset=utf-8'
-					},
-					method: 'POST',
-					data: {encode:r}
-				}, function(response){
-					this.echo("POST fetch has been sent. "+ response.status );
-					if(response.status == 200 && this.page.content.indexOf("OK.")){
-						counter --;
-						this.echo("POST fetch exit "+counter);
-						if(counter <= 0) {
-							browser.exit();  
-						}
+			browser.then(function() {
+				console.log(">>>>>>" + this.getCurrentUrl());
+				browser.waitFor(function check() {
+					return this.evaluate(function(xselLink) {
+						//console.log(' xselLink '+document.querySelectorAll(xselLink).length);
+						return document.querySelectorAll(xselLink).length > 0
+					},xselLink);
+				}, function() {
+					//require('utils').dump(this.getElementInfo(xselLink));
+					var fetchDownloadLinks = '';
+					if(browser.exists(xselLink)){
+						fetchDownloadLinks = this.getElementAttribute(xselLink, 'href');
 					}
+					
+					
+					var result =  {
+						'id': id[k],
+						'sub': fetchDownloadLinks,
+						'name':fetchName,
+						'link':link[k],
+						'parent':parent[k]
+					};
+					//console.log('fetch '+fetchCompany);
+					var r = JSON.stringify(result);
+					console.log('fetch--------- '+r);
+					r = encodeURI(r);
+					r = encodeURI(r);
+					
+					
+					this.echo("fetch POST request will send.");
+					browser.thenOpen('http://127.0.0.1:8082/detail', {
+						headers: {
+							'Content-Type': 'application/json; charset=utf-8'
+						},
+						method: 'POST',
+						data: {encode:r}
+					}, function(response){
+						this.echo("POST fetch has been sent. "+ response.status );
+						if(response.status == 200 && this.page.content.indexOf("OK.")){
+							counter --;
+							this.echo("POST fetch exit "+counter);
+							if(counter <= 0) {
+								browser.exit();  
+							}
+						}
+					});
 				});
 			});
-		});
+		}else {
+			var result =  {
+				'id': id[k],
+				'sub': null,
+				'link':link[k],
+				'parent':parent[k]
+			};
+			//console.log('fetch '+fetchCompany);
+			var r = JSON.stringify(result);
+			console.log('fetch--------- '+r);
+			r = encodeURI(r);
+			r = encodeURI(r);
+			
+			
+			this.echo("fetch POST request will send.");
+			browser.thenOpen('http://127.0.0.1:8082/detail', {
+				headers: {
+					'Content-Type': 'application/json; charset=utf-8'
+				},
+				method: 'POST',
+				data: {encode:r}
+			}, function(response){
+				this.echo("POST fetch has been sent. "+ response.status );
+				if(response.status == 200 && this.page.content.indexOf("OK.")){
+					counter --;
+					this.echo("POST fetch exit "+counter);
+					if(counter <= 0) {
+						browser.exit();  
+					}
+				}
+			});
+		}
+
+		
 	});
 	})(j);
 }

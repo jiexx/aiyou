@@ -40,7 +40,7 @@ var rows = [];
 function selectSubRows(){
 	console.log('downSub');
 	connection.query(
-		'SELECT id, subtitle, link FROM amazon.xunleitai where clazz <>"kickass" and (subtitle is not null or subtitle <> ""); ', function(error, results, fields) {
+		'SELECT id, subtitle, link FROM amazon.xunleitai where (subtitle is not null or subtitle <> ""); ', function(error, results, fields) {
 			if (error) {
 				console.log("select Error: " + error.message);
 				connection.end();
@@ -123,13 +123,26 @@ app.post('/detail', upload.array(), function(req, res) {
 			console.log('done');
 			if(us.getCountOfFetchs() > 0) {
 				us.loopFetch();
+			}else {
+				if (rows.length > 0) {
+					while(us.getCountOfRedirects() <= 0) {
+						us.addRedirectUrl(URL.createByParent(rows[0].uri, rows[0].id));
+						rows.splice(0,1);
+					}
+					if(us.getCountOfRedirects() > 0) {
+						console.log('----------------------------------------   >>   loopRedirect:'+decodeURI(rows[0].uri)+' getCountOfRedirects:'+us.getCountOfRedirects()+' '+rows[0].id);
+						us.loopRedirect();
+					}
+				}
 			}
 		});
+	}else {
+		console.log('----------------------------------------   >>   visitedFetchUrl:'+JSON.stringify(data));
 	}
 	
 	res.send('OK.');
 });
-
+var crypto = require('crypto');
 app.post('/redirect', upload.array(), function(req, res) {
 
 	var data = JSON.parse(decodeURI(decodeURI(req.body.encode)));
@@ -155,7 +168,8 @@ app.post('/redirect', upload.array(), function(req, res) {
 	for ( var i = 0 ; i < data.fetchLinks.length ; i ++ ) {
 		if (!fs.existsSync('sub/'+data.parent)) {
 			(function(i) {
-			connection.query('update amazon.xunleitai set subtxt = '+data.fetchTitles[i]+' where id="'+data.parent+'"; ', function(error, results) {
+			console.log('----------------------------------------   >>   update subtxt:'+data.fetchTitles[i]+' id:'+data.parent);
+			connection.query('update amazon.xunleitai set subtxt = CONCAT_WS(";","'+data.fetchTitles[i]+'",subtxt) where id= "'+data.parent+'"; ', function(error, results) {
 				if (error) {
 					console.log('ClientConnectionReady Error: ' + error.message);
 					return;
@@ -166,25 +180,40 @@ app.post('/redirect', upload.array(), function(req, res) {
 				var fetch = URL.createByParent(data.fetchLinks[i], data.parent);
 				us.addFetchUrl(fetch);
 			});
-			
 			}(i));
-			
+		}else {
+			(function(i) {
+			console.log('----------------------------------------   >>   update subtxt:'+data.fetchTitles[i]+' id:'+data.parent);
+			connection.query('update amazon.xunleitai set subtxt = CONCAT_WS(";","'+data.fetchTitles[i]+'",subtxt) where id= "'+data.parent+'"; ', function(error, results) {
+				if (error) {
+					console.log('ClientConnectionReady Error: ' + error.message);
+					return;
+				}
+			});
+			fs.appendFile('mkdir.txt', 'mkdir '+JSON.stringify(data)+'\n', 'utf-8', function (err) {});
+			var fetch = URL.createByParent(data.fetchLinks[i], data.parent);
+			us.addFetchUrl(fetch);
+			}(i));
 		}
 	}	
 	console.log(decodeURI(JSON.stringify(rows[0])));
-
-	if (rows.length > 0) {
-		us.addRedirectUrl(URL.createByParent(rows[0].uri, rows[0].id));
-		rows.splice(0,1);
-	}
 	
 	res.send('OK.');
-	var x = us.getCountOfRedirects();
 
-	if(us.getCountOfRedirects() > 0) {
-		us.loopRedirect();
-	}else {
+	if(us.getCountOfFetchs() > 0) {
+		console.log('----------------------------------------   >>   loopFetch:'+decodeURI(rows[0].uri)+' getCountOfRedirects:'+us.getCountOfRedirects()+' '+rows[0].id);
 		us.loopFetch();
+	}else {
+		if (rows.length > 0) {
+			while(us.getCountOfRedirects() <= 0) {
+				us.addRedirectUrl(URL.createByParent(rows[0].uri, rows[0].id));
+				rows.splice(0,1);
+			}
+			if(us.getCountOfRedirects() > 0) {
+				console.log('----------------------------------------   >>   loopRedirect:'+decodeURI(rows[0].uri)+' getCountOfRedirects:'+us.getCountOfRedirects()+' '+rows[0].id);
+				us.loopRedirect();
+			}
+		}
 	}
 });
 
