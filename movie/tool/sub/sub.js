@@ -25,6 +25,14 @@ connection.connect(function(error, results) {
 		}
 		dbReady = true;
 	});
+	connection.query('update amazon.xunleitai set subtxt = ""; ', function(error, results) {
+		if (error) {
+			console.log('ClientConnectionReady Error: ' + error.message);
+			connection.end();
+			return;
+		}
+		dbReady = true;
+	});
 });
 var app = express();
 var router = express.Router();
@@ -92,7 +100,8 @@ function download(uri, filename, callback){
 					fs.writeFileSync(filename, body);
 				}
 			});*/
-			var writestrm = request(uri).pipe(fs.createWriteStream(filename));
+			var cookie = 'Hm_lvt_36f45ef10337991c93242d418c95baa3=1465615340,1467734736; Hm_lpvt_36f45ef10337991c93242d418c95baa3=1467735383; ci_session=80e61a667f12d0a51f6ae6b107e0c6d439558bd1';
+			var writestrm = request({url:uri,method: "GET",header:{'Cookie': cookie}}).pipe(fs.createWriteStream(filename));
 			writestrm.on('error', function(err){
 				console.log('----------------------------------------   >>'+err);
 				fs.appendFile('sub.txt', 'ERR_LINKS_IMG '+uri+'\n', 'utf-8', function (err) {});
@@ -114,7 +123,7 @@ app.post('/detail', upload.array(), function(req, res) {
 		console.log('----------------------------------------   >>   download to:'+ __dirname+'/'+'sub/'+data.parent+'/'+suffile);
 		download(data.sub, __dirname+'/'+'sub/'+data.parent+'/'+suffile, function(){
 			console.log('----------------------------------------   >>  update amazon.xunleitai set sub = concat("'+suffile+';", sub) where id='+data.parent+'; ');
-			connection.query('update amazon.xunleitai set sub = concat("'+suffile+';", sub) where id="'+data.parent+'"; ', function(error, results) {
+			connection.query('update amazon.xunleitai set sub = CONCAT_WS(";","'+suffile+'",sub) where id="'+data.parent+'"; ', function(error, results) {
 				if (error) {
 					console.log('ClientConnectionReady Error: ' + error.message);
 					return;
@@ -234,10 +243,11 @@ var server = app
 					}
 					selectSubRows();
 				});
-server.on('error', function(err) { 
-	console.log('SERVER ERR:  '+err);
+				
+server.on('error', function(err){
+    console.log('------------------!!----------------------   >> net err:'+err);
 });
-	
+
 				
 process.on('SIGINT', function() {
     console.log('Naughty SIGINT-handler');
@@ -253,7 +263,7 @@ process.on('SIGINT', function() {
     process.exit();
 });
 process.on('uncaughtException', function(err) {
-    console.log(err);
+    console.log('-------------------!!---------------------   >> uncaughtException err:'+err);
     //server.kill();
-    process.kill();
+    //process.kill();
 });
