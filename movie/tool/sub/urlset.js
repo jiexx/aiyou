@@ -20,6 +20,26 @@ var Queue = {
 		}
 	},
 	
+	killZombie: function(callback) {
+		console.log('[BROWSER] killZombie: '+ JSON.stringify(this.procs));
+		var now = (new Date()).getTime();
+		for(var i = 0 ; i < this.procs.length ; i ++ ){
+			if(now - this.procs[i].e > this.TIMEOUT * 5){
+				console.log('************************************************************************  SIGINT ' + this.procs[i].p);
+				//process.kill(this.procs[i].p, 'SIGKILL');
+				this.procs.splice(i,1);
+				var spawn = require('child_process').spawn;    
+				var proc = spawn("taskkill", ["/pid", this.procs[i].p, '/f', '/t']);
+				proc.stdout.on('data', function(data){
+					callback();
+				});
+				proc.stderr.on('data', function(data){
+					console.log('************************************************************************  NOT exist ' + this.procs[i].p);
+				});
+			}
+		}
+	},
+	
 	add: function(url) {
 		if(this.isNoVisit(url.getId())) {
 			this.urls[url.getId()] = url;
@@ -73,7 +93,7 @@ var Queue = {
 		var proc = exec.spawn('casperjs', args);
 		console.log(args.toString());
 		var pid = proc.pid;
-		this.procs.push(pid);
+		this.procs.push({p:pid,e:(new Date()).getTime()});
 		
 		
 		var _this = this;
@@ -117,13 +137,13 @@ var Queue = {
 	},
 	
 	exitProc: function(pid) {
-		console.log('[BROWSER] exitProc pid: '+pid + ' in ['+ this.procs+']');
+		console.log('[BROWSER] exitProc pid: '+pid + ' in '+ JSON.stringify(this.procs));
 		for(var i in this.procs) {
-			if(this.procs[i] == pid){
+			if(this.procs[i].p == pid){
 				this.procs.splice(i,1);
 			}
 		}
-		console.log('[BROWSER] exitProc pid: '+pid + ' in ['+ this.procs+']');
+		console.log('[BROWSER] exitProc pid: '+pid + ' in '+ JSON.stringify(this.procs));
 		if(this.getNum(this.visiting).HAS > 0) {
 			var _this = this;
 			setTimeout(function(){
@@ -165,20 +185,25 @@ var Queue = {
 		}
 		else if(this.getNum(this.procs).HAS >= this.PROCMAX) {
 			var _this = this;
-			setTimeout(function(){
+			_this.killZombie(function(){
+				_this.open();
+			});
+			/*setTimeout(function(){
 				console.log('[BROWSER] TIMEOUT TRY ' + _this.TIMEOUT_NUM + ' pid:'+ pid);
+				console.log('[BROWSER] loop pid: '+pid + ' in '+ JSON.stringify(_this.procs));
 				_this.TIMEOUT_NUM --;
 				if(_this.TIMEOUT_NUM > 0) {
 					_this.loop(pid);
 				}else {
 					if(pid) {
-						console.log('[BROWSER] SIGINT ' + pid);
+						//console.log('[BROWSER] SIGINT ' + pid);
 						//process.kill(pid, 'SIGINT');
 						_this.open();
 					}
+					
 					_this.TIMEOUT_NUM = 10;
 				}
-			},this.TIMEOUT);
+			},this.TIMEOUT);*/
 		}
 	},
 	

@@ -17,7 +17,15 @@ connection.connect(function(error, results) {
 		return;
 	}
 	console.log('Connected to MySQL');
-	connection.query('update amazon.xunleitai set sub = ""; ', function(error, results) {
+	connection.query('update amazon.xunleitai set subtitle = REPLACE(subtitle,",", " ")  where subtitle like "%,%";', function(error, results) {
+		if (error) {
+			console.log('ClientConnectionReady Error: ' + error.message);
+			connection.end();
+			return;
+		}
+		dbReady = true;
+	});
+	/*connection.query('update amazon.xunleitai set sub = "" ; ', function(error, results) {
 		if (error) {
 			console.log('ClientConnectionReady Error: ' + error.message);
 			connection.end();
@@ -32,7 +40,7 @@ connection.connect(function(error, results) {
 			return;
 		}
 		dbReady = true;
-	});
+	});*/
 });
 var app = express();
 var router = express.Router();
@@ -48,7 +56,7 @@ var rows = [];
 function selectSubRows(){
 	console.log('downSub');
 	connection.query(
-		'SELECT id, subtitle, link FROM amazon.xunleitai where (subtitle is not null or subtitle <> ""); ', function(error, results, fields) {
+		'SELECT distinct subtitle, id,  link FROM amazon.xunleitai where (subtitle is not null and subtitle <> "") and sub=""  group by id; ', function(error, results, fields) {
 			if (error) {
 				console.log("select Error: " + error.message);
 				connection.end();
@@ -61,7 +69,7 @@ function selectSubRows(){
 				fs.unlink('sub.txt');
 			}
 		
-			console.log('downSub go...'+results.length);
+			
 			
 			for(var a in results) {
 				var row = results[a];
@@ -74,6 +82,7 @@ function selectSubRows(){
 				us.addRedirectUrl(URL.createByParent(rows[0].uri, rows[0].id));
 				rows.splice(0,1);
 			}
+			console.log('downSub go...'+results.length);
 			us.loopRedirect();
 		});
 }
@@ -100,8 +109,7 @@ function download(uri, filename, callback){
 					fs.writeFileSync(filename, body);
 				}
 			});*/
-			var cookie = 'Hm_lvt_36f45ef10337991c93242d418c95baa3=1465615340,1467734736; Hm_lpvt_36f45ef10337991c93242d418c95baa3=1467735383; ci_session=80e61a667f12d0a51f6ae6b107e0c6d439558bd1';
-			var writestrm = request({url:uri,method: "GET",header:{'Cookie': cookie}}).pipe(fs.createWriteStream(filename));
+			var writestrm = request(uri).pipe(fs.createWriteStream(filename));
 			writestrm.on('error', function(err){
 				console.log('----------------------------------------   >>'+err);
 				fs.appendFile('sub.txt', 'ERR_LINKS_IMG '+uri+'\n', 'utf-8', function (err) {});
@@ -123,7 +131,7 @@ app.post('/detail', upload.array(), function(req, res) {
 		console.log('----------------------------------------   >>   download to:'+ __dirname+'/'+'sub/'+data.parent+'/'+suffile);
 		download(data.sub, __dirname+'/'+'sub/'+data.parent+'/'+suffile, function(){
 			console.log('----------------------------------------   >>  update amazon.xunleitai set sub = concat("'+suffile+';", sub) where id='+data.parent+'; ');
-			connection.query('update amazon.xunleitai set sub = CONCAT_WS(";","'+suffile+'",sub) where id="'+data.parent+'"; ', function(error, results) {
+			connection.query('update amazon.xunleitai set sub = concat("'+suffile+';", sub) where id="'+data.parent+'"; ', function(error, results) {
 				if (error) {
 					console.log('ClientConnectionReady Error: ' + error.message);
 					return;
@@ -134,6 +142,10 @@ app.post('/detail', upload.array(), function(req, res) {
 				us.loopFetch();
 			}else {
 				if (rows.length > 0) {
+					console.log('----------------------------------------   >>   loopRedirect:'+decodeURI(rows[0].uri)+' getCountOfRedirects:'+us.getCountOfRedirects()+' '+rows[0].id);
+					if(!rows[0].uri) {
+						rows.splice(0,1);
+					}
 					while(us.getCountOfRedirects() <= 0) {
 						us.addRedirectUrl(URL.createByParent(rows[0].uri, rows[0].id));
 						rows.splice(0,1);
@@ -243,11 +255,10 @@ var server = app
 					}
 					selectSubRows();
 				});
-				
-server.on('error', function(err){
-    console.log('------------------!!----------------------   >> net err:'+err);
+server.on('error', function(err) { 
+	console.log('SERVER ERR:  '+err);
 });
-
+	
 				
 process.on('SIGINT', function() {
     console.log('Naughty SIGINT-handler');
@@ -263,7 +274,7 @@ process.on('SIGINT', function() {
     process.exit();
 });
 process.on('uncaughtException', function(err) {
-    console.log('-------------------!!---------------------   >> uncaughtException err:'+err);
+    console.log('----------------------------------------   >>   uncaughtException:'+err);
     //server.kill();
-    //process.kill();
+   // process.kill();
 });
