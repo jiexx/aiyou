@@ -21,21 +21,33 @@ var Queue = {
 	},
 	
 	killZombie: function(callback) {
-		console.log('[BROWSER] killZombie: '+ JSON.stringify(this.procs));
+		console.log('..... killZombie: '+ JSON.stringify(this.procs));
 		var now = (new Date()).getTime();
+		var go = false;
 		for(var i = 0 ; i < this.procs.length ; i ++ ){
-			if(now - this.procs[i].e > this.TIMEOUT * 5){
-				console.log('************************************************************************  SIGINT ' + this.procs[i].p);
+			if(now - this.procs[i].e > this.TIMEOUT * 4){
+				console.log('************************************************************************  killZombie ' + this.procs[i].p);
 				//process.kill(this.procs[i].p, 'SIGKILL');
 				this.procs.splice(i,1);
 				var spawn = require('child_process').spawn;    
 				var proc = spawn("taskkill", ["/pid", this.procs[i].p, '/f', '/t']);
+				var _this = this;
 				proc.stdout.on('data', function(data){
+					console.log('************************************************************************ killZombie  open ');
 					callback();
 				});
 				proc.stderr.on('data', function(data){
-					console.log('************************************************************************  NOT exist ' + this.procs[i].p);
+					console.log('************************************************************************ killZombie  NOT exist ');
 				});
+				go = true;
+				for(var i in this.visiting) {
+					if( this.visiting[i].escape() > this.TIMEOUT * 5 ) {
+						this.visiting.slice(i,1);
+					}else {
+						this.urls[i] = this.visiting[i];
+						delete this.visiting[i];
+					}
+				}
 			}
 		}
 	},
@@ -162,7 +174,7 @@ var Queue = {
 		}
 		else if(this.getNum(this.visiting).HAS == 0 && this.getNum(this.urls).HAS > 0) {
 			var _this = this;
-			setTimeout(function(){
+			//setTimeout(function(){
 				
 				if(_this.getNum(_this.visiting).HAS == 0 && _this.getNum(_this.urls).HAS == 0) {
 					if(_this.onFinish != null) {
@@ -174,7 +186,7 @@ var Queue = {
 					_this.loop(pid);
 				}
 				
-			},this.TIMEOUT);
+			//},this.TIMEOUT);
 		}
 	},
 	
@@ -184,10 +196,7 @@ var Queue = {
 			this.open();
 		}
 		else if(this.getNum(this.procs).HAS >= this.PROCMAX) {
-			var _this = this;
-			_this.killZombie(function(){
-				_this.open();
-			});
+			
 			/*setTimeout(function(){
 				console.log('[BROWSER] TIMEOUT TRY ' + _this.TIMEOUT_NUM + ' pid:'+ pid);
 				console.log('[BROWSER] loop pid: '+pid + ' in '+ JSON.stringify(_this.procs));
@@ -230,6 +239,7 @@ var Queue = {
 		f.TIMEOUT = 30000;
 		f.TIMEOUT_NUM = 10;
 		f.onFinish = onfinish;
+		var _this = this;
 		return f;
 	}
 }
@@ -276,6 +286,11 @@ var UrlSet =  {
 	
 	loopRedirect: function() {
 		this.queueRedirects.loop();
+		var _this = this.queueRedirects;
+		setInterval(function(){ 
+			console.log('===========================================');
+			_this.killZombie(function(){_this.open();});
+		}, _this.TIMEOUT * 4);
 	},
 	
 	create: function() {

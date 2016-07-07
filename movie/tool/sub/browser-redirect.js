@@ -2,6 +2,10 @@
  * http://usejsdoc.org/
  */
 console.log("start");
+setTimeout(function(){
+	browser.exit();  
+	console.log('browser setTimeout exit!!!');
+},180000);
 var browser = require('casper').create({
 	pageSettings: {
         loadImages:  false,        // The WebPage instance used by Casper will
@@ -95,13 +99,14 @@ for(var j = 0 ; j < num ; j ++) {
 		    return this.evaluate(function() {
 		        var a = document.querySelectorAll('div#footer').length > 0;
 				//console.log(document.body.innerHTML);
-				//console.log(a);
+				//console.log(a +' '+document.URL);
 		        return a; 
 		    });
 	}, function() {
 		var domain = this.evaluate(function getLinks() {
 			return document.URL.substring(0,document.URL.lastIndexOf('/search'));
 	    });  
+
 		//this.echo(this.getHTML());
 		//this.download(link, 'test.html');
 		var fetchTitles = [], fetchLinks = [];
@@ -120,7 +125,7 @@ for(var j = 0 ; j < num ; j ++) {
 		console.log( "fetchTitles.length:"+fetchTitles.length
 					+" fetchLinks.length:"+fetchLinks.length);
 		var result;
-		if(fetchTitles.length == fetchLinks.length) {
+		if(fetchTitles.length != 0 && fetchTitles.length == fetchLinks.length) {
 			
 			result =  {
 				'id': id[k],

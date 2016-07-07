@@ -25,6 +25,14 @@ connection.connect(function(error, results) {
 		}
 		dbReady = true;
 	});
+	connection.query('update amazon.xunleitai set subtitle = REPLACE(subtitle,"\'", " ")  where subtitle like "%\'%";', function(error, results) {
+		if (error) {
+			console.log('ClientConnectionReady Error: ' + error.message);
+			connection.end();
+			return;
+		}
+		dbReady = true;
+	});
 	/*connection.query('update amazon.xunleitai set sub = "" ; ', function(error, results) {
 		if (error) {
 			console.log('ClientConnectionReady Error: ' + error.message);
@@ -170,17 +178,23 @@ app.post('/redirect', upload.array(), function(req, res) {
 	console.log('[app] [REST/redirect] '+data.id);
 	
 	if(data.error == 1) {
-		us.errorRedirectUrl(data.id);
-		fs.appendFile('redirects.txt', 'ERR_LINKS_SUB '+data.currLink.toString()+'\n', 'utf-8', function (err) {});
-		
+		//us.errorRedirectUrl(data.id);
+		//fs.appendFile('redirects.txt', 'ERR_LINKS_SUB '+data.currLink.toString()+'\n', 'utf-8', function (err) {});
+		connection.query('update amazon.xunleitai set sub = "empty" where id="'+data.parent+'"; ', function(error, results) {
+			console.log('update amazon.xunleitai set sub = "empty" where id="'+data.parent+'"; ');
+		});
 		if (rows.length > 0) {
-			us.addRedirectUrl(URL.createByParent(rows[0].uri, rows[0].id));
-			rows.splice(0,1);
+			while(us.getCountOfRedirects() <= 0) {
+				us.addRedirectUrl(URL.createByParent(rows[0].uri, rows[0].id));
+				rows.splice(0,1);
+			}
+			if(us.getCountOfRedirects() > 0) {
+				console.log('----------------------------------------   >>   loopRedirect:'+decodeURI(rows[0].uri)+' getCountOfRedirects:'+us.getCountOfRedirects()+' '+rows[0].id);
+				us.loopRedirect();
+			}
 		}
 	
 		res.send('OK.');
-		
-		us.loopRedirect();
 		return;
 	}
 
