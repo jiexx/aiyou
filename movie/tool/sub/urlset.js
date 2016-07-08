@@ -24,8 +24,9 @@ var Queue = {
 		console.log('..... killZombie: '+ JSON.stringify(this.procs));
 		var now = (new Date()).getTime();
 		for(var i = 0 ; i < this.procs.length ; i ++ ){
-			if(now - this.procs[i].e > this.TIMEOUT * 4){
-				console.log('************************************************************************  killZombie ' + this.procs[i].p);
+			console.log('..... killZombie: '+ ((now - this.procs[i].e)/1000));
+			if(now - this.procs[i].e > this.TIMEOUT * 2){
+				console.log('************************************************************************  killZombie ');
 				//process.kill(this.procs[i].p, 'SIGKILL');
 				this.procs.splice(i,1);
 				var spawn = require('child_process').spawn;    
@@ -39,7 +40,7 @@ var Queue = {
 					console.log('************************************************************************ killZombie  NOT exist ');
 				});
 				for(var i in this.visiting) {
-					if( this.visiting[i].escape() > this.TIMEOUT * 5 ) {
+					if( this.visiting[i].escape() > this.TIMEOUT * 3 ) {
 						this.visiting.slice(i,1);
 					}else {
 						this.urls[i] = this.visiting[i];
@@ -50,18 +51,8 @@ var Queue = {
 		}
 		if(this.procs.length == 0) {
 			console.log('************************************************************************  killZombie ');
+			callback();
 			//process.kill(this.procs[i].p, 'SIGKILL');
-			this.procs.splice(i,1);
-			var spawn = require('child_process').spawn;    
-			var proc = spawn("taskkill", ["/pid", this.procs[i].p, '/f', '/t']);
-			var _this = this;
-			proc.stdout.on('data', function(data){
-				console.log('************************************************************************ killZombie  open ');
-				callback();
-			});
-			proc.stderr.on('data', function(data){
-				console.log('************************************************************************ killZombie  NOT exist ');
-			});
 			for(var i in this.visiting) {
 				if( this.visiting[i].escape() > this.TIMEOUT * 5 ) {
 					this.visiting.slice(i,1);

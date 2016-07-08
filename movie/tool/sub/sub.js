@@ -33,6 +33,14 @@ connection.connect(function(error, results) {
 		}
 		dbReady = true;
 	});
+	connection.query('update amazon.xunleitai set subtitle = REPLACE(subtitle,"/", " ")  where subtitle like "%/%";', function(error, results) {
+		if (error) {
+			console.log('ClientConnectionReady Error: ' + error.message);
+			connection.end();
+			return;
+		}
+		dbReady = true;
+	});
 	/*connection.query('update amazon.xunleitai set sub = "" ; ', function(error, results) {
 		if (error) {
 			console.log('ClientConnectionReady Error: ' + error.message);

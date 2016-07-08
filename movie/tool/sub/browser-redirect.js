@@ -2,14 +2,11 @@
  * http://usejsdoc.org/
  */
 console.log("start");
-setTimeout(function(){
-	browser.exit();  
-	console.log('browser setTimeout exit!!!');
-},180000);
 var browser = require('casper').create({
 	pageSettings: {
         loadImages:  false,        // The WebPage instance used by Casper will
         loadPlugins: false,         // use these settings
+		timeout: 180000,
         //javascriptEnabled: false,
         //resourceTimeout: 30000,
         //userAgent: 'Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.21 (KHTML, like Gecko) Chrome/25.0.1349.2 Safari/537.21'
@@ -80,7 +77,12 @@ browser.options.onResourceRequested = function(C, requestData, request) {
 		console.log('redirect Down JS file: ' + requestData['url']);
 	}
 };
-
+browser.options.onResourceReceived = function(C, response) {
+	console.log('---------------------->>'+response.status);
+	//if(response.status == 404) {
+	//	this.unwait();
+	//}
+};
 
 // for redirect page
 var xpathFetchTitle = '//div[@class="d_title"]/a';
@@ -95,8 +97,8 @@ for(var j = 0 ; j < num ; j ++) {
 	browser.thenOpen(link[k]);  
 	console.log('redirect '+link[k]);
 	//setInterval(captureImage(), 6000);
-	browser.waitFor(function check() {
-		    return this.evaluate(function() {
+	browser.waitFor(function check(res) {
+			return this.evaluate(function() {
 		        var a = document.querySelectorAll('div#footer').length > 0;
 				//console.log(document.body.innerHTML);
 				//console.log(a +' '+document.URL);
@@ -174,6 +176,11 @@ for(var j = 0 ; j < num ; j ++) {
 browser.then(function() {  
 	browser.exit();  
 	console.log('browser exit');
+});
+
+browser.on('http.status.404', function(resource) {
+	this.echo('.....this url is 404: ' + resource.url);
+	browser.exit();  
 });
 
 browser.run();
