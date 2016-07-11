@@ -93,14 +93,21 @@ var Querier =  {
 			for(var i in this.selector){
 				if(browser.exists(selector[i].expr)){
 					var a = this.getElementsInfo(selector[i].expr);
-					for(var i in a) {
-						this.results.push({path:selector[i],out:a[selector[i].prefix+selector[i].attr]});
+					for(var j in a) {
+						if(selector[i].prefix) {
+							this.results.push({path:selector[i],out:a[j][selector[i].prefix][selector[i].attr]});
+						}else {
+							this.results.push({path:selector[i],out:a[j][selector[i].attr]});
+						}
 					}
 					e = false;
 				}
 			}
-			this._return({err:e,result:this.results});
+			console.log(JSON.stringify({err:e,result:this.results}));
+			//this._return({err:e,result:this.results});
 		});
 		browser.run();
 	},
 }
+
+Querier.run();
