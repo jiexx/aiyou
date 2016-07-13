@@ -33,9 +33,6 @@ var Querier =  {
 				request.abort();
 			}
 		};
-		browser.options.onResourceReceived = function(C, response) {
-			this._return({err:true,result:response.status});
-		};
 		browser.options.retryTimeout = a.options.retryTimeout;
 		browser.options.waitTimeout = a.options.waitTimeout; 
 		this.browser = browser;
@@ -95,15 +92,15 @@ var Querier =  {
 					var a = this.getElementsInfo(selector[i].expr);
 					for(var j in a) {
 						if(selector[i].prefix) {
-							this.results.push({path:selector[i],out:a[j][selector[i].prefix][selector[i].attr]});
+							this.results.push({Path:selector[i],Out:a[j][selector[i].prefix][selector[i].attr]});
 						}else {
-							this.results.push({path:selector[i],out:a[j][selector[i].attr]});
+							this.results.push({Path:selector[i],Out:a[j][selector[i].attr]});
 						}
 					}
 					e = false;
 				}
 			}
-			console.log(JSON.stringify({err:e,result:this.results}));
+			console.log(JSON.stringify({Err:e,Result:this.results}));
 			//this._return({err:e,result:this.results});
 		});
 		browser.run();

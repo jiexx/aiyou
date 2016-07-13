@@ -1,3 +1,4 @@
+//https://gist.github.com/blinksmith/99e5234ea601af8ba8bfab35c8fbebef
 package main
 
 import (
@@ -6,23 +7,30 @@ import (
 	"encoding/json"
 	"net/http"
 	"reflect"
+	"fmt"
 )
 
+type Option struct {
+	LoadImages bool `json:"loadImages"`
+	LoadPlugins bool `json:"loadPlugins"`
+	Timeout int `json:"timeout"`
+	UserAgent string `json:"userAgent"`
+	RetryTimeout int `json:"retryTimeout"`
+	WaitTimeout int `json:"waitTimeout"`
+}
+type Configuration struct {
+	Target string `json:"target"`
+	Options Option `json:"options"`
+}
+conf := Configuration{"127.0.0.1",Option{false,false,30000,"Mozilla/5.0 (Windows NT 6.1; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/49.0.2623.87 Safari/537.36",10,30000}};
 type Selector struct {
 	expr string;			//css selector
 	prefix string;			//maybe attributes
 	attr string;			//maybe href(prefix=attributes)/height/text
 }
-func (s Selector) MarshalJSON() ([]byte, error) {  
-    return json.Marshal(map[string]interface{}{  
-		"expr": s.expr,  
-        "prefix": s.prefix,  
-        "attr": s.attr,  
-    })  
-} 
 type Args struct {
-	url string;
-	selector Selector;
+	url string
+	selector Selector
 }
 func (a Args) MarshalJSON() ([]byte, error) {  
     return json.Marshal(map[string]interface{}{  
@@ -31,13 +39,31 @@ func (a Args) MarshalJSON() ([]byte, error) {
     })  
 } 
 
+func Return(str string) {
+	resp, err := http.PostForm(conf.Target, url.Values{"result": {str})
+ 
+    if err != nil {
+        // handle error
+    }
+ 
+    defer resp.Body.Close()
+    body, err := ioutil.ReadAll(resp.Body)
+    if err != nil {
+        // handle error
+    }
+ 
+    fmt.Println(string(body))
+}
+
 func Query(w http.ResponseWriter, r *http.Request) {
 	result := false;
 	var order_req OrderRequest;
-	if r.Method == "GET" {
-		jsonDataFromHttp := reflect.ValueOf(r.URL.Query()).MapKeys();
-		str := fmt.Sprint(jsonDataFromHttp[0]);
-		cmd := exec.Command("casperjs Querier.js", str)
+	if r.Method == "POST" {
+		var args []string
+		args := r.Request.Body
+		defer r.Request.Body.Close()
+		cmd := exec.Command("casperjs Querier.js", args)
+		
 		out, _ := cmd.StdoutPipe();
 		cmd.Start()
 		done := make(chan error, 1)
@@ -55,23 +81,25 @@ func Query(w http.ResponseWriter, r *http.Request) {
 				log.Printf("process done with error = %v", err)
 			} else {
 				log.Print("process done gracefully without error")
+				Return(out);
 			}
 		}
 	}
 	w.Header().Set("Access-Control-Allow-Origin", "*");
 	if result == true {
-		js, _ := json.Marshal(OrderResponse{Result:result, Order_id:fmt.Sprint(global_id), Clazz:order_req.Clazz, Price:order_req.Price, Amount:order_req.Amount});	
 		w.Write([]byte(js));
 	}else {
 		js, _ := json.Marshal(OrderResponse{Result:result, Order_id:"0", Clazz:order_req.Clazz, Price:order_req.Price, Amount:order_req.Amount});
 		w.Write([]byte(js));
 	}
-	
 }
 
-var mux = http.NewServeMux();
+func Config() {
+}
+
 func main() {
 	mux := http.NewServeMux();
  	mux.HandleFunc("/query", Query);
+	mux.HandleFunc("/config", Config);
 	http.ListenAndServe(":8081", mux);  
 }
