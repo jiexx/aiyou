@@ -2,7 +2,6 @@ var Querier =  {
 	browser: null,
 	url: null,
 	target: null,
-	fitler: [],
 	selector: null,
 	results: [],
 	_init: function() {

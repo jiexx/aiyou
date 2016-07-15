@@ -10,47 +10,42 @@ import (
 	"fmt"
 )
 
+type Option struct {
+	LoadImages bool `json:"loadImages"`
+	LoadPlugins bool `json:"loadPlugins"`
+	Timeout int `json:"timeout"`
+	UserAgent string `json:"userAgent"`
+	RetryTimeout int `json:"retryTimeout"`
+	WaitTimeout int `json:"waitTimeout"`
+}
 type Configuration struct {
 	Target string `json:"target"`
+	Options Option `json:"options"`
 }
 
-type Worker struct {
-	mgr *Manager
-	status int
-	mux sync.Mutex
+
+type Value struct {
+	father *Page
+	prefix string
+	attr string
 }
-func newWorker(m *Manager) Worker {
-	worker := Worker{mgr:m, status:0};
-	return worker;
+type Link struct {
+	father *Page
+	prefix string
+	attr string
+	next *Page
 }
-func (this *Worker)isFree() bool{
-	return status == 0
+type Page struct {
+	values []Value
+	links []Link
 }
-func (this *Worker)doTask(job string) {
-	this.status = 1
-	cmd := exec.Command("casperjs Querier.js", job)
-	out, _ := cmd.StdoutPipe();
-	cmd.Start()
-	done := make(chan error, 1)
-	go func() {
-		done <- cmd.Wait()
-	}()
-	select {
-	case <-time.After(60 * time.Second):
-		if err := cmd.Process.Kill(); err != nil {
-			this.status = 0
-			log.Fatal("failed to kill: ", err)
-		}
-		log.Println("process killed as timeout reached")
-	case err := <-done:
-		this.status = 0
-		if err == nil {
-			this.mgr.end(out);
-		}
-	}
+type Page struct {
+	values []Value
+	links []Link
 }
 
-type Manager struct {
+
+type Task struct {
 	TaskQueue []string
 	mux sync.Mutex
 	config Configuration
@@ -59,8 +54,8 @@ type Manager struct {
 	c_response chan string
 }
 func newManager() Manager {
-	conf := Configuration{"127.0.0.1"};
-	mgr := Manager{TaskQueue:[]string{}, c_request:make(chan string), c_response:make(chan string), config:conf, workers:make([]Worker, 3)};
+	conf := Configuration{"127.0.0.1",Option{false,false,30000,"Mozilla/5.0 (Windows NT 6.1; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/49.0.2623.87 Safari/537.36",10,30000}};
+	mgr := Manager{TaskQueue:[]Job{}, c_request:make(chan Job), c_response:make(chan string), config:conf, workers:make([]Worker, 3)};
 	return mgr;
 }
 func (this *Manager)configuare(cfg string) bool{
