@@ -39,23 +39,26 @@ type Page struct {
 	values []Value
 	links []Link
 }
-type Page struct {
-	values []Value
-	links []Link
-}
-
-
 type Task struct {
-	TaskQueue []string
+	pages []Page
 	mux sync.Mutex
 	config Configuration
 	workers []Worker
 	c_request chan string
 	c_response chan string
 }
-func newManager() Manager {
+type Master struct {
+	TaskQueue []Task
+	mux sync.Mutex
+	config Configuration
+	workers []Worker
+	c_request chan string
+	c_response chan string
+}
+
+func newMaster() Master {
 	conf := Configuration{"127.0.0.1",Option{false,false,30000,"Mozilla/5.0 (Windows NT 6.1; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/49.0.2623.87 Safari/537.36",10,30000}};
-	mgr := Manager{TaskQueue:[]Job{}, c_request:make(chan Job), c_response:make(chan string), config:conf, workers:make([]Worker, 3)};
+	mgr := Master{TaskQueue:[]Job{}, c_request:make(chan Job), c_response:make(chan string), config:conf, workers:make([]Worker, 3)};
 	return mgr;
 }
 func (this *Manager)configuare(cfg string) bool{
