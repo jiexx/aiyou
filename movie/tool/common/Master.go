@@ -24,34 +24,35 @@ type Configuration struct {
 }
 
 
-type Value struct {
-	father *Page
+type Selector struct {
+	father *Page 
+	xpath string
 	prefix string
 	attr string
-}
-type Link struct {
-	father *Page
-	prefix string
-	attr string
+	out string
 	next *Page
 }
+func (this *Selector)toString() string{
+	return fmt.Sprint("{expr:%s,prefix:%s,attr:%s}", this.xpath, this.prefix, this.attr);
+}
 type Page struct {
-	values []Value
-	links []Link
+	url string
+	values []Selector
+	links []Selector
+}
+func (this *Selector)toString() string{
+	return fmt.Sprint("{url:%s,prefix:%s,attr:%s}", this.url, this.prefix, this.attr);
 }
 type Task struct {
-	pages []Page
-	mux sync.Mutex
-	config Configuration
+	root Page
 	workers []Worker
 	c_request chan string
 	c_response chan string
 }
 type Master struct {
-	TaskQueue []Task
-	mux sync.Mutex
+	tasks []Task
 	config Configuration
-	workers []Worker
+	mgrs []string
 	c_request chan string
 	c_response chan string
 }

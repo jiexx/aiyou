@@ -91,9 +91,9 @@ var Querier =  {
 					var a = this.getElementsInfo(selector[i].expr);
 					for(var j in a) {
 						if(selector[i].prefix) {
-							this.results.push({Path:selector[i],Out:a[j][selector[i].prefix][selector[i].attr]});
+							this.results.push({Path:selector[i].expr,Out:a[j][selector[i].prefix][selector[i].attr]});
 						}else {
-							this.results.push({Path:selector[i],Out:a[j][selector[i].attr]});
+							this.results.push({Path:selector[i].expr,Out:a[j][selector[i].attr]});
 						}
 					}
 					e = false;

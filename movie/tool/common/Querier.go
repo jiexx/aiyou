@@ -123,8 +123,6 @@ func (this *Manager)loop() {
 
 var mgr Manager;
 func Query(w http.ResponseWriter, r *http.Request) {
-	result := false;
-	var order_req OrderRequest;
 	if r.Method == "POST" {
 		mgr.start(fmt.Sprint(r.Request.Body))
 		str := fmt.printf("{'err':%b}", err)
