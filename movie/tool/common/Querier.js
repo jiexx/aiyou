@@ -87,19 +87,19 @@ var Querier =  {
 		}, function() {
 			var e = true;
 			for(var i in this.selector){
-				if(browser.exists(selector[i].expr)){
-					var a = this.getElementsInfo(selector[i].expr);
+				if(browser.exists(this.selector[i].expr)){
+					var a = this.getElementsInfo(this.selector[i].expr);
 					for(var j in a) {
-						if(selector[i].prefix) {
-							this.results.push({Path:selector[i].expr,Out:a[j][selector[i].prefix][selector[i].attr]});
+						if(this.selector[i].prefix) {
+							this.results.push({Path:this.selector[i].expr,Out:a[j][this.selector[i].prefix][this.selector[i].attr]});
 						}else {
-							this.results.push({Path:selector[i].expr,Out:a[j][selector[i].attr]});
+							this.results.push({Path:this.selector[i].expr,Out:a[j][this.selector[i].attr]});
 						}
 					}
 					e = false;
 				}
 			}
-			console.log(JSON.stringify({Err:e,Result:this.results}));
+			console.log(JSON.stringify({Err:e,URL:this.url, Result:this.results}));
 			//this._return({err:e,result:this.results});
 		});
 		browser.run();

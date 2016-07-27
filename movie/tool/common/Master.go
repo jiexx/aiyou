@@ -18,51 +18,60 @@ type Option struct {
 	RetryTimeout int `json:"retryTimeout"`
 	WaitTimeout int `json:"waitTimeout"`
 }
+func (g Option) MarshalJSON() ([]byte, error) {  
+    return json.Marshal(map[string]interface{}{  
+        "loadImages": g.LoadImages,  
+        "loadPlugins": g.LoadPlugins,  
+        "timeout": g.Timeout,  
+		"userAgent": g.UserAgent,  
+		"retryTimeout": g.RetryTimeout,  
+		"waitTimeout": g.WaitTimeout, 
+    })  
+}
 type Configuration struct {
 	Target string `json:"target"`
 	Options Option `json:"options"`
 }
-
-
+func (g Configuration) MarshalJSON() ([]byte, error) {  
+    return json.Marshal(map[string]interface{}{  
+        "target": g.Target,  
+        "options": g.Options,  
+    })  
+}
 type Selector struct {
 	father *Page 
-	xpath string
+	expr string
 	prefix string
 	attr string
 	out string
 	next *Page
 }
-func (this *Selector)toString() string{
-	return fmt.Sprint("{expr:%s,prefix:%s,attr:%s}", this.xpath, this.prefix, this.attr);
+func (this *Selector)String() string{
+	return fmt.Sprintf("{expr:%s,prefix:%s,attr:%s}", this.expr, this.prefix, this.attr);
 }
 type Page struct {
 	url string
 	values []Selector
 	links []Selector
 }
-func (this *Selector)toString() string{
-	return fmt.Sprint("{url:%s,prefix:%s,attr:%s}", this.url, this.prefix, this.attr);
-}
-type Task struct {
-	root Page
-	workers []Worker
-	c_request chan string
-	c_response chan string
-}
-type Master struct {
-	tasks []Task
-	config Configuration
-	mgrs []string
-	c_request chan string
-	c_response chan string
+func (this Page) String() string {
+	var a []Selector;
+	a = append(a, this.values...);
+	a = append(a, this.links...);
+	return fmt.Sprint(a);
 }
 
+type Master struct {
+	task Page
+	target string
+	config Configuration
+}
 func newMaster() Master {
 	conf := Configuration{"127.0.0.1",Option{false,false,30000,"Mozilla/5.0 (Windows NT 6.1; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/49.0.2623.87 Safari/537.36",10,30000}};
-	mgr := Master{TaskQueue:[]Job{}, c_request:make(chan Job), c_response:make(chan string), config:conf, workers:make([]Worker, 3)};
+	mgr := Master{config:conf};
 	return mgr;
 }
-func (this *Manager)configuare(cfg string) bool{
+func (this *Master)configuare(cfg string) bool{
 	var config Configuration;
 	err := json.Unmarshal([]byte(cfg), &config)
 	if err == nil {
@@ -71,8 +80,9 @@ func (this *Manager)configuare(cfg string) bool{
 	}
 	return false
 }
-func (this *Manager)start(str string) {
-	this.c_request <- str;
+func (this *Master)makeRequestString() string {
+	conf, _ := json.Marshal(this.config);
+	return fmt.Sprintf("{url:%s,target:%s,options:%s,selector:%s}", this.task.url, this.config.target, conf, this.task.String());
 }
 func (this *Manager)end(str string) {
 	this.c_response <- str;
