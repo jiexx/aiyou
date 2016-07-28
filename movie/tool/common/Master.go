@@ -29,12 +29,12 @@ func (g Option) MarshalJSON() ([]byte, error) {
     })  
 }
 type Configuration struct {
-	Target string `json:"target"`
+	Addr string `json:"target"`
 	Options Option `json:"options"`
 }
 func (g Configuration) MarshalJSON() ([]byte, error) {  
     return json.Marshal(map[string]interface{}{  
-        "target": g.Target,  
+        "target": g.Addr,  
         "options": g.Options,  
     })  
 }
@@ -60,10 +60,60 @@ func (this Page) String() string {
 	a = append(a, this.links...);
 	return fmt.Sprint(a);
 }
+type Querier struct {
+	addr string
+	status int
+}
+type QuerierManager struct {
+	querier map[string]Querier
+}
+
+type Task struct {
+	page Page
+	status int
+	next *Task
+	prev *Task
+}
+type TaskManager struct {
+	freeTask Task
+	busyTask map[string]Task
+}
+func newTaskManager() TaskManager {
+	tm := TaskManager{freeTask:nil, busyTask:make(map[string]Task)};
+	return tm;
+}
+func (this *TaskManager)enQueue(t *Task)  {
+	if this.freeTask == nil {
+		this.freeTask = *t
+		t.prev = t
+		t.next = t
+	}else {
+		this.freeTask.prev.next = t
+		t.prev = this.freeTask.prev
+		t.next = this.freeTask
+		this.freeTask.prev = t
+	}
+}
+func (this *TaskManager)head()  {
+	return this.freeTask
+}
+func (this *TaskManager)deQueue(t *Task)  {
+	this.busyTask[t.page.url] = *t
+	t.prev.next = t.next
+	t.next.prev = t.prev
+	t.next = nil
+	t.prev = nil
+}
+func (this *TaskManager)finish(url string)  {
+	task, ok := this.busyTask[url]
+	if ok {
+		
+	}
+}
 
 type Master struct {
-	task Page
-	target string
+	qm QuerierManager
+	tm TaskManager
 	config Configuration
 }
 func newMaster() Master {
@@ -82,7 +132,7 @@ func (this *Master)configuare(cfg string) bool{
 }
 func (this *Master)makeRequestString() string {
 	conf, _ := json.Marshal(this.config);
-	return fmt.Sprintf("{url:%s,target:%s,options:%s,selector:%s}", this.task.url, this.config.target, conf, this.task.String());
+	return fmt.Sprintf("{url:%s,target:%s,options:%s,selector:%s}", this.task.url, this.config.Addr, conf, this.task.String());
 }
 func (this *Manager)end(str string) {
 	this.c_response <- str;
@@ -101,7 +151,7 @@ func (this *Manager)request(job string) {
 	}
 }
 func (this *Manager)response(str string) {
-	resp, err := http.PostForm(this.conf.Target, url.Values{"err":false, "result": str})
+	resp, err := http.PostForm(this.conf.Addr, url.Values{"err":false, "result": str})
     if err != nil {
         // handle error
     }
