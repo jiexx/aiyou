@@ -1,12 +1,14 @@
 var Querier =  {
 	browser: null,
 	url: null,
+	addr: null,
 	target: null,
 	selector: null,
 	results: [],
 	_init: function() {
 		var args = require('system').args;
 		var a = JSON.parse(args[0]);
+		this.addr = a.addr;
 		this.url = a.url;
 		this.target = a.target;
 		this.selector = a.selector;
@@ -99,7 +101,7 @@ var Querier =  {
 					e = false;
 				}
 			}
-			console.log(JSON.stringify({Err:e,URL:this.url, Result:this.results}));
+			console.log(JSON.stringify({Err:e,URL:this.url, ADDR:this.addr, Result:this.results}));
 			//this._return({err:e,result:this.results});
 		});
 		browser.run();
