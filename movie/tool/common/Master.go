@@ -8,7 +8,11 @@ import (
 	"net/http"
 	"reflect"
 	"fmt"
+	"strings"
 )
+
+DB, _ := sql.Open("mysql", "root:1234@127.0.0.1")
+
 
 type Option struct {
 	LoadImages bool `json:"loadImages"`
@@ -39,12 +43,12 @@ func (g Configuration) MarshalJSON() ([]byte, error) {
     })  
 }
 type Selector struct {
-	father *Page 
 	expr string
 	prefix string
 	attr string
-	result string
+	name string
 	next *Page
+	_isUpdated bool
 }
 type Result struct {
 	Path string
@@ -60,31 +64,27 @@ type Page struct {
 	links []Selector
 }
 func newPage(u string) Page {
-	t := Page{url:u, next:nil, prev:nil};
+	t := Page{url:u, values:[]Selector{}, links:[]Selector{}};
 	return t;
 }
 func (this Page) clone() Page {
 	return nil;
 }
-func (this Page) String() string {
-	var a []Selector;
-	a = append(a, this.values...);
-	a = append(a, this.links...);
-	return fmt.Sprint(a);
+func (this Page) String() []string {
+	var a []Selector
+	a = append(a, this.values...)
+	a = append(a, this.links...)
+	return a;
 }
-func (this *Page)fill(res []Result) {
-	for i := 0 ; i < len(res) ; i ++ {
-		for v := 0 ; v < len(this.values) ; v ++ {
-			if this.values[v].expr == res[i].Path {
-				this.values[v].result = res[i].out
-			}
-		}
-		for k := 0 ; k < len(this.links) ; k ++ {
-			if this.links[k].expr == res[i].Path {
-				this.links[k].result = res[i].out
-			}
-		}
+func (this Page) getFieldNames() []string {
+	var a []string
+	for i := 0 ; i < len(this.links) ; i ++ {
+		a = append(a, fmt.Sprintf("%s varchar(512)",this.links[i]))
 	}
+	for j := 0 ; j < len(this.values) ; j ++ {
+		a = append(a, fmt.Sprintf("%s varchar(512)",this.values[i]))
+	}
+	return a;
 }
 func (this *Page)getLinks(res []Result) []string{
 	var a []string
@@ -95,14 +95,29 @@ func (this *Page)getLinks(res []Result) []string{
 	}
 	return a
 }
-func (this *Page)makeLinkPage(res []Result) []string{
+func (this *Page)_update(res []Result){
 	var a []string
-	for k := 0 ; k < len(this.links) ; k ++ {
-		if this.links[k].result != "" {
-			append(a, this.links[k].result)
+	var b []string
+	for k := 0 ; k < len(this.res) ; k ++ {
+		for i := 0 ; i < len(this.links) ; i ++ {
+			if this.links[i].expr == res[k].Path {
+				if this.links[i].next != nil {
+					this.links[i].next.url = res[k].Out
+					this.links[i].next._isUpdated = true
+				}
+				a = append(a, this.values[k].name)
+				b = append(b, res[k].Out)
+			}
+		}
+		for j := 0 ; j < len(this.values) ; j ++ {
+			if this.values[j].expr == res[k].Path {
+				a = append(a, this.values[k].name)
+				b = append(b, res[k].Out)
+			}
 		}
 	}
-	return a
+	sql := fmt.Sprint("INSERT INTO Querier.%s(%s)VALUES(%s);", this.task.name, strings.Join(a, ","), strings.Join(b, ",") )
+	rows, _ := DB.Query(sql)
 }
 
 type Querier struct {
@@ -111,7 +126,7 @@ type Querier struct {
 	next *Querier
 	prev *Querier
 }
-func (this *Querier)doTask(args string) bool {
+func (this *Querier)doTask(t Task, args string) bool {
 	if this.task == nil {
 		resp, err := http.PostForm(this.addr, url.Values{"err":false, "result": str})
 		if err != nil {
@@ -119,7 +134,7 @@ func (this *Querier)doTask(args string) bool {
 			return false
 		}
 		defer resp.Body.Close()
-		this.task = task
+		this.task = t
 		return true
 	}
 	return false
@@ -170,12 +185,16 @@ func (this *QuerierManager)taskOnFinish(addr string)  {
 }
 	
 type Task struct {
+	name string
 	page Page
 	next *Task
 	prev *Task
 }
 func newTask() Task {
 	t := Task{page:newPage(), next:nil, prev:nil};
+	t.page.task = t;
+	sql := fmt.Sprint("CREATE TABLE Querier.%s(%s);", this.name, strings.Join(t.page.getFieldNames(), ","))
+	rows, _ := DB.Query(sql)
 	return t;
 }
 type TaskManager struct {
@@ -222,6 +241,7 @@ func (this *TaskManager)taskOnFinish(url string, res []Result)  {
 		for i := 0 ; i < len(res) ; i ++ {
 			
 		}
+		
 	}
 }
 
@@ -286,6 +306,7 @@ func Config(w http.ResponseWriter, r *http.Request) {
 }
 
 func main() {
+	db, _ := sql.Open("mysql", "root:dumx@/test?charset=utf8")
 	mgr = newManager();
 	mgr.loop();
 	mux := http.NewServeMux();
