@@ -48,7 +48,6 @@ type Selector struct {
 	attr string
 	name string
 	next *Page
-	_isUpdated bool
 }
 type Result struct {
 	Path string
@@ -63,7 +62,7 @@ type Page struct {
 	values []Selector
 	links []Selector
 }
-func newPage(u string) Page {
+func newPage(m *TaskManager, u string) Page {
 	t := Page{url:u, values:[]Selector{}, links:[]Selector{}};
 	return t;
 }
@@ -94,30 +93,6 @@ func (this *Page)getLinks(res []Result) []string{
 		}
 	}
 	return a
-}
-func (this *Page)_update(res []Result){
-	var a []string
-	var b []string
-	for k := 0 ; k < len(this.res) ; k ++ {
-		for i := 0 ; i < len(this.links) ; i ++ {
-			if this.links[i].expr == res[k].Path {
-				if this.links[i].next != nil {
-					this.links[i].next.url = res[k].Out
-					this.links[i].next._isUpdated = true
-				}
-				a = append(a, this.values[k].name)
-				b = append(b, res[k].Out)
-			}
-		}
-		for j := 0 ; j < len(this.values) ; j ++ {
-			if this.values[j].expr == res[k].Path {
-				a = append(a, this.values[k].name)
-				b = append(b, res[k].Out)
-			}
-		}
-	}
-	sql := fmt.Sprint("INSERT INTO Querier.%s(%s)VALUES(%s);", this.task.name, strings.Join(a, ","), strings.Join(b, ",") )
-	rows, _ := DB.Query(sql)
 }
 
 type Querier struct {
@@ -183,16 +158,14 @@ func (this *QuerierManager)taskOnFinish(addr string)  {
 		this.enQueue(q)
 	}
 }
-	
 type Task struct {
 	name string
 	page Page
 	next *Task
 	prev *Task
 }
-func newTask() Task {
-	t := Task{page:newPage(), next:nil, prev:nil};
-	t.page.task = t;
+func newTask(tm *TaskManager) Task {
+	t := Task{page:newPage(""), next:nil, prev:nil};
 	sql := fmt.Sprint("CREATE TABLE Querier.%s(%s);", this.name, strings.Join(t.page.getFieldNames(), ","))
 	rows, _ := DB.Query(sql)
 	return t;
@@ -205,6 +178,10 @@ type TaskManager struct {
 func newTaskManager() TaskManager {
 	tm := TaskManager{freeTask:nil, busyTask:make(map[string]*Task)};
 	return tm;
+}
+func (this *TaskManager)enQueuePage(p *Page)  {
+	t := Task{page:p, next:nil, prev:nil};
+	this.enQueue(t);
 }
 func (this *TaskManager)enQueue(t *Task)  {
 	if this.freeTask == nil {
@@ -234,14 +211,35 @@ func (this *TaskManager)deQueue(t *Task)  {
 	t.next = nil
 	t.prev = nil
 }
+func (this *TaskManager)_update(page *Page, res []Result){
+	var a []string
+	var b []string
+	for k := 0 ; k < len(page.res) ; k ++ {
+		for i := 0 ; i < len(page.links) ; i ++ {
+			if page.links[i].expr == res[k].Path {
+				if page.links[i].next != nil {
+					page.links[i].next.url = res[k].Out
+					this.enQueuePage(page);
+				}
+				a = append(a, page.values[k].name)
+				b = append(b, res[k].Out)
+			}
+		}
+		for j := 0 ; j < len(page.values) ; j ++ {
+			if page.values[j].expr == res[k].Path {
+				a = append(a, page.values[k].name)
+				b = append(b, res[k].Out)
+			}
+		}
+	}
+	sql := fmt.Sprint("INSERT INTO Querier.%s(%s)VALUES(%s);", this.task.name, strings.Join(a, ","), strings.Join(b, ",") )
+	rows, _ := DB.Query(sql)
+}
 func (this *TaskManager)taskOnFinish(url string, res []Result)  {
 	t, ok := this.busyTask[url]
 	if ok {
 		delete(this.busyTask, url)
-		for i := 0 ; i < len(res) ; i ++ {
-			
-		}
-		
+		this._update(&t.page, res);		
 	}
 }
 
@@ -267,9 +265,18 @@ func (this *Master)run()  {
 		}
 	}
 }
-func (this *Master)taskOnFinish(addr string , url string)  {
-	this.qm.taskOnFinish(addr)
-	this.tm.taskOnFinish(url)
+type Res struct {
+	URL string
+	ADDR string
+	RESULT Result
+}
+func (this *Master)taskOnFinish(rs string)  {
+	var res Res
+	err := json.Unmarshal([]byte(rs), &res)
+	if err == nil {
+		this.qm.taskOnFinish(res.ADDR)
+		this.tm.taskOnFinish(res.URL)
+	}
 }
 func (this *Master)configuare(cfg string) bool{
 	var config Configuration;

@@ -101,7 +101,7 @@ var Querier =  {
 					e = false;
 				}
 			}
-			console.log(JSON.stringify({Err:e,URL:this.url, ADDR:this.addr, Result:this.results}));
+			console.log(JSON.stringify({Err:e, URL:this.url, ADDR:this.addr, RESULT:this.results}));
 			//this._return({err:e,result:this.results});
 		});
 		browser.run();
