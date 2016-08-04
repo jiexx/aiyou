@@ -1,0 +1,42 @@
+<div ui-content-for="title">
+  <span >{{title}}</span>
+</div>
+
+<div class="scrollable">  
+  <div class="scrollable-content section" ui-scroll-bottom='bottomReached(page)'>
+
+    <div class=" text-center">
+		<div class="col-sm-3">
+			<div class="panel-group" ng-init="focused = -1">
+				<div class="panel panel-default" ng-repeat="item in scrollItems" >
+				  <div class="panel-heading">
+				  <small ng-show="focused == -1" ng-click="focused = $index+1">{{item.Summary}}</small>
+				  <div ng-show="focused == $index+1" class="fa"><input type="text" ng-model="item.Summary" class="form-control" ng-blur="focused = -1;editTitle(item);" autofocus></input></div>
+				  
+				  
+				  <i class="fa fa-times-circle text-danger pull-right" ng-click="deleteItem(item)"></i>&nbsp;&nbsp;<i class="fa fa-toggle-{{enable==item.PicURL? 'on text-primary' : 'off'}} pull-right" ng-click="enableItem(item)"></i>
+				  <div class="clearfix"></div>
+				  </div>
+				  <div class="panel-body" ng-click="editPhoto(item)">
+				    <div style="position:relative">
+					  <img style="width:100%" src="{{imgHost}}{{item.PicURL}}"></img>
+					  <roger-photo roger-finish="editImage(raw)" roger-width="800" roger-height="800" style="position:absolute;top:0;height:100%;width:100%;" ></roger-photo>
+					</div>
+				  </div>
+				</div>
+			</div>
+			<input type="text" ng-model="introduce" class="form-control" placeholder="Enter "></input><br>
+			<div class="panel panel-default" style="position:relative">
+
+			  <i class="fa fa-plus pull-right text-primary fa-3x" style="position:absolute;top:50%;left:50%; margin-top:-.5em; margin-left:-.5em"></i>
+			  <roger-photo roger-data="raw" roger-finish="finish(raw)" roger-width="800" roger-height="800" class="panel-body" ></roger-photo>
+			</div>
+			<br>
+
+			<span class="pull-left bg-info">{{result}}</span>
+
+			<div class="clearfix"></div>
+		</div>
+    </div>
+  </div>
+</div>

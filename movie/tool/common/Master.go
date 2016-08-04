@@ -275,7 +275,7 @@ func (this *Master)taskOnFinish(rs string)  {
 	err := json.Unmarshal([]byte(rs), &res)
 	if err == nil {
 		this.qm.taskOnFinish(res.ADDR)
-		this.tm.taskOnFinish(res.URL)
+		this.tm.taskOnFinish(res.URL, )
 	}
 }
 func (this *Master)configuare(cfg string) bool{
@@ -317,7 +317,9 @@ func main() {
 	mgr = newManager();
 	mgr.loop();
 	mux := http.NewServeMux();
- 	mux.HandleFunc("/query", Query);
+ 	mux.HandleFunc("/querier/config", QuerierConfig);
 	mux.HandleFunc("/config", Config);
+	http.Handle("/html/", http.StripPrefix("/html/", http.FileServer(http.Dir("/"))));
+	http.Handle("/lib/", http.StripPrefix("/lib/", http.FileServer(http.Dir("/lib"))));
 	http.ListenAndServe(":8061", mux);  
 }

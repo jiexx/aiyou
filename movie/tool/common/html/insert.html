@@ -1,0 +1,89 @@
+<div ui-content-for="title">
+  <span >{{title}}</span>
+</div>
+
+<div class="scrollable">  
+  <div class="scrollable-content section">
+
+    <div class=" text-center">
+		<div >
+  <form role="form" ng-submit='insert()'  class="col-sm-5">
+    <fieldset>
+        <div class="form-group">
+		  <span class="pull-left">中文名称*</span>
+          <input type="text" ng-model="NameCh" class="form-control" placeholder="Enter"></input>
+        </div>
+
+        <div class="form-group">
+		  <span class="pull-left">英文名称*</span>
+          <input type="text" ng-model="NameEn" class="form-control" placeholder="Enter"></input>
+        </div>
+		
+		<div class="form-group">
+		  <span class="pull-left">当地名称</span>
+          <input type="text" ng-model="username" class="form-control" placeholder="Enter ">
+        </div>
+		
+		<div class="form-group">
+		  <span class="pull-left">别名</span>
+          <input type="text" ng-model="username" class="form-control" placeholder="Enter ">
+        </div>
+		
+		<div class="form-group">
+		  <span class="pull-left">国家*</span>
+		  <select ng-model="country" class="form-control" ng-change="selectCity(country)">
+			<option ng-selected="item.RegionID==country" ng-repeat="item in detail.country" ng-value="item.RegionID">{{ item.RegionCnName }}</option>
+		  </select>
+        </div>
+		
+		<div class="form-group">
+		  <span class="pull-left">城市*</span>
+          <select ng-model="city"  class="form-control" >
+			<option ng-selected="item.RegionID==city" ng-repeat="item in detail.city" ng-value="item.RegionID">{{ item.RegionCnName }}</option>
+		  </select>
+        </div>
+		
+		<div class="form-group">
+		  <span class="pull-left">地址*</span>
+          <input type="text" ng-model="username" class="form-control" placeholder="Enter ">
+        </div>
+		
+		<div class="form-group">
+		  <span class="pull-left">邮编</span>
+          <input type="text" ng-model="username" class="form-control" placeholder="Enter ">
+        </div>
+		
+		<div class="form-group">
+		  <span class="pull-left">类别*</span>
+          <input type="text" ng-model="username" class="form-control" placeholder="Enter ">
+        </div>
+		<div class="form-group">
+		  <span class="pull-left">介绍*</span>
+          <textarea rows="10"  class="form-control" placeholder="Enter"  ng-model="introduce"></textarea>
+        </div>
+		<div class="form-group">
+		  <span class="pull-left">电话</span>
+          <input type="text" ng-model="username" class="form-control" placeholder="Enter ">
+        </div>
+		<div class="form-group">
+		  <span class="pull-left">网址</span>
+          <input type="text" ng-model="username" class="form-control" placeholder="Enter ">
+        </div>
+    </fieldset>
+	<a ng-if="result >= 0" href="#/photo?id={{result}}" class="pull-left bg-info" ><i class="fa fa-photo"></i></a>
+	<br>
+	<br>
+    <button class="btn btn-primary form-control">
+      提交
+    </button>
+
+  </form>
+		</div>
+		<div class="clearfix"></div>
+      <div >
+      </div>
+
+    </div>
+
+  </div>
+</div>

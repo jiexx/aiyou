@@ -1,0 +1,40 @@
+<div ui-content-for="title">
+  <span >{{title}}</span>
+  <a href="#/insert?p={{page}}"><i class="fa fa-plus pull-right"></i></a>
+</div>
+
+<div class="scrollable" >
+  <input
+    ng-if="Ui.active('searchBar')"
+    type="search"
+    class="form-control scrollable-header"
+    placeholder="Search.." />
+
+  <div class="scrollable-content" ui-scroll-bottom='bottomReached(page)'>
+    <div class="list-group">
+      <div ng-repeat="item in scrollItems" href="#" class="list-group-item">
+		<div class="fa justified">
+			<span>{{ item.id }}</span>
+			<span>{{ item.Country }}</span>
+			<span>{{ item.City }}</span>
+			<span>{{ item.NameCh }}</span>
+			<span>{{ item.NameEn }}</span>
+			<span>{{ item.UserID }}</span>
+			<span>{{ item.CreateDate }}</span>
+			<span>{{ item.UpdateDate }}</span>
+			<i class="fa fa-toggle-{{item.Status == 2 ? 'on text-primary' : 'off'}} pull-right" ng-click="enableItem(page, item.id, (item.Status == 2 ? 1 : 2))"></i>
+			<i class="fa fa-trash pull-right" ng-click="deleteItem(page, item.id)"></i>
+			<a href="#/photo?id={{item.id}}"><i class="fa fa-photo"></i></a>
+			<a href="#/edit?id={{item.id}}&page={{page}}"><i class="fa fa-edit"></i></a>
+		</div>
+      </div>
+    </div>
+  </div>
+
+  <!--a class="btn btn-block btn-lg btn-primary scrollable-footer" ui-toggle='searchBar'>
+    <i class="fa fa-search"></i> 
+    <span ui-hide="searchBar">Show</span>
+    <span ui-show="searchBar">Hide</span>
+    Search Bar
+  </a-->
+</div>
