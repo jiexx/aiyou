@@ -317,9 +317,15 @@ func main() {
 	mgr = newManager();
 	mgr.loop();
 	mux := http.NewServeMux();
- 	mux.HandleFunc("/querier/config", QuerierConfig);
+ 	mux.HandleFunc("/task/list", TaskList);
+	mux.HandleFunc("/task/insert", TaskInsert);
+	mux.HandleFunc("/task/delete", TaskDelete);
+	mux.HandleFunc("/page/list", PageList);
+	mux.HandleFunc("/page/insert", PageInsert);
+	mux.HandleFunc("/page/update", PageUpdate);
+	mux.HandleFunc("/page/delete", PageDelete);
 	mux.HandleFunc("/config", Config);
 	http.Handle("/html/", http.StripPrefix("/html/", http.FileServer(http.Dir("/"))));
 	http.Handle("/lib/", http.StripPrefix("/lib/", http.FileServer(http.Dir("/lib"))));
-	http.ListenAndServe(":8061", mux);  
+	http.ListenAndServe(":8066", mux);  
 }

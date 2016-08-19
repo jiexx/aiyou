@@ -3,3 +3,11 @@
 2.2.查看任务结果
 3.运行
 4.配置节点
+
+1)task/list  
+  task/insert
+  task/delete?
+2)page/list
+  page/insert
+  page/update
+  page/delete?
