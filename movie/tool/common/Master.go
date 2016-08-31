@@ -49,6 +49,15 @@ type Selector struct {
 	name string
 	next *Page
 }
+func (g Selector) MarshalJSON() ([]byte, error) {  
+    return json.Marshal(map[string]interface{}{  
+        "expr": g.expr,  
+        "prefix": g.prefix,  
+        "attr": g.attr,
+		"name": g.name,
+		"next": g.next,
+    })  
+}
 type Result struct {
 	Path string
 	Out string
@@ -62,20 +71,29 @@ type Page struct {
 	values []Selector
 	links []Selector
 }
-func newPage(m *TaskManager, u string) Page {
+func (g Page) MarshalJSON() ([]byte, error) {  
+    return json.Marshal(map[string]interface{}{  
+        "time": g.url,  
+        "values": g.values,  
+        "links": g.links  
+    })  
+}
+func newPage(u string) Page {
 	t := Page{url:u, values:[]Selector{}, links:[]Selector{}};
 	return t;
 }
-func (this Page) clone() Page {
-	return nil;
+func (this *Page) update(p *Page) {
+	this.url = p.url;
+	this.values = p.values;
+	this.links = p.links;
 }
-func (this Page) String() []string {
+func (this *Page) String() []string {
 	var a []Selector
 	a = append(a, this.values...)
 	a = append(a, this.links...)
 	return a;
 }
-func (this Page) getFieldNames() []string {
+func (this *Page) getFieldNames() []string {
 	var a []string
 	for i := 0 ; i < len(this.links) ; i ++ {
 		a = append(a, fmt.Sprintf("%s varchar(512)",this.links[i]))
@@ -164,26 +182,35 @@ type Task struct {
 	next *Task
 	prev *Task
 }
-func newTask(tm *TaskManager) Task {
-	t := Task{page:newPage(""), next:nil, prev:nil};
+func newTask(n *String) Task {
+	t := Task{name:n, page:newPage(""), next:nil, prev:nil};
 	sql := fmt.Sprint("CREATE TABLE Querier.%s(%s);", this.name, strings.Join(t.page.getFieldNames(), ","))
 	rows, _ := DB.Query(sql)
 	return t;
 }
+
 type TaskManager struct {
 	freeTask *Task
-	finishTask *Task
 	busyTask map[string]*Task
+	mux sync.Mutex;
+	c_task chan int;
+}
+type TaskList struct {
+	Name string
+	Status string
 }
 func newTaskManager() TaskManager {
 	tm := TaskManager{freeTask:nil, busyTask:make(map[string]*Task)};
 	return tm;
 }
-func (this *TaskManager)enQueuePage(p *Page)  {
-	t := Task{page:p, next:nil, prev:nil};
-	this.enQueue(t);
+func (this *TaskManager)refreshTaskPage(t *Task)  {
+	go func() {
+		this.enQueue(t);
+		this.c_task <- 1;
+	}()
 }
 func (this *TaskManager)enQueue(t *Task)  {
+	this.mux.Lock();
 	if this.freeTask == nil {
 		this.freeTask = t
 		t.prev = t
@@ -194,9 +221,21 @@ func (this *TaskManager)enQueue(t *Task)  {
 		t.next = this.freeTask
 		this.freeTask.prev = t
 	}
+	this.mux.Unlock();
 }
 func (this *TaskManager)head()  {
 	return this.freeTask
+}
+func (this *TaskManager)String() string {
+	var tl []TaskList;
+	for q := this.freeTask ; q != nil && q.next != this.freeTask ; q = q.next {
+		tl = append(tl, TaskList{name:q.name, status:"free"});
+	}
+	for k, v := range this.busyTask {
+		tl = append(tl, TaskList{name:v.name, status:"busy"});
+	}
+	js, _ := json.Marshal(tl);
+	return js;
 }
 func (this *TaskManager)deQueue(t *Task)  {
 	if this.freeTask == nil || t.next == nil || t.prev == nil {
@@ -211,15 +250,16 @@ func (this *TaskManager)deQueue(t *Task)  {
 	t.next = nil
 	t.prev = nil
 }
-func (this *TaskManager)_update(page *Page, res []Result){
+func (this *TaskManager)_update(t *Task, res []Result){
 	var a []string
 	var b []string
-	for k := 0 ; k < len(page.res) ; k ++ {
+	var page = t.page;
+	for k := 0 ; k < len(res) ; k ++ {
 		for i := 0 ; i < len(page.links) ; i ++ {
 			if page.links[i].expr == res[k].Path {
 				if page.links[i].next != nil {
 					page.links[i].next.url = res[k].Out
-					this.enQueuePage(page);
+					this.refreshTaskPage(t);
 				}
 				a = append(a, page.values[k].name)
 				b = append(b, res[k].Out)
@@ -239,36 +279,47 @@ func (this *TaskManager)taskOnFinish(url string, res []Result)  {
 	t, ok := this.busyTask[url]
 	if ok {
 		delete(this.busyTask, url)
-		this._update(&t.page, res);		
+		this._update(&t, res);		
 	}
 }
 
-
+var master Master;
 type Master struct {
 	qm QuerierManager
 	tm TaskManager
 	config Configuration
+}
+type Res struct {
+	URL string
+	ADDR string
+	RESULT Result
 }
 func newMaster() Master {
 	conf := Configuration{"127.0.0.1",Option{false,false,30000,"Mozilla/5.0 (Windows NT 6.1; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/49.0.2623.87 Safari/537.36",10,30000}};
 	mgr := Master{config:conf};
 	return mgr;
 }
+func (this *Master)makeTaskStr(t Task) string {
+	conf, _ := json.Marshal(this.config);
+	return fmt.Sprintf("{url:%s,target:%s,options:%s,selector:%s}", t.page.url, this.config.Addr, conf, t.page);
+}
 func (this *Master)run()  {
-	for q := this.qm.head() ; q != nil && q.next != this.qm.head() ; q = q.next {
-		var task = this.tm.head()
-		if task != nil {
-			if q.doTask(task, this.makeTaskStr(task)) {
-				this.qm.deQueue(q)
-				this.tm.deQueue(task)
+	for {
+		select {
+		case <- this.tm.c_task:
+			this.tm.mux.Lock();
+			for q := this.qm.head() ; q != nil && q.next != this.qm.head() ; q = q.next {
+				var task = this.tm.head()
+				if task != nil {
+					if q.doTask(task, this.makeTaskStr(task)) {
+						this.qm.deQueue(q)
+						this.tm.deQueue(task)
+					}
+				}
 			}
+			this.tm.mux.Unlock();
 		}
 	}
-}
-type Res struct {
-	URL string
-	ADDR string
-	RESULT Result
 }
 func (this *Master)taskOnFinish(rs string)  {
 	var res Res
@@ -287,12 +338,8 @@ func (this *Master)configuare(cfg string) bool{
 	}
 	return false
 }
-func (this *Master)makeTaskStr(t Task) string {
-	conf, _ := json.Marshal(this.config);
-	return fmt.Sprintf("{url:%s,target:%s,options:%s,selector:%s}", t.page.url, this.config.Addr, conf, t.page);
-}
 
-var mgr Manager;
+
 func Query(w http.ResponseWriter, r *http.Request) {
 	result := false;
 	var order_req OrderRequest;
@@ -312,18 +359,106 @@ func Config(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
+func TaskList(w http.ResponseWriter, r *http.Request) {
+	if r.Method == "POST" {
+		w.Write([]byte(fmt.Sprint(master.tm)));
+	}
+}
+type TaskItem struct {
+	Name string
+	Pager Page
+}
+func TaskInsert(w http.ResponseWriter, r *http.Request) {
+	if r.Method == "POST" {
+		decoder := json.NewDecoder(r.Request.Body)
+		var ti TaskItem   
+		err := decoder.Decode(&ti)
+		if err == nil {
+			master.tm.enQueue(newTask(ti.Name));
+			w.Write([]byte("ok"));
+		}
+	}
+}
+func TaskDelete(w http.ResponseWriter, r *http.Request) {
+	if r.Method == "POST" {
+		decoder := json.NewDecoder(r.Request.Body)
+		var ti TaskItem   
+		err := decoder.Decode(&ti)
+		if err == nil {
+			for t := master.tm.head() ; t != nil && t.next != master.tm.head() ; t = t.next {
+				if ti.Name == t.name {
+					this.tm.deQueue(t)
+					break
+				}
+			}
+			w.Write([]byte("ok"));
+		}
+	}
+}
+func PageList(w http.ResponseWriter, r *http.Request) {
+	if r.Method == "POST" {
+		decoder := json.NewDecoder(r.Request.Body)
+		var ti TaskItem   
+		err := decoder.Decode(&ti)
+		if err == nil {
+			for t := master.tm.head() ; t != nil && t.next != master.tm.head() ; t = t.next {
+				if ti.Name == t.name {
+					js, _ := json.Marshal(ti.page);
+					w.Write([]byte(js));
+					break
+				}
+			}
+		}
+	}
+}
+func PageUpdate(w http.ResponseWriter, r *http.Request) {
+	if r.Method == "POST" {
+		decoder := json.NewDecoder(r.Request.Body)
+		var ti TaskItem   
+		err := decoder.Decode(&ti)
+		if err == nil {
+			for t := master.tm.head() ; t != nil && t.next != master.tm.head() ; t = t.next {
+				if ti.Name == t.name {
+					t.update(ti.Pager);
+					w.Write([]byte("ok"));
+					break
+				}
+			}
+		}
+	}
+}
+type PageItem struct {
+	URL string
+	Expr string
+	Pager Page
+}
+func PageInsert(w http.ResponseWriter, r *http.Request) {
+	if r.Method == "POST" {
+		decoder := json.NewDecoder(r.Request.Body)
+		var ti TaskItem   
+		err := decoder.Decode(&ti)
+		if err == nil {
+			for t := master.tm.head() ; t != nil && t.next != master.tm.head() ; t = t.next {
+				if ti.Name == t.name {
+					t.update(ti.Pager);
+					w.Write([]byte("ok"));
+					break
+				}
+			}
+		}
+	}
+}
+
 func main() {
-	db, _ := sql.Open("mysql", "root:dumx@/test?charset=utf8")
-	mgr = newManager();
-	mgr.loop();
+	master = newMaster();
+	
 	mux := http.NewServeMux();
  	mux.HandleFunc("/task/list", TaskList);
 	mux.HandleFunc("/task/insert", TaskInsert);
 	mux.HandleFunc("/task/delete", TaskDelete);
 	mux.HandleFunc("/page/list", PageList);
-	mux.HandleFunc("/page/insert", PageInsert);
 	mux.HandleFunc("/page/update", PageUpdate);
-	mux.HandleFunc("/page/delete", PageDelete);
+	mux.HandleFunc("/page/insert", PageInsert);
 	mux.HandleFunc("/config", Config);
 	http.Handle("/html/", http.StripPrefix("/html/", http.FileServer(http.Dir("/"))));
 	http.Handle("/lib/", http.StripPrefix("/lib/", http.FileServer(http.Dir("/lib"))));
