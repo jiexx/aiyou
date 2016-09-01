@@ -411,6 +411,11 @@ func PageList(w http.ResponseWriter, r *http.Request) {
 		}
 	}
 }
+type PageItem struct {
+	URL string
+	Expr string
+	Pager Page
+}
 func PageUpdate(w http.ResponseWriter, r *http.Request) {
 	if r.Method == "POST" {
 		decoder := json.NewDecoder(r.Request.Body)
@@ -426,11 +431,6 @@ func PageUpdate(w http.ResponseWriter, r *http.Request) {
 			}
 		}
 	}
-}
-type PageItem struct {
-	URL string
-	Expr string
-	Pager Page
 }
 func PageInsert(w http.ResponseWriter, r *http.Request) {
 	if r.Method == "POST" {
