@@ -42,6 +42,24 @@ func (g Configuration) MarshalJSON() ([]byte, error) {
         "options": g.Options,  
     })  
 }
+/*
+ [{
+		"attributes" : {
+			"href" : "/a/161292",
+			"target" : "_blank"
+		},
+		"height" : 40,
+		"html" : "Jason and the Argonauts | 金羊毛 | 杰逊王子战群妖 | 希腊战神、伊阿宋与金羊毛",
+		"nodeName" : "a",
+		"tag" : "<a href=\"/a/161292\" target=\"_blank\">Jason and the Argonauts | 金羊毛 | 杰逊王子战群妖 | 希腊战神、伊阿宋与金羊毛</a>",
+		"text" : "Jason and the Argonauts | 金羊毛 | 杰逊王子战群妖 | 希腊战神、伊阿宋与金羊毛",
+		"visible" : true,
+		"width" : 296,
+		"x" : 73.359375,
+		"y" : 354
+	}
+]
+*/
 type Selector struct {
 	expr string
 	prefix string
@@ -67,6 +85,7 @@ func (this *Selector)String() string{
 	return fmt.Sprintf("{expr:%s,prefix:%s,attr:%s}", this.expr, this.prefix, this.attr);
 }
 type Page struct {
+	key string
 	url string
 	values []Selector
 	links []Selector
@@ -103,14 +122,24 @@ func (this *Page) getFieldNames() []string {
 	}
 	return a;
 }
-func (this *Page)getLinks(res []Result) []string{
+func (this *Page)getLinks() []string{
 	var a []string
 	for k := 0 ; k < len(this.links) ; k ++ {
-		if this.links[k].result != "" {
-			append(a, this.links[k].result)
+		if this.links[k].expr != "" {
+			a = append(a, this.links[k].result)
 		}
 	}
 	return a
+}
+func (this *Page)getPages(arr map[string]*Page) {
+	for i, v := range this.links {
+		if v.next != nil  {
+			if arr[v.next.key] == nil {
+				arr[v.next.key] = v
+				v.getPages(arr)
+			}
+		}
+	}
 }
 
 type Querier struct {
@@ -179,6 +208,7 @@ func (this *QuerierManager)taskOnFinish(addr string)  {
 type Task struct {
 	name string
 	page Page
+	pages map[string]*Page
 	next *Task
 	prev *Task
 }
@@ -188,6 +218,25 @@ func newTask(n *String) Task {
 	rows, _ := DB.Query(sql)
 	return t;
 }
+func (this *Task)touchAllPages(){
+	if this.pages == nil {
+		this.pages = make(map[string]*Page)
+	}else {
+		for k := range this.pages {
+			delete(this.pages, k)
+		}
+	}
+	this.pages[this.page.key] = this.page
+	this.page.getPages(this.pages);
+}
+func (this *Task)getPagesNameStr() string{
+	var a []string;
+	for k, v := range this.pages {
+		a = append(a, k);
+	}
+	return fmt.Sprint(a);
+}
+
 
 type TaskManager struct {
 	freeTask *Task
@@ -249,6 +298,13 @@ func (this *TaskManager)deQueue(t *Task)  {
 	t.next.prev = t.prev
 	t.next = nil
 	t.prev = nil
+}
+func (this *TaskManager)getTaskByName(name string) *Task  {
+	for t := this.head() ; t != nil && t.next != this.head() ; t = t.next {
+		if name == t.name {
+			return t;
+		}
+	}
 }
 func (this *TaskManager)_update(t *Task, res []Result){
 	var a []string
@@ -364,14 +420,13 @@ func TaskList(w http.ResponseWriter, r *http.Request) {
 		w.Write([]byte(fmt.Sprint(master.tm)));
 	}
 }
-type TaskItem struct {
+type Tasker struct {
 	Name string
-	Pager Page
 }
 func TaskInsert(w http.ResponseWriter, r *http.Request) {
 	if r.Method == "POST" {
 		decoder := json.NewDecoder(r.Request.Body)
-		var ti TaskItem   
+		var ti Tasker   
 		err := decoder.Decode(&ti)
 		if err == nil {
 			master.tm.enQueue(newTask(ti.Name));
@@ -382,7 +437,7 @@ func TaskInsert(w http.ResponseWriter, r *http.Request) {
 func TaskDelete(w http.ResponseWriter, r *http.Request) {
 	if r.Method == "POST" {
 		decoder := json.NewDecoder(r.Request.Body)
-		var ti TaskItem   
+		var ti Tasker   
 		err := decoder.Decode(&ti)
 		if err == nil {
 			for t := master.tm.head() ; t != nil && t.next != master.tm.head() ; t = t.next {
@@ -395,44 +450,57 @@ func TaskDelete(w http.ResponseWriter, r *http.Request) {
 		}
 	}
 }
+type Pager struct {
+	TaskName string
+	Key string
+	OnePage Page
+}
 func PageList(w http.ResponseWriter, r *http.Request) {
 	if r.Method == "POST" {
 		decoder := json.NewDecoder(r.Request.Body)
-		var ti TaskItem   
+		var ti Pager   
 		err := decoder.Decode(&ti)
 		if err == nil {
-			for t := master.tm.head() ; t != nil && t.next != master.tm.head() ; t = t.next {
-				if ti.Name == t.name {
-					js, _ := json.Marshal(ti.page);
-					w.Write([]byte(js));
-					break
-				}
+			t := master.tm.getTaskByName(ti.TaskName)
+			if t != nil {
+				t.touchAllPages();
+				js := t.getPagesNameStr();
+				w.Write([]byte(js));
 			}
 		}
 	}
 }
-type PageItem struct {
-	URL string
-	Expr string
-	Pager Page
-}
-func PageUpdate(w http.ResponseWriter, r *http.Request) {
+func PageDetail(w http.ResponseWriter, r *http.Request) {
 	if r.Method == "POST" {
 		decoder := json.NewDecoder(r.Request.Body)
 		var ti TaskItem   
 		err := decoder.Decode(&ti)
 		if err == nil {
-			for t := master.tm.head() ; t != nil && t.next != master.tm.head() ; t = t.next {
-				if ti.Name == t.name {
-					t.update(ti.Pager);
-					w.Write([]byte("ok"));
-					break
-				}
+			t := master.tm.getTaskByName(ti.TaskName)
+			if t != nil {
+				t.touchAllPages();
+				js, _ := json.Marshal(t.pages[ti.Key]);
+				w.Write([]byte(js));
 			}
 		}
 	}
 }
-func PageInsert(w http.ResponseWriter, r *http.Request) {
+func PageFill(w http.ResponseWriter, r *http.Request) {
+	if r.Method == "POST" {
+		decoder := json.NewDecoder(r.Request.Body)
+		var ti TaskItem   
+		err := decoder.Decode(&ti)
+		if err == nil {
+			t := master.tm.getTaskByName(ti.TaskName)
+			if t != nil {
+				t.touchAllPages();
+				t.pages[ti.Key].update(ti.OnePage);
+				w.Write([]byte("ok"));
+			}
+		}
+	}
+}
+func PageLink(w http.ResponseWriter, r *http.Request) {
 	if r.Method == "POST" {
 		decoder := json.NewDecoder(r.Request.Body)
 		var ti TaskItem   
@@ -457,8 +525,9 @@ func main() {
 	mux.HandleFunc("/task/insert", TaskInsert);
 	mux.HandleFunc("/task/delete", TaskDelete);
 	mux.HandleFunc("/page/list", PageList);
-	mux.HandleFunc("/page/update", PageUpdate);
-	mux.HandleFunc("/page/insert", PageInsert);
+	mux.HandleFunc("/page/detail", PageDetail);
+	mux.HandleFunc("/page/fill", PageFill);
+	mux.HandleFunc("/page/link", PageLink);
 	mux.HandleFunc("/config", Config);
 	http.Handle("/html/", http.StripPrefix("/html/", http.FileServer(http.Dir("/"))));
 	http.Handle("/lib/", http.StripPrefix("/lib/", http.FileServer(http.Dir("/lib"))));
