@@ -106,6 +106,13 @@ func (this *Page) update(p *Page) {
 	this.values = p.values;
 	this.links = p.links;
 }
+func (this *Page) addLink(expr string) {
+	for i, v := range this.links {
+		if v.expr == expr {
+			v.link = newPage("");
+		}
+	}
+}
 func (this *Page) String() []string {
 	var a []Selector
 	a = append(a, this.values...)
@@ -500,18 +507,22 @@ func PageFill(w http.ResponseWriter, r *http.Request) {
 		}
 	}
 }
-func PageLink(w http.ResponseWriter, r *http.Request) {
+type Selector struct {
+	TaskName string
+	Key string
+	Expr string
+}
+func PageAddLink(w http.ResponseWriter, r *http.Request) {
 	if r.Method == "POST" {
 		decoder := json.NewDecoder(r.Request.Body)
-		var ti TaskItem   
+		var ti Selector   
 		err := decoder.Decode(&ti)
 		if err == nil {
-			for t := master.tm.head() ; t != nil && t.next != master.tm.head() ; t = t.next {
-				if ti.Name == t.name {
-					t.update(ti.Pager);
-					w.Write([]byte("ok"));
-					break
-				}
+			t := master.tm.getTaskByName(ti.TaskName)
+			if t != nil {
+				t.touchAllPages();
+				t.pages[ti.Key].addLink(ti.Expr);
+				w.Write([]byte("ok"));
 			}
 		}
 	}
