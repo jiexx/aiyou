@@ -402,23 +402,19 @@ func (this *Master)configuare(cfg string) bool{
 	return false
 }
 
-
-func Query(w http.ResponseWriter, r *http.Request) {
-	result := false;
-	var order_req OrderRequest;
+func ConfigUpdate(w http.ResponseWriter, r *http.Request) {
 	if r.Method == "POST" {
-		mgr.start(fmt.Sprint(r.Request.Body))
+		err := master.configuare(fmt.Sprint(r.Request.Body))
 		str := fmt.printf("{'err':%b}", err)
 		w.Header().Set("Access-Control-Allow-Origin", "*");
 		w.Write([]byte(str));
 	}
 }
-
-func Config(w http.ResponseWriter, r *http.Request) {
+func ConfigList(w http.ResponseWriter, r *http.Request) {
 	if r.Method == "POST" {
-		err := mgr.configuare(fmt.Sprint(r.Request.Body))
-		str := fmt.printf("{'err':%b}", err)
-		w.Write([]byte(str));
+		js, _ := json.Marshal(master.config);
+		w.Header().Set("Access-Control-Allow-Origin", "*");
+		w.Write([]byte(js));
 	}
 }
 
@@ -538,8 +534,9 @@ func main() {
 	mux.HandleFunc("/page/list", PageList);
 	mux.HandleFunc("/page/detail", PageDetail);
 	mux.HandleFunc("/page/fill", PageFill);
-	mux.HandleFunc("/page/link", PageLink);
-	mux.HandleFunc("/config", Config);
+	mux.HandleFunc("/page/addlink", PageAddLink);
+	mux.HandleFunc("/config/list", ConfigList);
+	mux.HandleFunc("/config/update", ConfigUpdate);
 	http.Handle("/html/", http.StripPrefix("/html/", http.FileServer(http.Dir("/"))));
 	http.Handle("/lib/", http.StripPrefix("/lib/", http.FileServer(http.Dir("/lib"))));
 	http.ListenAndServe(":8066", mux);  
