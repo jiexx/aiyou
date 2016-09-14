@@ -1,0 +1,50 @@
+<ui-state id='more' default='false'></ui-state>
+<div ui-content-for="title">
+  <a ui-if="!more" class="button" ui-set="{'more': true}">显示高级配置...</a>
+  <a ui-if="more" class="button" ui-set="{'more': false}">隐藏高级配置...</a>
+</div>
+
+<div class="scrollable" >
+  <!--input
+    ng-if="Ui.active('searchBar')"
+    type="search"
+    class="form-control scrollable-header"
+    placeholder="Search.." /-->
+
+  
+  <div class="scrollable-content section" ui-scroll-bottom='bottomReached(page)'>
+    <div class="container">
+	  <div class="form-group"><b>任务代理配置</b></div>
+      <div ng-repeat="item in proxies" href="#" class="list-group-item justified">
+		<h5 class="media-middle">{{ item.ip }}:{{ item.port }}</h5>
+		<div><ui-switch ng-model='hosts[item.id]' ng-change="changeHost()"></ui-switch></div>
+      </div>
+	  <br>
+	  <div ui-if="more">
+	  <div class="form-group"><b>HTTP头配置</b></div>
+	  <div class="form-group"><select class="form-control"><option>Mozilla/5.0 (Windows NT 6.1; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/49.0.2623.87 Safari/537.36</option></select></div>
+	  <div class="list-group-item justified"><b>加载图片</b><div><ui-switch ng-model='loadImages'></ui-switch></div></div>
+	  <div class="form-group"><b>retryTimeout</b></div>
+	  <div class="form-group">
+	    <select ng-model="retryTimeout" class="form-control" ng-change="changeRetryTimeout()">
+			<option ng-selected="1==waitTimeout">1</option><option ng-selected="2==waitTimeout">2</option><option ng-selected="3==waitTimeout">3</option><option ng-selected="4==waitTimeout">4</option><option ng-selected="5==waitTimeout">5</option>
+		</select>
+	  </div>
+	  <div class="form-group"><b>waitTimeout</b></div>
+	  <div class="form-group">
+	    <select ng-model="waitTimeout" class="form-control" ng-change="changeWaitTimeout()">
+			<option ng-selected="1==waitTimeout">1</option><option ng-selected="2==waitTimeout">2</option><option ng-selected="3==waitTimeout">3</option><option ng-selected="4==waitTimeout">4</option><option ng-selected="5==waitTimeout">5</option>
+		</select>
+	  </div>
+	  </div>
+    </div>
+  </div>
+
+  <!--a class="btn btn-block btn-lg btn-primary scrollable-footer" ui-toggle='searchBar'>
+    <i class="fa fa-search"></i> 
+    <span ui-hide="searchBar">Show</span>
+    <span ui-show="searchBar">Hide</span>
+    Search Bar
+  </a-->
+  </div>
+</div>

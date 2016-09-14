@@ -15,8 +15,10 @@ app.run(function($transform) {
 app.config(function($routeProvider) {
   $routeProvider.when('/',            {templateUrl: 'home.html', 		controller : 'home', reloadOnSearch: false});
   $routeProvider.when('/tasklist',    {templateUrl: 'tasks.html', 		controller : 'tasklist', reloadOnSearch: false}); 
+  $routeProvider.when('/taskdetail',        {templateUrl: 'edit.html', 		controller : 'taskdetail', reloadOnSearch: false}); 
   $routeProvider.when('/pagelist',    {templateUrl: 'pages.html', 		controller : 'pagelist', reloadOnSearch: false}); 
   $routeProvider.when('/edit',        {templateUrl: 'edit.html', 		controller : 'edit', reloadOnSearch: false}); 
+  $routeProvider.when('/config',        {templateUrl: 'config.html', 		controller : 'config', reloadOnSearch: false}); 
 });
 
 app.factory('DATA', function () {
@@ -44,8 +46,8 @@ app.controller('appCtrl', function ($scope, $rootScope, $location, $cookieStore,
 });
 
 function authorize($cookieStore, $location) {
-	if(!$cookieStore.get("uid"))
-		$location.path('/');
+	//if(!$cookieStore.get("uid"))
+	//	$location.path('/');
 }
 
 
@@ -88,11 +90,9 @@ app.controller('home', function ($scope, $rootScope, $location, $cookieStore, $h
 
 
 app.controller('tasklist', function ($scope, $rootScope, $location, $cookieStore, $http, $timeout, DATA) {
-	$scope.title = '任务';
 	authorize($cookieStore, $location);
-	ajaxPost($http, DATA, '/task/list', null, function(resp){
-		$scope.results = resp;
-	});
+	$scope.tasks = [{id:1, name:'127.0.0.1',start:'2016-09-02T03:00:00.000Z',end:'2016-09-02T04:00:00.000Z'},{id:1, name:'127.0.0.1',start:'2016-09-02T03:00:00.000Z',end:'2016-09-02T04:00:00.000Z'}];
+
 });
 
 app.controller('pagelist', function ($scope, $rootScope, $location, $cookieStore, $http, $timeout, DATA) {
@@ -101,6 +101,11 @@ app.controller('pagelist', function ($scope, $rootScope, $location, $cookieStore
 	ajaxPost($http, DATA, '/page/list', {Name:$location.$$search.name,Pager:null}, function(resp){
 		$scope.results = resp;
 	});
+});
+
+app.controller('config', function ($scope, $rootScope, $location, $cookieStore, $http, $timeout, DATA) {
+	authorize($cookieStore, $location);
+	$scope.proxies = [{id:1, ip:'127.0.0.1',port:80,status:true},{id:2, ip:'192.168.1.1',port:80,status:false}];
 });
 
 app.controller('photo', function ($scope, $rootScope, $location, $cookieStore, $http, $timeout, DATA) {
