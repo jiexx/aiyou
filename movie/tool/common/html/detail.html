@@ -1,0 +1,56 @@
+<div ui-content-for="title">
+  <span >任务管理</span>
+</div>
+
+<div class="scrollable">  
+  <div class="scrollable-content section">
+
+    <div class=" text-center">
+		<div >
+		  <form role="form" ng-submit='update()' >
+			<fieldset>
+			    <div class="form-group justified">
+				  <div ui-state id="q1" class="pull-rigth btn-group">XPath/Selector<div><a class="btn fa fa-question-circle" ui-toggle="q1"></a><ul><li>HTML的Dom地址</li></ul></div></div>
+				  <div ui-state id="q2" class="pull-rigth btn-group">attributes<a class="btn fa fa-question-circle" ui-toggle="q2"></a><ul><li>可为空</li><li>href</li></ul></div></div>
+				  <div ui-state id="q3" class="pull-rigth btn-group">object<a class="btn fa fa-question-circle" ui-toggle="q2"></a><ul><li>可以为如下值</li><li>html</li><li>text</li><li>tag</li></ul></div></div>
+				</div>
+				<div ng-repeat="item in detail" class="form-group justified">
+				  <div><input  ng-model="item.RegionID" class="form-control pull-left"></input></div>
+				  <div><input  ng-model="item.RegionID" class="form-control pull-left"></input></div>
+				</div>
+				
+			</fieldset>
+			<br>
+			<span class="pull-left bg-info">{{}}</span>
+
+			<button class="btn btn-primary form-control">
+			  提交
+			</button>
+
+		  </form>
+		</div>
+		<div class="clearfix"></div>
+      <div >
+      </div>
+/*
+ [{
+		"attributes" : {
+			"href" : "/a/161292",
+			"target" : "_blank"
+		},
+		"height" : 40,
+		"html" : "Jason and the Argonauts | 金羊毛 | 杰逊王子战群妖 | 希腊战神、伊阿宋与金羊毛",
+		"nodeName" : "a",
+		"tag" : "<a href=\"/a/161292\" target=\"_blank\">Jason and the Argonauts | 金羊毛 | 杰逊王子战群妖 | 希腊战神、伊阿宋与金羊毛</a>",
+		"text" : "Jason and the Argonauts | 金羊毛 | 杰逊王子战群妖 | 希腊战神、伊阿宋与金羊毛",
+		"visible" : true,
+		"width" : 296,
+		"x" : 73.359375,
+		"y" : 354
+	}
+]
+*/
+    </div>
+
+  </div>
+</div>
