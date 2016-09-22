@@ -1,22 +1,75 @@
 <div ui-content-for="title">
-  <span >任务管理</span>
+  <span >猎物管理</span>
 </div>
 
 <div class="scrollable">  
   <div class="scrollable-content section">
 
-    <div class=" text-center">
+    <div class=" container">
 		<div >
 		  <form role="form" ng-submit='update()' >
 			<fieldset>
-			    <div class="form-group justified">
-				  <div ui-state id="q1" class="pull-rigth btn-group">XPath/Selector<div><a class="btn fa fa-question-circle" ui-toggle="q1"></a><ul><li>HTML的Dom地址</li></ul></div></div>
-				  <div ui-state id="q2" class="pull-rigth btn-group">attributes<a class="btn fa fa-question-circle" ui-toggle="q2"></a><ul><li>可为空</li><li>href</li></ul></div></div>
-				  <div ui-state id="q3" class="pull-rigth btn-group">object<a class="btn fa fa-question-circle" ui-toggle="q2"></a><ul><li>可以为如下值</li><li>html</li><li>text</li><li>tag</li></ul></div></div>
+			    <div class="justified media">
+                  <div >
+				    <input type="text" ng-model="item.expr" class="form-control"></input>
+				  </div>
+				  <div class="btn-group">
+				    <div>
+				      <a class="btn text-muted"><i class="fa fa-arrow-circle-left"></i></a>
+				      <small class="text-muted">追踪猎物名</small>
+					</div>
+				  </div>
 				</div>
-				<div ng-repeat="item in detail" class="form-group justified">
-				  <div><input  ng-model="item.RegionID" class="form-control pull-left"></input></div>
-				  <div><input  ng-model="item.RegionID" class="form-control pull-left"></input></div>
+			    <div class="justified media">
+                  <div >
+				    <input type="text" ng-model="item.expr" class="form-control" placeholder="?为DOM元素值. eg. www.web.com/?;[]为csv数据/db数据"></input>
+				  </div>
+				  <div class="btn-group">
+				    <div>
+				      <a class="btn text-muted"><i class="fa fa-arrow-circle-left"></i></a>
+				      <small class="text-muted">网页URL</small>
+					</div>
+				  </div>
+				</div>
+				<div ng-repeat="item in detail" class="justified list-item-patch-i">
+				  <div>
+				    <ui-state id='options{{$index}}' default='0'></ui-state>
+					<ui-state id='arrays{{$index}}' default='0'></ui-state>
+					<ui-state id='help{{$index}}' default='0'></ui-state>
+					<a ui-if='arrays{{$index}}' class="media-unleft">
+					  <i class="fa fa-at"></i>
+					</a>
+				    <input type="text" ng-model="item.expr" class="form-control"></input>
+				  </div>
+				  <div class="btn-group">
+				    <div>
+					  <a class="btn" ui-turn-on='help{{$index}}'>
+					    <i ui-if='help{{$index}}' class="fa fa-arrow-circle-down"></i>
+						<i ui-if='!help{{$index}}' class="fa fa-arrow-circle-left"></i>
+					  </a>
+					  <small class="text-muted h6">指定网页DOM元素</small>
+					  <a class="btn" ng-click="addObject()"><i class="fa fa-plus-circle"></i></a>
+					  
+                      <ul ui-state='help{{$index}}' 
+					      ui-show='help{{$index}}' 
+						  ui-outer-click="Ui.turnOff('help' + $index)" 
+						  ui-outer-click-if="Ui.active('help' + $index)" class="dropdown-menu text-muted">
+                        <li><h6 class="media-right">你可以选择</h6></li>
+					    <li class="divider"></li>
+						<li><h6 class="media-left"><a class="btn" ui-toggle='arrays{{$index}}'><i class="fa fa-at"></i></a>标记追踪网页DOM元素为数组</h6></li>
+                        <li><h6 class="media-left"><a class="btn" ui-toggle='options{{$index}}'><i class="fa fa-link"></i></a>指定需要继续追踪的猎物</h6></li>
+                        <li><h6 class="media-left"><a class="btn"><i class="fa fa-tags"></i></a>追踪网页DOM元素属性</h6></li>
+					    <li><h6 class="media-left"><div class="btn"><i class="fa fa-plus-circle"></i></div>新增需要追踪的网页DOM元素</h6></li>
+                      </ul>
+					  
+					</div>
+				  </div>
+				  <div class="media-middle" ui-state='options{{$index}}' ui-if='options{{$index}}'>
+				    <input type="text" class="form-control" placeholder="指定需要继续搜索的模板"></input>
+				  </div>
+				  <div class="media-middle" ui-state='prop{{$index}}' ui-if='prop{{$index}}'>
+				    <input type="text" class="form-control" placeholder="指定网页DOM元素的属性,eg.href, tag, ..."></input>
+				  </div>
 				</div>
 				
 			</fieldset>
@@ -32,7 +85,7 @@
 		<div class="clearfix"></div>
       <div >
       </div>
-/*
+<!--
  [{
 		"attributes" : {
 			"href" : "/a/161292",
@@ -49,7 +102,7 @@
 		"y" : 354
 	}
 ]
-*/
+-->
     </div>
 
   </div>

@@ -6734,6 +6734,11 @@ a.thumbnail.active {
   padding-right: 10px;
 }
 
+.media-unleft{
+  position: absolute;
+  margin-top: 5px;
+}
+
 .media-left,
 .media-right,
 .media-body {

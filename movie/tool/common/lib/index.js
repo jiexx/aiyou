@@ -48,8 +48,8 @@ function authorize($cookieStore, $location) {
 	//if(!$cookieStore.get("uid"))
 	//	$location.path('/');
 
-	$http.get('../lib/barcfg.js').success (function(CFG){
-	});//load file...
+	//$http.get('../lib/barcfg.js').success (function(CFG){
+	//});//load file...
 }
 
 
@@ -99,6 +99,11 @@ app.controller('tasklist', function ($scope, $rootScope, $location, $cookieStore
 
 app.controller('taskdetail', function ($scope, $rootScope, $location, $cookieStore, $http, $timeout, DATA) {
 	authorize($cookieStore, $location);
+	$scope.detail = [{expr:'',arrays:false,property:null,value:''}];
+	$scope.addObject = function() {
+		var a = [{expr:'',arrays:false,property:null,value:''}];
+		$scope.detail = a.concat($scope.detail);
+	};
 });
 
 app.controller('pagelist', function ($scope, $rootScope, $location, $cookieStore, $http, $timeout, DATA) {
@@ -106,6 +111,7 @@ app.controller('pagelist', function ($scope, $rootScope, $location, $cookieStore
 	authorize($cookieStore, $location);
 	ajaxPost($http, DATA, '/page/list', {Name:$location.$$search.name,Pager:null}, function(resp){
 		$scope.results = resp;
+		$scope.apply();
 	});
 });
 
