@@ -3,6 +3,7 @@ var app = angular.module('roger', [
   'ngRoute',
   'mobile-angular-ui',
   'mobile-angular-ui.gestures',
+  'mobile-angular-ui.core.sharedState',
   "ngCookies",
   'myphoto'
 ]);
@@ -97,12 +98,17 @@ app.controller('tasklist', function ($scope, $rootScope, $location, $cookieStore
 
 });
 
-app.controller('taskdetail', function ($scope, $rootScope, $location, $cookieStore, $http, $timeout, DATA) {
+app.controller('taskdetail', function ($scope, $rootScope, $location, $cookieStore, $http, $timeout, SharedState, DATA) {
 	authorize($cookieStore, $location);
+	$scope.pages = [{id:new Date().getTime(), name:'', url: ''}];
 	$scope.detail = [{expr:'',arrays:false,property:null,value:''}];
 	$scope.addObject = function() {
 		var a = [{expr:'',arrays:false,property:null,value:''}];
 		$scope.detail = a.concat($scope.detail);
+		for( var i in arguments ){
+			SharedState.initialize($rootScope, arguments[i]);
+		}
+		
 	};
 });
 
@@ -111,7 +117,8 @@ app.controller('pagelist', function ($scope, $rootScope, $location, $cookieStore
 	authorize($cookieStore, $location);
 	ajaxPost($http, DATA, '/page/list', {Name:$location.$$search.name,Pager:null}, function(resp){
 		$scope.results = resp;
-		$scope.apply();
+		//$state.go($state.current, {}, {reload: true});
+		//$SharedState.initialize($scope, 'myId');
 	});
 });
 
