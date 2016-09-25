@@ -2331,7 +2331,7 @@
   content: "\f1f9";
 }
 
-.fa-at:before {
+.fa-repeat:before {
   content: "\f1fa";
 }
 
@@ -6732,11 +6732,6 @@ a.thumbnail.active {
 .media-left,
 .media > .pull-left {
   padding-right: 10px;
-}
-
-.media-unleft{
-  position: absolute;
-  margin-top: 5px;
 }
 
 .media-left,

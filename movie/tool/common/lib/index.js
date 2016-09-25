@@ -100,11 +100,11 @@ app.controller('tasklist', function ($scope, $rootScope, $location, $cookieStore
 
 app.controller('taskdetail', function ($scope, $rootScope, $location, $cookieStore, $http, $timeout, SharedState, DATA) {
 	authorize($cookieStore, $location);
-	$scope.pages = [{id:new Date().getTime(), name:'', url: ''}];
-	$scope.detail = [{expr:'',arrays:false,property:null,value:''}];
-	$scope.addObject = function() {
+	$scope.currPage = 0;
+	$scope.pages = [{id:new Date().getTime(), name:'空(*自己)', url: '', tags: [{expr:'',arrays:false,property:null,value:''}] }];
+	$scope.addTag = function() {
 		var a = [{expr:'',arrays:false,property:null,value:''}];
-		$scope.detail = a.concat($scope.detail);
+		$scope.pages.tags = $scope.pages.tags.push(a);
 		for( var i in arguments ){
 			SharedState.initialize($rootScope, arguments[i]);
 		}

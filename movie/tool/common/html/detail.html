@@ -11,7 +11,18 @@
 			<fieldset>
 			    <div class="justified media">
                   <div >
-				    <input type="text" ng-model="pages[0].name" class="form-control"></input>
+				    <input type="text" ng-model="pages[currPage].id" class="form-control" readonly></input>
+				  </div>
+				  <div class="btn-group">
+				    <div>
+				      <a class="btn text-muted"><i class="fa fa-arrow-circle-left"></i></a>
+				      <small class="text-muted">追踪猎物ID</small>
+					</div>
+				  </div>
+				</div>
+			    <div class="justified media">
+                  <div >
+				    <input type="text" ng-model="pages[currPage].name" class="form-control"></input>
 				  </div>
 				  <div class="btn-group">
 				    <div>
@@ -31,45 +42,70 @@
 					</div>
 				  </div>
 				</div>
-				<div ng-repeat="item in detail" class="justified list-item-patch-i">
+				<div ng-repeat="item in pages.tags" class="justified list-item-patch-i">
 				  <div>
-				    <ui-state id='options{{$index}}' default='0'></ui-state>
-					<ui-state id='prop{{$index}}' default='0'></ui-state>
-					<ui-state id='arrays{{$index}}' default='0'></ui-state>
+				    <ui-state id='tagTrace{{$index}}' default='0'></ui-state>
+					<ui-state id='tagTraceNew{{$index}}' default='0'></ui-state>
+					<ui-state id='tagProperty{{$index}}' default='0'></ui-state>
+					<ui-state id='tagPropSelected{{$index}}' default='0'></ui-state>
+					<ui-state id='tagRepeated{{$index}}' default='0'></ui-state>
 					<ui-state id='help{{$index}}' default='0'></ui-state>
-					<a ui-if='arrays{{$index}}' class="media-unleft">
-					  <i class="fa fa-at"></i>
-					</a>
 				    <input type="text" ng-model="item.expr" class="form-control"></input>
 				  </div>
 				  <div class="btn-group">
 				    <div class="pull-left">
 					    <a class="btn" ui-turn-on='help{{$index}}'>
 					      <i ui-if='help{{$index}}' class="fa fa-arrow-circle-down"></i>
-					  	<i ui-if='!help{{$index}}' class="fa fa-arrow-circle-left"></i>
+					  	  <i ui-if='!help{{$index}}' class="fa fa-arrow-circle-left"></i>
 					    </a>
-					    <small class="text-muted h6" ui-if='!options{{$index}}&&!prop{{$index}}'>追踪网页DOM元素</small>
-					    <a ng-if='$last||$last==undefine' class="btn" ng-click="addObject('help'+($index+1),'options'+($index+1),'arrays'+($index+1),'help'+($index+1),'prop'+($index+1))"><i class="fa fa-plus-circle"></i></a>
-					    
+					    <small class="text-muted h6" 
+						  ui-if='!tagRepeated{{$index}}&&!tagPropSelected{{$index}}&&!tagTraceNew{{$index}}'>追踪网页DOM标签
+						</small>
                         <ul
 					        ui-if='help{{$index}}'
-					  	  ui-outer-click="Ui.turnOff('help' + $index)" 
-					  	  ui-outer-click-if="Ui.active('help' + $index)" class="dropdown-menu text-muted">
+					  	    ui-outer-click="Ui.turnOff('help' + $index)" 
+					  	    ui-outer-click-if="Ui.active('help' + $index)" class="dropdown-menu text-muted">
                           <li><h6 class="media-right">你可以选择</h6></li>
 					      <li class="divider"></li>
-					  	<li><h6 class="media-left"><a class="btn" ui-toggle='arrays{{$index}}'><i class="fa fa-at"></i></a>标记网页DOM元素为数组</h6></li>
-                          <li><h6 class="media-left"><a class="btn" ui-toggle='options{{$index}}'><i class="fa fa-link"></i></a>继续根据网页DOM元素追踪猎物</h6></li>
-						  <li class="container"><small class="media-right">
-						  <select type="text" class="form-control" placeholder="">
-						    <option></option>
-						    <option ng-repeat='page in pages' ng-value="page.id"><span >{{page.name == ''? page.id : page.name}}</span>编辑</option>
-							<option><span><a>新建</a></span></option>
-						  </select></small></li>
-                          <li><h6 class="media-left"><a class="btn" ui-toggle='prop{{$index}}'><i class="fa fa-tags"></i></a>追踪网页DOM元素属性</h6></li>
-						  <li class="container"><small class="media-right"><input type="text" class="form-control " placeholder="eg.href, tag, ..."></input></small></li>
-					      <li><h6 class="media-left"><div class="btn"><i class="fa fa-plus-circle"></i></div>新增追踪网页DOM元素</h6></li>
+					  	  <li><h6 class="media-left"><a class="btn" ui-toggle='tagRepeated{{$index}}'><i class="fa fa-repeat"></i></a>标记该网页DOM标签为数组</h6></li>
+                          <li><h6 class="media-left"><a class="btn" ui-toggle='tagTrace{{$index}}'><i class="fa fa-link"></i></a>继续根据该网页DOM标签追踪猎物</h6>
+						    <div class="dropdown" ui-if='tagTrace{{$index}}'>
+							  <ul class="dropdown-menu img-del text-muted">
+						        <li ng-repeat='page in pages'>
+								  <div ui-toggle='tagTraceNew{{$index}}'>
+								    <a class="btn media-body" ><i ui-if='!tagTraceNew{{$index}}' class="fa fa-circle-o"></i><i ui-if='tagTraceNew{{$index}}' class="fa fa-check-circle-o"></i></a>
+								    <h6 class="media-body media-middle">{{page.id}}</h6>
+								    <h6 class="media-body media-middle media-right text-nowrap">{{page.name}}</h6>
+								    <a class="btn media-body"><i class="fa fa-edit"></i></a>
+								  </div>
+								</li>
+								<li><h6 class="media-left"><div class="btn"><a class="fa fa-plus-circle"></a></div>新猎物</h6></li>
+						      </ul>
+							</div>
+						  </li>
+                          <li><h6 class="media-left"><a class="btn" ui-toggle='tagProperty{{$index}}'><i class="fa fa-tags"></i></a>追踪该网页DOM标签的属性</h6>
+						    <div class="dropdown" ui-if='tagProperty{{$index}}'>
+							  <ul class="dropdown-menu img-del text-muted">
+								<li>
+								  <small class="btn media-right"><input type="text" class="form-control " style="width:150px" placeholder="eg.href, tag, ..." value=""></input></small>
+								  <div class="btn media-right" ui-toggle='tagPropSelected{{$index}}' >
+								    <i ui-if='!tagPropSelected{{$index}}' class="fa fa-check btn btn-primary "   ></i>
+								    <i class="fa fa-remove btn btn-primary" ui-if='tagPropSelected{{$index}}' ></i>
+							      </div>
+								</li>
+						      </ul>
+							</div>
+						  </li>
+					      <li ng-if='$last||$last==undefine'>
+						    <h6 class="media-left">
+							  <div class="btn"><a ng-click="Ui.turnOff('help' + $index);addTag('help'+($index+1),'tagTrace'+($index+1),'tagRepeated'+($index+1),'tagProperty'+($index+1))"><i class="fa fa-plus-circle"></i></a></div>追踪新网页DOM标签
+							</h6>
+						  </li>
                         </ul>
 				    </div>
+					<a ui-if='tagRepeated{{$index}}' class="btn"><i class="fa fa-repeat"></i></a>
+					<a ui-if='tagPropSelected{{$index}}' class="btn"><i class="fa fa-tags"></i></a>
+					<a ui-if='tagTraceNew{{$index}}' class="btn"><i class="fa fa-link"></i></a>
 				  </div>
 				</div>
 				
