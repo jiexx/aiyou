@@ -16,8 +16,8 @@ app.run(function($transform) {
 app.config(function($routeProvider) {
   $routeProvider.when('/',            {templateUrl: 'home.html', 		controller : 'home', reloadOnSearch: false});
   $routeProvider.when('/tasklist',    {templateUrl: 'tasks.html', 		controller : 'tasklist', reloadOnSearch: false}); 
-  $routeProvider.when('/taskdetail',        {templateUrl: 'detail.html', 		controller : 'taskdetail', reloadOnSearch: false}); 
-  $routeProvider.when('/pagelist',    {templateUrl: 'pages.html', 		controller : 'pagelist', reloadOnSearch: false}); 
+  $routeProvider.when('/page',        {templateUrl: 'detail.html', 		controller : 'page', reloadOnSearch: false}); 
+  $routeProvider.when('/resultlist',    {templateUrl: 'results.html', 		controller : 'resultlist', reloadOnSearch: false}); 
   $routeProvider.when('/config',        {templateUrl: 'config.html', 		controller : 'config', reloadOnSearch: false}); 
 });
 
@@ -42,7 +42,21 @@ function setUserID(userID) {
 };
 
 app.controller('appCtrl', function ($scope, $rootScope, $location, $cookieStore, DATA) {
-	
+	$http.get('../modal/md5.js').success (function(md5){
+		window.md5 = md5;
+	});//load file...
+	$http.get('../modal/Tag.js').success (function(Tag){
+		window.Tag = Tag;
+	});//load file...
+	$http.get('../modal/Page.js').success (function(Page){
+		window.Page = Page;
+	});//load file...
+	$http.get('../modal/Task.js').success (function(Task){
+		window.Task = Task;
+	});//load file...
+	$http.get('../modal/Manager.js').success (function(Manager){
+		window.Manager = Manager;
+	});//load file...
 });
 
 function authorize($cookieStore, $location) {
@@ -94,14 +108,15 @@ app.controller('home', function ($scope, $rootScope, $location, $cookieStore, $h
 
 app.controller('tasklist', function ($scope, $rootScope, $location, $cookieStore, $http, $timeout, DATA) {
 	authorize($cookieStore, $location);
-	$scope.tasks = [{id:1, name:'127.0.0.1',start:'2016-09-02T03:00:00.000Z',end:'2016-09-02T04:00:00.000Z'},{id:1, name:'127.0.0.1',start:'2016-09-02T03:00:00.000Z',end:'2016-09-02T04:00:00.000Z'}];
-
+	Manager.newTask('test');
+	$scope.tasks = Manager.getTasks()
 });
 
-app.controller('taskdetail', function ($scope, $rootScope, $location, $cookieStore, $http, $timeout, SharedState, DATA) {
+app.controller('page', function ($scope, $rootScope, $location, $cookieStore, $http, $timeout, SharedState, DATA) {
 	authorize($cookieStore, $location);
-	$scope.currPage = 0;
-	$scope.pages = [{id:new Date().getTime(), name:'空(*自己)', url: '', tags: [{expr:'',arrays:false,property:null,value:''}] }];
+	var t = Manager.getTask($location.$$search.tid);
+	$scope.currPage = t.getPage($location.$$search.id);
+	$scope.pages = t.getPages();
 	$scope.addTag = function() {
 		var a = [{expr:'',arrays:false,property:null,value:''}];
 		$scope.pages.tags = $scope.pages.tags.push(a);
@@ -112,7 +127,7 @@ app.controller('taskdetail', function ($scope, $rootScope, $location, $cookieSto
 	};
 });
 
-app.controller('pagelist', function ($scope, $rootScope, $location, $cookieStore, $http, $timeout, DATA) {
+app.controller('resultlist', function ($scope, $rootScope, $location, $cookieStore, $http, $timeout, DATA) {
 	$scope.title = '页面';
 	authorize($cookieStore, $location);
 	ajaxPost($http, DATA, '/page/list', {Name:$location.$$search.name,Pager:null}, function(resp){

@@ -42,7 +42,7 @@
 					</div>
 				  </div>
 				</div>
-				<div ng-repeat="item in pages.tags" class="justified list-item-patch-i">
+				<div ng-repeat="item in pages[0].tags" class="justified list-item-patch-i">
 				  <div>
 				    <ui-state id='tagTrace{{$index}}' default='0'></ui-state>
 					<ui-state id='tagTraceNew{{$index}}' default='0'></ui-state>
@@ -71,7 +71,7 @@
                           <li><h6 class="media-left"><a class="btn" ui-toggle='tagTrace{{$index}}'><i class="fa fa-link"></i></a>继续根据该网页DOM标签追踪猎物</h6>
 						    <div class="dropdown" ui-if='tagTrace{{$index}}'>
 							  <ul class="dropdown-menu img-del text-muted">
-						        <li ng-repeat='page in pages'>
+						        <li ng-repeat='page in pages[0]'>
 								  <div ui-toggle='tagTraceNew{{$index}}'>
 								    <a class="btn media-body" ><i ui-if='!tagTraceNew{{$index}}' class="fa fa-circle-o"></i><i ui-if='tagTraceNew{{$index}}' class="fa fa-check-circle-o"></i></a>
 								    <h6 class="media-body media-middle">{{page.id}}</h6>

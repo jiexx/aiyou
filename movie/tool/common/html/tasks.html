@@ -1,5 +1,5 @@
 <div ui-content-for="title">
-  <a href="#" ui-set="{'more': true}">任务清单</a>
+  <a href="#" ui-set="{'more': true}">任务清单</a><a ng-click="addTask()"><i class="fa fa-plus-o pull-right"></i></a>
 </div>
 
 <div class="scrollable" >
@@ -12,10 +12,10 @@
   
   <div class="scrollable-content section" ui-scroll-bottom='bottomReached(page)'>
     <div class="container">
-      <a ng-repeat="item in tasks" href="#/taskdetail" class="list-group-item justified">
+      <a ng-repeat="item in tasks" href="#/page?tid={{item.id}}&id=0" class="list-group-item justified">
+		<div class="h5 media-middle">{{ $index }}</div>
 		<div class="h5 media-middle">{{ item.name }}</div>
-		<div class="h5 media-middle">{{ item.start }}</div>
-		<div class="h5 media-middle">{{ item.end }}</div>
+		<div class="h5 media-middle">{{ item.time }}</div>
 		<div class="h5 media-middle"><i class="fa fa-chevron-right pull-right"></i></div>
       </a>
     </div>
