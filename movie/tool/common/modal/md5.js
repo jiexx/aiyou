@@ -1,4 +1,5 @@
 /*md5.createHash('12345')*/
+(function() {
     var md5 = {
       createHash: function(str) {
         if (null === str) {
@@ -173,3 +174,4 @@
       }
     };
     return md5;
+})();

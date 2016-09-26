@@ -1,4 +1,5 @@
-var Task =  {
+(function() {
+	var Task =  {
 	name:'',
 	time:new Date().toLocaleString(),
 	pages:[],
@@ -63,3 +64,5 @@ var Task =  {
 		return f;
 	}
 };
+	return Task;
+})();

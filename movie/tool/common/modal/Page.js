@@ -1,68 +1,77 @@
-var Page =  {
-	id:'',
-	name:'Empty',
-	url:null,
-	isShadow:false,
-	tags:[],
-	
-	addTag: function(tag) {
-		if(isShadow) {
-			return;
-		}
-		this.tags[tag.id] = tag;
-	},
-	
-	removeTag: function(tag) {
-		if(isShadow) {
-			return;
-		}
-		delete this.tags[tag.id];
-	},
-	
-	getTags: function() {  //web ui list
-		return this.tags;
-	},
-	
-	changeUrl: function(url) {
-		if(isShadow) {
-			return;
-		}
-		this.url = url;
-	},
-	
-	changeName: function(name) {
-		if(isShadow) {
-			return;
-		}
-		this.name = name;
-	},
-	
-	print: function(output) {
-		output += '{id:'+this.id+',name:'+this.name+',url:'+this.url+',tags:[';
-		for(var i in this.tags) {
-			this.tags[i].print(output);
-		}
-		output +=']}';
-	},
-	
-	shadow: function() {
-		function F() {};
-		F.prototype = Page;
-		var f = new F();
+(function() {
+	var Page =  {
+		id:'',
+		name:'Empty',
+		url:null,
+		isShadow:false,
+		tags:[],
 		
-		f.id = this.id;
-		f.name = this.name;
-		f.isShadow = true;
-		f.tags = this.tags;
-		return f;
-	},
-	
-	create: function() {
-		function F() {};
-		F.prototype = Page;
-		var f = new F();
+		newTag: function() {  //web op
+			var t = Tag.create(this);
+			this.addTag(t);
+		},
 		
-		f.id = 'PAG'+md5.createHash(''+(new Date().getTime()+Math.floor(Math.random()*1000+1)));
-		return f;
-	}
-};
+		addTag: function(tag) {
+			if(this.isShadow) {
+				return;
+			}
+			this.tags[tag.id] = tag;
+		},
+		
+		removeTag: function(tag) {
+			if(this.isShadow) {
+				return;
+			}
+			delete this.tags[tag.id];
+		},
+		
+		getTags: function() {  //web ui list
+			return this.tags;
+		},
+		
+		changeUrl: function(url) {
+			if(this.isShadow) {
+				return;
+			}
+			this.url = url;
+		},
+		
+		changeName: function(name) {
+			if(this.isShadow) {
+				return;
+			}
+			this.name = name;
+		},
+		
+		print: function(output) {
+			output += '{id:'+this.id+',name:'+this.name+',url:'+this.url+',tags:[';
+			for(var i in this.tags) {
+				this.tags[i].print(output);
+			}
+			output +=']}';
+		},
+		
+		shadow: function() {
+			function F() {};
+			F.prototype = Page;
+			var f = new F();
+			
+			f.id = this.id;
+			f.name = this.name;
+			f.isShadow = true;
+			f.tags = this.tags;
+			return f;
+		},
+		
+		create: function() {
+			function F() {};
+			F.prototype = Page;
+			var f = new F();
+			
+			f.id = 'PAG'+md5.createHash(''+(new Date().getTime()+Math.floor(Math.random()*1000+1)));
+			f.addTag(Tag.create(f));
+			return f;
+		}
+	};
+	return Page;
+})();

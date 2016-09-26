@@ -41,21 +41,22 @@ function setUserID(userID) {
     angular.element(document.body).injector().get('DATA').USER_ID = userID;
 };
 
-app.controller('appCtrl', function ($scope, $rootScope, $location, $cookieStore, DATA) {
+app.controller('appCtrl', function ($scope, $rootScope, $http, $location, $cookieStore, DATA) {
+
 	$http.get('../modal/md5.js').success (function(md5){
-		window.md5 = md5;
+		window.md5 = eval(md5);
 	});//load file...
 	$http.get('../modal/Tag.js').success (function(Tag){
-		window.Tag = Tag;
+		window.Tag = eval(Tag);
 	});//load file...
 	$http.get('../modal/Page.js').success (function(Page){
-		window.Page = Page;
+		window.Page = eval(Page);
 	});//load file...
 	$http.get('../modal/Task.js').success (function(Task){
-		window.Task = Task;
+		window.Task = eval(Task);
 	});//load file...
 	$http.get('../modal/Manager.js').success (function(Manager){
-		window.Manager = Manager;
+		window.Manager = eval(Manager);
 	});//load file...
 });
 
@@ -117,13 +118,12 @@ app.controller('page', function ($scope, $rootScope, $location, $cookieStore, $h
 	var t = Manager.getTask($location.$$search.tid);
 	$scope.currPage = t.getPage($location.$$search.id);
 	$scope.pages = t.getPages();
+	$scope.tags = $scope.currPage.getTags();
 	$scope.addTag = function() {
-		var a = [{expr:'',arrays:false,property:null,value:''}];
-		$scope.pages.tags = $scope.pages.tags.push(a);
+		$scope.currPage.newTag();
 		for( var i in arguments ){
 			SharedState.initialize($rootScope, arguments[i]);
 		}
-		
 	};
 });
 

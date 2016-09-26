@@ -11,7 +11,7 @@
 			<fieldset>
 			    <div class="justified media">
                   <div >
-				    <input type="text" ng-model="pages[currPage].id" class="form-control" readonly></input>
+				    <input type="text" ng-model="currPage.id" class="form-control" readonly></input>
 				  </div>
 				  <div class="btn-group">
 				    <div>
@@ -22,7 +22,7 @@
 				</div>
 			    <div class="justified media">
                   <div >
-				    <input type="text" ng-model="pages[currPage].name" class="form-control"></input>
+				    <input type="text" ng-model="currPage.name" class="form-control"></input>
 				  </div>
 				  <div class="btn-group">
 				    <div>
@@ -42,7 +42,7 @@
 					</div>
 				  </div>
 				</div>
-				<div ng-repeat="item in pages[0].tags" class="justified list-item-patch-i">
+				<div ng-repeat="item in tags" class="justified list-item-patch-i">
 				  <div>
 				    <ui-state id='tagTrace{{$index}}' default='0'></ui-state>
 					<ui-state id='tagTraceNew{{$index}}' default='0'></ui-state>
