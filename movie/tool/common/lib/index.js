@@ -116,7 +116,7 @@ app.controller('tasklist', function ($scope, $rootScope, $location, $cookieStore
 app.controller('page', function ($scope, $rootScope, $location, $cookieStore, $http, $timeout, SharedState, DATA) {
 	authorize($cookieStore, $location);
 	var t = Manager.getTask($location.$$search.tid);
-	$scope.currPage = t.getPage($location.$$search.id);
+	$scope.currPage = t.getRootPage();
 	$scope.pages = t.getPages();
 	$scope.tags = $scope.currPage.getTags();
 	$scope.addTag = function() {

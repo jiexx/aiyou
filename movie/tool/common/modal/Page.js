@@ -1,10 +1,19 @@
 (function() {
 	var Page =  {
-		id:'',
-		name:'Empty',
-		url:null,
-		isShadow:false,
-		tags:[],
+		create: function() {
+			function C() {};
+			C.prototype = Page;
+			var obj = new C();
+			
+			obj.name = 'Empty',
+			obj.url = null,
+			obj.isShadow = false,
+			obj.tags = [],
+			obj.id = 'PAG'+md5.createHash(''+(new Date().getTime()+Math.floor(Math.random()*1000+1)));
+			
+			obj.addTag(Tag.create(obj));
+			return obj;
+		},
 		
 		newTag: function() {  //web op
 			var t = Tag.create(this);
@@ -52,26 +61,14 @@
 		},
 		
 		shadow: function() {
-			function F() {};
-			F.prototype = Page;
-			var f = new F();
+			var obj = this.create();
 			
-			f.id = this.id;
-			f.name = this.name;
-			f.isShadow = true;
-			f.tags = this.tags;
-			return f;
+			obj.id = this.id;
+			obj.name = this.name;
+			obj.isShadow = true;
+			obj.tags = this.tags;
+			return obj;
 		},
-		
-		create: function() {
-			function F() {};
-			F.prototype = Page;
-			var f = new F();
-			
-			f.id = 'PAG'+md5.createHash(''+(new Date().getTime()+Math.floor(Math.random()*1000+1)));
-			f.addTag(Tag.create(f));
-			return f;
-		}
 	};
 	return Page;
 })();

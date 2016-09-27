@@ -1,11 +1,19 @@
 (function() {
 	var Tag =  {
-		id:'',
-		expr:'',
-		repeated:false,
-		trace:null,
-		property:'',
-		owner: null,
+		create: function(page) {
+			function C() {};
+			C.prototype = Tag;
+			var obj = new C();
+			
+			obj.expr = '';
+			obj.repeated = false;
+			obj.trace = null;
+			obj.property = '';
+			obj.owner = page;
+			obj.id = 'TAG'+md5.createHash(''+(new Date().getTime()+Math.floor(Math.random()*1000+1)));
+			
+			return obj;
+		},
 		
 		toggleRepeated: function() {  //web op
 			this.repeated = !this.repeated;
@@ -31,15 +39,6 @@
 			}
 			output +='}';
 		},
-		
-		create: function(page) {
-			function F() {};
-			F.prototype = Tag;
-			var f = new F();
-			f.owner = page;
-			f.id = 'TAG'+md5.createHash(''+(new Date().getTime()+Math.floor(Math.random()*1000+1)));
-			return f;
-		}
 	};
 	return Tag;
 })();
