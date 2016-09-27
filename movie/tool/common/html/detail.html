@@ -42,7 +42,7 @@
 					</div>
 				  </div>
 				</div>
-				<div ng-repeat="item in tags" class="justified list-item-patch-i">
+				<div ng-repeat="(id, item) in tags " class="justified list-item-patch-i">
 				  <div>
 				    <ui-state id='tagTrace{{$index}}' default='0'></ui-state>
 					<ui-state id='tagTraceNew{{$index}}' default='0'></ui-state>

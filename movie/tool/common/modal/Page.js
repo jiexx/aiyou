@@ -8,7 +8,7 @@
 			obj.name = 'Empty',
 			obj.url = null,
 			obj.isShadow = false,
-			obj.tags = [],
+			obj.tags = {},
 			obj.id = 'PAG'+md5.createHash(''+(new Date().getTime()+Math.floor(Math.random()*1000+1)));
 			
 			obj.addTag(Tag.create(obj));

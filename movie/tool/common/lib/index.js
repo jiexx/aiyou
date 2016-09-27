@@ -118,7 +118,7 @@ app.controller('page', function ($scope, $rootScope, $location, $cookieStore, $h
 	var t = Manager.getTask($location.$$search.tid);
 	$scope.currPage = t.getRootPage();
 	$scope.pages = t.getPages();
-	$scope.tags = $scope.currPage.getTags();
+	$scope.tags =  $scope.currPage.getTags();
 	$scope.addTag = function() {
 		$scope.currPage.newTag();
 		for( var i in arguments ){
