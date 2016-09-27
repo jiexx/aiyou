@@ -7,8 +7,8 @@
 			
 			obj.name = '',
 			obj.time = new Date().toLocaleString(),
-			obj.pages = [],
-			obj.shadows = [],
+			obj.pages = {},
+			obj.shadows = {},
 			obj.root = null,
 			obj.incr = false, 
 			obj.clock = 0,
