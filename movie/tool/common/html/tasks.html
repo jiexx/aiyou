@@ -17,24 +17,25 @@
   
   <div class="scrollable-content section" ui-scroll-bottom='bottomReached(page)'>
     <div class="container">
-      <div ng-repeat="item in tasks" href="#/page?tid={{item.id}}&id=0" class="list-group-item justified">
-		<div class="h5 media-middle">{{ $index }}</div>
+      <div ng-repeat="item in tasks" class="list-group-item justified">
+		<div class="h5 media-middle">{{ item.id.substring(0,8) }}</div>
 		<div class="h5 media-middle">{{ item.name }}</div>
 		<div class="h5 media-middle">{{ item.time }}</div>
 		<div class="h5 media-middle">
 		  <a ng-if="item.statusString()=='play'"><i class="fa fa-stop pull-right" ></i></a>
-		  <i ng-if="item.statusString()!='play'" class="fa {{item.statusString()=='complete'? 'fa-play': 'fa-play text-muted'}} pull-right"></i>
+		  <a ng-if="item.statusString()!='play'&& item.statusString()=='complete'" class="fa fa-play pull-right"></a>
+		  <i ng-if="item.statusString()!='play'&& item.statusString()!='complete'" class="fa fa-play pull-right text-muted"></i>
 		</div>
 		<div class="h5 media-middle">
 		  <a ng-click="delTask($index)"><i class="fa fa-minus-circle pull-right"></i></a>
 		  <i class="fa {{item.hasClock()? 'fa-history': 'fa-history text-muted'}} pull-right"></i>
 		  <i class="fa {{item.hasIncr()? 'fa-line-chart': 'fa-line-chart text-muted'}} pull-right"></i>
-		  <i ng-if="item.statusString()=='start'" class="fa fa-hourglass-o pull-right"></i>
+		  <i ng-if="item.statusString()=='start'" class="fa fa-hourglass-start pull-right"></i>
 		  <i ng-if="item.statusString()=='editing'" class="fa fa-hourglass-half pull-right"></i>
 		  <i ng-if="item.statusString()=='complete'" class="fa fa-hourglass-end pull-right"></i>
 		</div>
 		<div class="h5 media-middle">
-		  <a ng-if="item.statusString()!='play'" href="#/page?tid={{$index}}"><i class="fa fa-chevron-right pull-right" ></i></a>
+		  <a ng-if="item.statusString()!='play'" href="#/page?tid={{item.id}}"><i class="fa fa-chevron-right pull-right" ></i></a>
 		  <i ng-if="item.statusString()=='play'" class="fa fa-chevron-right pull-right text-muted"></i>
 		</div>
       </div>

@@ -1,23 +1,23 @@
 (function() {
 	var Manager =  {
-		tasks:[],
+		tasks:{},
 		
 		newTask: function(name) {  //web op
 			var t = Task.create(name);
-			this.tasks.push(t);
+			this.tasks[t.id] = t;
 			return t;
 		},
 		
-		removeTask: function(index) {
-			this.tasks.splice(index,1);
+		removeTask: function(id) {
+			delete this.tasks[id];
 		},
 		
 		getTasks: function() {
 			return this.tasks;
 		},
 		
-		getTask: function(index) {
-			return this.tasks[index];
+		getTask: function(id) {
+			return this.tasks[id];
 		}
 	};
 	return Manager;

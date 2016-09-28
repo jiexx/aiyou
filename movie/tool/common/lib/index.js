@@ -110,7 +110,15 @@ app.controller('home', function ($scope, $rootScope, $location, $cookieStore, $h
 app.controller('tasklist', function ($scope, $rootScope, $location, $cookieStore, $http, $timeout, DATA) {
 	authorize($cookieStore, $location);
 	Manager.newTask('test');
-	$scope.tasks = Manager.getTasks()
+	$scope.tasks = Manager.getTasks();
+	$scope.incrTask = false;
+	$scope.clockTask = 0;
+	$scope.nameTask = 'NBF';
+	$scope.addTask = function() {
+		var t = Manager.newTask($scope.nameTask);
+		t.incr = $scope.incrTask;
+		t.clock = $scope.clockTask;
+	}
 });
 
 app.controller('page', function ($scope, $rootScope, $location, $cookieStore, $http, $timeout, SharedState, DATA) {
@@ -124,6 +132,10 @@ app.controller('page', function ($scope, $rootScope, $location, $cookieStore, $h
 		for( var i in arguments ){
 			SharedState.initialize($rootScope, arguments[i]);
 		}
+	};
+	$scope.commit = function() {
+		t.edited();
+		$location.path('/tasklist');
 	};
 });
 
@@ -203,4 +215,19 @@ app.controller('photo', function ($scope, $rootScope, $location, $cookieStore, $
 	};
 	$scope.bottomReached();
 	
+});
+
+app.directive('backButton', function(){
+    return {
+      restrict: 'A',
+
+      link: function(scope, element, attrs) {
+        element.bind('click', goBack);
+
+        function goBack() {
+          history.back();
+          scope.$apply();
+        }
+      }
+    }
 });

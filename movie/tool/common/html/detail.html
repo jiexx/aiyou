@@ -1,6 +1,9 @@
 <div ui-content-for="title">
   <span >追踪</span>
 </div>
+<div ui-content-for="navbarAction">
+  <a back-button><i class="fa fa-chevron-left"></i></a>
+</div>
 
 <div class="scrollable">  
   <div class="scrollable-content section">
@@ -111,9 +114,8 @@
 				
 			</fieldset>
 			<br>
-			<span class="pull-left bg-info">{{}}</span>
 
-			<button class="btn btn-primary form-control">
+			<button class="btn btn-primary form-control" ng-click="commit()">
 			  提交
 			</button>
 

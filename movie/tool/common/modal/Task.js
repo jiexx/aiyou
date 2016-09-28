@@ -5,7 +5,6 @@
 			C.prototype = Task;
 			var obj = new C();
 			
-			obj.name = '',
 			obj.time = (new Date()).toISOString().substring(0, 19).replace('T', ' '),
 			obj.pages = {},
 			obj.shadows = {},
@@ -31,6 +30,10 @@
 		statusString: function() {
 			var a = ['start','editing','complete','play','done'];
 			return a[this.status];
+		},
+		
+		edited: function() {
+			this.status = 2;
 		},
 		
 		changeName: function(name) {
