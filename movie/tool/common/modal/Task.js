@@ -6,7 +6,7 @@
 			var obj = new C();
 			
 			obj.name = '',
-			obj.time = new Date().toLocaleString(),
+			obj.time = (new Date()).toISOString().substring(0, 19).replace('T', ' '),
 			obj.pages = {},
 			obj.shadows = {},
 			obj.root = null,
@@ -15,6 +15,7 @@
 			obj.status = 0, //0 start; 1 editing; 2 complete; 3 play; 4 done; 
 			obj.name = name;
 			obj.root = obj.newPage();
+			obj.id = 'TSK'+md5.createHash(''+(new Date().getTime()+Math.floor(Math.random()*1000+1))).toUpperCase();
 			
 			return obj;
 		},

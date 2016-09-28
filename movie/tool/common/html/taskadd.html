@@ -17,13 +17,11 @@
 		<div class="form-group justified">
 		  <a ><i class="fa fa-line-chart "></i></a>
 		  <div><span class="pull-left">增量追踪</span><i class="fa fa-question-circle text-muted pull-left" ui-turn-on='taskTraced'></i>
-		    <div 
-			  ui-if='taskTraced'
-              ui-outer-click="Ui.turnOff('taskTraced')" 
-              ui-outer-click-if="Ui.active(taskTraced)"
-			  ui-show="taskTraced"
-			  ui-turn-off="taskTraced"
-			class="dropdown pull-left">
+		    <div class="dropdown pull-left"
+              ui-outer-click="Ui.turnOff('taskTraced')"
+              ui-outer-click-if="Ui.active('taskTraced')"
+              ui-show="taskTraced"
+              ui-turn-off="taskTraced">
 			  <ul class="dropdown-menu text-muted">
 				<li><h6>跳过已追踪过的猎物，只对新猎物进行追踪，默认关闭。</h6></li>
 			  </ul>
@@ -37,7 +35,7 @@
 		    <div 
 			  ui-if='taskClocked'
               ui-outer-click="Ui.turnOff('taskClocked')" 
-              ui-outer-click-if="Ui.active(taskClocked)"
+              ui-outer-click-if="Ui.active('taskClocked')"
 			  ui-show="taskClocked"
 			  ui-turn-off="taskClocked"
 			class="dropdown pull-left ">

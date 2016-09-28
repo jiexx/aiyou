@@ -10,7 +10,7 @@
 			obj.trace = null;
 			obj.property = '';
 			obj.owner = page;
-			obj.id = 'TAG'+md5.createHash(''+(new Date().getTime()+Math.floor(Math.random()*1000+1)));
+			obj.id = 'TAG'+md5.createHash(''+(new Date().getTime()+Math.floor(Math.random()*1000+1))).toUpperCase();
 			
 			return obj;
 		},
