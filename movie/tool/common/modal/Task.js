@@ -7,7 +7,7 @@
 			
 			obj.time = (new Date()).toISOString().substring(0, 19).replace('T', ' '),
 			obj.pages = {},
-			obj.shadows = {},
+			obj.shadows = [],
 			obj.root = null,
 			obj.incr = false, 
 			obj.clock = 0,
@@ -42,14 +42,13 @@
 		
 		newPage: function() {  //web op
 			var p = Page.create();
+			p.addTag(Tag.create(p));
 			this.pages[p.id] = p;
 			return p;
 		},
 		
 		addShadow: function(p) {
-			var p = Page.create();
-			this.shadows[p.id] = p;
-			return p;
+			this.shadows.push(p);
 		},
 		
 		getPages: function() {  //web ui list
@@ -58,10 +57,6 @@
 		
 		getPage: function(id) {
 			return this.pages[id];
-		},
-		
-		getShadow: function(id) {
-			return this.shadows[id];
 		},
 		
 		getRootPage: function() {

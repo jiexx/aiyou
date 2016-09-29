@@ -15,17 +15,36 @@
 			return obj;
 		},
 		
+		isTagged: function() {
+			return this.repeated || this.property != '' || this.trace != null;
+		},
+		
+		tagRepeated: function() {
+			return this.repeated;
+		},
+		tagPropSelected: function() {
+			return this.property != '';
+		},
+		tagTraceNew: function() {
+			return this.trace != null;
+		},
+		
 		toggleRepeated: function() {  //web op
 			this.repeated = !this.repeated;
 		},
 		
-		tracePage: function(pm, page) { //web op
+		tracePage: function(task, page) { //web op
 			var p = page;
 			if(page.id == this.owner.id) {
 				p = this.owner.shadow();
-				pm.addShadow(p);
+				task.addShadow(p);
 			}
 			this.trace = p;
+			return p;
+		},
+		
+		getTrace: function() {
+			return this.trace;
 		},
 		
 		markProperty: function(prop) {  //web op

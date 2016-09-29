@@ -35,7 +35,7 @@
 		  <i ng-if="item.statusString()=='complete'" class="fa fa-hourglass-end pull-right"></i>
 		</div>
 		<div class="h5 media-middle">
-		  <a ng-if="item.statusString()!='play'" href="#/page?tid={{item.id}}"><i class="fa fa-chevron-right pull-right" ></i></a>
+		  <a ng-if="item.statusString()!='play'" href="#/page?pid={{item.getRootPage().id}}&tid={{item.id}}"><i class="fa fa-chevron-right pull-right" ></i></a>
 		  <i ng-if="item.statusString()=='play'" class="fa fa-chevron-right pull-right text-muted"></i>
 		</div>
       </div>

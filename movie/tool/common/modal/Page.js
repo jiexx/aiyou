@@ -10,8 +10,7 @@
 			obj.isShadow = false,
 			obj.tags = {},
 			obj.id = 'PAG'+md5.createHash(''+(new Date().getTime()+Math.floor(Math.random()*1000+1))).toUpperCase();
-			
-			obj.addTag(Tag.create(obj));
+
 			return obj;
 		},
 		
@@ -36,6 +35,10 @@
 		
 		getTags: function() {  //web ui list
 			return this.tags;
+		},
+		
+		getTag: function(id) {  //web ui list
+			return this.tags[id];
 		},
 		
 		changeUrl: function(url) {

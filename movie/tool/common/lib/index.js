@@ -17,6 +17,7 @@ app.config(function($routeProvider) {
   $routeProvider.when('/',            {templateUrl: 'home.html', 		controller : 'home', reloadOnSearch: false});
   $routeProvider.when('/tasklist',    {templateUrl: 'tasks.html', 		controller : 'tasklist', reloadOnSearch: false}); 
   $routeProvider.when('/page',        {templateUrl: 'detail.html', 		controller : 'page', reloadOnSearch: false}); 
+  $routeProvider.when('/trace',        {templateUrl: 'shadow.html', 		controller : 'trace', reloadOnSearch: false}); 
   $routeProvider.when('/resultlist',    {templateUrl: 'results.html', 		controller : 'resultlist', reloadOnSearch: false}); 
   $routeProvider.when('/config',        {templateUrl: 'config.html', 		controller : 'config', reloadOnSearch: false}); 
 });
@@ -124,7 +125,7 @@ app.controller('tasklist', function ($scope, $rootScope, $location, $cookieStore
 app.controller('page', function ($scope, $rootScope, $location, $cookieStore, $http, $timeout, SharedState, DATA) {
 	authorize($cookieStore, $location);
 	var t = Manager.getTask($location.$$search.tid);
-	$scope.currPage = t.getRootPage();
+	$scope.currPage = t.getPage($location.$$search.pid);
 	$scope.pages = t.getPages();
 	$scope.tags =  $scope.currPage.getTags();
 	$scope.addTag = function() {
@@ -133,9 +134,29 @@ app.controller('page', function ($scope, $rootScope, $location, $cookieStore, $h
 			SharedState.initialize($rootScope, arguments[i]);
 		}
 	};
+	$scope.tracePage = function(tag, pageId) {
+		var p = tag.tracePage(t, t.getPage(pageId));
+		$location.path('/shadow?tid='+t.id+'&pid='p.id+'&gid='+tag.id);
+	};
+	$scope.addPage = function() {
+		var p = t.newPage();
+		$location.path('/page?tid='+t.id+'&pid='+p.id);
+	};
 	$scope.commit = function() {
 		t.edited();
 		$location.path('/tasklist');
+	};
+});
+
+app.controller('trace', function ($scope, $rootScope, $location, $cookieStore, $http, $timeout, SharedState, DATA) {
+	authorize($cookieStore, $location);
+	var t = Manager.getTask($location.$$search.tid);
+	var p = t.getPage($location.$$search.pid);
+	var tag = p.getTag($location.$$search.gid);
+	$scope.currPage = tag.getTrace();
+	$scope.tags =  $scope.currPage.getTags();
+	$scope.commit = function() {
+		$location.path('/page?tid='+t.id+'&pid='+tag.owner.id);
 	};
 });
 
