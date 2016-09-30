@@ -1,8 +1,8 @@
 ﻿<div ui-content-for="title">
-  <span >连续追踪</span>
+  <a back-button><i class="fa fa-chevron-left"></i></a>
 </div>
 <div ui-content-for="navbarAction">
-  <a back-button><i class="fa fa-chevron-left"></i></a>
+  <span >连续追踪</span>
 </div>
 <ui-state id='taskTraced' default='0'></ui-state>
 <div class="scrollable">  
@@ -12,35 +12,35 @@
 		<div >
 		  <form role="form" ng-submit='update()' >
 			<fieldset>
-			    <div class="justified media">
+			    <div class="justified list-item-patch-i">
                   <div >
 				    <input type="text" ng-model="currPage.id" class="form-control" readonly></input>
 				  </div>
 				  <div class="btn-group">
 				    <div>
-				      <a class="btn text-muted"><i class="fa fa-arrow-circle-left"></i></a>
+				      <div class="btn"><i class="fa fa-arrow-circle-left"></i></div>
 				      <small class="text-muted">追踪猎物ID</small>
 					</div>
 				  </div>
 				</div>
-			    <div class="justified media">
+			    <div class="justified list-item-patch-i">
                   <div >
 				    <input type="text" ng-model="currPage.name" class="form-control" readonly></input>
 				  </div>
 				  <div class="btn-group">
 				    <div>
-				      <a class="btn text-muted"><i class="fa fa-arrow-circle-left"></i></a>
+				      <div class="btn"><i class="fa fa-arrow-circle-left"></i></div>
 				      <small class="text-muted">追踪猎物名称</small>
 					</div>
 				  </div>
 				</div>
-			    <div class="justified media">
+			    <div class="justified list-item-patch-i">
                   <div >
-				    <input type="text" ng-model="currPage.url" class="form-control" placeholder="?为DOM元素值. eg. www.web.com/?;[]为csv数据/db数据" readonly></input>
+				    <input type="text" ng-model="currPage.url" class="form-control" placeholder="?为DOM元素值. eg. www.web.com/?;[]为csv数据/db数据" ></input>
 				  </div>
 				  <div class="btn-group">
 				    <div>
-				      <a class="btn text-muted" ui-turn-on='taskTraced'><i class="fa fa-arrow-circle-left"></i></a>
+				      <div class="btn" ui-turn-on='taskTraced'><i class="fa fa-arrow-circle-left"></i></div>
 					  <div class="dropdown pull-left"
                         ui-outer-click="Ui.turnOff('taskTraced')"
                         ui-outer-click-if="Ui.active('taskTraced')"
@@ -76,10 +76,18 @@
 				
 			</fieldset>
 			<br>
-
-			<button class="btn btn-primary form-control" ng-click="commit()">
-			  确认
-			</button>
+			<div class="justified">
+			  <div class="justified media-left">
+			    <a class="btn btn-primary" ng-click="commit()">
+			      确认
+			    </a>
+			  </div>
+			  <div class="justified">
+			    <a class="btn btn-primary" ng-click="cancel()">
+			      取消
+			    </a>
+			  </div>
+			</div>
 
 		  </form>
 		</div>

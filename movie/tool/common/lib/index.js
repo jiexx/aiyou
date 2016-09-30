@@ -136,11 +136,11 @@ app.controller('page', function ($scope, $rootScope, $location, $cookieStore, $h
 	};
 	$scope.tracePage = function(tag, pageId) {
 		var p = tag.tracePage(t, t.getPage(pageId));
-		$location.path('/shadow?tid='+t.id+'&pid='p.id+'&gid='+tag.id);
+		$location.path('/trace').search({tid:t.id,pid:p.id,gid:tag.id});
 	};
 	$scope.addPage = function() {
 		var p = t.newPage();
-		$location.path('/page?tid='+t.id+'&pid='+p.id);
+		$location.path('/page').search({tid:t.id,pid:p.id});
 	};
 	$scope.commit = function() {
 		t.edited();
@@ -156,7 +156,11 @@ app.controller('trace', function ($scope, $rootScope, $location, $cookieStore, $
 	$scope.currPage = tag.getTrace();
 	$scope.tags =  $scope.currPage.getTags();
 	$scope.commit = function() {
-		$location.path('/page?tid='+t.id+'&pid='+tag.owner.id);
+		$location.path('/page').search({tid:t.id,pid:tag.owner.id});
+	};
+	$scope.cancel = function() {
+		tag.untrace();
+		$location.path('/page').search({tid:t.id,pid:tag.owner.id});
 	};
 });
 

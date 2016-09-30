@@ -35,12 +35,16 @@
 		
 		tracePage: function(task, page) { //web op
 			var p = page;
-			if(page.id == this.owner.id) {
+			if(page.id == this.owner.id && this.trace == null) {
 				p = this.owner.shadow();
 				task.addShadow(p);
 			}
 			this.trace = p;
 			return p;
+		},
+		
+		untrace: function() {
+			this.trace = null;
 		},
 		
 		getTrace: function() {
