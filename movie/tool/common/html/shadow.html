@@ -34,23 +34,23 @@
 					</div>
 				  </div>
 				</div>
-			    <div class="justified list-item-patch-i">
+			    <div class="justified media">
                   <div >
-				    <input type="text" ng-model="currPage.url" class="form-control" placeholder="?为DOM元素值. eg. www.web.com/?;[]为csv数据/db数据" ></input>
+				    <input type="text" ng-model="currPage.url" class="form-control" placeholder="?为替换符. eg. www.web.com/%s;[task name]为csv/db替换符" ></input>
 				  </div>
 				  <div class="btn-group">
 				    <div>
-				      <div class="btn" ui-turn-on='taskTraced'><i class="fa fa-arrow-circle-left"></i></div>
+				      <div class="btn btn-primary" ui-turn-on='taskTraced'><i class="fa fa-arrow-circle-left"></i></div>
+				      <small class="text-muted">网页URL</small>
 					  <div class="dropdown pull-left"
                         ui-outer-click="Ui.turnOff('taskTraced')"
                         ui-outer-click-if="Ui.active('taskTraced')"
                         ui-show="taskTraced"
                         ui-turn-off="taskTraced">
 			            <ul class="dropdown-menu text-muted">
-			          	<li><h6>eg. www.google.com/?/lan=zh, ?代表前面传入的网页DOM标签。</h6></li>
+			          	<li><h6>eg. www.google.com/?/lan=zh, ?代表前面传入的网页标签。</h6></li>
 			            </ul>
 			          </div>
-				      <small class="text-muted">网页URL</small>
 					  
 					</div>
 				  </div>
@@ -65,7 +65,7 @@
 					  	  <i class="fa fa-arrow-circle-left"></i>
 					    </div>
 					    <small class="text-muted h6" 
-						  ng-if='!item.isTagged()'>追踪网页DOM标签
+						  ng-if='!item.isTagged()'>追踪网页标签
 						</small>
 				    </div>
 					<div ui-if='item.tagRepeated()' class="btn"><i class="fa fa-repeat"></i></div>

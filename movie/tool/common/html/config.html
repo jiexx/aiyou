@@ -14,11 +14,12 @@
   
   <div class="scrollable-content section" ui-scroll-bottom='bottomReached(page)'>
     <div class="container">
-	  <div class="form-group"><b>任务代理配置</b></div>
-      <div ng-repeat="item in proxies" href="#" class="list-group-item justified">
+	  <div class="form-group"><b>猎狗配置</b></div>
+      <!--div ng-repeat="item in proxies" href="#" class="list-group-item justified">
 		<h5 class="media-middle">{{ item.ip }}:{{ item.port }}</h5>
 		<div><ui-switch ng-model='hosts[item.id]' ng-change="changeHost()"></ui-switch></div>
-      </div>
+      </div-->
+	  <div class="form-group"><input ng-model="numDelegator" class="form-control" type="number" placeholder="猎狗个数"></input></div>
 	  <br>
 	  <div ui-if="more">
 	  <div class="form-group"><b>HTTP头配置</b></div>
@@ -27,7 +28,7 @@
 	  <div class="form-group"><b>retryTimeout</b></div>
 	  <div class="form-group">
 	    <select ng-model="retryTimeout" class="form-control" ng-change="changeRetryTimeout()">
-			<option ng-selected="1==waitTimeout">1</option><option ng-selected="2==waitTimeout">2</option><option ng-selected="3==waitTimeout">3</option><option ng-selected="4==waitTimeout">4</option><option ng-selected="5==waitTimeout">5</option>
+			<option ng-selected="1==retryTimeout">1</option><option ng-selected="2==retryTimeout">2</option><option ng-selected="3==retryTimeout">3</option><option ng-selected="4==retryTimeout">4</option><option ng-selected="5==retryTimeout">5</option>
 		</select>
 	  </div>
 	  <div class="form-group"><b>waitTimeout</b></div>

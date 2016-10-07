@@ -23,7 +23,7 @@
 		<div class="h5 media-middle">{{ item.time }}</div>
 		<div class="h5 media-middle">
 		  <a ng-if="item.statusString()=='play'"><i class="fa fa-stop pull-right" ></i></a>
-		  <a ng-if="item.statusString()!='play'&& item.statusString()=='complete'" class="fa fa-play pull-right"></a>
+		  <a ng-if="item.statusString()!='play'&& item.statusString()=='complete'" class="fa fa-play pull-right" ng-click="play(item)"></a>
 		  <i ng-if="item.statusString()!='play'&& item.statusString()!='complete'" class="fa fa-play pull-right text-muted"></i>
 		</div>
 		<div class="h5 media-middle">

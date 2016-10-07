@@ -41,11 +41,15 @@
 			return this.tags[id];
 		},
 		
-		changeUrl: function(url) {
-			if(this.isShadow) {
-				return;
+		cleanCheck: function() {
+			for(var i in this.tags){
+				console.log('x '+this.tags[i].expr);
+				if(!this.tags[i].expr || this.tags[i].expr.trim() == '' ) {
+					delete this.tags[i];
+				}
 			}
-			this.url = url;
+			// check if xpath
+			return true;
 		},
 		
 		changeName: function(name) {
@@ -55,17 +59,19 @@
 			this.name = name;
 		},
 		
-		print: function(output) {
-			output += '{id:'+this.id+',name:'+this.name+',url:'+this.url+',tags:[';
+		print: function() {
+			var output = '{id:"'+this.id+'",name:"'+this.name+'",url:"'+this.url+'",isShadow:"'+this.isShadow+'",Tags:[';
 			for(var i in this.tags) {
-				this.tags[i].print(output);
+				output += this.tags[i].print();
 			}
 			output +=']}';
+			return output;
 		},
 		
 		shadow: function() {
 			var obj = this.create();
 			
+			obj.url = null;
 			obj.id = this.id;
 			obj.name = this.name;
 			obj.isShadow = true;

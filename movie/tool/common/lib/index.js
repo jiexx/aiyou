@@ -120,23 +120,42 @@ app.controller('tasklist', function ($scope, $rootScope, $location, $cookieStore
 		t.incr = $scope.incrTask;
 		t.clock = $scope.clockTask;
 	}
+	$scope.play = function(task){
+		var t = task.print()
+		console.log(t);
+	}
 });
 
-app.controller('page', function ($scope, $rootScope, $location, $cookieStore, $http, $timeout, SharedState, DATA) {
+app.controller('page', function ($scope, $rootScope, $location, $cookieStore, $http, $timeout, SharedState, $sce, DATA) {
 	authorize($cookieStore, $location);
 	var t = Manager.getTask($location.$$search.tid);
 	$scope.currPage = t.getPage($location.$$search.pid);
 	$scope.pages = t.getPages();
 	$scope.tags =  $scope.currPage.getTags();
+	$scope.getCurrUrl = function() {
+		return $sce.trustAsResourceUrl('http://'+$scope.currPage.url);
+	};
 	$scope.addTag = function() {
 		$scope.currPage.newTag();
 		for( var i in arguments ){
 			SharedState.initialize($rootScope, arguments[i]);
 		}
 	};
+	var tagPath = null;
+	$scope.markPath = function(tag) {
+		tagPath = tag;
+	};
+	$scope.closePath = function() {
+		tagPath.expr = Manager.path;
+	};
+	$scope.markRepeated = function(tag) {
+		tag.toggleRepeated();
+	};
 	$scope.tracePage = function(tag, pageId) {
-		var p = tag.tracePage(t, t.getPage(pageId));
-		$location.path('/trace').search({tid:t.id,pid:p.id,gid:tag.id});
+		var p = tag.toggleTracePage(t, t.getPage(pageId));
+		if(tag.hasTraceNew()) {
+			$location.path('/trace').search({tid:t.id,pid:p.id,gid:tag.id});
+		}
 	};
 	$scope.addPage = function() {
 		var p = t.newPage();
@@ -144,6 +163,7 @@ app.controller('page', function ($scope, $rootScope, $location, $cookieStore, $h
 	};
 	$scope.commit = function() {
 		t.edited();
+		$scope.currPage.cleanCheck();
 		$location.path('/tasklist');
 	};
 });

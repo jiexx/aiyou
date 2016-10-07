@@ -2,10 +2,11 @@
   <a href="#/tasklist"><i class="fa fa-chevron-left"></i></a>
 </div>
 <div ui-content-for="navbarAction">
-  <a ui-turn-on="pageadd"><i class="fa fa-plus-circle"></i>添加任务</a>
+  <a ui-turn-on="pageadd"><i class="fa fa-plus-circle"></i>新猎物</a>
 </div>
 <div ui-content-for="modals">
   <div ng-include="'pageadd.html'"></div>
+  <div ng-include="'selector.html'"></div>
 </div>
 <div class="scrollable">  
   <div class="scrollable-content section">
@@ -38,7 +39,7 @@
 				</div>
 			    <div class="justified list-item-patch-i">
                   <div >
-				    <input type="text" ng-model="currPage.url" class="form-control" placeholder="?为DOM元素值. eg. www.web.com/?;[]为csv数据/db数据"></input>
+				    <input type="text" ng-model="currPage.url"  class="form-control" placeholder="%s为替换符. eg. www.web.com/%s;[DATA]为csv/db替换符,eg. [结果1.col1]www.web.com/%s"></input>
 				  </div>
 				  <div class="btn-group">
 				    <div>
@@ -50,12 +51,12 @@
 				<div ng-repeat="(id, item) in tags " class="justified list-item-patch-i">
 				  <div>
 				    <ui-state id='tagTrace{{$index}}' default='0'></ui-state>
-					<ui-state id='tagTraceNew{{$index}}' default='0'></ui-state>
-					<ui-state id='tagProperty{{$index}}' default='0'></ui-state>
-					<ui-state id='tagPropSelected{{$index}}' default='0'></ui-state>
-					<ui-state id='tagRepeated{{$index}}' default='0'></ui-state>
+					<ui-state id='tagTraceNew{{$index}}' default={{item.hasTraceNew()}}></ui-state>
+					<ui-state id='property{{$index}}' default='0'></ui-state>
+					<ui-state id='tagPropSelected{{$index}}' default={{item.hasPropSelected()}}></ui-state>
+					<ui-state id='tagRepeated{{$index}}' default={{item.hasRepeated()}}></ui-state>
 					<ui-state id='help{{$index}}' default='0'></ui-state>
-				    <input type="text" ng-model="item.expr" class="form-control"></input>
+				    <input type="text" ng-model="item.expr" class="form-control" ng-focus="Ui.turnOn('selector');markPath(item)"></input>
 				  </div>
 				  <div class="btn-group">
 				    <div class="pull-left">
@@ -64,7 +65,7 @@
 					  	  <i ui-if='!help{{$index}}' class="fa fa-arrow-circle-left"></i>
 					    </a>
 					    <small class="text-muted h6" 
-						  ui-if='!tagRepeated{{$index}}&&!tagPropSelected{{$index}}&&!tagTraceNew{{$index}}'>追踪网页DOM标签
+						  ui-if='!tagRepeated{{$index}}&&!tagPropSelected{{$index}}&&!tagTraceNew{{$index}}'>追踪网页标签
 						</small>
                         <ul
 					        ui-if='help{{$index}}'
@@ -72,13 +73,16 @@
 					  	    ui-outer-click-if="Ui.active('help' + $index)" class="dropdown-menu text-muted">
                           <li><h6 class="media-right">你可以选择</h6></li>
 					      <li class="divider"></li>
-					  	  <li><h6 class="media-left"><a class="btn" ui-toggle='tagRepeated{{$index}}'><i class="fa fa-repeat"></i></a>标记该网页DOM标签为数组</h6></li>
-                          <li><h6 class="media-left"><a class="btn" ui-toggle='tagTrace{{$index}}'><i class="fa fa-link"></i></a>继续根据该网页DOM标签追踪猎物</h6>
+					  	  <li><h6 class="media-left"><a class="btn" ui-toggle='tagRepeated{{$index}}' ng-click="markRepeated(item)"><i class="fa fa-repeat"></i></a>标记该网页标签为数组</h6></li>
+                          <li><h6 class="media-left"><a class="btn" ui-toggle='tagTrace{{$index}}'><i class="fa fa-link"></i></a>继续根据该网页标签追踪猎物</h6>
 						    <div class="dropdown" ui-if='tagTrace{{$index}}'>
 							  <ul class="dropdown-menu img-del text-muted">
 						        <li ng-repeat='(id, page) in pages'>
 								  <div ui-toggle='tagTraceNew{{$index}}'>
-								    <a class="btn media-body" ng-click="tracePage(item, page.id)" ><i ui-if='!tagTraceNew{{$index}}' class="fa fa-circle-o"></i><i ui-if='tagTraceNew{{$index}}' class="fa fa-check-circle-o"></i></a>
+								    <a class="btn media-body" ng-click="tracePage(item, page.id)" >
+									  <i ui-if='!tagTraceNew{{$index}}' class="fa fa-circle-o"></i>
+									  <i ui-if='tagTraceNew{{$index}}' class="fa fa-check-circle-o"></i>
+									</a>
 								    <h6 class="media-body media-middle">{{page.id}}</h6>
 								    <h6 class="media-body media-middle media-right text-nowrap">{{page.name}}</h6>
 								    <a class="btn media-body"><i class="fa fa-edit"></i></a>
@@ -88,14 +92,14 @@
 						      </ul>
 							</div>
 						  </li>
-                          <li><h6 class="media-left"><a class="btn" ui-toggle='tagProperty{{$index}}'><i class="fa fa-tags"></i></a>追踪该网页DOM标签的属性</h6>
-						    <div class="dropdown" ui-if='tagProperty{{$index}}'>
+                          <li><h6 class="media-left"><a class="btn" ui-toggle='property{{$index}}' ng-click="markProperty(item)"><i class="fa fa-tags"></i></a>追踪该网页标签的属性</h6>
+						    <div class="dropdown" ui-if='property{{$index}}'>
 							  <ul class="dropdown-menu img-del text-muted">
 								<li>
-								  <small class="btn media-right"><input type="text" class="form-control " style="width:150px" placeholder="eg.href, tag, ..." value=""></input></small>
+								  <small class="btn media-right"><input type="text" class="form-control " style="width:150px" placeholder="eg.href, tag, ..." ng-model="item.property"></input></small>
 								  <div class="btn media-right" ui-toggle='tagPropSelected{{$index}}' >
 								    <i ui-if='!tagPropSelected{{$index}}' class="fa fa-check btn btn-primary "   ></i>
-								    <i class="fa fa-remove btn btn-primary" ui-if='tagPropSelected{{$index}}' ></i>
+								    <i class="fa fa-remove btn btn-primary" ui-if='tagPropSelected{{$index}}' ng-click="item.property=''" ></i>
 							      </div>
 								</li>
 						      </ul>
@@ -103,7 +107,7 @@
 						  </li>
 					      <li ng-if='$last||$last==undefine'>
 						    <h6 class="media-left">
-							  <div class="btn"><a ng-click="Ui.turnOff('help' + $index);addTag('help'+($index+1),'tagTrace'+($index+1),'tagRepeated'+($index+1),'tagProperty'+($index+1))"><i class="fa fa-plus-circle"></i></a></div>追踪新网页DOM标签
+							  <div class="btn"><a ng-click="Ui.turnOff('help' + $index);addTag('help'+($index+1),'tagTrace'+($index+1),'tagRepeated'+($index+1),'property'+($index+1))"><i class="fa fa-plus-circle"></i></a></div>追踪新网页标签
 							</h6>
 						  </li>
                         </ul>

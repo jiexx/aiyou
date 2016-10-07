@@ -19,13 +19,13 @@
 			return this.repeated || this.property != '' || this.trace != null;
 		},
 		
-		tagRepeated: function() {
+		hasRepeated: function() {
 			return this.repeated;
 		},
-		tagPropSelected: function() {
+		hasPropSelected: function() {
 			return this.property != '';
 		},
-		tagTraceNew: function() {
+		hasTraceNew: function() {
 			return this.trace != null;
 		},
 		
@@ -33,14 +33,17 @@
 			this.repeated = !this.repeated;
 		},
 		
-		tracePage: function(task, page) { //web op
-			var p = page;
-			if(page.id == this.owner.id && this.trace == null) {
-				p = this.owner.shadow();
-				task.addShadow(p);
+		toggleTracePage: function(task, page) { //web op
+			if( this.trace == null) {
+				var p = page;
+				if(page.id == this.owner.id && this.trace == null) {
+					p = this.owner.shadow();
+					task.addShadow(p);
+				}
+				this.trace = p;
+			}else {
+				this.trace = null;
 			}
-			this.trace = p;
-			return p;
 		},
 		
 		untrace: function() {
@@ -55,12 +58,13 @@
 			this.property = prop;
 		},
 		
-		print: function(output) {
-			output += '{id:'+this.id+',expr:'+this.expr+',repeated:'+this.repeated+',repeated:'+this.repeated+',property:'+this.property;
-			if(trace) {
-				output += trace.id;
+		print: function() {
+			var output = '{id:"'+this.id+'",expr:"'+this.expr+'",repeated:'+this.repeated+',property:"'+this.property+'",trace:"';
+			if(this.trace) {
+				output += this.trace.print();
 			}
-			output +='}';
+			output +='"}';
+			return output;
 		},
 	};
 	return Tag;

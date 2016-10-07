@@ -1,0 +1,25 @@
+<ui-state id='tagMarked' default='0'></ui-state>
+<div class="modal" ui-if='selector' ui-state='selector'>
+  <div class="modal-backdrop in"></div>
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <button class="close" ui-turn-off="selector" ng-click="closePath()" >&times;</button>
+        <h4 class="modal-title">追踪网页标签</h4><i class="fa fa-question-circle text-muted pull-left" ui-turn-on='tagMarked'></i>
+		<div class="dropdown pull-left"
+		  ui-outer-click="Ui.turnOff('tagMarked')"
+		  ui-outer-click-if="Ui.active('tagMarked')"
+		  ui-show="tagMarked"
+		  ui-turn-off="tagMarked">
+		  <ul class="dropdown-menu text-muted">
+			<li><h6>网页加载后，选取对应标签，以最后的标签为准。</h6></li>
+		  </ul>
+		</div>
+      </div>
+      <div class="modal-body">
+	    <iframe id="xframe" ng-src='{{getCurrUrl()}}' width="1000px", height="300px"  style="border: 1px solid #66afe9;-webkit-box-shadow: inset 0 1px 1px rgba(0,0,0,.075), 0 0 8px rgba(102, 175, 233, 0.6); box-shadow: inset 0 1px 1px rgba(0,0,0,.075), 0 0 8px rgba(102, 175, 233, 0.6);" 
+			onload="Manager.injectSelector('xframe')" />
+      </div>
+    </div>
+  </div>
+</div>

@@ -528,6 +528,10 @@ func main() {
 	master = newMaster();
 	
 	mux := http.NewServeMux();
+	mux.HandleFunc("/task/save", ConfigUpdate);
+	mux.HandleFunc("/task/start", ConfigUpdate);
+	mux.HandleFunc("/task/pause", ConfigUpdate);
+	
  	mux.HandleFunc("/task/list", TaskList);
 	mux.HandleFunc("/task/insert", TaskInsert);
 	mux.HandleFunc("/task/delete", TaskDelete);

@@ -64,7 +64,7 @@
 		},
 		
 		removePage: function(id) {
-			if(this.root == this.pages[id]){
+			if(this.root.id == this.pages[id].id){
 				return false;
 			}
 			delete this.pages[id];
@@ -72,12 +72,16 @@
 		},
 		
 		print: function() {
-			var output = '[';
+			var output = '{id:"'+this.id+'",root:"'+this.root.print()+'",Page:'+'[';
 			for(var i in this.pages) {
-				this.pages[i].print(output);
+				output += this.pages[i].print();
 			}
-			output +=']';
-			console.log(output);
+			output +='], Shadow:[';
+			for(var i in this.shadows) {
+				output += this.shadows[i].print();
+			}
+			output +=']}';
+			return output;
 		},
 	};
 	return Task;
