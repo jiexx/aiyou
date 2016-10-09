@@ -8,7 +8,7 @@ import (
 	"net/http"
 	"reflect"
 	"fmt"
-	"search"
+	"./search"
 )
 var cfg *search.config;
 
