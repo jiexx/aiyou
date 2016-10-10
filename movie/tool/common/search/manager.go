@@ -20,14 +20,14 @@ type manager struct {
 	_this *manager
 }
 
-var mgr *manager = nil
+var _mgr *manager = nil
 func getManager() manager {
-	if !mgr {
+	if !_mgr {
 		once.Do(func() {
-			mgr = &manager{users:make(map[string]user), delegators:make([]delegator)};
+			_mgr = &manager{users:make(map[string]user), delegators:make([]delegator)};
 		})
 	}
-	return mgr
+	return _mgr
 }
 
 func (this *manager) timeoutLog(p page) {

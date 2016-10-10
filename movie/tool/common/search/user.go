@@ -10,7 +10,7 @@ import (
 	"fmt"
 	"bytes"
 	"strings"
-	"DB"
+	"UDB"
 )
 
 type user struct {
@@ -23,8 +23,8 @@ func (this *user) getTask(tid string) task {
 	return tasks[tid]
 }
 
-func (this *user) getDB() DB {
-	return DB.get(this.id)
+func (this *user) getUDB() UDB {
+	return UDB.get(this.id)
 }
 
 func (this *user) save(t task) bool {
@@ -37,6 +37,6 @@ func (this *user) save(t task) bool {
 		s.setOwnerUser(this.id)
 		s.setOwnerTask(t.id)
 	}
-	return DB.get(this.id).save(this)
+	return UDB.get(this.id).save(this)
 }
 

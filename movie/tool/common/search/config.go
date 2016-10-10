@@ -33,7 +33,7 @@ type settings string {
 type config struct {
 	dog cfdog
 	cfqs []cfqrier
-	jdbc string
+	mysql_jdbc string
 	titan string
 }
 
