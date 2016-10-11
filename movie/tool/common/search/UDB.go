@@ -2,14 +2,8 @@
 package search
 
 import (
-	"log"
-	"os/exec"
-	"encoding/json"
-	"net/http"
-	"reflect"
-	"fmt"
-	"bytes"
-	"strings"
+	"sync"
+	"errors"
 	"database/sql"
 	_ "github.com/go-sql-driver/mysql"
 )
@@ -17,45 +11,67 @@ import (
 type UDB struct {
 	dbname string
 	userid string
-	db DB
+	jdbc string
 }
 
-var _dbs * map[string]UDB = nil
-func _getDBS() []UDB {
-	if !_dbs {
-		once.Do(func() {
-			_dbs = & make(map[string]UDB);
+var _dbs map[string]UDB = nil
+var _dbsonce sync.Once
+func _getDBS() map[string]UDB {
+	if _dbs == nil {
+		_dbsonce.Do(func() {
+			_dbs = make(map[string]UDB);
 		})
 	}
-	return *_dbs
+	return _dbs
 }
 func checkErr(err error) {
     if err != nil {
         panic(err)
     }
 }
-func (this *UDB) get(userid string) UDB {
+func (this *UDB) get(userid string) (UDB, error)  {
 	dbs := _getDBS()
 	d, ok := dbs[userid]
 	if !ok {
 		cfg := getConfig()
-		d.db, ok = sql.Open("mysql", cfg.mysql_jdbc)
-		if ok {
-			stmt, err := d.db.Prepare("CREATE DATABASE "+d.dbname)
+		db, err := sql.Open("mysql", cfg.mysql_jdbc) //user:password@127.0.0.1/
+		if err != nil {
+			stmt, err := db.Prepare("CREATE DATABASE "+userid)
 			checkErr(err)
 
 			res, err := stmt.Exec()
 			checkErr(err)
 
-			affect, err = res.RowsAffected()
+			affect, err := res.RowsAffected()
 			checkErr(err)
 			
-			d.db.userid = userid
-			d.db.Close()
+			db.Close()
+			
+			d.userid = userid
+			d.jdbc = cfg.mysql_jdbc + userid
+			return d, nil
 		}
+		return nil, errors.New("mysql connect failed")
 	}
+	return d, nil
 }
-func (this *UDB) get(userid string, colname string) UDB {
-	
+func (this *UDB) query(tabname string, colname string) []string {
+	db, err := sql.Open("mysql", this.jdbc)
+	var cols []string
+	if err != nil {
+		rows, err := db.Query("SELECT " + colname + " FROM  "+tabname)
+		checkErr(err)
+
+		for rows.Next() {
+			var col string
+			err = rows.Scan(&col)
+			checkErr(err)
+			
+			cols = append(cols, col)
+		}
+		db.Close()
+		return cols
+	}
+	return nil
 }
 

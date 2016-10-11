@@ -3,13 +3,9 @@ package search
 
 import (
 	"log"
-	"os/exec"
-	"encoding/json"
-	"net/http"
-	"reflect"
 	"fmt"
-	"strings"
 	"time"
+	"sync"
 )
 
 
@@ -18,7 +14,7 @@ type delegator struct {
 	status int  // 0 free 1 busy
 	urlAddr string
 	mux sync.Mutex
-	timer Timer
+	timer time.Timer
 }
 
 func (this *delegator) isBusy() {

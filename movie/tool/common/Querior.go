@@ -10,10 +10,11 @@ import (
 	"fmt"
 	"./search"
 )
-var cfg *search.config;
+
 
 func post(js string) {
-	body := bytes.NewBuffer([]byte(js))  
+	body := bytes.NewBuffer([]byte(js)) 
+	cfg := getConfig()	
 	res,err := http.Post(cfg.dog.iport, "application/json;charset=utf-8", body)  
 	if err != nil {  
 		log.Fatal(err)  

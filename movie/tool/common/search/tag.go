@@ -2,14 +2,7 @@
 package search
 
 import (
-	"log"
-	"os/exec"
-	"encoding/json"
-	"net/http"
-	"reflect"
-	"fmt"
 	"bytes"
-	"strings"
 )
 
 type tag struct {
@@ -40,7 +33,7 @@ func (this *tag) getTrace() page {
 	return this.trace
 }
 
-func (this *tag) trace(db) page[] {
+func (this *tag) trace(db) []page {
 	if this.trace {
 		p := this.trace.createDataTraced(db)
 		if !p {

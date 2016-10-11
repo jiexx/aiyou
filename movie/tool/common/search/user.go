@@ -2,15 +2,6 @@
 package search
 
 import (
-	"log"
-	"os/exec"
-	"encoding/json"
-	"net/http"
-	"reflect"
-	"fmt"
-	"bytes"
-	"strings"
-	"UDB"
 )
 
 type user struct {

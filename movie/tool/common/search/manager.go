@@ -2,12 +2,7 @@
 package search
 
 import (
-	"log"
-	"os/exec"
 	"encoding/json"
-	"net/http"
-	"reflect"
-	"fmt"
 	"strings"
 	"sync"
 )
@@ -21,9 +16,10 @@ type manager struct {
 }
 
 var _mgr *manager = nil
+var _mgronce sync.Once
 func getManager() manager {
 	if !_mgr {
-		once.Do(func() {
+		_mgronce.Do(func() {
 			_mgr = &manager{users:make(map[string]user), delegators:make([]delegator)};
 		})
 	}

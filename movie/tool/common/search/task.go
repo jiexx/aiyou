@@ -2,14 +2,6 @@
 package search
 
 import (
-	"log"
-	"os/exec"
-	"encoding/json"
-	"net/http"
-	"reflect"
-	"fmt"
-	"strings"
-	"DB"
 )
 
 type task struct {

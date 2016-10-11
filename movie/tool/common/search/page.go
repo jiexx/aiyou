@@ -2,17 +2,11 @@
 package search
 
 import (
-	"log"
-	"os/exec"
-	"encoding/json"
-	"net/http"
-	"reflect"
 	"fmt"
 	"bytes"
 	"strings"
 	"regexp"
 	"crypto/md5"
-	"DB"
 )
 
 type page struct {
@@ -71,10 +65,10 @@ func (this *page) start(uid string, tid string) {
 
 func (this *page) createDataTraced(db DB) []page {
 	var pages []page
-	re := regexp.MustCompile("\[([^\.|\b]+)\.([^\]|\b]+)\]")  // Result Table Named by Task
+	re := regexp.MustCompile(`\[([^\.|\b]+)\.([^\]|\b]+)\]`)  // Result Table Named by Task, eg. www.web.com/[结果1.col1]
 	re.MatchString(this.url)
 	if this.isShadow && len(re.SubexpNames()) == 2 && strings.Contains(this.url, "%s") {
-		for _, result := range db.get( re.SubexpNames()[0], re.SubexpNames()[1]) {
+		for _, result := range db.query( re.SubexpNames()[0], re.SubexpNames()[1]) {
 			p := page{url:fmt.Sprint(this.url, result), name:this.name, tags:this.tags, id:this.id}
 			p.start(this._userid, this._taskid)
 			pages = append(pages, p)  

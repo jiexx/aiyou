@@ -2,15 +2,8 @@
 package search
 
 import (
-	"log"
-	"os/exec"
-	"encoding/json"
-	"net/http"
-	"reflect"
-	"fmt"
-	"bytes"
-	"strings"
 	"os"
+	"sync"
 )
 
 type cfdog struct {
@@ -21,7 +14,7 @@ type cfqrier struct {
 	iport string
 }
 
-type settings string {
+type settings struct {
 	loadImages bool
 	loadPlugins bool
 	timeout int
@@ -37,24 +30,17 @@ type config struct {
 	titan string
 }
 
-var cfg *config = nil
+var _cfg *config = nil
+var _cfgonce sync.Once
 func getConfig() config {
-	if !cfg {
-		once.Do(func() {
-			cfg = &config{};
+	if !_cfg {
+		_cfgonce.Do(func() {
+			_cfg = &config{};
 			file, _ := os.Open("conf.json")
 			decoder := json.NewDecoder(file)
-			err := decoder.Decode(cfg)
+			err := decoder.Decode(_cfg)
 		})
 	}
-	return cfg
-}
-
-func (this *config) dog() cfdog {
-	return getConfig().dog
-}
-
-func (this *config) qriers() []cfqrier {
-	return getConfig().cfqs
+	return *_cfg
 }
 
