@@ -18,7 +18,7 @@ type page struct {
 	_didx int
 	_userid string
 	_taskid string
-	_visitid string
+	_visitid int
 }
 
 func (this *page) setIdVisited() {
@@ -28,7 +28,7 @@ func (this *page) setIdVisited() {
 	this._visitid = md5.Sum(buffer.String())
 }
 
-func (this *page) isVisited() {
+func (this *page) isVisited() bool {
 	return this._visitid != -1 && this._didx > -1
 }
 
@@ -44,7 +44,7 @@ func (this *page) setOwnerTask(tid string) {
 	this._taskid = tid
 }
 
-func (this *page) getOwnerTask(tasks map[string]task) task {
+func (this *page) getOwnerTask(tasks map[string]*task) *task {
 	return tasks[this._taskid]
 }
 

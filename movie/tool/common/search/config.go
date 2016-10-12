@@ -4,6 +4,7 @@ package search
 import (
 	"os"
 	"sync"
+	"encoding/json"
 )
 
 type cfdog struct {
@@ -33,7 +34,7 @@ type config struct {
 var _cfg *config = nil
 var _cfgonce sync.Once
 func getConfig() config {
-	if !_cfg {
+	if _cfg == nil {
 		_cfgonce.Do(func() {
 			_cfg = &config{};
 			file, _ := os.Open("conf.json")

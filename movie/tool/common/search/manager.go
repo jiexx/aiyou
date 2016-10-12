@@ -18,36 +18,39 @@ type manager struct {
 var _mgr *manager = nil
 var _mgronce sync.Once
 func getManager() manager {
-	if !_mgr {
+	if _mgr == nil {
 		_mgronce.Do(func() {
-			_mgr = &manager{users:make(map[string]user), delegators:make([]delegator)};
+			_mgr = &manager{users:make(map[string]user)};
+			_mgr._this = _mgr
 		})
 	}
-	return _mgr
+	return *_mgr
 }
 
 func (this *manager) timeoutLog(p page) {
 	u := p.getOwnerUser( this.users )
-	u.getDB().getTable("Timeout").save(p)
+	u.getUDB().save("Timeout", p)
 }
 
-func (this *page) successLog(p page) {
+func (this *manager) successLog(p page) {
 	if p.isVisited() {
 		u := p.getOwnerUser( this.users )
 		t := p.getOwnerTask( u.tasks )
-		u.getDB().getTable(t.name).save(p)
+		u.getUDB().save(t.name, p)
 	}
 }
 
 func (this *manager) Start(uid string, tid string) bool {
-	u := this.users[uid]
-	if u {
+	u, ok := this.users[uid]
+	if ok {
 		t := u.getTask(tid)
-		if t {
+		if t != nil {
 			t.start(uid, tid)
 			this.handle(&t.root)
+			return true
 		}
 	}
+	return false
 }
 
 type User struct {
@@ -56,16 +59,15 @@ type User struct {
 }
 
 func (this *manager) Save(js string) bool {
-	decoder := json.NewDecoder(js)
-    var u User  
-	u = nil
-    err := decoder.Decode(&u)
+	var uu User  
+	err := json.Unmarshal([]byte(js), &uu)
     if err != nil {
-        panic()
+        panic("manager Save")
     }
-	if u && len(u.Uid) > 0 && strings.Contains(u.Task.id, "TSK")  {
-		if u.save(u.Task) {
-			this.users[u.Uid] = u
+	if len(uu.Uid) > 0 && strings.Contains(uu.Task.id, "TSK")  {
+		u := user{}
+		if u.save(&uu.Task) {
+			this.users[uu.Uid] = u
 			return true
 		}
 	}
@@ -73,11 +75,10 @@ func (this *manager) Save(js string) bool {
 }
 
 func (this *manager) Recv(js string) bool {
-	decoder := json.NewDecoder(js)
-    var p page  
-    err := decoder.Decode(&p)
+	var p page  
+	err := json.Unmarshal([]byte(js), &p)
     if err != nil {
-        panic()
+        panic("manager Recv")
     }
 	if !strings.Contains(p.id, "PAG") {
 		this.handle(p)

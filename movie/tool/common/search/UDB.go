@@ -3,7 +3,7 @@ package search
 
 import (
 	"sync"
-	"errors"
+	//"errors"
 	"database/sql"
 	_ "github.com/go-sql-driver/mysql"
 )
@@ -14,12 +14,12 @@ type UDB struct {
 	jdbc string
 }
 
-var _dbs map[string]UDB = nil
+var _dbs map[string]*UDB = nil
 var _dbsonce sync.Once
-func _getDBS() map[string]UDB {
+func _getDBS() map[string]*UDB {
 	if _dbs == nil {
 		_dbsonce.Do(func() {
-			_dbs = make(map[string]UDB);
+			_dbs = make(map[string]*UDB);
 		})
 	}
 	return _dbs
@@ -29,14 +29,14 @@ func checkErr(err error) {
         panic(err)
     }
 }
-func (this *UDB) get(userid string) (UDB, error)  {
+func (this *UDB) get(uid string) *UDB  {
 	dbs := _getDBS()
-	d, ok := dbs[userid]
-	if !ok {
+	d, ok := dbs[uid]
+	if !ok || d == nil {
 		cfg := getConfig()
 		db, err := sql.Open("mysql", cfg.mysql_jdbc) //user:password@127.0.0.1/
 		if err != nil {
-			stmt, err := db.Prepare("CREATE DATABASE "+userid)
+			stmt, err := db.Prepare("CREATE DATABASE "+uid)
 			checkErr(err)
 
 			res, err := stmt.Exec()
@@ -47,13 +47,18 @@ func (this *UDB) get(userid string) (UDB, error)  {
 			
 			db.Close()
 			
-			d.userid = userid
-			d.jdbc = cfg.mysql_jdbc + userid
-			return d, nil
+			dbs[uid] = &UDB{userid:uid, jdbc:cfg.mysql_jdbc + uid}
+			return dbs[uid]
 		}
-		return nil, errors.New("mysql connect failed")
+		return nil
 	}
-	return d, nil
+	return d
+}
+func (this *UDB) save(tabname string, p page){
+	
+}
+func (this *UDB) saveTask(tabname string, p task){
+	
 }
 func (this *UDB) query(tabname string, colname string) []string {
 	db, err := sql.Open("mysql", this.jdbc)

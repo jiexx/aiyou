@@ -5,20 +5,20 @@ import (
 )
 
 type user struct {
-	tasks map[string]task
+	tasks map[string]*task
 	settings string
 	id string
 }
 
-func (this *user) getTask(tid string) task {
+func (this *user) getTask(tid string) *task {
 	return tasks[tid]
 }
 
-func (this *user) getUDB() UDB {
+func (this *user) getUDB() *UDB {
 	return UDB.get(this.id)
 }
 
-func (this *user) save(t task) bool {
+func (this *user) save(t *task) bool {
 	this.tasks[t.id] = t
 	for _, p := range t.pages {
 		p.setOwnerUser(this.id)
@@ -28,6 +28,6 @@ func (this *user) save(t task) bool {
 		s.setOwnerUser(this.id)
 		s.setOwnerTask(t.id)
 	}
-	return UDB.get(this.id).save(this)
+	return UDB.saveTask(this.id, this)
 }
 
