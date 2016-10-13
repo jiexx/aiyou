@@ -29,11 +29,15 @@ func (this *tag) String() string {
 	return buffer.String()
 }
 
+func (this *tag) hasTrace() bool {
+	return this.trace.id != ""
+}
+
 func (this *tag) getTrace() page {
 	return this.trace
 }
 
-func (this *tag) trace(db) []page {
+func (this *tag) createTrace(db) []page {
 	if this.trace {
 		p := this.trace.createDataTraced(db)
 		if !p {

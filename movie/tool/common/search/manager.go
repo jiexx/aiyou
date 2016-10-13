@@ -5,6 +5,7 @@ import (
 	"encoding/json"
 	"strings"
 	"sync"
+	"strconv"
 )
 
 
@@ -12,19 +13,20 @@ import (
 type manager struct {
 	users map[string]user
 	delegators []delegator
+	c_msg chan page
 	_this *manager
 }
 
 var _mgr *manager = nil
 var _mgronce sync.Once
-func getManager() manager {
+func getManager() *manager {
 	if _mgr == nil {
 		_mgronce.Do(func() {
-			_mgr = &manager{users:make(map[string]user)};
+			_mgr = &manager{users:make(map[string]user), c_msg:make(chan page)};
 			_mgr._this = _mgr
 		})
 	}
-	return *_mgr
+	return _mgr
 }
 
 func (this *manager) timeoutLog(p page) {
@@ -81,7 +83,7 @@ func (this *manager) Recv(js string) bool {
         panic("manager Recv")
     }
 	if !strings.Contains(p.id, "PAG") {
-		this.handle(p)
+		this.handle(&p)
 		return true
 	}
 	return false	
@@ -92,32 +94,32 @@ func (this *manager) handle(p *page) {
 		if !strings.Contains(p.id, "PAG") {
 			return
 		}
-		d := p.getDelegator(this.delegators)
-		if d {
-			this.successLog(p)   // the page querier returned
+		d, ok := p.getDelegator(this.delegators)
+		if ok {
+			this.successLog(*p)   // the page querier returned
 			d.free()
 		}
-		c_msg <- p
+		this.c_msg <- *p
 		for _, tag := range p.tags {
 			if tag.hasTrace() {
 				u := p.getOwnerUser( this.users )
-				tps := tag.trace(u.getDB())
+				tps := tag.createTrace(u.getUDB())
 				if len(tps) == 0 {
 					t := p.getOwnerTask( u.tasks )
 					t.stop()
 				}
 				for _, tp := range tps {
-					c_msg <- tp
+					this.c_msg <- tp
 				}
 			}
 		}
 	}()
 }
 
-func (this *manager) postPageToQuerier(p) {
+func (this *manager) postPageToQuerier(p page) {
 	for i, d := range this.delegators {
 		if(!d.isBusy()){
-			p.setDelegator(i)
+			p.setDelegator(strconv.Itoa(i))
 			d.post(p); //d busy
 		}
 	}
@@ -126,8 +128,8 @@ func (this *manager) postPageToQuerier(p) {
 func (this *manager) loop() {
 	go func() {
 		for {
-			page := <-c_msg
-			postPageToQuerier(p);
+			p := <-this.c_msg
+			this.postPageToQuerier(p);
 		}
 	}()
 }

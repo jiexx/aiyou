@@ -7,6 +7,8 @@ import (
 	"strings"
 	"regexp"
 	"crypto/md5"
+	"time"
+	"strconv"
 )
 
 type page struct {
@@ -23,9 +25,10 @@ type page struct {
 
 func (this *page) setIdVisited() {
 	var buffer bytes.Buffer
-	buffer.WriteString(time.Now().Unix())
+	buffer.WriteString(strconv.FormatInt(time.Now().Unix(), 10))
 	buffer.WriteString(this.url)
-	this._visitid = md5.Sum(buffer.String())
+	b := buffer.String()
+	this._visitid = md5.Sum([]byte(b))
 }
 
 func (this *page) isVisited() bool {
@@ -36,7 +39,7 @@ func (this *page) setDelegator(did string) {
 	this._didx = uid
 }
 
-func (this *page) getDelegator(delegators []delegator) delegator {
+func (this *page) getDelegator(delegators []delegator) (delegator, bool) {
 	return delegators[this._didx]
 }
 
