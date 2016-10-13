@@ -20,27 +20,33 @@ type page struct {
 	_didx int
 	_userid string
 	_taskid string
-	_visitid int
+	_visitid string
 }
 
 func (this *page) setIdVisited() {
 	var buffer bytes.Buffer
+	var hashChannel = make(chan []byte, 1)
 	buffer.WriteString(strconv.FormatInt(time.Now().Unix(), 10))
 	buffer.WriteString(this.url)
 	b := buffer.String()
-	this._visitid = md5.Sum([]byte(b))
+	sum := md5.Sum(buffer.Bytes())
+	hashChannel <- sum[:]
+	this._visitid = string(<-hashChannel)
 }
 
 func (this *page) isVisited() bool {
-	return this._visitid != -1 && this._didx > -1
+	return this._visitid != "" && this._didx > -1
 }
 
-func (this *page) setDelegator(did string) {
-	this._didx = uid
+func (this *page) setDelegator(did int) {
+	this._didx = did
 }
 
-func (this *page) getDelegator(delegators []delegator) (delegator, bool) {
-	return delegators[this._didx]
+func (this *page) getDelegator(delegators map[string]delegator) *delegator {
+	if this._didx > 0 && this._didx > len(delegators){
+		return nil
+	}
+	return &delegators[this._didx]
 }
 
 func (this *page) setOwnerTask(tid string) {
@@ -63,7 +69,7 @@ func (this *page) start(uid string, tid string) {
 	this._userid = uid
 	this._taskid = tid
 	this._didx = -1
-	this._visitid = -1
+	this._visitid = ""
 }
 
 func (this *page) createDataTraced(db DB) []page {

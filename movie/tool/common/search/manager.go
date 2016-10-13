@@ -94,8 +94,8 @@ func (this *manager) handle(p *page) {
 		if !strings.Contains(p.id, "PAG") {
 			return
 		}
-		d, ok := p.getDelegator(this.delegators)
-		if ok {
+		d := p.getDelegator(this.delegators)
+		if d != nil {
 			this.successLog(*p)   // the page querier returned
 			d.free()
 		}
