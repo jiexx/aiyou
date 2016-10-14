@@ -28,5 +28,5 @@ func (this *task) stop() {
 
 func (this *task) down() bool {
 	this._counter ++
-	return this._counter == len(shadows)
+	return this._counter == len(this.shadows)
 }

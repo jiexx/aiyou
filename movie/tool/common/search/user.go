@@ -11,11 +11,11 @@ type user struct {
 }
 
 func (this *user) getTask(tid string) *task {
-	return tasks[tid]
+	return this.tasks[tid]
 }
 
 func (this *user) getUDB() *UDB {
-	return UDB.get(this.id)
+	return UDB{}.get(this.id)
 }
 
 func (this *user) save(t *task) bool {
@@ -28,6 +28,6 @@ func (this *user) save(t *task) bool {
 		s.setOwnerUser(this.id)
 		s.setOwnerTask(t.id)
 	}
-	return UDB.saveTask(this.id, this)
+	return UDB{}.saveTask(this.id, *t)
 }
 

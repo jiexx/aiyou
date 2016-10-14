@@ -3,6 +3,8 @@ package search
 
 import (
 	"bytes"
+	"strconv"
+	"regexp"
 )
 
 type tag struct {
@@ -21,7 +23,7 @@ func (this *tag) String() string {
 	buffer.WriteString("',expr:'")
 	buffer.WriteString(this.expr)
 	buffer.WriteString("',repeated:'")
-	buffer.WriteString(this.repeated)
+	buffer.WriteString(strconv.FormatBool(this.repeated))
 	buffer.WriteString("',property:")
 	buffer.WriteString(this.property)
 	buffer.WriteString("'}")
@@ -30,19 +32,21 @@ func (this *tag) String() string {
 }
 
 func (this *tag) hasTrace() bool {
-	return this.trace.id != ""
+	match, _ := regexp.MatchString("([a-z0-9]*)", this.trace.id)
+	return this.trace.id != "" && match
 }
 
 func (this *tag) getTrace() page {
 	return this.trace
 }
 
-func (this *tag) createTrace(db) []page {
-	if this.trace {
-		p := this.trace.createDataTraced(db)
-		if !p {
+func (this *tag) createTrace(udb *UDB) []page {
+	if this.hasTrace() {
+		p := this.trace.createDataTraced(udb)
+		if len(p) == 0 {
 			p = this.trace.createTagTraced(this.result)
 		}
 		return p
 	}
+	return nil
 }

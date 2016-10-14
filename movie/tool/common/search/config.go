@@ -33,13 +33,14 @@ type config struct {
 
 var _cfg *config = nil
 var _cfgonce sync.Once
-func getConfig() config {
+func GetConfig() config {
 	if _cfg == nil {
 		_cfgonce.Do(func() {
 			_cfg = &config{};
 			file, _ := os.Open("conf.json")
 			decoder := json.NewDecoder(file)
 			err := decoder.Decode(_cfg)
+			checkErr(err)
 		})
 	}
 	return *_cfg

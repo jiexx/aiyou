@@ -29,11 +29,11 @@ func checkErr(err error) {
         panic(err)
     }
 }
-func (this *UDB) get(uid string) *UDB  {
+func (this UDB) get(uid string) *UDB  {
 	dbs := _getDBS()
 	d, ok := dbs[uid]
 	if !ok || d == nil {
-		cfg := getConfig()
+		cfg := GetConfig()
 		db, err := sql.Open("mysql", cfg.mysql_jdbc) //user:password@127.0.0.1/
 		if err != nil {
 			stmt, err := db.Prepare("CREATE DATABASE "+uid)
@@ -46,7 +46,9 @@ func (this *UDB) get(uid string) *UDB  {
 			checkErr(err)
 			
 			db.Close()
-			
+			if affect == 0 {
+				return nil
+			}
 			dbs[uid] = &UDB{userid:uid, jdbc:cfg.mysql_jdbc + uid}
 			return dbs[uid]
 		}
@@ -57,8 +59,9 @@ func (this *UDB) get(uid string) *UDB  {
 func (this *UDB) save(tabname string, p page){
 	
 }
-func (this *UDB) saveTask(tabname string, p task){
-	
+func (this UDB) saveTask(tabname string, p task) bool{
+
+	return false
 }
 func (this *UDB) query(tabname string, colname string) []string {
 	db, err := sql.Open("mysql", this.jdbc)

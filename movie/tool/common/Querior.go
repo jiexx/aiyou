@@ -4,17 +4,19 @@ package main
 import (
 	"log"
 	"os/exec"
-	"encoding/json"
+	//"encoding/json"
 	"net/http"
-	"reflect"
+	//"reflect"
 	"fmt"
 	"./search"
+	"bytes"
+	"time"
 )
 
 
 func post(js string) {
 	body := bytes.NewBuffer([]byte(js)) 
-	cfg := getConfig()	
+	cfg := search.GetConfig()	
 	res,err := http.Post(cfg.dog.iport, "application/json;charset=utf-8", body)  
 	if err != nil {  
 		log.Fatal(err)  
@@ -51,7 +53,7 @@ func doTask(js string) {
 	}
 }
 
-response(w http.ResponseWriter, error bool) {
+func response(w http.ResponseWriter, error bool) {
 	str := fmt.printf("{err:%b}",error)
 	w.Header().Set("Access-Control-Allow-Origin", "*");
 	w.Write([]byte(str));
@@ -65,7 +67,7 @@ func Query(w http.ResponseWriter, r *http.Request) {
 }
 
 func main() {
-	cfg = getConfig();
+	cfg = search.GetConfig();
 	mux := http.NewServeMux();
  	mux.HandleFunc("/", Query);
 	http.ListenAndServe(":8061", mux);  
