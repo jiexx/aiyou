@@ -118,3 +118,24 @@ func (this *page) String() string {
 	buffer.WriteString("'}")
 	return buffer.String()
 }
+
+func (this *page) toArrary() []string {
+	var a []string
+	a = append(a, this.id)
+	a = append(a, this.name)
+	a = append(a, this.url)
+	for _, tag := range this.tags {
+		a = append(a, tag.result)
+	}
+	return  a
+}
+
+func (this *page) save(users map[string]user) {
+	u := this.getOwnerUser( users )
+	u.getUDB().save(this.id, this.toArrary())
+}
+
+func (this *page) timeoutSave(users map[string]user) {
+	u := this.getOwnerUser( users )
+	u.getUDB().save("Timeout", this.toArrary())
+}

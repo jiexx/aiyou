@@ -30,3 +30,20 @@ func (this *task) down() bool {
 	this._counter ++
 	return this._counter == len(this.shadows)
 }
+
+func (this *task) toArrary() []string {
+	var a []string
+	a = append(a, this.id)
+	a = append(a, this.name)
+	a = append(a, this.url)
+	for _, tag := range this.tags {
+		a = append(a, tag.result)
+	}
+	return  a
+}
+
+
+func (this *task) save(users map[string]user) {
+	u := this.getOwnerUser( users )
+	u.getUDB().save(this.id, this.toArrary())
+}

@@ -30,15 +30,15 @@ func getManager() *manager {
 }
 
 func (this *manager) timeoutLog(p page) {
-	u := p.getOwnerUser( this.users )
-	u.getUDB().save("Timeout", p)
+	p.timeoutSave( this.users )
 }
 
 func (this *manager) successLog(p page) {
 	if p.isVisited() {
-		u := p.getOwnerUser( this.users )
-		t := p.getOwnerTask( u.tasks )
-		u.getUDB().save(t.name, p)
+		//u := p.getOwnerUser( this.users )
+		//t := p.getOwnerTask( u.tasks )
+		//u.getUDB().savePage(t.name, p)
+		p.save( this.users )
 	}
 }
 
@@ -68,7 +68,7 @@ func (this *manager) Save(js string) bool {
     }
 	if len(uu.Uid) > 0 && strings.Contains(uu.Task.id, "TSK")  {
 		u := user{}
-		if u.save(&uu.Task) {
+		if u.bind(&uu.Task) {
 			this.users[uu.Uid] = u
 			return true
 		}

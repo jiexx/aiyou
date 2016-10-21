@@ -18,7 +18,7 @@ func (this *user) getUDB() *UDB {
 	return UDB{}.get(this.id)
 }
 
-func (this *user) save(t *task) bool {
+func (this *user) bind(t *task) bool {
 	this.tasks[t.id] = t
 	for _, p := range t.pages {
 		p.setOwnerUser(this.id)

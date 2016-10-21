@@ -46,3 +46,7 @@ func GetConfig() config {
 	return *_cfg
 }
 
+func (this *config) GetManagerIP() string {
+	return this.dog.iport
+}
+
