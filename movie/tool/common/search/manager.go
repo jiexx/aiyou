@@ -70,7 +70,39 @@ func (this *manager) Save(js string) bool {
 		u := user{}
 		if u.bind(&uu.Task) {
 			this.users[uu.Uid] = u
-			return true
+			return u.save(&uu.Task, js)
+		}
+	}
+	return false
+}
+
+func (this *manager) Update(js string) bool {
+	var uu User  
+	err := json.Unmarshal([]byte(js), &uu)
+    if err != nil {
+        panic("manager Update")
+    }
+	if len(uu.Uid) > 0 && strings.Contains(uu.Task.id, "TSK")  {
+		u := user{}
+		if u.bind(&uu.Task) {
+			this.users[uu.Uid] = u
+			return u.update(&uu.Task, js)
+		}
+	}
+	return false
+}
+
+func (this *manager) Delete(js string) bool {
+	var uu User  
+	err := json.Unmarshal([]byte(js), &uu)
+    if err != nil {
+        panic("manager Update")
+    }
+	if len(uu.Uid) > 0 && strings.Contains(uu.Task.id, "TSK")  {
+		u := user{}
+		if u.bind(&uu.Task) {
+			this.users[uu.Uid] = u
+			return u.delete(&uu.Task)
 		}
 	}
 	return false

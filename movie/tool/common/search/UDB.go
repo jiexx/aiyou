@@ -126,8 +126,65 @@ func (this UDB) save(tableid string, cols []string) bool{
 
 		res, err := stmt.Exec()
 		checkErr(err)
+		
+		affect, err := res.RowsAffected()
+		checkErr(err)
+		
+		if affect == 1 {
+			return true
+		}
 		//db.Close()
-		return true
+		return false
+	}
+	return false
+}
+func (this UDB) update(tableid string, id string, cols []string) bool{
+	if this.db != nil {
+		var uptcol  string = ""
+		var valcol  string = ""
+		for k, v := range cols {
+			uptcol = uptcol + " col" + strconv.Itoa(k) + "='"+v+"',"
+		}
+		uptcol = uptcol[:len(uptcol)-1]
+		stmt, err := mysqldb.Prepare("UPDATE "+tableid+" SET "+uptcol+" WHERE col0='"+id+"';")
+		checkErr(err)
+
+		res, err := stmt.Exec()
+		checkErr(err)
+		
+		affect, err := res.RowsAffected()
+		checkErr(err)
+		
+		if affect == 1 {
+			return true
+		}
+		//db.Close()
+		return false
+	}
+	return false
+}
+func (this UDB) delete(tableid string, id string) bool{
+	if this.db != nil {
+		var uptcol  string = ""
+		var valcol  string = ""
+		for k, v := range cols {
+			uptcol = uptcol + " col" + strconv.Itoa(k) + "='"+v+"',"
+		}
+		uptcol = uptcol[:len(uptcol)-1]
+		stmt, err := mysqldb.Prepare("DELETE FROM "+tableid+" WHERE col0='"+id+"';")
+		checkErr(err)
+
+		res, err := stmt.Exec()
+		checkErr(err)
+		
+		affect, err := res.RowsAffected()
+		checkErr(err)
+		
+		if affect == 1 {
+			return true
+		}
+		//db.Close()
+		return false
 	}
 	return false
 }

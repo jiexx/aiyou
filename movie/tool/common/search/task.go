@@ -2,6 +2,7 @@
 package search
 
 import (
+	"strconv"
 )
 
 type task struct {
@@ -35,15 +36,10 @@ func (this *task) toArrary() []string {
 	var a []string
 	a = append(a, this.id)
 	a = append(a, this.name)
-	a = append(a, this.url)
-	for _, tag := range this.tags {
-		a = append(a, tag.result)
+	for _, page := range this.pages {
+		a = append(a, page.id)
 	}
+	a = append(a, "{}")
 	return  a
 }
 
-
-func (this *task) save(users map[string]user) {
-	u := this.getOwnerUser( users )
-	u.getUDB().save(this.id, this.toArrary())
-}

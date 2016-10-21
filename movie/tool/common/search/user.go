@@ -31,3 +31,20 @@ func (this *user) bind(t *task) bool {
 	return UDB{}.saveTask(this.id, *t)
 }
 
+func (this *user) save(t *task, js string) bool{
+	a := t.toArrary()
+	a = append(a, js)
+	return this.getUDB().save(t.id, a)
+}
+
+func (this *user) update(t *task, js string) bool{
+	a := t.toArrary()
+	a = append(a, js)
+	return this.getUDB().update(t.id, t.id, a)
+}
+
+func (this *user) delete(t *task) bool{
+	a := t.toArrary()
+	a = append(a, js)
+	return this.getUDB().update(t.id)
+}
