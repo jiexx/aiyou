@@ -122,6 +122,7 @@ func (this *page) String() string {
 func (this *page) toArrary() []string {
 	var a []string
 	a = append(a, this.id)
+	a = append(a, this._taskid)
 	a = append(a, this.name)
 	a = append(a, this.url)
 	for _, tag := range this.tags {

@@ -68,9 +68,9 @@ func (this *manager) Save(js string) bool {
     }
 	if len(uu.Uid) > 0 && strings.Contains(uu.Task.id, "TSK")  {
 		u := user{}
-		if u.bind(&uu.Task) {
+		if u.bind(&uu.Task, js) {
 			this.users[uu.Uid] = u
-			return u.save(&uu.Task, js)
+			return true
 		}
 	}
 	return false

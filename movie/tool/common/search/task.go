@@ -36,9 +36,6 @@ func (this *task) toArrary() []string {
 	var a []string
 	a = append(a, this.id)
 	a = append(a, this.name)
-	for _, page := range this.pages {
-		a = append(a, page.id)
-	}
 	a = append(a, "{}")
 	return  a
 }

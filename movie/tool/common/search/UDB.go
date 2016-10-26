@@ -65,29 +65,66 @@ func (this *UDB) close(){
 	}
 }
 
-func (this *UDB) savePage(p page){
+func (this UDB) saves(tableid string, records [][]string) bool{
 	if this.db != nil {
-		rows, err := this.db.Query("SELECT " + colname + " FROM  "+tabname)
+		var col string
+		rows, err := this.db.Query("SELECT 8 FROM  "+tableid)
 		checkErr(err)
 
 		for rows.Next() {
-			var col string
 			err = rows.Scan(&col)
 			checkErr(err)
-			
-			cols = append(cols, col)
+		}
+		if col != "8" {
+			var crtcol  string = ""
+			for k, v := range records[0] {
+				crtcol = crtcol + " col" + strconv.Itoa(k) + " text,"
+			}
+			crtcol = crtcol[:len(crtcol)-1]
+			stmt, err := mysqldb.Prepare("CREATE TABLE "+tableid+" ("+crtcol+" );")
+			checkErr(err)
+
+			res, err := stmt.Exec()
+			checkErr(err)
+
+			affect, err := res.RowsAffected()
+			checkErr(err)
+
+			if affect != 1 {
+				return false
+			}
+		}
+		var inscol  string = ""
+		var valcol  string = ""
+		for i, j := range records {
+			for k, v := range j {
+				inscol = inscol + " col" + strconv.Itoa(k) + ","
+				valcol = valcol + " '" + v + "',"
+			}
+			inscol = inscol[:len(inscol)-1]
+			valcol = valcol[:len(valcol)-1]
+			stmt, err := mysqldb.Prepare("INSERT INTO "+tableid+" ("+inscol+")VALUES("+valcol+");")
+			checkErr(err)
+		}
+
+		res, err := stmt.Exec()
+		checkErr(err)
+		
+		affect, err := res.RowsAffected()
+		checkErr(err)
+		
+		if affect == len(records) {
+			return true
 		}
 		//db.Close()
+		return false
 	}
-}
-func (this UDB) saveTask(p task) bool{
-
 	return false
 }
 func (this UDB) save(tableid string, cols []string) bool{
 	if this.db != nil {
 		var col string
-		rows, err := this.db.Query("SELECT 8 FROM  "+tabname)
+		rows, err := this.db.Query("SELECT 8 FROM  "+tableid)
 		checkErr(err)
 
 		for rows.Next() {
