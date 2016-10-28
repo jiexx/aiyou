@@ -18,34 +18,47 @@ func (this *user) getUDB() *UDB {
 	return UDB{}.get(this.id)
 }
 
-func (this *user) bind(t *task) bool {
+func (this *user) bind(t *task) {
 	var rows [][]string
-	var a []string
 	
 	this.tasks[t.id] = t
 	for _, p := range t.pages {
 		p.setOwnerUser(this.id)
 		p.setOwnerTask(t.id)
-		rows := append(rows, []string{t.id, p.id})		
 	}
 	for _, s := range t.shadows {
 		s.setOwnerUser(this.id)
 		s.setOwnerTask(t.id)
 	}
-	
-	if !this.getUDB().saves("TSK_PAG_"+this.id[3:len(this.id)], rows) {
-		return false
+}
+
+func (this *user) get() []string{
+	var a []string = []string{"col0", this.id}
+	var b []string = []string{"col1"}
+	rows := this.getUDB().query(this.id, a, b)
+	var result []string
+	for k, v := range rows {
+		result = append(result, v[0])
 	}
-	a = append(a, js)
-	return this.getUDB().save(t.id, a)
+	return result
+}
+
+func (this *user) save(t *task, js string) bool{
+	a := t.toArrary()
+	a = append(a[:0], append([]string{this.id},a[0:]...)...)
+	a = append(a[:1], append([]string{js},a[1:]...)...)
+	return this.getUDB().save(this.id, a)
 }
 
 func (this *user) update(t *task, js string) bool{
-	a := t.toArrary()
-	a = append(a, js)
-	return this.getUDB().update(t.id, t.id, a)
+	if this.delete(t) {
+		if this.save(t, js) {
+			return true
+		}
+	}
+	return false
 }
 
 func (this *user) delete(t *task) bool{
-	return this.getUDB().delete(t.id, t.id)
+	return this.getUDB().delete(this.id, t.id)
 }

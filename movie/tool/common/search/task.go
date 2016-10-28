@@ -36,7 +36,6 @@ func (this *task) toArrary() []string {
 	var a []string
 	a = append(a, this.id)
 	a = append(a, this.name)
-	a = append(a, "{}")
 	return  a
 }
 

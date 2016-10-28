@@ -5,12 +5,15 @@ import (
 	"encoding/json"
 	"strings"
 	"sync"
-	//"strconv"
+	"crypto/md5"
+	"time"
+	"strconv"
 )
 
 
 
 type manager struct {
+	captchas map[string]string
 	users map[string]user
 	delegators []delegator
 	c_msg chan page
@@ -27,6 +30,77 @@ func getManager() *manager {
 		})
 	}
 	return _mgr
+}
+
+func (this *manager) CAPTCHA(usermobile string) string {
+	udb := UDB{}.get("DOGUSERS")
+	var a []string = {"col1", usermobile, "col0"}
+	var b []string = {"col1", usermobile, "col0"}
+	rows := udb.query("users", a)
+	if len(rows) == 0 {
+		var buffer bytes.Buffer
+		var hashChannel = make(chan []byte, 1)
+		buffer.WriteString(strconv.FormatInt(time.Now().Unix(), 10))
+		buffer.WriteString(usermobile)
+		sum := md5.Sum(buffer.Bytes())
+		hashChannel <- sum[:]
+		userid := "USR"+string(<-hashChannel)
+		this.captchas[userid] = userid[3:4]
+		return userid
+	}	
+}
+
+func (this *manager) Register(usermobile string, pwd string, captcha string, userid string) bool {
+	if this.captchas[userid] == captcha  {
+		udb := UDB{}.get("DOGUSERS")
+		var a []string = {userid, usermobile, pwd}
+		return udb.save("users", a)
+	}
+	return false
+}
+
+func (this *manager) Pwdlogin(usermobile string, pwd string) []string {
+	udb := UDB{}.get("DOGUSERS")
+	var a []string = []string{"col1", usermobile, "col2", pwd}
+	var b []string = []string{"col0"}
+	rows := udb.query("users", a, b)
+	if len(rows) > 0  {
+		u := user{id:uu.Uid}
+		this.users[uu.Uid] = u
+		jss := u.get()
+		for _, v := range jss {
+			var uu User  
+			err := json.Unmarshal([]byte(js), &uu)
+			if err != nil {
+				panic("manager Login")
+			}
+			u.bind(&uu.Task)
+		}
+		return jss
+	}
+	return nil
+}
+
+func (this *manager) Login(userid string) []string {
+	udb := UDB{}.get("DOGUSERS")
+	var a []string = []string{"col0", userid}
+	var b []string = []string{"col0"}
+	rows := udb.query("users", a, b)
+	if len(rows) > 0  {
+		u := user{id:uu.Uid}
+		this.users[uu.Uid] = u
+		jss := u.get()
+		for _, v := range jss {
+			var uu User  
+			err := json.Unmarshal([]byte(js), &uu)
+			if err != nil {
+				panic("manager Login")
+			}
+			u.bind(&uu.Task)
+		}
+		return jss
+	}
+	return nil
 }
 
 func (this *manager) timeoutLog(p page) {
@@ -59,7 +133,6 @@ type User struct {
 	Task task
 	Uid string
 }
-
 func (this *manager) Save(js string) bool {
 	var uu User  
 	err := json.Unmarshal([]byte(js), &uu)
@@ -67,26 +140,11 @@ func (this *manager) Save(js string) bool {
         panic("manager Save")
     }
 	if len(uu.Uid) > 0 && strings.Contains(uu.Task.id, "TSK")  {
-		u := user{}
-		if u.bind(&uu.Task, js) {
+		u := user{id:uu.Uid}
+		u.bind(&uu.Task)
+		if u.update(&uu.Task, js) {
 			this.users[uu.Uid] = u
 			return true
-		}
-	}
-	return false
-}
-
-func (this *manager) Update(js string) bool {
-	var uu User  
-	err := json.Unmarshal([]byte(js), &uu)
-    if err != nil {
-        panic("manager Update")
-    }
-	if len(uu.Uid) > 0 && strings.Contains(uu.Task.id, "TSK")  {
-		u := user{}
-		if u.bind(&uu.Task) {
-			this.users[uu.Uid] = u
-			return u.update(&uu.Task, js)
 		}
 	}
 	return false
@@ -99,7 +157,7 @@ func (this *manager) Delete(js string) bool {
         panic("manager Update")
     }
 	if len(uu.Uid) > 0 && strings.Contains(uu.Task.id, "TSK")  {
-		u := user{}
+		u := user{id:uu.Uid}
 		if u.bind(&uu.Task) {
 			this.users[uu.Uid] = u
 			return u.delete(&uu.Task)

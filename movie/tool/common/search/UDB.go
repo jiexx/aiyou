@@ -11,7 +11,6 @@ import (
 
 type UDB struct {
 	dbname string
-	userid string
 	jdbc string
 	db *DB
 }
@@ -31,15 +30,15 @@ func checkErr(err error) {
         panic(err)
     }
 }
-func (this UDB) get(uid string) *UDB  {
+func (this UDB) get(dbname string) *UDB  {
 	dbs := _getDBS()
-	d, ok := dbs[uid]
+	d, ok := dbs[dbname]
 	if !ok || d == nil {
 		cfg := GetConfig()
 		mysqldb, err := sql.Open("mysql", cfg.mysql_jdbc) //user:password@127.0.0.1/
 		mysqldb.SetMaxIdleConns(100)
 		if err != nil {
-			stmt, err := mysqldb.Prepare("CREATE DATABASE "+uid)
+			stmt, err := mysqldb.Prepare("CREATE DATABASE "+dbname)
 			checkErr(err)
 
 			res, err := stmt.Exec()
@@ -52,8 +51,8 @@ func (this UDB) get(uid string) *UDB  {
 			if affect == 0 {
 				return nil
 			}
-			dbs[uid] = &UDB{userid:uid, jdbc:cfg.mysql_jdbc + uid, db:mysqldb}
-			return dbs[uid]
+			dbs[dbname] = &UDB{jdbc:cfg.mysql_jdbc+dbname, db:mysqldb}
+			return dbs[dbname]
 		}
 		return nil
 	}
@@ -65,23 +64,29 @@ func (this *UDB) close(){
 	}
 }
 
-func (this UDB) saves(tableid string, records [][]string) bool{
+func (this UDB) rowsSave(tabname string, rows [][]string) bool{
+	length := len(rows[0])
+	for i, j := range rows {
+		if length != len(j) {
+			return false
+		}
+	}
 	if this.db != nil {
 		var col string
-		rows, err := this.db.Query("SELECT 8 FROM  "+tableid)
+		rs, err := this.db.Query("SELECT 8 FROM  "+tabname)
 		checkErr(err)
 
-		for rows.Next() {
-			err = rows.Scan(&col)
+		for rs.Next() {
+			err = rs.Scan(&col)
 			checkErr(err)
 		}
 		if col != "8" {
 			var crtcol  string = ""
-			for k, v := range records[0] {
+			for k, v := range rows[0] {
 				crtcol = crtcol + " col" + strconv.Itoa(k) + " text,"
 			}
 			crtcol = crtcol[:len(crtcol)-1]
-			stmt, err := mysqldb.Prepare("CREATE TABLE "+tableid+" ("+crtcol+" );")
+			stmt, err := mysqldb.Prepare("CREATE TABLE "+tabname+" ("+crtcol+" );")
 			checkErr(err)
 
 			res, err := stmt.Exec()
@@ -96,14 +101,14 @@ func (this UDB) saves(tableid string, records [][]string) bool{
 		}
 		var inscol  string = ""
 		var valcol  string = ""
-		for i, j := range records {
+		for i, j := range rows {
 			for k, v := range j {
 				inscol = inscol + " col" + strconv.Itoa(k) + ","
 				valcol = valcol + " '" + v + "',"
 			}
 			inscol = inscol[:len(inscol)-1]
 			valcol = valcol[:len(valcol)-1]
-			stmt, err := mysqldb.Prepare("INSERT INTO "+tableid+" ("+inscol+")VALUES("+valcol+");")
+			stmt, err := mysqldb.Prepare("INSERT INTO "+tabname+" ("+inscol+")VALUES("+valcol+");")
 			checkErr(err)
 		}
 
@@ -121,10 +126,10 @@ func (this UDB) saves(tableid string, records [][]string) bool{
 	}
 	return false
 }
-func (this UDB) save(tableid string, cols []string) bool{
+func (this UDB) save(tabname string, cols []string) bool{ //cols 0 is id.
 	if this.db != nil {
 		var col string
-		rows, err := this.db.Query("SELECT 8 FROM  "+tableid)
+		rows, err := this.db.Query("SELECT 8 FROM  "+tabname)
 		checkErr(err)
 
 		for rows.Next() {
@@ -137,7 +142,7 @@ func (this UDB) save(tableid string, cols []string) bool{
 				crtcol = crtcol + " col" + strconv.Itoa(k) + " text,"
 			}
 			crtcol = crtcol[:len(crtcol)-1]
-			stmt, err := mysqldb.Prepare("CREATE TABLE "+tableid+" ("+crtcol+" );")
+			stmt, err := mysqldb.Prepare("CREATE TABLE "+tabname+" ("+crtcol+" );")
 			checkErr(err)
 
 			res, err := stmt.Exec()
@@ -158,7 +163,7 @@ func (this UDB) save(tableid string, cols []string) bool{
 		}
 		inscol = inscol[:len(inscol)-1]
 		valcol = valcol[:len(valcol)-1]
-		stmt, err := mysqldb.Prepare("INSERT INTO "+tableid+" ("+inscol+")VALUES("+valcol+");")
+		stmt, err := mysqldb.Prepare("INSERT INTO "+tabname+" ("+inscol+")VALUES("+valcol+");")
 		checkErr(err)
 
 		res, err := stmt.Exec()
@@ -175,7 +180,32 @@ func (this UDB) save(tableid string, cols []string) bool{
 	}
 	return false
 }
-func (this UDB) update(tableid string, id string, cols []string) bool{
+func (this UDB) update(tabname string, cols []string) bool{  //cols 0 is id.
+	if this.db != nil {
+		var uptcol  string = ""
+		var valcol  string = ""
+		for i := 1; i < len(cols) ; i ++ {
+			uptcol = uptcol + " col" + i + "='"+v+"',"
+		}
+		uptcol = uptcol[:len(uptcol)-1]
+		stmt, err := mysqldb.Prepare("UPDATE "+tabname+" SET "+uptcol+" WHERE col0='"+cols[0]+"';") 
+		checkErr(err)
+
+		res, err := stmt.Exec()
+		checkErr(err)
+		
+		affect, err := res.RowsAffected()
+		checkErr(err)
+		
+		if affect == 1 {
+			return true
+		}
+		//db.Close()
+		return false
+	}
+	return false
+}
+func (this UDB) delete(tabname string, id string) bool{ //cols 0 is id.
 	if this.db != nil {
 		var uptcol  string = ""
 		var valcol  string = ""
@@ -183,7 +213,7 @@ func (this UDB) update(tableid string, id string, cols []string) bool{
 			uptcol = uptcol + " col" + strconv.Itoa(k) + "='"+v+"',"
 		}
 		uptcol = uptcol[:len(uptcol)-1]
-		stmt, err := mysqldb.Prepare("UPDATE "+tableid+" SET "+uptcol+" WHERE col0='"+id+"';")
+		stmt, err := mysqldb.Prepare("DELETE FROM "+tabname+" WHERE col0='"+id+"';")
 		checkErr(err)
 
 		res, err := stmt.Exec()
@@ -200,46 +230,49 @@ func (this UDB) update(tableid string, id string, cols []string) bool{
 	}
 	return false
 }
-func (this UDB) delete(tableid string, id string) bool{
+func (this *UDB) query(tabname string, qrycols []string, concols []string) [][]string { // 
+	var results [][]string
 	if this.db != nil {
-		var uptcol  string = ""
-		var valcol  string = ""
-		for k, v := range cols {
-			uptcol = uptcol + " col" + strconv.Itoa(k) + "='"+v+"',"
+		var concol  string = ""
+		for i := 0; i < len(concols) ; i += 2 {
+			concol = concol + " " + concols[i] + "='" + concols[i+1] + "' AND"
 		}
-		uptcol = uptcol[:len(uptcol)-1]
-		stmt, err := mysqldb.Prepare("DELETE FROM "+tableid+" WHERE col0='"+id+"';")
+		concol = concol[:len(concol)-3]
+		var qrycol  string = ""
+		for i := 0; i < len(qrycols) ; i ++ {
+			qrycol = qrycol + " " + qrycols[i] + ","
+		}
+		qrycol = qrycol[:len(qrycol)-1]
+		rows, err := this.db.Query("SELECT " + qrycol + " FROM  "+tabname+" WHERE "+concol+"';")
 		checkErr(err)
 
-		res, err := stmt.Exec()
+		columns, err := rows.Columns()
 		checkErr(err)
 		
-		affect, err := res.RowsAffected()
-		checkErr(err)
-		
-		if affect == 1 {
-			return true
+		rawResult := make([][]byte, len(columns))
+		result := make([]string, len(columns))
+		dest := make([]interface{}, len(columns))
+		for i, _ := range rawResult {
+			dest[i] = &rawResult[i]
 		}
-		//db.Close()
-		return false
-	}
-	return false
-}
-func (this *UDB) query(tabname string, colname string) []string {
-	var cols []string
-	if this.db != nil {
-		rows, err := this.db.Query("SELECT " + colname + " FROM  "+tabname)
-		checkErr(err)
-
+		
 		for rows.Next() {
-			var col string
-			err = rows.Scan(&col)
+			//var col string
+			//err = rows.Scan(&col)
+			err = rows.Scan(dest...)
 			checkErr(err)
 			
-			cols = append(cols, col)
+			for i, raw := range rawResult {
+				if raw == nil {
+					result[i] = "\\N"
+				} else {
+					result[i] = string(raw)
+				}
+			}
+			results = append(results, result)
 		}
 		//db.Close()
 	}
-	return cols
+	return results
 }
 
