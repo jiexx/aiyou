@@ -59,24 +59,28 @@ func (this *manager) Register(usermobile string, pwd string, captcha string, use
 	return false
 }
 
+func (this *manager) getUserTasks(uid) []string {
+	u := user{id:uid}
+	jss := u.get()
+	for _, js := range jss {
+		var uu User  
+		err := json.Unmarshal([]byte(js), &uu)
+		if err != nil {
+			panic("manager Login")
+		}
+		u.bind(&uu.Task)
+	}
+	this.users[uid] = u
+	return jss
+}
+
 func (this *manager) Pwdlogin(usermobile string, pwd string) []string {
 	udb := UDB{}.get("DOGUSERS")
 	var a []string = []string{"col1", usermobile, "col2", pwd}
 	var b []string = []string{"col0"}
 	rows := udb.query("users", a, b)
 	if len(rows) > 0  {
-		u := user{id:uu.Uid}
-		this.users[uu.Uid] = u
-		jss := u.get()
-		for _, v := range jss {
-			var uu User  
-			err := json.Unmarshal([]byte(js), &uu)
-			if err != nil {
-				panic("manager Login")
-			}
-			u.bind(&uu.Task)
-		}
-		return jss
+		return getUserTasks{rows[0][0])
 	}
 	return nil
 }
@@ -87,18 +91,7 @@ func (this *manager) Login(userid string) []string {
 	var b []string = []string{"col0"}
 	rows := udb.query("users", a, b)
 	if len(rows) > 0  {
-		u := user{id:uu.Uid}
-		this.users[uu.Uid] = u
-		jss := u.get()
-		for _, v := range jss {
-			var uu User  
-			err := json.Unmarshal([]byte(js), &uu)
-			if err != nil {
-				panic("manager Login")
-			}
-			u.bind(&uu.Task)
-		}
-		return jss
+		return getUserTasks{rows[0][0])
 	}
 	return nil
 }

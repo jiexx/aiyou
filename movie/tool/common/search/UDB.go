@@ -1,4 +1,5 @@
 //https://gist.github.com/blinksmith/99e5234ea601af8ba8bfab35c8fbebef 
+//bing map key AtW1XbPytl3BS995WVs0zo25_AX5Zu26Be59PPgYun3sHXPaEqvuhvRrq8EKCXQV
 package search
 
 import (
