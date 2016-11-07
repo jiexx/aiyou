@@ -5,7 +5,12 @@
       <title>Find directions</title>
       <meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
       <script type="text/javascript" src="http://ecn.dev.virtualearth.net/mapcontrol/mapcontrol.ashx?v=7.0"></script>
-	  
+	  <style type="text/css">
+		html,body{ 
+		margin:0px; 
+		height:100%; 
+		} 
+	  </style>
       <script type="text/javascript">
       var map = null;
       var end;
@@ -38,24 +43,13 @@
       }
       function getMap()
       {
-        map = new Microsoft.Maps.Map(document.getElementById('myMap'), {credentials: 'AtW1XbPytl3BS995WVs0zo25_AX5Zu26Be59PPgYun3sHXPaEqvuhvRrq8EKCXQV', zoom: 8, showDashboard: false});//new Microsoft.Maps.Map(document.getElementById('myMap'), {credentials: 'AtW1XbPytl3BS995WVs0zo25_AX5Zu26Be59PPgYun3sHXPaEqvuhvRrq8EKCXQV'});
+        map = new Microsoft.Maps.Map(document.getElementById('myMap'), {credentials: 'AtW1XbPytl3BS995WVs0zo25_AX5Zu26Be59PPgYun3sHXPaEqvuhvRrq8EKCXQV',  showDashboard: false});//new Microsoft.Maps.Map(document.getElementById('myMap'), {credentials: 'AtW1XbPytl3BS995WVs0zo25_AX5Zu26Be59PPgYun3sHXPaEqvuhvRrq8EKCXQV'});
         //alert('Insert key to make valid REST service call');
 		var viewchangeend=Microsoft.Maps.Events.addHandler(map, 'viewchangeend', function(e){ onViewChangeEnd(e); });
 		getDirections();
       }
       function getDirections()
       {
-	    console.log(""+new Date().getTime()+"    urlParams "+JSON.stringify(urlParams) + " "+ urlParams["w"]);
-		if( urlParams["w"] ){
-		  document.getElementById('myMap').style.width = urlParams["w"]+"px";
-		}else {
-		  document.getElementById('myMap').style.width = "500px";
-		}
-	    if( urlParams["h"] ){
-		  document.getElementById('myMap').style.height = urlParams["h"]+"px" ;
-		}else {
-		  document.getElementById('myMap').style.height = "500px";
-		}
         start= urlParams["s"]; end= urlParams["e"]; 
         map.getCredentials(callRouteService);  
       }
@@ -98,7 +92,7 @@
           }
           var bbox = result.resourceSets[0].resources[0].bbox; 
           var viewBoundaries = Microsoft.Maps.LocationRect.fromLocations(new Microsoft.Maps.Location(bbox[0], bbox[1]), new Microsoft.Maps.Location(bbox[2], bbox[3]));
-          map.setView({ zoom: 10, bounds: viewBoundaries, animate: false}); 
+          map.setView({ bounds: viewBoundaries, animate: false}); 
           var routeline = result.resourceSets[0].resources[0].routePath.line; var routepoints = new Array(); 
           for (var i = 0; i < routeline.coordinates.length; i++) 
           { 
@@ -128,13 +122,12 @@
       </script>
    </head>
    <body onload="getMap();">
-      <div id='myMap' style="position:relative;"></div>
+      <div id='myMap' style="position:relative;width:100%;height:100%"></div>
       <!--div>
          <input type="button" value="GetDirections" onclick="getDirections();" />
       </div-->
-      <div id="event"></div>
-	  <div id="output"></div>
-      <canvas id="canvas" height="500px"></canvas>
+      <div id="event"style="position:relative;width:100%;height:0%"></div>
+	  <div id="output"style="position:relative;width:100%;height:0%"></div>
 	  <!--button id="test">svg to png</button-->
    </body>
    <!--script type="text/javascript">
