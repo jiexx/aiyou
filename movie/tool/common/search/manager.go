@@ -34,8 +34,7 @@ func getManager() *manager {
 
 func (this *manager) CAPTCHA(usermobile string) string {
 	udb := UDB{}.get("DOGUSERS")
-	var a []string = {"col1", usermobile, "col0"}
-	var b []string = {"col1", usermobile, "col0"}
+	var a []string = []string{"col1", usermobile, "col0"}
 	rows := udb.query("users", a)
 	if len(rows) == 0 {
 		var buffer bytes.Buffer
@@ -53,7 +52,7 @@ func (this *manager) CAPTCHA(usermobile string) string {
 func (this *manager) Register(usermobile string, pwd string, captcha string, userid string) bool {
 	if this.captchas[userid] == captcha  {
 		udb := UDB{}.get("DOGUSERS")
-		var a []string = {userid, usermobile, pwd}
+		var a []string = []string{userid, usermobile, pwd}
 		return udb.save("users", a)
 	}
 	return false
@@ -80,7 +79,7 @@ func (this *manager) Pwdlogin(usermobile string, pwd string) []string {
 	var b []string = []string{"col0"}
 	rows := udb.query("users", a, b)
 	if len(rows) > 0  {
-		return getUserTasks{rows[0][0])
+		return getUserTasks(rows[0][0])
 	}
 	return nil
 }
@@ -91,7 +90,7 @@ func (this *manager) Login(userid string) []string {
 	var b []string = []string{"col0"}
 	rows := udb.query("users", a, b)
 	if len(rows) > 0  {
-		return getUserTasks{rows[0][0])
+		return getUserTasks(rows[0][0])
 	}
 	return nil
 }

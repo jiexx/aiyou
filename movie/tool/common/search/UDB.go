@@ -13,7 +13,7 @@ import (
 type UDB struct {
 	dbname string
 	jdbc string
-	db *DB
+	db *sql.DB
 }
 
 var _dbs map[string]*UDB = nil
@@ -87,7 +87,7 @@ func (this UDB) rowsSave(tabname string, rows [][]string) bool{
 				crtcol = crtcol + " col" + strconv.Itoa(k) + " text,"
 			}
 			crtcol = crtcol[:len(crtcol)-1]
-			stmt, err := mysqldb.Prepare("CREATE TABLE "+tabname+" ("+crtcol+" );")
+			stmt, err := this.db.Prepare("CREATE TABLE "+tabname+" ("+crtcol+" );")
 			checkErr(err)
 
 			res, err := stmt.Exec()
@@ -109,7 +109,7 @@ func (this UDB) rowsSave(tabname string, rows [][]string) bool{
 			}
 			inscol = inscol[:len(inscol)-1]
 			valcol = valcol[:len(valcol)-1]
-			stmt, err := mysqldb.Prepare("INSERT INTO "+tabname+" ("+inscol+")VALUES("+valcol+");")
+			stmt, err := this.db.Prepare("INSERT INTO "+tabname+" ("+inscol+")VALUES("+valcol+");")
 			checkErr(err)
 		}
 
@@ -143,7 +143,7 @@ func (this UDB) save(tabname string, cols []string) bool{ //cols 0 is id.
 				crtcol = crtcol + " col" + strconv.Itoa(k) + " text,"
 			}
 			crtcol = crtcol[:len(crtcol)-1]
-			stmt, err := mysqldb.Prepare("CREATE TABLE "+tabname+" ("+crtcol+" );")
+			stmt, err := this.db.Prepare("CREATE TABLE "+tabname+" ("+crtcol+" );")
 			checkErr(err)
 
 			res, err := stmt.Exec()
@@ -164,7 +164,7 @@ func (this UDB) save(tabname string, cols []string) bool{ //cols 0 is id.
 		}
 		inscol = inscol[:len(inscol)-1]
 		valcol = valcol[:len(valcol)-1]
-		stmt, err := mysqldb.Prepare("INSERT INTO "+tabname+" ("+inscol+")VALUES("+valcol+");")
+		stmt, err := this.db.Prepare("INSERT INTO "+tabname+" ("+inscol+")VALUES("+valcol+");")
 		checkErr(err)
 
 		res, err := stmt.Exec()
@@ -189,7 +189,7 @@ func (this UDB) update(tabname string, cols []string) bool{  //cols 0 is id.
 			uptcol = uptcol + " col" + i + "='"+v+"',"
 		}
 		uptcol = uptcol[:len(uptcol)-1]
-		stmt, err := mysqldb.Prepare("UPDATE "+tabname+" SET "+uptcol+" WHERE col0='"+cols[0]+"';") 
+		stmt, err := this.db.Prepare("UPDATE "+tabname+" SET "+uptcol+" WHERE col0='"+cols[0]+"';") 
 		checkErr(err)
 
 		res, err := stmt.Exec()
@@ -214,7 +214,7 @@ func (this UDB) delete(tabname string, id string) bool{ //cols 0 is id.
 			uptcol = uptcol + " col" + strconv.Itoa(k) + "='"+v+"',"
 		}
 		uptcol = uptcol[:len(uptcol)-1]
-		stmt, err := mysqldb.Prepare("DELETE FROM "+tabname+" WHERE col0='"+id+"';")
+		stmt, err := this.db.Prepare("DELETE FROM "+tabname+" WHERE col0='"+id+"';")
 		checkErr(err)
 
 		res, err := stmt.Exec()
