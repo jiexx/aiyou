@@ -40,9 +40,9 @@ func (this *tag) getTrace() page {
 	return this.trace
 }
 
-func (this *tag) createTrace(udb *UDB) []page {
+func (this *tag) createTrace(u *user) []page {
 	if this.hasTrace() {
-		p := this.trace.createDataTraced(udb)
+		p := this.trace.createDataTraced(u)
 		if len(p) == 0 {
 			p = this.trace.createTagTraced(this.result)
 		}

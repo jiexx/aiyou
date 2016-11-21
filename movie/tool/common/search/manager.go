@@ -8,6 +8,7 @@ import (
 	"crypto/md5"
 	"time"
 	"strconv"
+	"bytes"
 )
 
 
@@ -33,9 +34,10 @@ func getManager() *manager {
 }
 
 func (this *manager) CAPTCHA(usermobile string) string {
-	udb := UDB{}.get("DOGUSERS")
-	var a []string = []string{"col1", usermobile, "col0"}
-	rows := udb.query("users", a)
+	udb := UDB{}.get("DOG_USERS")
+	var a []string = []string{"col1", usermobile}
+	var b []string = []string{"col0"}
+	rows := udb.query("USERS", a, b)
 	if len(rows) == 0 {
 		var buffer bytes.Buffer
 		var hashChannel = make(chan []byte, 1)
@@ -45,22 +47,23 @@ func (this *manager) CAPTCHA(usermobile string) string {
 		hashChannel <- sum[:]
 		userid := "USR"+string(<-hashChannel)
 		this.captchas[userid] = userid[3:4]
-		return userid
-	}	
+		return this.captchas[userid]
+	}
+	return ""
 }
 
 func (this *manager) Register(usermobile string, pwd string, captcha string, userid string) bool {
 	if this.captchas[userid] == captcha  {
-		udb := UDB{}.get("DOGUSERS")
+		udb := UDB{}.get("DOG_USERS")
 		var a []string = []string{userid, usermobile, pwd}
-		return udb.save("users", a)
+		return udb.save("USERS", a)
 	}
 	return false
 }
 
-func (this *manager) getUserTasks(uid) []string {
+func (this *manager) getUserTasks(uid string) []string {
 	u := user{id:uid}
-	jss := u.get()
+	jss := u.getTasks()
 	for _, js := range jss {
 		var uu User  
 		err := json.Unmarshal([]byte(js), &uu)
@@ -74,23 +77,23 @@ func (this *manager) getUserTasks(uid) []string {
 }
 
 func (this *manager) Pwdlogin(usermobile string, pwd string) []string {
-	udb := UDB{}.get("DOGUSERS")
+	udb := UDB{}.get("DOG_USERS")
 	var a []string = []string{"col1", usermobile, "col2", pwd}
 	var b []string = []string{"col0"}
-	rows := udb.query("users", a, b)
+	rows := udb.query("USERS", a, b)
 	if len(rows) > 0  {
-		return getUserTasks(rows[0][0])
+		return this.getUserTasks(rows[0][0])
 	}
 	return nil
 }
 
 func (this *manager) Login(userid string) []string {
-	udb := UDB{}.get("DOGUSERS")
+	udb := UDB{}.get("DOG_USERS")
 	var a []string = []string{"col0", userid}
 	var b []string = []string{"col0"}
-	rows := udb.query("users", a, b)
+	rows := udb.query("USERS", a, b)
 	if len(rows) > 0  {
-		return getUserTasks(rows[0][0])
+		return this.getUserTasks(rows[0][0])
 	}
 	return nil
 }
@@ -134,7 +137,7 @@ func (this *manager) Save(js string) bool {
 	if len(uu.Uid) > 0 && strings.Contains(uu.Task.id, "TSK")  {
 		u := user{id:uu.Uid}
 		u.bind(&uu.Task)
-		if u.update(&uu.Task, js) {
+		if u.updateTask(uu.Task.id, js) {
 			this.users[uu.Uid] = u
 			return true
 		}
@@ -150,10 +153,9 @@ func (this *manager) Delete(js string) bool {
     }
 	if len(uu.Uid) > 0 && strings.Contains(uu.Task.id, "TSK")  {
 		u := user{id:uu.Uid}
-		if u.bind(&uu.Task) {
-			this.users[uu.Uid] = u
-			return u.delete(&uu.Task)
-		}
+		u.bind(&uu.Task)
+		this.users[uu.Uid] = u
+		return u.delTask(uu.Task.id)
 	}
 	return false
 }
@@ -185,7 +187,7 @@ func (this *manager) handle(p *page) {
 		for _, tag := range p.tags {
 			if tag.hasTrace() {
 				u := p.getOwnerUser( this.users )
-				tps := tag.createTrace(u.getUDB())
+				tps := tag.createTrace(&u)
 				if len(tps) == 0 {
 					t := p.getOwnerTask( u.tasks )
 					t.stop()

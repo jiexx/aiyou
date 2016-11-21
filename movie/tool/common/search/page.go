@@ -71,12 +71,13 @@ func (this *page) start(uid string, tid string) {
 	this._visitid = ""
 }
 
-func (this *page) createDataTraced(udb *UDB) []page {
+func (this *page) createDataTraced(u *user) []page {
 	var pages []page
-	re := regexp.MustCompile(`\[([^\.|\b]+)\.([^\]|\b]+)\]`)  // Result Table Named by Task, eg. www.web.com/[结果1.col1]
+	re := regexp.MustCompile(`\[([^\.|\b]+)\.([^\]|\b]+)\]`)  // Result Table Named by Task, eg. www.web.com/[结果表.col1]
 	re.MatchString(this.url)
 	if this.isShadow && len(re.SubexpNames()) == 2 && strings.Contains(this.url, "%s") {
-		for _, result := range udb.query( re.SubexpNames()[0], re.SubexpNames()[1]) {
+		rows := u.getResults(re.SubexpNames()[0], re.SubexpNames()[1])
+		for _, result := range rows {
 			p := page{url:fmt.Sprint(this.url, result), name:this.name, tags:this.tags, id:this.id}
 			p.start(this._userid, this._taskid)
 			pages = append(pages, p)  

@@ -64,69 +64,6 @@ func (this *UDB) close(){
 		this.db.Close()
 	}
 }
-
-func (this UDB) rowsSave(tabname string, rows [][]string) bool{
-	length := len(rows[0])
-	for i, j := range rows {
-		if length != len(j) {
-			return false
-		}
-	}
-	if this.db != nil {
-		var col string
-		rs, err := this.db.Query("SELECT 8 FROM  "+tabname)
-		checkErr(err)
-
-		for rs.Next() {
-			err = rs.Scan(&col)
-			checkErr(err)
-		}
-		if col != "8" {
-			var crtcol  string = ""
-			for k, v := range rows[0] {
-				crtcol = crtcol + " col" + strconv.Itoa(k) + " text,"
-			}
-			crtcol = crtcol[:len(crtcol)-1]
-			stmt, err := this.db.Prepare("CREATE TABLE "+tabname+" ("+crtcol+" );")
-			checkErr(err)
-
-			res, err := stmt.Exec()
-			checkErr(err)
-
-			affect, err := res.RowsAffected()
-			checkErr(err)
-
-			if affect != 1 {
-				return false
-			}
-		}
-		var inscol  string = ""
-		var valcol  string = ""
-		for i, j := range rows {
-			for k, v := range j {
-				inscol = inscol + " col" + strconv.Itoa(k) + ","
-				valcol = valcol + " '" + v + "',"
-			}
-			inscol = inscol[:len(inscol)-1]
-			valcol = valcol[:len(valcol)-1]
-			stmt, err := this.db.Prepare("INSERT INTO "+tabname+" ("+inscol+")VALUES("+valcol+");")
-			checkErr(err)
-		}
-
-		res, err := stmt.Exec()
-		checkErr(err)
-		
-		affect, err := res.RowsAffected()
-		checkErr(err)
-		
-		if affect == len(records) {
-			return true
-		}
-		//db.Close()
-		return false
-	}
-	return false
-}
 func (this UDB) save(tabname string, cols []string) bool{ //cols 0 is id.
 	if this.db != nil {
 		var col string
@@ -139,7 +76,7 @@ func (this UDB) save(tabname string, cols []string) bool{ //cols 0 is id.
 		}
 		if col != "8" {
 			var crtcol  string = ""
-			for k, v := range cols {
+			for k, _ := range cols {
 				crtcol = crtcol + " col" + strconv.Itoa(k) + " text,"
 			}
 			crtcol = crtcol[:len(crtcol)-1]
@@ -181,39 +118,8 @@ func (this UDB) save(tabname string, cols []string) bool{ //cols 0 is id.
 	}
 	return false
 }
-func (this UDB) update(tabname string, cols []string) bool{  //cols 0 is id.
-	if this.db != nil {
-		var uptcol  string = ""
-		var valcol  string = ""
-		for i := 1; i < len(cols) ; i ++ {
-			uptcol = uptcol + " col" + i + "='"+v+"',"
-		}
-		uptcol = uptcol[:len(uptcol)-1]
-		stmt, err := this.db.Prepare("UPDATE "+tabname+" SET "+uptcol+" WHERE col0='"+cols[0]+"';") 
-		checkErr(err)
-
-		res, err := stmt.Exec()
-		checkErr(err)
-		
-		affect, err := res.RowsAffected()
-		checkErr(err)
-		
-		if affect == 1 {
-			return true
-		}
-		//db.Close()
-		return false
-	}
-	return false
-}
 func (this UDB) delete(tabname string, id string) bool{ //cols 0 is id.
 	if this.db != nil {
-		var uptcol  string = ""
-		var valcol  string = ""
-		for k, v := range cols {
-			uptcol = uptcol + " col" + strconv.Itoa(k) + "='"+v+"',"
-		}
-		uptcol = uptcol[:len(uptcol)-1]
 		stmt, err := this.db.Prepare("DELETE FROM "+tabname+" WHERE col0='"+id+"';")
 		checkErr(err)
 
@@ -235,16 +141,23 @@ func (this *UDB) query(tabname string, qrycols []string, concols []string) [][]s
 	var results [][]string
 	if this.db != nil {
 		var concol  string = ""
-		for i := 0; i < len(concols) ; i += 2 {
-			concol = concol + " " + concols[i] + "='" + concols[i+1] + "' AND"
+		if concols != nil {
+			concol = " WHERE "
+			for i := 0; i < len(concols) ; i += 2 {
+				concol = concol + " " + concols[i] + "='" + concols[i+1] + "' AND"
+			}
+			concol = concol[:len(concol)-3]
 		}
-		concol = concol[:len(concol)-3]
 		var qrycol  string = ""
-		for i := 0; i < len(qrycols) ; i ++ {
-			qrycol = qrycol + " " + qrycols[i] + ","
+		if qrycols != nil {
+			for i := 0; i < len(qrycols) ; i ++ {
+				qrycol = qrycol + " " + qrycols[i] + ","
+			}
+			qrycol = qrycol[:len(qrycol)-1]
+		} else {
+			qrycol = " * "
 		}
-		qrycol = qrycol[:len(qrycol)-1]
-		rows, err := this.db.Query("SELECT " + qrycol + " FROM  "+tabname+" WHERE "+concol+"';")
+		rows, err := this.db.Query("SELECT " + qrycol + " FROM  "+tabname+concol+"';")
 		checkErr(err)
 
 		columns, err := rows.Columns()
