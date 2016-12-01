@@ -37,7 +37,7 @@ func GetConfig() config {
 	if _cfg == nil {
 		_cfgonce.Do(func() {
 			_cfg = &config{};
-			file, _ := os.Open("conf.json")
+			file, _ := os.Open("../conf.json")
 			decoder := json.NewDecoder(file)
 			err := decoder.Decode(_cfg)
 			checkErr(err)

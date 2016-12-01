@@ -1,0 +1,10 @@
+{
+	dog: {
+		iport: '127.0.0.1:8086'
+	},
+	cfqs: {
+		iport: '127.0.0.1:8087'
+	},
+	mysql_jdbc: 'root:root@127.0.0.1/'
+	titan: ''
+}

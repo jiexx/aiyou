@@ -69,6 +69,8 @@ func Query(w http.ResponseWriter, r *http.Request) {
 }
 
 func main() {
+	cfg := search.GetConfig()
+	
 	mux := http.NewServeMux();
  	mux.HandleFunc("/", Query);
 	http.ListenAndServe(":8061", mux);  

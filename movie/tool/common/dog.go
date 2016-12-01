@@ -20,19 +20,57 @@ func response(w http.ResponseWriter, error bool) {
 	w.Header().Set("Access-Control-Allow-Origin", "*");
 	w.Write([]byte(str));
 }
-
-func taskSave(w http.ResponseWriter, r *http.Request) {
-	if r.Method == "POST" {
-		response(w, mgr.Save(fmt.Sprint(r.Request.Body)) )
-	}
-}
-
 func qryReturn(w http.ResponseWriter, r *http.Request) {
 	if r.Method == "POST" {
 		response(w, mgr.Recv(fmt.Sprint(r.Request.Body)) )
 	}
 }
 
+func userCaptcha(w http.ResponseWriter, r *http.Request) {
+	um := r.URL.Query()["um"]
+	if r.Method == "GET" && um != nil {
+		response(w, mgr.CAPTCHA(um) )
+	}
+}
+func userRegister(w http.ResponseWriter, r *http.Request) {
+	um := r.URL.Query()["um"]
+	pwd := r.URL.Query()["pwd"]
+	captcha := r.URL.Query()["cap"]
+	if r.Method == "GET" && tid != nil && uid != nil {
+		response(w, mgr.Start(uid, tid) )
+	}
+}
+func userLogin(w http.ResponseWriter, r *http.Request) {
+	tid := r.URL.Query()["tid"]
+	uid := r.URL.Query()["uid"]
+	if r.Method == "GET" && tid != nil && uid != nil {
+		response(w, mgr.Start(uid, tid) )
+	}
+}
+func userPwdLogin(w http.ResponseWriter, r *http.Request) {
+	tid := r.URL.Query()["tid"]
+	uid := r.URL.Query()["uid"]
+	if r.Method == "GET" && tid != nil && uid != nil {
+		response(w, mgr.Start(uid, tid) )
+	}
+}
+func userTasks(w http.ResponseWriter, r *http.Request) {
+	tid := r.URL.Query()["tid"]
+	uid := r.URL.Query()["uid"]
+	if r.Method == "GET" && tid != nil && uid != nil {
+		response(w, mgr.Start(uid, tid) )
+	}
+}
+func userSettings(w http.ResponseWriter, r *http.Request) {
+	if r.Method == "POST" && tid != nil && uid != nil {
+		response(w, mgr.Start(uid, tid) )
+	}
+}
+func taskSave(w http.ResponseWriter, r *http.Request) {
+	if r.Method == "POST" {
+		response(w, mgr.Save(fmt.Sprint(r.Request.Body)) )
+	}
+}
 func taskStart(w http.ResponseWriter, r *http.Request) {
 	tid := r.URL.Query()["tid"]
 	uid := r.URL.Query()["uid"]
@@ -41,14 +79,21 @@ func taskStart(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
+
+
 func main() {
 	mgr = getManager();
 	
 	mux := http.NewServeMux();
+	mux.HandleFunc("/user/captcha", userCaptcha);
+	mux.HandleFunc("/user/register", userRegister);
+	mux.HandleFunc("/user/login", userLogin);
+	mux.HandleFunc("/user/pwdlogin", userPwdLogin);
+	mux.HandleFunc("/user/tasks", userTasks);
+	mux.HandleFunc("/user/settings", userSettings);
 	mux.HandleFunc("/task/save", taskSave);
 	mux.HandleFunc("/task/start", taskStart);
 	mux.HandleFunc("/querior/return", qryReturn);
-	mux.HandleFunc("/querior/config", qryConfig);
 	//mux.HandleFunc("/task/pause", ConfigUpdate);
 
 	http.Handle("/html/", http.StripPrefix("/html/", http.FileServer(http.Dir("/"))));

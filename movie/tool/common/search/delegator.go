@@ -35,11 +35,11 @@ func (this *delegator) startTimer(p page) {
     }()
 }
 
-func (this *delegator) post(p page) {
+func (this *delegator) post(conf string, p page) {
 	this.mux.Lock()
 	this.startTimer(p)
 	this.status = 1
-	body := bytes.NewBuffer([]byte(p.String()))  
+	body := bytes.NewBuffer([]byte("{conf:"+conf+",page:"+p.String()+"}"))  
 	res,err := http.Post(this.urlAddr, "application/json;charset=utf-8", body)  
 	if err != nil {  
 		log.Fatal(err)  

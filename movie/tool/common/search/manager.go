@@ -203,8 +203,10 @@ func (this *manager) handle(p *page) {
 func (this *manager) postPageToQuerier(p page) {
 	for i, d := range this.delegators {
 		if(!d.isBusy()){
+			u := p.getOwnerUser( this.users )
+			conf := u.getSettings()
 			p.setDelegator(i)//strconv.Itoa(i))
-			d.post(p); //d busy
+			d.post(conf,p); //d busy
 		}
 	}
 }
