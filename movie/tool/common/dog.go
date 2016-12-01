@@ -36,29 +36,27 @@ func userRegister(w http.ResponseWriter, r *http.Request) {
 	um := r.URL.Query()["um"]
 	pwd := r.URL.Query()["pwd"]
 	captcha := r.URL.Query()["cap"]
-	if r.Method == "GET" && tid != nil && uid != nil {
-		response(w, mgr.Start(uid, tid) )
+	if r.Method == "GET" && um != nil && pwd != nil && captcha != nil {
+		response(w, mgr.Register(um, pwd, captcha) )
 	}
 }
 func userLogin(w http.ResponseWriter, r *http.Request) {
-	tid := r.URL.Query()["tid"]
-	uid := r.URL.Query()["uid"]
-	if r.Method == "GET" && tid != nil && uid != nil {
-		response(w, mgr.Start(uid, tid) )
+	userid := r.URL.Query()["uid"]
+	if r.Method == "GET" && userid != nil {
+		response(w, mgr.Login(uid) )
 	}
 }
 func userPwdLogin(w http.ResponseWriter, r *http.Request) {
-	tid := r.URL.Query()["tid"]
-	uid := r.URL.Query()["uid"]
-	if r.Method == "GET" && tid != nil && uid != nil {
-		response(w, mgr.Start(uid, tid) )
+	um := r.URL.Query()["um"]
+	pwd := r.URL.Query()["pwd"]
+	if r.Method == "GET" && um != nil && pwd != nil {
+		response(w, mgr.Pwdlogin(um, pwd) )
 	}
 }
 func userTasks(w http.ResponseWriter, r *http.Request) {
-	tid := r.URL.Query()["tid"]
 	uid := r.URL.Query()["uid"]
-	if r.Method == "GET" && tid != nil && uid != nil {
-		response(w, mgr.Start(uid, tid) )
+	if r.Method == "GET" && uid != nil {
+		response(w, mgr.GetUserTasks(uid) )
 	}
 }
 func userSettings(w http.ResponseWriter, r *http.Request) {
@@ -90,7 +88,8 @@ func main() {
 	mux.HandleFunc("/user/login", userLogin);
 	mux.HandleFunc("/user/pwdlogin", userPwdLogin);
 	mux.HandleFunc("/user/tasks", userTasks);
-	mux.HandleFunc("/user/settings", userSettings);
+	mux.HandleFunc("/user/settings", userSettingsSave);
+	mux.HandleFunc("/user/settings/save", userSettingsSave);
 	mux.HandleFunc("/task/save", taskSave);
 	mux.HandleFunc("/task/start", taskStart);
 	mux.HandleFunc("/querior/return", qryReturn);

@@ -46,22 +46,26 @@ func (this *manager) CAPTCHA(usermobile string) string {
 		sum := md5.Sum(buffer.Bytes())
 		hashChannel <- sum[:]
 		userid := "USR"+string(<-hashChannel)
-		this.captchas[userid] = userid[3:4]
-		return this.captchas[userid]
+		captcha := userid[3:4]
+		this.captchas[captcha] = userid
+		return captcha
 	}
-	return ""
+	return "failed."
 }
 
-func (this *manager) Register(usermobile string, pwd string, captcha string, userid string) bool {
-	if this.captchas[userid] == captcha  {
+func (this *manager) Register(usermobile string, pwd string, captcha string) string {
+	userid, ok := this.captchas[captcha]
+	if ok  {
 		udb := UDB{}.get("DOG_USERS")
 		var a []string = []string{userid, usermobile, pwd}
-		return udb.save("USERS", a)
+		if udb.save("USERS", a) {
+			return userid
+		}
 	}
-	return false
+	return "failed."
 }
 
-func (this *manager) getUserTasks(uid string) []string {
+func (this *manager) GetUserTasks(uid string) []string {
 	u := user{id:uid}
 	jss := u.getTasks()
 	for _, js := range jss {
@@ -82,20 +86,20 @@ func (this *manager) Pwdlogin(usermobile string, pwd string) []string {
 	var b []string = []string{"col0"}
 	rows := udb.query("USERS", a, b)
 	if len(rows) > 0  {
-		return this.getUserTasks(rows[0][0])
+		return rows[0][0] //this.getUserTasks(rows[0][0])
 	}
-	return nil
+	return "failed."
 }
 
-func (this *manager) Login(userid string) []string {
+func (this *manager) Login(userid string) string {
 	udb := UDB{}.get("DOG_USERS")
 	var a []string = []string{"col0", userid}
 	var b []string = []string{"col0"}
 	rows := udb.query("USERS", a, b)
 	if len(rows) > 0  {
-		return this.getUserTasks(rows[0][0])
+		return rows[0][0]//this.getUserTasks(rows[0][0])
 	}
-	return nil
+	return "failed."
 }
 
 func (this *manager) timeoutLog(p page) {
