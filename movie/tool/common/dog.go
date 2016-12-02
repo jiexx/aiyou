@@ -2,77 +2,96 @@
 package main
 
 import (
-	"log"
-	"os/exec"
-	"encoding/json"
+	//"log"
+	//"os/exec"
+	//"encoding/json"
 	"net/http"
-	"reflect"
+	//"reflect"
 	"fmt"
-	"strings"
-	"search"
+	//"strings"
+	"./search"
+	"io/ioutil"
 )
 
-var mgr *search.manager;
+var mgr = search.GetManager()
 
 
-func response(w http.ResponseWriter, error bool) {
-	str := fmt.printf("{err:%b}",error)
+func response(w http.ResponseWriter, result string) {
 	w.Header().Set("Access-Control-Allow-Origin", "*");
-	w.Write([]byte(str));
+	if result == "failed." {
+		w.Write([]byte("{err:1}"));
+	}else {
+		str := fmt.Sprintf("{err:0, result:%s}", result)
+		w.Write([]byte(str));
+	}
 }
 func qryReturn(w http.ResponseWriter, r *http.Request) {
 	if r.Method == "POST" {
-		response(w, mgr.Recv(fmt.Sprint(r.Request.Body)) )
+		response(w, mgr.Recv(fmt.Sprint(r.Body)) )
 	}
 }
 
 func userCaptcha(w http.ResponseWriter, r *http.Request) {
-	um := r.URL.Query()["um"]
-	if r.Method == "GET" && um != nil {
+	um := r.URL.Query().Get("um")
+	if r.Method == "GET" && um != "" {
 		response(w, mgr.CAPTCHA(um) )
 	}
 }
 func userRegister(w http.ResponseWriter, r *http.Request) {
-	um := r.URL.Query()["um"]
-	pwd := r.URL.Query()["pwd"]
-	captcha := r.URL.Query()["cap"]
-	if r.Method == "GET" && um != nil && pwd != nil && captcha != nil {
+	um := r.URL.Query().Get("um")
+	pwd := r.URL.Query().Get("pwd")
+	captcha := r.URL.Query().Get("cap")
+	if r.Method == "GET" && um != "" && pwd != "" && captcha != "" {
 		response(w, mgr.Register(um, pwd, captcha) )
 	}
 }
 func userLogin(w http.ResponseWriter, r *http.Request) {
-	userid := r.URL.Query()["uid"]
-	if r.Method == "GET" && userid != nil {
-		response(w, mgr.Login(uid) )
+	userid := r.URL.Query().Get("uid")
+	if r.Method == "GET" && userid != "" {
+		response(w, mgr.Login(userid) )
 	}
 }
 func userPwdLogin(w http.ResponseWriter, r *http.Request) {
-	um := r.URL.Query()["um"]
-	pwd := r.URL.Query()["pwd"]
-	if r.Method == "GET" && um != nil && pwd != nil {
+	um := r.URL.Query().Get("um")
+	pwd := r.URL.Query().Get("pwd")
+	if r.Method == "GET" && um != "" && pwd != "" {
 		response(w, mgr.Pwdlogin(um, pwd) )
 	}
 }
 func userTasks(w http.ResponseWriter, r *http.Request) {
-	uid := r.URL.Query()["uid"]
-	if r.Method == "GET" && uid != nil {
+	uid := r.URL.Query().Get("uid")
+	if r.Method == "GET" && uid != "" {
 		response(w, mgr.GetUserTasks(uid) )
 	}
 }
 func userSettings(w http.ResponseWriter, r *http.Request) {
-	if r.Method == "POST" && tid != nil && uid != nil {
-		response(w, mgr.Start(uid, tid) )
+	uid := r.URL.Query().Get("uid")
+	if r.Method == "GET" && uid != "" {
+		response(w, mgr.GetUserSettings(uid) )
+	}
+}
+func userSettingsSave(w http.ResponseWriter, r *http.Request) {
+	htmlData, err := ioutil.ReadAll(r.Body)
+	if err != nil {
+ 		response(w, "failed.")
+ 	}
+	if r.Method == "POST" && htmlData != nil {
+		response(w, mgr.SaveUserSettings(string(htmlData)) )
 	}
 }
 func taskSave(w http.ResponseWriter, r *http.Request) {
+	htmlData, err := ioutil.ReadAll(r.Body)
+	if err != nil {
+ 		response(w, "failed.")
+ 	}
 	if r.Method == "POST" {
-		response(w, mgr.Save(fmt.Sprint(r.Request.Body)) )
+		response(w, mgr.Save(string(htmlData)) )
 	}
 }
 func taskStart(w http.ResponseWriter, r *http.Request) {
-	tid := r.URL.Query()["tid"]
-	uid := r.URL.Query()["uid"]
-	if r.Method == "GET" && tid != nil && uid != nil {
+	tid := r.URL.Query().Get("tid")
+	uid := r.URL.Query().Get("uid")
+	if r.Method == "GET" && tid != "" && uid != "" {
 		response(w, mgr.Start(uid, tid) )
 	}
 }
@@ -80,15 +99,13 @@ func taskStart(w http.ResponseWriter, r *http.Request) {
 
 
 func main() {
-	mgr = getManager();
-	
 	mux := http.NewServeMux();
 	mux.HandleFunc("/user/captcha", userCaptcha);
 	mux.HandleFunc("/user/register", userRegister);
 	mux.HandleFunc("/user/login", userLogin);
 	mux.HandleFunc("/user/pwdlogin", userPwdLogin);
 	mux.HandleFunc("/user/tasks", userTasks);
-	mux.HandleFunc("/user/settings", userSettingsSave);
+	mux.HandleFunc("/user/settings", userSettings);
 	mux.HandleFunc("/user/settings/save", userSettingsSave);
 	mux.HandleFunc("/task/save", taskSave);
 	mux.HandleFunc("/task/start", taskStart);

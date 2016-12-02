@@ -62,13 +62,13 @@ func (this *user) updateTask(taskid string, js string) bool{
 	return false
 }
 func (this *user) getSettings() string{
-	if this.settings == nil || len(this.settings) == 0 {
+	if this.settings == "" || len(this.settings) == 0 {
 		var b []string = []string{"col1"}
 		rows := this.getUDB().query("USR_SETTINGS", nil, b)
 		for _, v := range rows {
-			this.settings = v //append(result, v[0])
+			this.settings = v[0] //append(result, v[0])
 		}
-	』
+	}
 	return this.settings
 }
 func (this *user) saveSettings(js string) bool{
@@ -79,7 +79,7 @@ func (this *user) delSettings() bool{
 }
 func (this *user) updateSettings(js string) bool{
 	if this.delSettings() {
-		if this.saveSettings(this.id, js) {
+		if this.saveSettings(js) {
 			return true
 		}
 	}

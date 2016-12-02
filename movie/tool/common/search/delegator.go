@@ -30,7 +30,7 @@ func (this *delegator) startTimer(p page) {
         <- this.timer.C
 		this.timer.Stop()
 		this.free()
-		getManager().timeoutLog(p)
+		GetManager().timeoutLog(p)
         fmt.Println("Timer has expired.")
     }()
 }

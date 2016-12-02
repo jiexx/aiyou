@@ -23,7 +23,7 @@ type manager struct {
 
 var _mgr *manager = nil
 var _mgronce sync.Once
-func getManager() *manager {
+func GetManager() *manager {
 	if _mgr == nil {
 		_mgronce.Do(func() {
 			_mgr = &manager{users:make(map[string]user), c_msg:make(chan page)};
@@ -65,28 +65,65 @@ func (this *manager) Register(usermobile string, pwd string, captcha string) str
 	return "failed."
 }
 
-func (this *manager) GetUserTasks(uid string) []string {
-	u := user{id:uid}
-	jss := u.getTasks()
-	for _, js := range jss {
-		var uu User  
-		err := json.Unmarshal([]byte(js), &uu)
-		if err != nil {
-			panic("manager Login")
+func (this *manager) GetUserTasks(uid string) string {
+	//u := user{id:uid}
+	usr, ok := this.users[uid]
+	if ok {
+		jss := usr.getTasks()
+		var buffer bytes.Buffer
+		buffer.WriteString("[")
+		for _, js := range jss {
+			var ut UserTask  
+			buffer.WriteString(js+",")
+			err := json.Unmarshal([]byte(js), &ut)
+			if err != nil {
+				panic("manager Login")
+			}
+			usr.bind(&ut.Task)
 		}
-		u.bind(&uu.Task)
+		//this.users[uid] = u
+		buffer.WriteString("]")
+		return buffer.String()
 	}
-	this.users[uid] = u
-	return jss
+	return "failed."
 }
 
-func (this *manager) Pwdlogin(usermobile string, pwd string) []string {
+func (this *manager) GetUserSettings(uid string) string {
+	usr, ok := this.users[uid]
+	if ok {
+		return usr.getSettings()
+	}
+	return "failed."
+}
+type UserSettings struct {
+    uid string
+	js string
+}
+func (this *manager) SaveUserSettings(js string) string {
+	var us UserSettings  
+	err := json.Unmarshal([]byte(js), &us)
+    if err != nil {
+        //panic("manager Save")
+		return "failed."
+    }
+	usr, ok := this.users[us.uid]
+	if ok {
+		if usr.saveSettings(us.js) {
+			return "ok."
+		}
+	}
+	return "failed."
+}
+
+func (this *manager) Pwdlogin(usermobile string, pwd string) string {
 	udb := UDB{}.get("DOG_USERS")
 	var a []string = []string{"col1", usermobile, "col2", pwd}
 	var b []string = []string{"col0"}
 	rows := udb.query("USERS", a, b)
 	if len(rows) > 0  {
-		return rows[0][0] //this.getUserTasks(rows[0][0])
+		userid := rows[0][0]
+		this.users[userid] = user{id:userid}
+		return userid //this.getUserTasks(rows[0][0])
 	}
 	return "failed."
 }
@@ -97,7 +134,8 @@ func (this *manager) Login(userid string) string {
 	var b []string = []string{"col0"}
 	rows := udb.query("USERS", a, b)
 	if len(rows) > 0  {
-		return rows[0][0]//this.getUserTasks(rows[0][0])
+		this.users[userid] = user{id:userid}
+		return userid//this.getUserTasks(rows[0][0])
 	}
 	return "failed."
 }
@@ -115,56 +153,59 @@ func (this *manager) successLog(p page) {
 	}
 }
 
-func (this *manager) Start(uid string, tid string) bool {
+func (this *manager) Start(uid string, tid string) string {
 	u, ok := this.users[uid]
 	if ok {
 		t := u.getTask(tid)
 		if t != nil {
 			t.start(uid, tid)
 			this.handle(&t.root)
-			return true
+			return "ok."
 		}
 	}
-	return false
+	return "failed."
 }
 
-type User struct {
+type UserTask struct {
 	Task task
 	Uid string
 }
-func (this *manager) Save(js string) bool {
-	var uu User  
-	err := json.Unmarshal([]byte(js), &uu)
+func (this *manager) Save(js string) string {
+	var ut UserTask  
+	err := json.Unmarshal([]byte(js), &ut)
     if err != nil {
-        panic("manager Save")
+        //panic("manager Save")
+		return "failed."
     }
-	if len(uu.Uid) > 0 && strings.Contains(uu.Task.id, "TSK")  {
-		u := user{id:uu.Uid}
-		u.bind(&uu.Task)
-		if u.updateTask(uu.Task.id, js) {
-			this.users[uu.Uid] = u
-			return true
+	if len(ut.Uid) > 0 && strings.Contains(ut.Task.id, "TSK")  {
+		u := user{id:ut.Uid}
+		u.bind(&ut.Task)
+		if u.updateTask(ut.Task.id, js) {
+			this.users[ut.Uid] = u
+			return "ok."
 		}
 	}
-	return false
+	return "failed."
 }
 
-func (this *manager) Delete(js string) bool {
-	var uu User  
-	err := json.Unmarshal([]byte(js), &uu)
+func (this *manager) Delete(js string) string {
+	var ut UserTask  
+	err := json.Unmarshal([]byte(js), &ut)
     if err != nil {
         panic("manager Update")
     }
-	if len(uu.Uid) > 0 && strings.Contains(uu.Task.id, "TSK")  {
-		u := user{id:uu.Uid}
-		u.bind(&uu.Task)
-		this.users[uu.Uid] = u
-		return u.delTask(uu.Task.id)
+	if len(ut.Uid) > 0 && strings.Contains(ut.Task.id, "TSK")  {
+		u := user{id:ut.Uid}
+		u.bind(&ut.Task)
+		this.users[ut.Uid] = u
+		if u.delTask(ut.Task.id) {
+			return "ok."
+		}
 	}
-	return false
+	return "failed."
 }
 
-func (this *manager) Recv(js string) bool {
+func (this *manager) Recv(js string) string {
 	var p page  
 	err := json.Unmarshal([]byte(js), &p)
     if err != nil {
@@ -172,9 +213,9 @@ func (this *manager) Recv(js string) bool {
     }
 	if !strings.Contains(p.id, "PAG") {
 		this.handle(&p)
-		return true
+		return "ok."
 	}
-	return false	
+	return "failed."	
 }
 
 func (this *manager) handle(p *page) {
