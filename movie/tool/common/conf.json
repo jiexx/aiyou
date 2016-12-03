@@ -1,10 +1,12 @@
 {
-	dog: {
-		iport: '127.0.0.1:8086'
+	"dog": {
+		"Iport": "127.0.0.1:8086",
+		"Path": "/querior/return"
 	},
-	cfqs: {
-		iport: '127.0.0.1:8087'
-	},
-	mysql_jdbc: 'root:root@127.0.0.1/'
-	titan: ''
+	"querior": [{
+		"Iport": "127.0.0.1:8087",
+		"Path": "/"
+	}],
+	"mysql_jdbc": "root:root@127.0.0.1/",
+	"titan": ""
 }
