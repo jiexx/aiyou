@@ -17,8 +17,6 @@ import (
 	"./search"
 )
 
-var mgr = search.GetManager()
-
 func response(w http.ResponseWriter, result string) {
 	w.Header().Set("Access-Control-Allow-Origin", "*")
 	if result == "failed." {
@@ -28,8 +26,10 @@ func response(w http.ResponseWriter, result string) {
 		w.Write([]byte(str))
 	}
 }
+
 func qryReturn(w http.ResponseWriter, r *http.Request) {
 	if r.Method == "POST" {
+		mgr := search.GetManager()
 		response(w, mgr.Recv(fmt.Sprint(r.Body)))
 	}
 }
@@ -37,6 +37,7 @@ func qryReturn(w http.ResponseWriter, r *http.Request) {
 func userCaptcha(w http.ResponseWriter, r *http.Request) {
 	um := r.URL.Query().Get("um")
 	if r.Method == "GET" && um != "" {
+		mgr := search.GetManager()
 		response(w, mgr.CAPTCHA(um))
 	}
 }
@@ -45,12 +46,14 @@ func userRegister(w http.ResponseWriter, r *http.Request) {
 	pwd := r.URL.Query().Get("pwd")
 	captcha := r.URL.Query().Get("cap")
 	if r.Method == "GET" && um != "" && pwd != "" && captcha != "" {
+		mgr := search.GetManager()
 		response(w, mgr.Register(um, pwd, captcha))
 	}
 }
 func userLogin(w http.ResponseWriter, r *http.Request) {
 	userid := r.URL.Query().Get("uid")
 	if r.Method == "GET" && userid != "" {
+		mgr := search.GetManager()
 		response(w, mgr.Login(userid))
 	}
 }
@@ -58,18 +61,21 @@ func userPwdLogin(w http.ResponseWriter, r *http.Request) {
 	um := r.URL.Query().Get("um")
 	pwd := r.URL.Query().Get("pwd")
 	if r.Method == "GET" && um != "" && pwd != "" {
+		mgr := search.GetManager()
 		response(w, mgr.Pwdlogin(um, pwd))
 	}
 }
 func userTasks(w http.ResponseWriter, r *http.Request) {
 	uid := r.URL.Query().Get("uid")
 	if r.Method == "GET" && uid != "" {
+		mgr := search.GetManager()
 		response(w, mgr.GetUserTasks(uid))
 	}
 }
 func userSettings(w http.ResponseWriter, r *http.Request) {
 	uid := r.URL.Query().Get("uid")
 	if r.Method == "GET" && uid != "" {
+		mgr := search.GetManager()
 		response(w, mgr.GetUserSettings(uid))
 	}
 }
@@ -79,6 +85,7 @@ func userSettingsSave(w http.ResponseWriter, r *http.Request) {
 		response(w, "failed.")
 	}
 	if r.Method == "POST" && htmlData != nil {
+		mgr := search.GetManager()
 		response(w, mgr.SaveUserSettings(string(htmlData)))
 	}
 }
@@ -88,6 +95,7 @@ func taskSave(w http.ResponseWriter, r *http.Request) {
 		response(w, "failed.")
 	}
 	if r.Method == "POST" {
+		mgr := search.GetManager()
 		response(w, mgr.Save(string(htmlData)))
 	}
 }
@@ -95,6 +103,7 @@ func taskStart(w http.ResponseWriter, r *http.Request) {
 	tid := r.URL.Query().Get("tid")
 	uid := r.URL.Query().Get("uid")
 	if r.Method == "GET" && tid != "" && uid != "" {
+		mgr := search.GetManager()
 		response(w, mgr.Start(uid, tid))
 	}
 }
@@ -102,13 +111,20 @@ func taskStart(w http.ResponseWriter, r *http.Request) {
 func main() {
 	if len(os.Args) != 3 {
 		fmt.Println("go run dog.go --querior[--master] conf.json")
+		return
 	}
 	dir, err := filepath.Abs(filepath.Dir(os.Args[0]))
 	if err != nil {
 		fmt.Println("conf.json path error.")
+		return
 	}
 	search.SetConfig(dir + os.Args[2])
 	cfg := search.GetConfig()
+	mgr := search.GetManager()
+	if cfg == nil || mgr == nil {
+		fmt.Println("conf.json path error.")
+		return
+	}
 	mux := http.NewServeMux()
 	if os.Args[1] == "--querior" {
 		doQuerior()

@@ -58,7 +58,7 @@ func doTask(js string) {
 func query(w http.ResponseWriter, r *http.Request) {
 	if r.Method == "POST" {
 		doTask(fmt.Sprint(r.Body))
-		response(w, true)
+		response(w, "ok.")
 	}
 }
 

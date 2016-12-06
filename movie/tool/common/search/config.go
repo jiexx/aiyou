@@ -51,8 +51,8 @@ func SetConfig(path string) {
 		})
 	}
 }
-func GetConfig() config {
-	return *_cfg
+func GetConfig() *config {
+	return _cfg
 }
 
 func (this *config) GetManager() cfdog {
