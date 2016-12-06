@@ -31,10 +31,10 @@ type settings struct {
 }
 
 type config struct {
-	dog        cfdog
-	queriors   []cfquerior
-	mysql_jdbc string
-	titan      string
+	Dog       cfdog       `json:"dog"`
+	Queriors  []cfquerior `json:"queriors"`
+	MysqlJdbc string      `json:"mysql_jdbc"`
+	Titan     string      `json:"titan"`
 }
 
 var _cfg *config = nil
@@ -56,12 +56,16 @@ func GetConfig() *config {
 }
 
 func (this *config) GetManager() cfdog {
-	return this.dog
+	return this.Dog
 }
 func (this *config) GetQueriorReturnURL() string {
-	return this.dog.Iport + this.dog.Path
+	return this.Dog.Iport + this.Dog.Path
 }
 
 func (this *config) GetQueriors() []cfquerior {
-	return this.queriors
+	return this.Queriors
+}
+
+func (this *config) GetMysqlJDBC() string {
+	return this.MysqlJdbc
 }

@@ -118,7 +118,7 @@ func main() {
 		fmt.Println("conf.json path error.")
 		return
 	}
-	search.SetConfig(dir + os.Args[2])
+	search.SetConfig(dir + "/" + os.Args[2])
 	cfg := search.GetConfig()
 	mgr := search.GetManager()
 	if cfg == nil || mgr == nil {
@@ -140,10 +140,14 @@ func main() {
 		mux.HandleFunc("/task/start", taskStart)
 		mux.HandleFunc(cfg.GetManager().Path, qryReturn)
 		//mux.HandleFunc("/task/pause", ConfigUpdate);
-		fmt.Println("test")
-		http.Handle("/html/", http.StripPrefix("/html/", http.FileServer(http.Dir("/"))))
-		http.Handle("/lib/", http.StripPrefix("/lib/", http.FileServer(http.Dir("/lib"))))
+		//http.Handle("/", http.FileServer(http.Dir("./html")))
+		http.HandleFunc("/static/", func(w http.ResponseWriter, r *http.Request) {
+			http.ServeFile(w, r, r.URL.Path[1:])
+		})
+
+		http.Handle("/lib/", http.StripPrefix("/lib/", http.FileServer(http.Dir("./lib"))))
 		fmt.Println(http.ListenAndServe(cfg.GetManager().Iport, mux))
+		fmt.Println("Running " + cfg.GetManager().Iport)
 	} else {
 		fmt.Println("go run dog.go --querior[--master] conf.json")
 	}

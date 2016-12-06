@@ -3,7 +3,7 @@
 		"Iport": "127.0.0.1:8086",
 		"Path": "/querior/return"
 	},
-	"querior": [{
+	"queriors": [{
 		"Iport": "127.0.0.1:8087",
 		"Path": "/"
 	}],
