@@ -140,12 +140,9 @@ func main() {
 		mux.HandleFunc("/task/start", taskStart)
 		mux.HandleFunc(cfg.GetManager().Path, qryReturn)
 		//mux.HandleFunc("/task/pause", ConfigUpdate);
-		//http.Handle("/", http.FileServer(http.Dir("./html")))
-		http.HandleFunc("/static/", func(w http.ResponseWriter, r *http.Request) {
-			http.ServeFile(w, r, r.URL.Path[1:])
-		})
+		mux.Handle("/", http.FileServer(http.Dir("./html")))
 
-		http.Handle("/lib/", http.StripPrefix("/lib/", http.FileServer(http.Dir("./lib"))))
+		mux.Handle("/lib/", http.StripPrefix("/lib/", http.FileServer(http.Dir("./lib"))))
 		fmt.Println(http.ListenAndServe(cfg.GetManager().Iport, mux))
 		fmt.Println("Running " + cfg.GetManager().Iport)
 	} else {
