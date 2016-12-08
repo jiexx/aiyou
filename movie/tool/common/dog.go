@@ -4,6 +4,7 @@ package main
 import (
 	//"log"
 
+	"encoding/json"
 	"os"
 	"path/filepath"
 	//"os/exec"
@@ -27,6 +28,17 @@ func response(w http.ResponseWriter, result string) {
 	}
 }
 
+func decode(w http.ResponseWriter, r *http.Request, out interface{}) bool {
+	decoder := json.NewDecoder(r.Body)
+	err := decoder.Decode(out)
+	if err != nil {
+		response(w, "failed.")
+		return false
+	}
+	defer r.Body.Close()
+	return true
+}
+
 func qryReturn(w http.ResponseWriter, r *http.Request) {
 	if r.Method == "POST" {
 		mgr := search.GetManager()
@@ -34,49 +46,70 @@ func qryReturn(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
+type capcha struct {
+	Usermobile string `json:"um"`
+}
+
 func userCaptcha(w http.ResponseWriter, r *http.Request) {
-	um := r.URL.Query().Get("um")
-	if r.Method == "GET" && um != "" {
+	//um := r.URL.Query().Get("um")
+	var cap capcha
+	if r.Method == "POST" && decode(w, r, &cap) {
 		mgr := search.GetManager()
-		response(w, mgr.CAPTCHA(um))
+		response(w, mgr.CAPTCHA(cap.Usermobile))
 	}
 }
+
+type registery struct {
+	Usermobile string `json:"um"`
+	Pwd        string `json:"pwd"`
+	Capcha     string `json:"cap"`
+}
+
 func userRegister(w http.ResponseWriter, r *http.Request) {
-	um := r.URL.Query().Get("um")
-	pwd := r.URL.Query().Get("pwd")
-	captcha := r.URL.Query().Get("cap")
-	if r.Method == "GET" && um != "" && pwd != "" && captcha != "" {
+	var reg registery
+	if r.Method == "POST" && decode(w, r, &reg) {
 		mgr := search.GetManager()
-		response(w, mgr.Register(um, pwd, captcha))
+		response(w, mgr.Register(reg.Usermobile, reg.Pwd, reg.Capcha))
 	}
 }
+
+type login struct {
+	Userid string `json:"uid"`
+}
+
 func userLogin(w http.ResponseWriter, r *http.Request) {
-	userid := r.URL.Query().Get("uid")
-	if r.Method == "GET" && userid != "" {
+	var log login
+	if r.Method == "POST" && decode(w, r, &log) {
 		mgr := search.GetManager()
-		response(w, mgr.Login(userid))
+		response(w, mgr.Login(log.Userid))
 	}
 }
+
+type pwdlogin struct {
+	Usermobile string `json:"um"`
+	Pwd        string `json:"pwd"`
+}
+
 func userPwdLogin(w http.ResponseWriter, r *http.Request) {
-	um := r.URL.Query().Get("um")
-	pwd := r.URL.Query().Get("pwd")
-	if r.Method == "GET" && um != "" && pwd != "" {
+	var log pwdlogin
+	if r.Method == "POST" && decode(w, r, &log) {
 		mgr := search.GetManager()
-		response(w, mgr.Pwdlogin(um, pwd))
+		response(w, mgr.Pwdlogin(log.Usermobile, log.Pwd))
 	}
 }
+
 func userTasks(w http.ResponseWriter, r *http.Request) {
-	uid := r.URL.Query().Get("uid")
-	if r.Method == "GET" && uid != "" {
+	var log login
+	if r.Method == "POST" && decode(w, r, &log) {
 		mgr := search.GetManager()
-		response(w, mgr.GetUserTasks(uid))
+		response(w, mgr.GetUserTasks(log.Userid))
 	}
 }
 func userSettings(w http.ResponseWriter, r *http.Request) {
-	uid := r.URL.Query().Get("uid")
-	if r.Method == "GET" && uid != "" {
+	var log login
+	if r.Method == "POST" && decode(w, r, &log) {
 		mgr := search.GetManager()
-		response(w, mgr.GetUserSettings(uid))
+		response(w, mgr.GetUserSettings(log.Userid))
 	}
 }
 func userSettingsSave(w http.ResponseWriter, r *http.Request) {
@@ -89,6 +122,7 @@ func userSettingsSave(w http.ResponseWriter, r *http.Request) {
 		response(w, mgr.SaveUserSettings(string(htmlData)))
 	}
 }
+
 func taskSave(w http.ResponseWriter, r *http.Request) {
 	htmlData, err := ioutil.ReadAll(r.Body)
 	if err != nil {
@@ -99,12 +133,17 @@ func taskSave(w http.ResponseWriter, r *http.Request) {
 		response(w, mgr.Save(string(htmlData)))
 	}
 }
+
+type taskstart struct {
+	Taskid string `json:"tid"`
+	Userid string `json:"uid"`
+}
+
 func taskStart(w http.ResponseWriter, r *http.Request) {
-	tid := r.URL.Query().Get("tid")
-	uid := r.URL.Query().Get("uid")
-	if r.Method == "GET" && tid != "" && uid != "" {
+	var ts taskstart
+	if r.Method == "GET" && decode(w, r, &ts) {
 		mgr := search.GetManager()
-		response(w, mgr.Start(uid, tid))
+		response(w, mgr.Start(ts.Userid, ts.Taskid))
 	}
 }
 

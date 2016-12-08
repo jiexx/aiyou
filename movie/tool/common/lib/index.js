@@ -24,7 +24,7 @@ app.config(function($routeProvider) {
 
 app.factory('DATA', function () {
     return {
-        HOST : "http://10.101.1.165:8066",
+        HOST : "http://10.101.1.165:8086",
         IMG_HOST : "http://10.101.1.165:8097/",
         USER_ID: 0,
         _self : null,
@@ -98,12 +98,12 @@ app.controller('home', function ($scope, $rootScope, $location, $cookieStore, $h
 	$scope.login = function() {
 		console.log($cookieStore.get("uid"));
 		$cookieStore.remove("uid");
-		//ajaxPost($http, DATA, '/login', {UserName:$scope.username, UserPWD:$scope.password }, function(resp){
+		ajaxPost($http, DATA, '/login', {UserName:$scope.username, UserPWD:$scope.password }, function(resp){
 		//	if(resp && resp.length > 0) {
 				$cookieStore.put("uid", 123);
 				$location.path('/attractions');//.search({guideID: id});
 		//	}
-		//});
+		});
 	}
 });
 
